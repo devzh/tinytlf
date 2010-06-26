@@ -23,7 +23,7 @@ package org.tinytlf.layout.adapter
             var name:String = "";
             
             if(context.length)
-                name = context[0].localName();
+                name = context[context.length - 1].localName();
             
             if(data is String)
                 element = new TextElement(String(data), getElementFormat(context), getEventMirror(name));

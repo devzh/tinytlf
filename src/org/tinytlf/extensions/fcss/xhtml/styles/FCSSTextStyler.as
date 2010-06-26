@@ -70,7 +70,6 @@ package org.tinytlf.extensions.fcss.xhtml.styles
                         //  Math.random() * one billion. reasonably safe for unique identifying...
                         uniqueNodeName = ' ' + node.localName() + String(Math.round(Math.random() * 100000000000));
                         
-                        // + "style{"; // + attributes['style'] + "}";
                         for(j = 0; j < k; j++)
                         {
                             attr = attributes[j].name();
@@ -92,7 +91,7 @@ package org.tinytlf.extensions.fcss.xhtml.styles
                         
                         str += uniqueNodeName;
                         
-                        FStyleProxy(style).sheet.parseCSS(uniqueNodeName+ '{' + inlineStyle + '}');
+                        FStyleProxy(style).sheet.parseCSS(uniqueNodeName + '{' + inlineStyle + '}');
                     }
                     
                     nodeCache[node] = str;

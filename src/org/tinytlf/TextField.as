@@ -28,8 +28,6 @@ package org.tinytlf
             super();
             
             width = 100;
-            
-            hookEngine();
         }
         
         private var _height:Number = 0;
@@ -46,6 +44,7 @@ package org.tinytlf
             _height = value;
             container.allowedHeight = value;
             engine.invalidate();
+            hookEngine();
         }
         
         private var _width:Number = 0;
@@ -62,6 +61,7 @@ package org.tinytlf
             _width = value;
             container.allowedWidth = value;
             engine.invalidate();
+            hookEngine();
         }
         
         override public function addChild(child:DisplayObject):DisplayObject
@@ -120,6 +120,7 @@ package org.tinytlf
             
             _text = value;
             engine.blockFactory.data = _text;
+            hookEngine();
             engine.prerender();
             engine.invalidate();
         }

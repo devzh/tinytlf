@@ -28,7 +28,7 @@ package org.tinytlf.extensions.xhtml.layout.adapter
             
             var anchor:XML;
             if(context.length)
-                anchor = context[0];
+                anchor = context[context.length - 1];
             
             if(anchor)
             {
