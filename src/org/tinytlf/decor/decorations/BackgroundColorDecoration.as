@@ -6,6 +6,7 @@
  */
 package org.tinytlf.decor.decorations
 {
+    import flash.display.Graphics;
     import flash.display.Sprite;
     import flash.geom.Rectangle;
     
@@ -18,22 +19,27 @@ package org.tinytlf.decor.decorations
             super(styleName);
         }
         
-        override public function draw(bounds:Vector.<Rectangle>, layer:int = 0):void
+        override public function draw(bounds:Vector.<Rectangle>):void
         {
-            super.draw(bounds, layer);
+            super.draw(bounds);
             
             var rect:Rectangle;
-            var parent:Sprite;
+            var g:Graphics;
+            var copy:Vector.<Rectangle> = bounds.concat();
+            var bgColor:uint;
+            var bgAlpha:Number;
             
-            while(bounds.length > 0)
+            while(copy.length > 0)
             {
-                rect = bounds.pop();
-                parent = spriteMap[rect];
-                if(!parent)
-                    return;
+                rect = copy.pop();
+                g = getShapeForRectangle(rect).graphics;
+                g.lineStyle();
                 
-                parent.graphics.beginFill(getStyle("backgroundColor") || 0x000000, getStyle("backgroundAlpha") || 1);
-                parent.graphics.drawRect(rect.x, rect.y, rect.width, rect.height);
+                bgColor = uint(getStyle('backgroundColor'));
+                bgAlpha = Number(getStyle('backgroundAlpha'));
+                
+                g.beginFill(isNaN(bgColor) ? 0x000000 : bgColor, isNaN(bgAlpha) ? 1 : bgAlpha);
+                g.drawRect(rect.x, rect.y, rect.width, rect.height);
             }
         }
     }

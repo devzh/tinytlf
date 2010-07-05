@@ -35,6 +35,7 @@ package org.tinytlf.layout.factory
         function createBlocks(...args):Vector.<TextBlock>;
         function createElements(...args):Vector.<ContentElement>;
         
+        function hasElementAdapter(element:*):Boolean;
         function getElementAdapter(element:*):IContentElementAdapter;
         function mapElementAdapter(element:*, adapterClassOrInstance:Object):void;
         function unMapElementAdapter(element:*):Boolean;

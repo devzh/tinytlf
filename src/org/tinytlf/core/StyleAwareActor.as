@@ -103,7 +103,7 @@ package org.tinytlf.core
         
         public function getStyle(styleProp:String):*
         {
-            return styleProp in styles ? styles[styleProp] : null;
+            return styles ? styles[styleProp] : null;
         }
         
         public function setStyle(styleProp:String, newValue:*):void

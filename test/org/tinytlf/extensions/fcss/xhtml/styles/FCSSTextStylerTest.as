@@ -5,6 +5,7 @@ package org.tinytlf.extensions.fcss.xhtml.styles
     import org.flexunit.Assert;
     import org.tinytlf.ITextEngine;
     import org.tinytlf.TextEngine;
+    import org.tinytlf.extensions.xml.xhtml.fcss.styles.FCSSTextStyler;
     
     public class FCSSTextStylerTest
     {

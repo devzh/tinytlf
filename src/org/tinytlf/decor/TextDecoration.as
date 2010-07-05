@@ -6,33 +6,22 @@
  */
 package org.tinytlf.decor
 {
-    import flash.display.DisplayObject;
-    import flash.display.DisplayObjectContainer;
-    import flash.display.Sprite;
-    import flash.events.Event;
-    import flash.events.EventDispatcher;
-    import flash.geom.Rectangle;
-    import flash.text.engine.ContentElement;
-    import flash.text.engine.GroupElement;
-    import flash.text.engine.TextBlock;
-    import flash.text.engine.TextLine;
-    import flash.text.engine.TextLineMirrorRegion;
-    import flash.text.engine.TextLineValidity;
-    import flash.utils.Dictionary;
-    import flash.utils.flash_proxy;
+    import flash.display.*;
+    import flash.events.*;
+    import flash.geom.*;
+    import flash.text.engine.*;
+    import flash.utils.*;
     
     import org.tinytlf.ITextEngine;
     import org.tinytlf.core.StyleAwareActor;
-    import org.tinytlf.interaction.LineEventInfo;
+    import org.tinytlf.interaction.EventLineInfo;
     import org.tinytlf.layout.ITextContainer;
-    
-    use namespace flash_proxy;
     
     public class TextDecoration extends StyleAwareActor implements ITextDecoration
     {
-        public function TextDecoration(styleName:String = "")
+        public function TextDecoration(styleObject:Object = null)
         {
-            super(styleName);
+            super(styleObject);
         }
         
         private var _containers:Vector.<ITextContainer>;
@@ -64,116 +53,108 @@ package org.tinytlf.decor
             _engine = textEngine;
         }
         
-        private var derivedParent:DisplayObjectContainer;
-        
-        public function setup(... args):Vector.<Rectangle>
+        public function setup(layer:int = 0, ...args):Vector.<Rectangle>
         {
-            var bounds:Vector.<Rectangle> = new Vector.<Rectangle>();
+            var bounds:Vector.<Rectangle> = new <Rectangle>[];
             
             if(args.length <= 0)
                 return bounds;
             
             var arg:* = args[0];
             
-            var uiLineClass:Class = LineEventInfo.uiLineClass;
+            var uiLineClass:Class = EventLineInfo.uiLineClass;
             
             if(arg is ContentElement)
             {
-                var element:ContentElement = arg as ContentElement;
-                var regions:Vector.<TextLineMirrorRegion> = getMirrorRegions(element);
-                if(regions.length <= 0)
-                    return bounds;
+                bounds = getBoundsForContentElement(arg);
                 
-                var region:TextLineMirrorRegion;
-                var rect:Rectangle;
-                var line:DisplayObjectContainer;
+                ////
+                //  When you decorate a ContentElement, there's no way to 
+                //  associate it with the ITextContainer[s] that it renders in. 
+                //  Here we grab every container that holds TextLines for the 
+                //  element.
+                //  
+                //  @TODO
+                //  It might be better if this exists somewhere else.
+                //  Theoretically the ITextLayout's layout routine could update 
+                //  ITextDecor's decorations that are keyed off ContentElements
+                //  as the lines are rendering, but I'm almost certain this would
+                //  require special API to stay efficient.
+                ////
+                var lines:Vector.<TextLine> = getTextLines(arg);
+                var temp:Dictionary = new Dictionary(true);
+                while(lines.length)
+                    temp[engine.layout.getContainerForLine(lines.shift())] = true;
                 
+                for(var c:* in temp)
+                    containers.push(c);
                 
-                while(regions.length > 0)
-                {
-                    region = regions.pop();
-                    rect = region.bounds;
-                    
-                    line = (uiLineClass && region.textLine.parent is uiLineClass) ? region.textLine.parent : region.textLine;
-                    
-                    bounds.push(new Rectangle(rect.x + line.x, rect.y + line.y, rect.width, rect.height));
-                }
-                
-                // @TODO
-                // When you specify decorations for a ContentElement, there's no way to
-                // associate it with ITextContainers yet. This is a hack that grabs the
-                // containers that hold the TextLines that this element is rendered with.
-                // It might be better if this exists somewhere else, like if ITextLayout
-                // could update Decor for any decorations that are keyed off ContentElements.
-                if(containers.length == 0)
-                {
-                    var lines:Vector.<TextLine> = getTextLines(element);
-                    var container:ITextContainer;
-                    while(lines.length)
-                    {
-                        container = engine.layout.getContainerForLine(lines.shift());
-                        if(containers.indexOf(container) ==  -1)
-                            containers.push(container);
-                    }
-                }
+                temp = null;
             }
             else if(arg is TextLine)
             {
                 var tl:TextLine = arg as TextLine;
                 bounds.push(tl.getBounds(tl.parent));
             }
-            else if(arg is uiLineClass)
+            else if(uiLineClass && arg is uiLineClass)
             {
                 var ui:DisplayObject = arg as DisplayObject;
                 bounds.push(ui.getBounds(ui.parent));
             }
             else if(arg is Rectangle)
+            {
                 bounds.push(arg);
+            }
             else if(arg is Vector.<Rectangle>)
+            {
                 bounds = bounds.concat(arg);
+            }
+            
+            ////
+            //  Since decorations can render across multiple containers, 
+            //  associate each bounds rectangle with the shapes sprite that
+            //  belongs to the container which this decoration renders into.
+            ////
+            
+            var copy:Vector.<Rectangle> = bounds.concat();
+            var rect:Rectangle;
+            var container:ITextContainer;
+            var doc:DisplayObjectContainer;
+            
+            rectToSpriteMap = new Dictionary(true);
+            
+            while(copy.length)
+            {
+                rect = copy.pop();
+                roundValues(rect);
+                for each(container in containers)
+                {
+                    doc = container.target;
+                    if(rect.intersects(doc.getBounds(doc.parent)))
+                    {
+                        rectToSpriteMap[rect] = resolveLayer(container.shapes, layer);
+                        break;
+                    }
+                }
+                
+                if(!(rect in rectToSpriteMap))
+                {
+                    throw new Error('Couldn\'t match the Rectangle ' + rect.toString() + ' to any ITextContainer instances. Break and figure out why, thx.');
+                }
+            }
             
             return bounds;
         }
         
-        protected var spriteMap:Dictionary = new Dictionary(true);
-        
-        public function draw(bounds:Vector.<Rectangle>, layer:int = 0):void
+        public function draw(bounds:Vector.<Rectangle>):void
         {
-            if(!containers)
-                return;
-            
-            spriteMap = new Dictionary(true);
-            
-            // 1. Iterate over containers
-            // 2. Iterate over bounds
-            // 3. Check intersection
-            // 4. possibly create sprite -- add it to container.shapes
-            // 5. associate bounds with proper sprite
-            
-            var i:int = 0;
-            var n:int = containers.length;
-            var j:int = 0;
-            var k:int = bounds.length;
-            
-            var container:ITextContainer;
-            var doc:DisplayObjectContainer;
-            
-            for(i = 0; i < n; i++)
-            {
-                container = containers[i];
-                doc = container.target;
-                
-                for(j = 0; j < k; j++)
-                {
-                    if(bounds[j].intersects(doc.getBounds(doc)))
-                    {
-                        if(! (container in spriteMap))
-                            spriteMap[container] = resolveLayer(container.shapes, layer);
-                        
-                        spriteMap[bounds[j]] = spriteMap[container];
-                    }
-                }
-            }
+        }
+        
+        public function destroy():void
+        {
+            rectToSpriteMap = null;
+            _containers = null;
+            _engine = null;
         }
         
         private function resolveLayer(shapes:Sprite, layer:int):Sprite
@@ -189,6 +170,53 @@ package org.tinytlf.decor
             return sprite;
         }
         
+        private function roundValues(rect:Rectangle):void
+        {
+            rect.bottom = Math.round(rect.bottom);
+            rect.height = Math.round(rect.height);
+            rect.left = Math.round(rect.left);
+            rect.right = Math.round(rect.right);
+            rect.top = Math.round(rect.top);
+            rect.width = Math.round(rect.width);
+            rect.x = Math.round(rect.x);
+            rect.y = Math.round(rect.y);
+        }
+        
+        private var rectToSpriteMap:Dictionary;
+        
+        protected function getShapeForRectangle(rect:Rectangle):Sprite
+        {
+            return rectToSpriteMap[rect];
+        }
+        
+        protected function getBoundsForContentElement(element:ContentElement):Vector.<Rectangle>
+        {
+            var bounds:Vector.<Rectangle> = new <Rectangle>[];
+            var regions:Vector.<TextLineMirrorRegion> = getMirrorRegions(element);
+            if(regions.length <= 0)
+                return bounds;
+            
+            var region:TextLineMirrorRegion;
+            var rect:Rectangle;
+            var line:DisplayObjectContainer;
+            var uiLineClass:Class = EventLineInfo.uiLineClass;
+            
+            while(regions.length > 0)
+            {
+                region = regions.pop();
+                rect = region.bounds.clone();
+                
+                line = (uiLineClass && region.textLine && region.textLine.parent && region.textLine.parent is uiLineClass) ? region.textLine.parent : region.textLine;
+                
+                rect.x += line.x;
+                rect.y += line.y;
+                
+                bounds.push(rect);
+            }
+            
+            return bounds;
+        }
+        
         protected function getTextBlock(element:ContentElement):TextBlock
         {
             if(!element)
@@ -199,35 +227,34 @@ package org.tinytlf.decor
         
         protected function getTextLines(element:ContentElement):Vector.<TextLine>
         {
-            var lines:Vector.<TextLine> = new Vector.<TextLine>();
+            var lines:Vector.<TextLine> = new <TextLine>[];
             var block:TextBlock = getTextBlock(element);
             if(!block)
                 return lines;
             
             var firstLine:TextLine = block.getTextLineAtCharIndex(element.textBlockBeginIndex);
-            lines.push(firstLine);
-            
             var lastLine:TextLine = block.getTextLineAtCharIndex(element.textBlockBeginIndex + element.rawText.length - 1);
             
-            var line:TextLine = firstLine;
-            while(line != lastLine)
+            do
             {
-                line = line.nextLine;
-                if(line == null)
-                    break;
-                lines.push(line);
+                lines.push(firstLine);
+                firstLine = firstLine == lastLine ? 
+                    lastLine : 
+                    firstLine.nextLine;
             }
+            while(firstLine && firstLine != lastLine);
+            
+            if(lines.indexOf(lastLine) == -1)
+                lines.push(lastLine)
             
             return lines;
         }
         
         protected function getMirrorRegions(element:ContentElement):Vector.<TextLineMirrorRegion>
         {
-            var regions:Vector.<TextLineMirrorRegion> = new Vector.<TextLineMirrorRegion>();
+            var regions:Vector.<TextLineMirrorRegion> = new <TextLineMirrorRegion>[];
             var lines:Vector.<TextLine> = getTextLines(element);
             var region:TextLineMirrorRegion;
-            
-            var lineRegions:Vector.<TextLineMirrorRegion>;
             
             if(element is GroupElement)
             {
@@ -248,44 +275,40 @@ package org.tinytlf.decor
                 if(line.validity != TextLineValidity.VALID)
                     continue;
                 
-                lineRegions = line.mirrorRegions.concat();
-                while(lineRegions.length > 0)
-                {
-                    region = lineRegions.pop();
-                    if(region.element == element)
-                        regions.push(region);
-                }
+                region = line.getMirrorRegion(element.eventMirror);
+                if(region)
+                    regions.push(region);
             }
             
             return regions;
         }
         
-        protected function getBounds(element:ContentElement):Vector.<Rectangle>
-        {
-            var bounds:Vector.<Rectangle> = new Vector.<Rectangle>();
-            var regions:Vector.<TextLineMirrorRegion>;
-            
-            if(element is GroupElement)
-            {
-                var elem:ContentElement;
-                var n:int = GroupElement(element).elementCount;
-                for(var i:int = 0; i < n; i++)
-                {
-                    elem = GroupElement(element).getElementAt(i);
-                    regions = getMirrorRegions(elem);
-                    while(regions.length > 0)
-                        bounds.push(regions.pop().bounds);
-                }
-            }
-            else
-            {
-                regions = getMirrorRegions(element);
-                while(regions.length > 0)
-                    bounds.push(regions.pop().bounds);
-            }
-            
-            return bounds;
-        }
+//        protected function getBounds(element:ContentElement):Vector.<Rectangle>
+//        {
+//            var bounds:Vector.<Rectangle> = new Vector.<Rectangle>();
+//            var regions:Vector.<TextLineMirrorRegion>;
+//            
+//            if(element is GroupElement)
+//            {
+//                var elem:ContentElement;
+//                var n:int = GroupElement(element).elementCount;
+//                for(var i:int = 0; i < n; i++)
+//                {
+//                    elem = GroupElement(element).getElementAt(i);
+//                    regions = getMirrorRegions(elem);
+//                    while(regions.length > 0)
+//                        bounds.push(regions.pop().bounds);
+//                }
+//            }
+//            else
+//            {
+//                regions = getMirrorRegions(element);
+//                while(regions.length > 0)
+//                    bounds.push(regions.pop().bounds);
+//            }
+//            
+//            return bounds;
+//        }
         
         private var dispatcher:EventDispatcher = new EventDispatcher();
         

@@ -28,7 +28,11 @@ package org.tinytlf.extensions.xml.layout.factory
             
             ancestorList = [];
             
-            elements.push(getElementForNode(xml));
+            if(xml.children().length())
+                for each(var child:XML in xml.children())
+                    elements.push(getElementForNode(child));
+            else
+                elements.push(getElementForNode(xml));
             
             return elements;
         }
@@ -54,6 +58,9 @@ package org.tinytlf.extensions.xml.layout.factory
         
         protected var ancestorList:Array;
         
+        private static const nodePattern:RegExp = /\<[^\/](.*?)\>/;
+        private static const endNodePattern:RegExp = /(\/>)|(\>)/;
+        
         protected function getElementForNode(node:XML):ContentElement
         {
             if(!node)
@@ -65,14 +72,18 @@ package org.tinytlf.extensions.xml.layout.factory
                 parentName = ancestorList[ancestorList.length - 1].localName();
             
             if(node.nodeKind() != "text")
-                ancestorList.push(new XML(String(node.toXMLString().match(/\<[^\/](.*?)\>/)[0]).replace('>', '/>')));
+            {
+                var ancestor:XML = new XML(String(node.toXMLString().match(nodePattern)[0]).replace(endNodePattern, '/>'));
+                ancestor.@unique = escape(node.text().toString());
+                ancestorList.push(ancestor);
+            }
             
             var adapter:IContentElementAdapter = getElementAdapter(parentName);
             var content:ContentElement;
             
             if(node..*.length() > 1)
             {
-                var elements:Vector.<ContentElement> = new Vector.<ContentElement>();
+                var elements:Vector.<ContentElement> = new <ContentElement>[];
                 for each(var child:XML in node.*)
                     elements.push(getElementForNode(child));
                 

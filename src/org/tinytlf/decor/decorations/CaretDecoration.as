@@ -6,20 +6,92 @@
  */
 package org.tinytlf.decor.decorations
 {
+    import flash.display.Graphics;
+    import flash.display.Shape;
+    import flash.display.Sprite;
+    import flash.events.TimerEvent;
     import flash.geom.Rectangle;
+    import flash.utils.Timer;
+    import flash.utils.setTimeout;
+    
     import org.tinytlf.decor.TextDecoration;
     
     public class CaretDecoration extends TextDecoration
     {
-        public function CaretDecoration(styleName:String = "")
+        public function CaretDecoration(styleObject:Object = null)
         {
-            super(styleName);
+            super(styleObject);
         }
         
-        override public function draw(bounds:Vector.<Rectangle>, layer:int = 0):void
+        private var timer:Timer;
+        private var g:Graphics;
+        private var rect:Rectangle;
+        
+        override public function setup(layer:int = 0, ...args):Vector.<Rectangle>
         {
-            super.draw(bounds, layer);
+            if(!timer)
+                timer = new Timer(400);
+            return super.setup.apply(null, [layer].concat(args));
+        }
+        
+        override public function draw(bounds:Vector.<Rectangle>):void
+        {
+            super.draw(bounds);
+            
+            if(!bounds.length)
+                return;
+            
+            rect = bounds[0];
+            
+            g = Shape(getShapeForRectangle(rect).addChild(new Shape())).graphics;
+            
+            if(!timer.hasEventListener(TimerEvent.TIMER))
+                timer.addEventListener(TimerEvent.TIMER, toggle);
+            if(!timer.running)
+            {
+                toggle(null);
+                timer.start();
+            }
+        }
+        
+        override public function destroy():void
+        {
+            super.destroy();
+            
+            if(timer)
+            {
+                timer.stop();
+                timer.removeEventListener(TimerEvent.TIMER, toggle);
+            }
+            timer = null;
+            showing = false;
+            if(g)
+            {
+                g.clear();
+            }
+            g = null;
+            rect = null;
+        }
+        
+        private var showing:Boolean = false;
+        
+        private function toggle(event:TimerEvent):void
+        {
+            if(!g)
+                return;
+            
+            g.clear();
+            
+            showing = !showing;
+            
+            if(!showing)
+                return;
+            
+            var right:int = int(Boolean(getStyle('position') == 'right'));
+            
+            g.lineStyle(getStyle('caretWeight') || 2, getStyle('caretColor'));
+            g.moveTo(rect.x + right * rect.width, rect.y);
+            g.lineTo(rect.x + right * rect.width, rect.y + rect.height);
         }
     }
 }
-

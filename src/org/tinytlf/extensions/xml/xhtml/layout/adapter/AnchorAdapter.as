@@ -4,7 +4,7 @@
  * Permission is hereby granted to use, modify, and distribute this file
  * in accordance with the terms of the license agreement accompanying it.
  */
-package org.tinytlf.extensions.xhtml.layout.adapter
+package org.tinytlf.extensions.xml.xhtml.layout.adapter
 {
     import flash.text.engine.ContentElement;
     import flash.text.engine.GroupElement;

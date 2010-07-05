@@ -22,9 +22,11 @@ package org.tinytlf.decor
         function get engine():ITextEngine;
         function set engine(textEngine:ITextEngine):void;
         
-        function setup(...args):Vector.<Rectangle>
+        function setup(layer:int = 0, ...args):Vector.<Rectangle>
         
-        function draw(bounds:Vector.<Rectangle>, layer:int = 0):void;
+        function draw(bounds:Vector.<Rectangle>):void;
+        
+        function destroy():void;
     }
 }
 

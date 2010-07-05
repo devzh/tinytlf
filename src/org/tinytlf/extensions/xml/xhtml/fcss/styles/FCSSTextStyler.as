@@ -4,25 +4,30 @@
  * Permission is hereby granted to use, modify, and distribute this file
  * in accordance with the terms of the license agreement accompanying it.
  */
-package org.tinytlf.extensions.fcss.xhtml.styles
+package org.tinytlf.extensions.xml.xhtml.fcss.styles
 {
+    import com.flashartofwar.fcss.applicators.StyleApplicator;
     import com.flashartofwar.fcss.styles.IStyle;
     import com.flashartofwar.fcss.stylesheets.FStyleSheet;
-    import com.flashartofwar.fcss.utils.TypeHelperUtil;
     
     import flash.text.engine.*;
     import flash.utils.Dictionary;
     
-    import org.tinytlf.extensions.fcss.xhtml.core.FStyleProxy;
+    import org.tinytlf.extensions.xml.xhtml.fcss.core.FStyleProxy;
     import org.tinytlf.styles.TextStyler;
     
     public class FCSSTextStyler extends TextStyler
     {
         override public function set style(value:Object):void
         {
-            var sheet:FStyleSheet = new FStyleSheet();
-            sheet.parseCSS(value as String);
-            super.style = new FStyleProxy(sheet);
+            if(value is String)
+            {
+                var sheet:FStyleSheet = new FStyleSheet();
+                sheet.parseCSS(value as String);
+                value = new FStyleProxy(sheet);
+            }
+            
+            super.style = value;
         }
         
         private var nodeCache:Dictionary = new Dictionary(true);
@@ -32,9 +37,39 @@ package org.tinytlf.extensions.fcss.xhtml.styles
             if(!(element is Array) || !(style is FStyleProxy))
                 return super.getElementFormat(element);
             
-            //  Context is an array of XML nodes, the currently processing
-            //  node and its parents, along with all their attributes.
-            var context:Array = (element as Array);
+            var fStyle:IStyle = computeStyles(element as Array);
+            
+            var format:ElementFormat = new ElementFormat();
+            new StyleApplicator().applyStyle(format, fStyle);
+            var description:FontDescription = new FontDescription();
+            new StyleApplicator().applyStyle(description, fStyle);
+            
+            format.fontDescription = description;
+            
+            return format;
+        }
+        
+        override public function getDecorations(element:*):Object
+        {
+            if(!(element is Array) || !(style is FStyleProxy))
+                return super.getDecorations(element);
+            
+            var context:Array = element as Array;
+            var obj:Object = super.getDecorations(context[context.length - 1].localName()) || {};
+            
+            var fStyle:IStyle = computeStyles(context);
+            for(var styleProp:String in fStyle)
+                obj[styleProp] = fStyle[styleProp];
+            
+            obj['style'] = fStyle;
+            
+            return obj;
+        }
+        
+        private function computeStyles(context:Array):IStyle
+        {
+            //  Context is the currently processing XML node 
+            //  and its parents, with attributes.
             
             var node:XML;
             var attributes:XMLList;
@@ -51,7 +86,6 @@ package org.tinytlf.extensions.fcss.xhtml.styles
             var inlineStyle:String = 'a:a;';
             var inheritanceStructure:Array = ['global'];
             
-            var fStyle:IStyle;
             var str:String = '';
             
             for(i = 0; i < n; i++)
@@ -67,8 +101,8 @@ package org.tinytlf.extensions.fcss.xhtml.styles
                     
                     if(k > 0)
                     {
-                        //  Math.random() * one billion. reasonably safe for unique identifying...
-                        uniqueNodeName = ' ' + node.localName() + String(Math.round(Math.random() * 100000000000));
+                        //  Math.random() * one trillion. Reasonably safe for unique identification... right? ;)
+                        uniqueNodeName = ' ' + node.localName() + String(Math.round(Math.random() * 100000000000000));
                         
                         for(j = 0; j < k; j++)
                         {
@@ -80,7 +114,7 @@ package org.tinytlf.extensions.fcss.xhtml.styles
                                 idName = attributes[j];
                             else if(attr == 'style')
                                 inlineStyle += attributes[j];
-                            else
+                            else if(attr != 'unique')
                                 inlineStyle += (attr + ": " + attributes[j] + ";");
                         }
                         
@@ -93,7 +127,6 @@ package org.tinytlf.extensions.fcss.xhtml.styles
                         
                         FStyleProxy(style).sheet.parseCSS(uniqueNodeName + '{' + inlineStyle + '}');
                     }
-                    
                     nodeCache[node] = str;
                 }
                 else
@@ -110,35 +143,7 @@ package org.tinytlf.extensions.fcss.xhtml.styles
                 inlineStyle = 'a:a;';
             }
             
-            fStyle = FStyleProxy(style).sheet.getStyle.apply(null, inheritanceStructure);
-            
-            var format:ElementFormat = new ElementFormat(
-                new FontDescription(
-                TypeHelperUtil.getType(fStyle["fontName"] || "_sans", 'string'),
-                TypeHelperUtil.getType(fStyle["fontWeight"] || FontWeight.NORMAL, 'string'),
-                TypeHelperUtil.getType(fStyle["fontStyle"] || FontPosture.NORMAL, 'string'),
-                TypeHelperUtil.getType(fStyle["fontLookup"] || FontLookup.DEVICE, 'string'),
-                TypeHelperUtil.getType(fStyle["renderingMode"] || RenderingMode.CFF, 'string'),
-                TypeHelperUtil.getType(fStyle["cffHinting"] || CFFHinting.HORIZONTAL_STEM, 'string')
-                ),
-                TypeHelperUtil.getType(fStyle["fontSize"] || '12', 'int'),
-                TypeHelperUtil.getType(fStyle["color"] || '0x0', 'uint'),
-                TypeHelperUtil.getType(fStyle["fontAlpha"] || '1', 'number'),
-                TypeHelperUtil.getType(fStyle["textRotation"] || TextRotation.AUTO, 'string'),
-                TypeHelperUtil.getType(fStyle["dominantBaseLine"] || TextBaseline.ROMAN, 'string'),
-                TypeHelperUtil.getType(fStyle["alignmentBaseLine"] || TextBaseline.USE_DOMINANT_BASELINE, 'string'),
-                TypeHelperUtil.getType(fStyle["baseLineShift"] || '0.0', 'number'),
-                TypeHelperUtil.getType(fStyle["kerning"] || Kerning.ON, 'string'),
-                TypeHelperUtil.getType(fStyle["trackingRight"] || '0.0', 'number'),
-                TypeHelperUtil.getType(fStyle["trackingLeft"] || '0.0', 'number'),
-                TypeHelperUtil.getType(fStyle["locale"] || "en", 'string'),
-                TypeHelperUtil.getType(fStyle["breakOpportunity"] || BreakOpportunity.AUTO, 'string'),
-                TypeHelperUtil.getType(fStyle["digitCase"] || DigitCase.DEFAULT, 'string'),
-                TypeHelperUtil.getType(fStyle["digitWidth"] || DigitWidth.DEFAULT, 'string'),
-                TypeHelperUtil.getType(fStyle["ligatureLevel"] || LigatureLevel.COMMON, 'string'),
-                TypeHelperUtil.getType(fStyle["typographicCase"] || TypographicCase.DEFAULT, 'string'));
-            
-            return format;
+            return FStyleProxy(style).sheet.getStyle.apply(null, inheritanceStructure);
         }
     }
 }

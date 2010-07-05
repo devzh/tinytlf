@@ -6,21 +6,8 @@
  */
 package org.tinytlf.styles
 {
-    import flash.text.engine.BreakOpportunity;
-    import flash.text.engine.CFFHinting;
-    import flash.text.engine.DigitCase;
-    import flash.text.engine.DigitWidth;
     import flash.text.engine.ElementFormat;
     import flash.text.engine.FontDescription;
-    import flash.text.engine.FontLookup;
-    import flash.text.engine.FontPosture;
-    import flash.text.engine.FontWeight;
-    import flash.text.engine.Kerning;
-    import flash.text.engine.LigatureLevel;
-    import flash.text.engine.RenderingMode;
-    import flash.text.engine.TextBaseline;
-    import flash.text.engine.TextRotation;
-    import flash.text.engine.TypographicCase;
     import flash.utils.Dictionary;
     
     import org.tinytlf.ITextEngine;
@@ -28,6 +15,16 @@ package org.tinytlf.styles
     
     public class TextStyler extends StyleAwareActor implements ITextStyler
     {
+        public function TextStyler(styleObject:Object = null)
+        {
+            super(styleObject);
+            
+            if(getStyle('selectionColor') == null)
+                setStyle('selectionColor', 0x003399);
+            if(getStyle('selectionAlpha') == null)
+                setStyle('selectionAlpha', 0.2);
+        }
+        
         protected var _engine:ITextEngine;
         public function get engine():ITextEngine
         {
@@ -44,47 +41,38 @@ package org.tinytlf.styles
         
         public function getElementFormat(element:*):ElementFormat
         {
-            var reduceBoilerplate:Function = function(style:String, defaultValue:*):*
-                {
-                    return(getStyle(style) || defaultValue);
-                }
+            var styleProp:String;
+            var format:ElementFormat = new ElementFormat();
+            var description:FontDescription = new FontDescription();
             
-            return new ElementFormat(
-                new FontDescription(
-                reduceBoilerplate("fontName", "_sans"),
-                reduceBoilerplate("fontWeight", FontWeight.NORMAL),
-                reduceBoilerplate("fontStyle", FontPosture.NORMAL),
-                reduceBoilerplate("fontLookup", FontLookup.DEVICE),
-                reduceBoilerplate("renderingMode", RenderingMode.CFF),
-                reduceBoilerplate("cffHinting", CFFHinting.HORIZONTAL_STEM)
-                ),
-                reduceBoilerplate("fontSize", 12),
-                reduceBoilerplate("color", 0x0),
-                reduceBoilerplate("fontAlpha", 1),
-                reduceBoilerplate("textRotation", TextRotation.AUTO),
-                reduceBoilerplate("dominantBaseLine", TextBaseline.ROMAN),
-                reduceBoilerplate("alignmentBaseLine", TextBaseline.USE_DOMINANT_BASELINE),
-                reduceBoilerplate("baseLineShift", 0.0),
-                reduceBoilerplate("kerning", Kerning.ON),
-                reduceBoilerplate("trackingRight", 0.0),
-                reduceBoilerplate("trackingLeft", 0.0),
-                reduceBoilerplate("locale", "en"),
-                reduceBoilerplate("breakOpportunity", BreakOpportunity.AUTO),
-                reduceBoilerplate("digitCase", DigitCase.DEFAULT),
-                reduceBoilerplate("digitWidth", DigitWidth.DEFAULT),
-                reduceBoilerplate("ligatureLevel", LigatureLevel.COMMON),
-                reduceBoilerplate("typographicCase", TypographicCase.DEFAULT)
-                );
+            for(styleProp in this)
+            {
+                if(styleProp in format)
+                    format[styleProp] = this[styleProp];
+                if(styleProp in description)
+                    description[styleProp] = this[styleProp];
+            }
+            
+            format.fontDescription = description;
+            
+            return format;
         }
         
         protected var styleMap:Dictionary = new Dictionary(true);
         
-        public function getMappedStyle(element:*):*
+        public function getDecorations(element:*):Object
         {
-            if(element in styleMap)
-                return styleMap[element];
+            var obj:Object;
             
-            return null;
+            if(element in styleMap)
+            {
+                obj = {};
+                var mappedObj:Object = styleMap[element];
+                for(var styleProp:String in mappedObj)
+                    obj[styleProp] = mappedObj[styleProp];
+            }
+            
+            return obj;
         }
         
         public function mapStyle(element:*, value:*):void

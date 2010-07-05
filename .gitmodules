@@ -1,3 +1,6 @@
 [submodule "libs/fcss"]
 	path = libs/fcss
 	url = http://github.com/theflashbum/fcss.git
+[submodule "libs/as3-gestures"]
+	path = libs/as3-gestures
+	url = http://github.com/guyinthechair/as3-gestures.git

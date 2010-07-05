@@ -4,7 +4,7 @@
  * Permission is hereby granted to use, modify, and distribute this file
  * in accordance with the terms of the license agreement accompanying it.
  */
-package org.tinytlf.extensions.xhtml.interaction
+package org.tinytlf.extensions.xml.xhtml.interaction
 {
     import flash.events.IEventDispatcher;
     import flash.events.MouseEvent;
@@ -15,9 +15,8 @@ package org.tinytlf.extensions.xhtml.interaction
     import flash.ui.MouseCursor;
     
     import org.tinytlf.ITextEngine;
-    import org.tinytlf.decor.ITextDecor;
-    import org.tinytlf.interaction.LineEventInfo;
-    import org.tinytlf.interaction.TextDispatcherBase;
+    import org.tinytlf.TextDispatcherBase;
+    import org.tinytlf.interaction.EventLineInfo;
     
     public class AnchorInteractor extends TextDispatcherBase
     {
@@ -54,7 +53,7 @@ package org.tinytlf.extensions.xhtml.interaction
             if(!allowEvent)
                 return;
             
-            var info:LineEventInfo = LineEventInfo.getInfo(event, this);
+            var info:EventLineInfo = EventLineInfo.getInfo(event, this);
             
             // If the Text Engine is in the middle of rendering lines, info will
             // be null. Don't try to mess w/ stuff while we're rendering :)

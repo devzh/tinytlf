@@ -10,14 +10,17 @@ package org.tinytlf
     import flash.display.Sprite;
     import flash.events.Event;
     import flash.events.EventPhase;
+    import flash.geom.Rectangle;
     import flash.text.engine.TextLine;
     
     import org.tinytlf.core.IStyleAware;
     import org.tinytlf.decor.decorations.BackgroundColorDecoration;
+    import org.tinytlf.decor.decorations.CaretDecoration;
+    import org.tinytlf.decor.decorations.SelectionDecoration;
     import org.tinytlf.decor.decorations.StrikeThroughDecoration;
     import org.tinytlf.decor.decorations.UnderlineDecoration;
-    import org.tinytlf.extensions.xhtml.interaction.AnchorInteractor;
-    import org.tinytlf.extensions.xhtml.layout.adapter.AnchorAdapter;
+    import org.tinytlf.extensions.xml.xhtml.interaction.AnchorInteractor;
+    import org.tinytlf.extensions.xml.xhtml.layout.adapter.AnchorAdapter;
     import org.tinytlf.layout.ITextContainer;
     import org.tinytlf.layout.TextContainerBase;
     
@@ -42,9 +45,9 @@ package org.tinytlf
                 return;
             
             _height = value;
-            container.allowedHeight = value;
-            engine.invalidate();
+            container.allowedHeight = Math.max(value - 1, 0);
             hookEngine();
+            engine.invalidate();
         }
         
         private var _width:Number = 0;
@@ -59,14 +62,25 @@ package org.tinytlf
                 return;
             
             _width = value;
-            container.allowedWidth = value;
-            engine.invalidate();
+            container.allowedWidth = Math.max(value - 1, 0);
             hookEngine();
+            engine.invalidate();
         }
         
         override public function addChild(child:DisplayObject):DisplayObject
         {
             return super.addChild(child is TextLine ? hookLine(child) : child);
+        }
+        
+        override public function getBounds(targetCoordinateSpace:DisplayObject):Rectangle
+        {
+            var bounds:Rectangle = super.getBounds(targetCoordinateSpace);
+            bounds.width = _width;
+            bounds.height = _height || container.measuredHeight;
+            bounds.left = 0;
+            bounds.right = _width;
+            
+            return bounds;
         }
         
         private var _container:ITextContainer;
@@ -167,14 +181,25 @@ package org.tinytlf
         protected function hookEngine():void
         {
             //Default mapped text decorations.
-            engine.decor.mapDecoration("backgroundColor", BackgroundColorDecoration);
-            engine.decor.mapDecoration("underline", UnderlineDecoration);
-            engine.decor.mapDecoration("strikethrough", StrikeThroughDecoration);
+            if(!engine.decor.hasDecoration("backgroundColor"))
+                engine.decor.mapDecoration("backgroundColor", BackgroundColorDecoration);
+            if(!engine.decor.hasDecoration("selectionColor"))
+                engine.decor.mapDecoration("selectionColor", SelectionDecoration);
+            if(!engine.decor.hasDecoration("underline"))
+                engine.decor.mapDecoration("underline", UnderlineDecoration);
+            if(!engine.decor.hasDecoration("strikethrough"))
+                engine.decor.mapDecoration("strikethrough", StrikeThroughDecoration);
+            if(!engine.decor.hasDecoration("caret"))
+                engine.decor.mapDecoration("caret", CaretDecoration);
             
-            engine.blockFactory.mapElementAdapter("a", AnchorAdapter);
+            if(!engine.blockFactory.hasElementAdapter("a"))
+                engine.blockFactory.mapElementAdapter("a", AnchorAdapter);
             
-            engine.interactor.mapMirror("a", new AnchorInteractor());
-            engine.styler.mapStyle("a", {underline:true});
+            if(!engine.interactor.hasMirror("a"))
+                engine.interactor.mapMirror("a", AnchorInteractor);
+            
+            if(!engine.styler.getDecorations("a"))
+                engine.styler.mapStyle("a", {underline:true});
         }
         
         private function onAddedToStage(event:Event):void

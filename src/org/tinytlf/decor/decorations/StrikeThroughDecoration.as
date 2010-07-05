@@ -14,14 +14,9 @@ package org.tinytlf.decor.decorations
     
     public class StrikeThroughDecoration extends TextDecoration
     {
-        public function StrikeThroughDecoration(styleName:String="")
+        override public function draw(bounds:Vector.<Rectangle>):void
         {
-            super(styleName);
-        }
-        
-        override public function draw(bounds:Vector.<Rectangle>, layer:int = 0):void
-        {
-            super.draw(bounds, layer);
+            super.draw(bounds);
             
             var start:Point;
             var end:Point;
@@ -31,7 +26,10 @@ package org.tinytlf.decor.decorations
             while(bounds.length > 0)
             {
                 rect = bounds.pop();
-                parent = spriteMap[rect];
+                parent = getShapeForRectangle(rect);
+                
+                if(!parent)
+                    continue;
                 
                 start = new Point(rect.x, rect.y + (rect.height * 0.5));
                 end = new Point(rect.x + rect.width, rect.y + (rect.height * 0.5));

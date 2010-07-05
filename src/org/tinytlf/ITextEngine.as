@@ -7,6 +7,8 @@
 package org.tinytlf
 {
     import flash.display.Stage;
+    import flash.geom.Point;
+    import flash.text.engine.TextBlock;
     
     import org.tinytlf.decor.ITextDecor;
     import org.tinytlf.interaction.ITextInteractor;
@@ -32,6 +34,20 @@ package org.tinytlf
         
         function get styler():ITextStyler;
         function set styler(textStyler:ITextStyler):void;
+        
+        function getBlockPosition(block:TextBlock):int;
+        function getBlockSize(block:TextBlock):int;
+        
+        function get caretIndex():int;
+        function set caretIndex(index:int):void;
+        
+        function get selection():Point;
+        /**
+        * Draws a selection decoration around text.
+        */
+        function select(startIndex:Number = NaN, endIndex:Number = NaN):void;
+        
+        function pointToIndex(point:Point):int;
         
         function prerender(...args):void;
         

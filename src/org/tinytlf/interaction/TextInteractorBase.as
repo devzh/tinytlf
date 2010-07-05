@@ -6,9 +6,11 @@
  */
 package org.tinytlf.interaction
 {
-    import org.tinytlf.ITextEngine;
-    
     import flash.events.EventDispatcher;
+    import flash.utils.Dictionary;
+    
+    import org.tinytlf.ITextEngine;
+    import org.tinytlf.TextDispatcherBase;
     
     public class TextInteractorBase extends TextDispatcherBase implements ITextInteractor
     {
@@ -26,12 +28,19 @@ package org.tinytlf.interaction
             _engine = textEngine;
         }
         
-        public function getMirror(elementName:String = ""):EventDispatcher
+        private var mirrorMap:Dictionary = new Dictionary(true);
+        
+        public function hasMirror(element:*):Boolean
         {
-            var mirror:Object = mirrorMap[elementName];
+            return Boolean(element in mirrorMap);
+        }
+        
+        public function getMirror(element:* = null):EventDispatcher
+        {
+            var mirror:Object = mirrorMap[element];
             
             if(!mirror)
-                return this;
+                return new EventDispatcher();
             
             if(mirror is Class)
                 return new(mirror as Class)() as EventDispatcher;
@@ -41,17 +50,15 @@ package org.tinytlf.interaction
             
             return mirror as EventDispatcher;
         }
-        
-        private var mirrorMap:Object = {};
-        public function mapMirror(elementName:String, mirrorClassOrInstance:Object):void
+        public function mapMirror(element:*, mirrorClassOrInstance:Object):void
         {
-            mirrorMap[elementName] = mirrorClassOrInstance;
+            mirrorMap[element] = mirrorClassOrInstance;
         }
         
-        public function unMapMirror(elementName:String):Boolean
+        public function unMapMirror(element:*):Boolean
         {
-            if(elementName in mirrorMap)
-                return delete mirrorMap[elementName];
+            if(element in mirrorMap)
+                return delete mirrorMap[element];
             
             return false;
         }

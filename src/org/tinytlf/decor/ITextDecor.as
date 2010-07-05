@@ -18,13 +18,13 @@ package org.tinytlf.decor
         
         function removeAll():void;
         
-        function decorate(element:*, styleObj:Object, layer:int = 0, container:ITextContainer = null):void;
+        function decorate(element:*, styleObj:Object, layer:int = 2, containers:Vector.<ITextContainer> = null):void;
         function undecorate(element:* = null, decorationProp:String = null):void;
         
         function mapDecoration(decorationProp:String, decorationClassOrInstance:Object):void;
         function unMapDecoration(decorationProp:String):Boolean;
         function hasDecoration(decorationProp:String):Boolean;
-        function getDecoration(decorationProp:String, container:ITextContainer = null):ITextDecoration;
+        function getDecoration(decorationProp:String, containers:Vector.<ITextContainer> = null):ITextDecoration;
     }
 }
 

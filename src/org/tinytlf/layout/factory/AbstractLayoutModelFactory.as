@@ -119,6 +119,11 @@ package org.tinytlf.layout.factory
     
     protected var elementAdapterMap:Dictionary = new Dictionary(false);
     
+    public function hasElementAdapter(element:*):Boolean
+    {
+        return Boolean(element in elementAdapterMap);
+    }
+    
     public function getElementAdapter(element:*):IContentElementAdapter
     {
       var adapter:*;

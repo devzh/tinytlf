@@ -13,9 +13,8 @@ package org.tinytlf.decor
     
     public class TextDecor implements ITextDecor
     {
-        public function TextDecor()
-        {
-        }
+        public static const CARET_LAYER:int = 0;
+        public static const SELECTION_LAYER:int = 1;
         
         protected var _engine:ITextEngine;
         
@@ -34,20 +33,19 @@ package org.tinytlf.decor
         
         public function render():void
         {
-            var i:int = 0;
             var n:int = layers.length;
             var layer:Dictionary;
             var element:*;
             var decorationProp:String;
             var decoration:ITextDecoration;
             
-            for(; i < n; ++i)
+            for(var i:int = 0; i < n; ++i)
             {
                 layer = layers[i];
                 for(element in layer)
                     for each(decoration in layer[element])
                         if(decoration)
-                            decoration.draw(decoration.setup(element), i);
+                            decoration.draw(decoration.setup(i, element));
             }
         }
         
@@ -59,7 +57,8 @@ package org.tinytlf.decor
                 {
                     for(var decoration:String in layers[layer][element])
                     {
-                        delete layers[layer][element][decoration]
+                        ITextDecoration(layers[layer][element][decoration]).destroy();
+                        delete layers[layer][element][decoration];
                     }
                     delete layers[layer][element];
                 }
@@ -136,30 +135,35 @@ package org.tinytlf.decor
          * more than 'first-come, first-served.'
          *
          */
-        public function decorate(element:*, styleObj:Object, layer:int = 0, container:ITextContainer = null):void
+        public function decorate(element:*, styleObj:Object, layer:int = 2, containers:Vector.<ITextContainer> = null):void
         {
             if(!element || !styleObj)
                 return;
             
-            //Resolve the layer business first
-            var theLayer:Object = resolveLayer(layer);
+            //  Resolve the layer business first
+            var theLayer:Dictionary = resolveLayer(layer);
             if(!(element in theLayer) || theLayer[element] == null)
-                theLayer[element] = new Dictionary(true);
-            
-            //Don't handle parsing a styleName for now, do that in a subclass.
-            if(styleObj is String)
-                return;
+            {
+                theLayer[element] = new Dictionary(false);
+            }
             
             var decoration:ITextDecoration;
-            
             var styleProp:String;
-            for(styleProp in styleObj)
+            
+            if(styleObj is String && hasDecoration(String(styleObj)))
             {
-                if(hasDecoration(styleProp))
+                theLayer[element][styleObj] = getDecoration(String(styleObj), containers);
+            }
+            else
+            {
+                for(styleProp in styleObj)
                 {
-                    decoration = ITextDecoration(theLayer[element][styleProp] = getDecoration(styleProp, container));
-                    for(styleProp in styleObj)
-                        decoration.setStyle(styleProp, styleObj[styleProp]);
+                    if(hasDecoration(styleProp) && styleObj[styleProp] != null)
+                    {
+                        decoration = ITextDecoration(theLayer[element][styleProp] = getDecoration(styleProp, containers));
+                        for(styleProp in styleObj)
+                            decoration.setStyle(styleProp, styleObj[styleProp]);
+                    }
                 }
             }
             
@@ -188,13 +192,23 @@ package org.tinytlf.decor
                         continue;
                     
                     if(!decorationProp)
+                    {
                         for(var dec:String in layer[element])
+                        {
+                            ITextDecoration(layer[element][dec]).destroy();
                             delete layer[element][dec];
+                        }
+                    }
                     else if(decorationProp in layer[element])
+                    {
+                        ITextDecoration(layer[element][decorationProp]).destroy();
                         delete layer[element][decorationProp];
+                    }
                     
                     if(isEmpty(layer[element]))
+                    {
                         delete layer[element];
+                    }
                 }
                 else if(decorationProp)
                 {
@@ -204,10 +218,15 @@ package org.tinytlf.decor
                             continue;
                         
                         if(decorationProp in layer[e])
+                        {
+                            ITextDecoration(layer[e][decorationProp]).destroy();
                             delete layer[e][decorationProp];
+                        }
                         
                         if(isEmpty(layer[e]))
+                        {
                             delete layer[e];
+                        }
                     }
                 }
             }
@@ -235,7 +254,7 @@ package org.tinytlf.decor
             return Boolean(decorationProp in decorationsMap);
         }
         
-        public function getDecoration(styleProp:String, container:ITextContainer = null):ITextDecoration
+        public function getDecoration(styleProp:String, containers:Vector.<ITextContainer> = null):ITextDecoration
         {
             if(!hasDecoration(styleProp))
                 return null;
@@ -243,15 +262,15 @@ package org.tinytlf.decor
             var decoration:* = decorationsMap[styleProp];
             if(decoration is Class)
                 decoration = ITextDecoration(new decoration());
-            if(decoration is Function)
+            else if(decoration is Function)
                 decoration = ITextDecoration((decoration as Function)());
             
             if(!decoration)
                 return null;
             
             var vec:Vector.<ITextContainer> = new Vector.<ITextContainer>();
-            if(container)
-                vec.push(container);
+            if(containers)
+                vec = vec.concat(containers);
             
             ITextDecoration(decoration).containers = vec;
             
@@ -264,11 +283,12 @@ package org.tinytlf.decor
         {
             if(layer < 0)
                 layer = 0;
-            // Allow them to use the larger layer, but keep the Array densly populated.
-            // This helps with performance, but also solves the bug where a coder really 
-            // does want to put something at higher level before other levels are created. 
-            // Originally I kept the layers within the bounds of the array, but that
-            // introduced race-condition-y scanerios.
+            
+            //  Allow a larger layer than we've created so far, but keep the 
+            //  Array densly populated. This helps with performance, but also 
+            //  allows a developer to specify a deeper level than has been 
+            //  created so far. Originally I kept the layers within the bounds 
+            //  of the array, but that introduced race condition-y scenarios.
             else if(layer > layers.length)
             {
                 var i:int = layers.length - 1;
@@ -277,7 +297,7 @@ package org.tinytlf.decor
             }
             
             if(!(layers[layer]))
-                layers[layer] = new Dictionary(true);
+                layers[layer] = new Dictionary(false);
             
             return Dictionary(layers[layer]);
         }

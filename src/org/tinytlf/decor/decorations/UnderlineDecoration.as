@@ -6,6 +6,7 @@
  */
 package org.tinytlf.decor.decorations
 {
+    import flash.display.Graphics;
     import flash.display.Sprite;
     import flash.geom.Point;
     import flash.geom.Rectangle;
@@ -14,30 +15,25 @@ package org.tinytlf.decor.decorations
     
     public class UnderlineDecoration extends TextDecoration
     {
-        public function UnderlineDecoration(styleName:String = "")
+        override public function draw(bounds:Vector.<Rectangle>):void
         {
-            super(styleName);
-        }
-        
-        override public function draw(bounds:Vector.<Rectangle>, layer:int = 0):void
-        {
-            super.draw(bounds, layer);
+            super.draw(bounds);
             
-            var underlineDelta:Number = Math.round((getStyle("fontSize") || 12) / 6);
             var start:Point;
             var end:Point;
             var rect:Rectangle;
-            var parent:Sprite;
+            var g:Graphics;
+            var copy:Vector.<Rectangle> = bounds.concat();
+            var underlineDelta:Number = Math.round((getStyle("fontSize") || 12) / 6);
             
-            while(bounds.length > 0)
+            while(copy.length > 0)
             {
-                rect = bounds.pop();
-                parent = spriteMap[rect];
+                rect = copy.pop();
+                g = getShapeForRectangle(rect).graphics;
+                start = new Point(rect.left, rect.bottom - underlineDelta);
+                end = new Point(rect.right, rect.bottom - underlineDelta);
                 
-                start = new Point(rect.x, rect.y + rect.height - underlineDelta);
-                end = new Point(rect.x + rect.width, rect.y + rect.height - underlineDelta);
-                
-                parent.graphics.lineStyle(
+                g.lineStyle(
                     getStyle("underlineThickness") || 2,
                     getStyle("underlineColor") || getStyle("color") || 0x00,
                     getStyle("underlineAlpha") || 1,
@@ -47,9 +43,9 @@ package org.tinytlf.decor.decorations
                     getStyle("joints") || null,
                     getStyle("miterLimit") || 3);
                 
-                parent.graphics.moveTo(start.x, start.y);
-                parent.graphics.lineTo(end.x, end.y);
-                parent.graphics.lineStyle(0, 0, 0);
+                g.moveTo(start.x, start.y);
+                g.lineTo(end.x, end.y);
+                g.lineStyle();
             }
         }
     }

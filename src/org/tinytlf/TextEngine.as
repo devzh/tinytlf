@@ -6,15 +6,23 @@
  */
 package org.tinytlf
 {
+    import flash.display.DisplayObjectContainer;
     import flash.display.Stage;
     import flash.events.Event;
     import flash.events.EventDispatcher;
+    import flash.geom.Point;
+    import flash.geom.Rectangle;
     import flash.text.engine.TextBlock;
+    import flash.text.engine.TextLine;
+    import flash.utils.Dictionary;
     import flash.utils.setTimeout;
     
+    import org.tinytlf.core.Dimension;
     import org.tinytlf.decor.*;
     import org.tinytlf.extensions.xml.layout.factory.XMLBlockFactory;
+    import org.tinytlf.extensions.xml.xhtml.fcss.styles.FCSSTextStyler;
     import org.tinytlf.interaction.*;
+    import org.tinytlf.interaction.gesture.GestureInteractor;
     import org.tinytlf.layout.*;
     import org.tinytlf.layout.factory.*;
     import org.tinytlf.styles.*;
@@ -75,7 +83,7 @@ package org.tinytlf
         public function get interactor():ITextInteractor
         {
             if(!_interactor)
-                _interactor = new TextInteractorBase();
+                _interactor = new GestureInteractor();
             
             _interactor.engine = this;
             
@@ -130,7 +138,7 @@ package org.tinytlf
         public function get styler():ITextStyler
         {
             if(!_styler)
-                _styler = new TextStyler();
+                _styler = new FCSSTextStyler();
             
             _styler.engine = this;
             
@@ -145,12 +153,201 @@ package org.tinytlf
             _styler = textStyler;
         }
         
-        protected var blocks:Vector.<TextBlock>;
+        public function getBlockPosition(block:TextBlock):int
+        {
+            return blocks.getItemPosition(block);
+        }
+        
+        public function getBlockSize(block:TextBlock):int
+        {
+            return blocks.getItemSize(block);
+        }
+        
+        private var _caretIndex:int = 0;
+        public function get caretIndex():int
+        {
+            return _caretIndex;
+        }
+        
+        public function set caretIndex(index:int):void
+        {
+            var block:TextBlock = indexToTextBlock(index);
+            if(!block)
+                return;
+            
+            _caretIndex = index;
+            
+            var blockPosition:int = getBlockPosition(block);
+            var blockSize:int = getBlockSize(block);
+            
+            var line:TextLine = block.getTextLineAtCharIndex(Math.min(index - blockPosition, blockSize - 1));
+            var rect:Rectangle = line.getAtomBounds(Math.min(index - blockPosition - line.textBlockBeginIndex, line.atomCount - 1));
+            rect.x += line.x;
+            rect.y += line.y;
+            
+            decor.undecorate(null, 'caret');
+            decor.decorate(rect, {caret:true}, TextDecor.CARET_LAYER, new <ITextContainer>[layout.getContainerForLine(line)]);
+        }
+        
+        private var _selection:Point = new Point(NaN, NaN);
+        
+        public function get selection():Point
+        {
+            return _selection;
+        }
+        
+        public function select(startIndex:Number = NaN, endIndex:Number = NaN):void
+        {
+            decor.undecorate(null, 'selectionColor');
+            
+            if(isNaN(startIndex) || isNaN(endIndex))
+            {
+                selection.x = NaN;
+                selection.y = NaN;
+                return;
+            }
+            
+            var temp:Point = new Point(startIndex, endIndex);
+            
+            //  Normalize the inputs.
+            startIndex = Math.min(temp.x, temp.y);
+            endIndex = Math.max(temp.x, temp.y);
+            
+            //  Get the textBlocks that span these indicies
+            var textBlocks:Array = blocks.getItemsAt(startIndex, endIndex, false);
+            
+            if(!textBlocks || !textBlocks.length)
+                return;
+            
+            selection.x = startIndex;
+            selection.y = endIndex;
+            
+            //  Gotta keep track of which containers this selection spans
+            var containers:Dictionary = new Dictionary(false);
+            
+            //  The rectangles that this selection represents
+            var rects:Vector.<Rectangle> = new <Rectangle>[];
+            var rect:Rectangle;
+            
+            var blockPosition:int;
+            var blockSize:int;
+            var lineSize:int;
+            
+            var block:TextBlock;
+            var line:TextLine;
+            var uiLineClass:Class = EventLineInfo.uiLineClass;
+            var lineParent:DisplayObjectContainer;
+            
+            var n:int = textBlocks.length;
+            for(var i:int = 0; i < n; i++)
+            {
+                block = textBlocks[i];
+                
+                blockPosition = getBlockPosition(block);
+                blockSize = getBlockSize(block);
+                
+                startIndex -= blockPosition;
+                endIndex -= blockPosition;
+                
+                line = block.getTextLineAtCharIndex(startIndex);
+                while(line)
+                {
+                    containers[layout.getContainerForLine(line)] = true;
+                    
+                    lineSize = line.textBlockBeginIndex + line.rawTextLength;
+                    
+                    rect = line.getAtomBounds(startIndex - line.textBlockBeginIndex);
+                    rect = (endIndex < lineSize) ?
+                        rect.union(line.getAtomBounds(Math.max(endIndex - line.textBlockBeginIndex, 0))) :
+                        rect.union(line.getAtomBounds(line.atomCount - 1));
+                    
+                    lineParent = (uiLineClass && line.parent is uiLineClass) ? line.parent : line;
+                    
+                    rect.x += lineParent.x;
+                    rect.y += lineParent.y;
+
+                    rects.push(rect);
+                    
+                    line = endIndex >= lineSize ? line.nextLine : null;
+                    if(line)
+                        startIndex = line.textBlockBeginIndex;
+                }
+                
+                startIndex = blockPosition + blockSize;
+                endIndex += blockPosition;
+            }
+            
+            var textContainers:Vector.<ITextContainer> = new <ITextContainer>[];
+            for(var container:* in containers)
+                textContainers.push(container);
+            
+            containers = null;
+            
+            decor.decorate(rects,
+                {selectionColor:styler.getStyle('selectionColor'), selectionAlpha: styler.getStyle('selectionAlpha')},
+                TextDecor.SELECTION_LAYER,
+                textContainers);
+        }
+        
+        private function indexToTextBlock(index:int):TextBlock
+        {
+            if(!blocks || !blocks.length)
+                return null;
+            
+            var items:Array = blocks.getItemsAt(index, 0);
+            if(items.length)
+                return items[0];
+            
+            return null;
+        }
+        
+        public function pointToIndex(point:Point):int
+        {
+            var children:Array;
+            var containers:Vector.<ITextContainer> = layout.containers;
+            var n:int = containers.length;
+            var k:int = 0;
+            
+            for(var i:int = 0; i < n; ++i)
+            {
+                children = containers[i].target.getObjectsUnderPoint(point);
+                
+                if(!children || !children.length)
+                    continue;
+                
+                k = children.length;
+                for(var j:int = 0; j < k; ++j)
+                {
+                    if(!(children[j] is TextLine))
+                        continue;
+                    
+                    return TextLine(children[j]).getAtomIndexAtPoint(point.x, point.y);
+                }
+            }
+            
+            return -1;
+        }
+        
+        protected var blocks:Dimension;
         
         public function prerender(... args):void
         {
             decor.removeAll();
-            blocks = blockFactory.createBlocks(args);
+            
+            var textBlocks:Vector.<TextBlock> = blockFactory.createBlocks(args);
+            if(!blocks)
+                blocks = new Dimension();
+            
+            blocks.clear();
+            
+            if(!textBlocks || !textBlocks.length)
+                return;
+            
+            var n:int = textBlocks.length;
+            for(var i:int = 0; i < n; i++)
+            {
+                blocks.add(textBlocks[i], textBlocks[i].content.rawText.length);
+            }
         }
         
         public function invalidate():void
@@ -200,16 +397,16 @@ package org.tinytlf
                 return;
             
             _stage.removeEventListener(Event.RENDER, onRender);
-
+            
             render();
         }
-
+        
         protected var rendering:Boolean = false;
         
         public function render():void
         {
             rendering = true;
-
+            
             if(invalidateLinesFlag)
                 renderLines();
             invalidateLinesFlag = false;
@@ -217,7 +414,7 @@ package org.tinytlf
             if(invalidateDecorationsFlag)
                 renderDecorations();
             invalidateDecorationsFlag = false;
-
+            
             rendering = false;
         }
         

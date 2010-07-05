@@ -18,19 +18,20 @@ package org.tinytlf.extensions.mx.decor
             super();
         }
         
-        override public function decorate(element:*, styleObj:Object, layer:int=0, container:ITextContainer=null):void
+        override public function decorate(element:*, styleObj:Object, layer:int = 0, containers:Vector.<ITextContainer> = null):void
         {
             if(styleObj is String)
                 styleObj = new FlexStyleProxy(String(styleObj));
             
-            super.decorate(element, styleObj, layer, container);
+            super.decorate(element, styleObj, layer, containers);
         }
         
-        override public function getDecoration(styleProp:String, container:ITextContainer = null):ITextDecoration
+        override public function getDecoration(styleProp:String, containers:Vector.<ITextContainer> = null):ITextDecoration
         {
-            var dec:ITextDecoration = super.getDecoration(styleProp, container);
+            var dec:ITextDecoration = super.getDecoration(styleProp, containers);
             
-            //Hook this decoration into the Flex StyleManager
+            //  Hook this decoration into the Flex StyleManager so that they can 
+            //  pull decorations using a Flex style selector.
             if(dec)
                 dec.style = new FlexStyleProxy(dec.style);
             

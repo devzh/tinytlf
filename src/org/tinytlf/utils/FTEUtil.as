@@ -10,7 +10,6 @@ package org.tinytlf.utils
     import flash.text.engine.ContentElement;
     import flash.text.engine.GroupElement;
     import flash.text.engine.TextLine;
-    import flash.ui.Keyboard;
     
     public class FTEUtil
     {
@@ -30,49 +29,57 @@ package org.tinytlf.utils
             return element;
         }
         
-        public static function getAtomIndexAtPoint(stageX:Number, stageY:Number, line:TextLine):int
+        public static function getAtomIndexAtPoint(line:TextLine, stageX:Number, stageY:Number):int
         {
             var atomIndex:int = line.getAtomIndexAtPoint(stageX, stageY);
+            
             if(atomIndex == -1)
                 return -1;
             
             var atomCenter:int = line.getAtomCenter(atomIndex);
-            var atomIncrement:int = (line.localToGlobal(new Point(atomCenter, 0)).x <= stageX) ? 1 : 0;
+            var atomIncrement:int = (line.localToGlobal(new Point(atomCenter)).x <= stageX) ? 1 : 0;
             
-            return line.getAtomTextBlockBeginIndex(atomIndex) + atomIncrement;
+            return Math.max(atomIndex + atomIncrement, 0);
         }
         
-        public static function getAtomWordBoundary(line:TextLine, element:ContentElement, atomIndex:int, left:Boolean = true):int
+        private static const defaultWordBoundaryPattern:RegExp = /\W+|\b[^\W﷯]*/;
+        private static const nonWordPattern:RegExp = /\W/;
+        
+        public static function getAtomWordBoundary(line:TextLine, atomIndex:int, left:Boolean = true, pattern:RegExp = null):int
         {
-            var adjustedAtomIndex:int = atomIndex + line.textBlockBeginIndex;
+            if(!pattern)
+                pattern = defaultWordBoundaryPattern;
             
-            var atomCode:Number = element.rawText.charCodeAt(adjustedAtomIndex);
+            if(atomIndex < 0)
+                return atomIndex;
             
-            if(atomCode === Keyboard.SPACE || (!left && atomIndex == 0))
+            if(atomIndex >= line.atomCount)
+                atomIndex = line.atomCount - 1;
+            
+            var rawText:String = line.textBlock.content.rawText;
+            var adjustedIndex:int = line.getAtomTextBlockBeginIndex(atomIndex);/*left ?
+                line.getAtomTextBlockBeginIndex(atomIndex) :
+                line.getAtomTextBlockEndIndex(atomIndex);*/
+            
+            if(nonWordPattern.test(rawText.charAt(adjustedIndex)))
             {
-                left ? --atomIndex : ++atomIndex;
-                adjustedAtomIndex = atomIndex + line.textBlockBeginIndex;
-                atomCode = element.rawText.charCodeAt(adjustedAtomIndex);
-            }
-            
-            if(left)
-            {
-                while(!isNaN(atomCode) && atomIndex > 0 && atomCode != Keyboard.SPACE && line.getAtomGraphic(adjustedAtomIndex) == null)
-                {
-                    atomCode = element.rawText.charCodeAt(--adjustedAtomIndex);
-                    atomIndex--;
-                }
+                return atomIndex;
             }
             else
             {
-                while(!isNaN(atomCode) && atomIndex < element.rawText.length && atomCode != Keyboard.SPACE && line.getAtomGraphic(adjustedAtomIndex) == null)
+                var text:String = left ?
+                    rawText.slice(0, adjustedIndex).split("").reverse().join("") :
+                    rawText.slice(adjustedIndex + 1, rawText.length);
+                
+                var match:Array = pattern.exec(text);
+                if(match)
                 {
-                    atomCode = element.rawText.charCodeAt(++adjustedAtomIndex);
-                    atomIndex++;
+                    var str:String = String(match[0]);
+                    atomIndex += nonWordPattern.test(str) ? 0 : str.length * (left ? -1 : 1);
                 }
             }
             
-            return atomIndex;
+            return Math.max(atomIndex, 0);
         }
         
         /**

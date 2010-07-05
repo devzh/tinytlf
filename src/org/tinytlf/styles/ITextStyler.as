@@ -21,7 +21,11 @@ package org.tinytlf.styles
          */
         function getElementFormat(element:*):ElementFormat;
         
-        function getMappedStyle(element:*):*;
+        /**
+        * Creates a decorations object for an element which
+        * you can pass to the ITextDecor#decorate method.
+        */
+        function getDecorations(element:*):Object;
         
         function mapStyle(element:*, value:*):void;
         function unMapStyle(element:*):Boolean;

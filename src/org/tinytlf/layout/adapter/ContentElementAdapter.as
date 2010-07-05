@@ -6,9 +6,11 @@
  */
 package org.tinytlf.layout.adapter
 {
+    import flash.display.Shape;
     import flash.events.EventDispatcher;
     import flash.text.engine.ContentElement;
     import flash.text.engine.ElementFormat;
+    import flash.text.engine.GraphicElement;
     import flash.text.engine.GroupElement;
     import flash.text.engine.TextElement;
     
@@ -25,7 +27,10 @@ package org.tinytlf.layout.adapter
             if(context.length)
                 name = context[context.length - 1].localName();
             
-            if(data is String)
+            //If the data is an empty string, insert a placeholder GraphicElement.
+            if(data is String && data === "")
+                element = new GraphicElement(new Shape(), 1, 1, getElementFormat(context), getEventMirror(name));
+            else if(data is String)
                 element = new TextElement(String(data), getElementFormat(context), getEventMirror(name));
             else if(data is Vector.<ContentElement>)
                 element = new GroupElement(Vector.<ContentElement>(data), getElementFormat(context), getEventMirror(name));
@@ -33,10 +38,13 @@ package org.tinytlf.layout.adapter
             if(!element)
                 return null;
             
-            //Check to see if there's a styleName for this element
-            var style:* = engine.styler.getMappedStyle(name);
-            if(style)
-                engine.decor.decorate(element, style);
+            if(!(element is GroupElement))
+            {
+                //Do any decorations for this element
+                var dec:Object = engine.styler.getDecorations(context.length ? context : name);
+                if(dec != null)
+                    engine.decor.decorate(element, dec, 'layer' in dec ? int(dec['layer']) : 2);
+            }
             
             return element;
         }

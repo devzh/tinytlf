@@ -21,7 +21,7 @@ package org.tinytlf.layout
             for(var prop:String in props)
             {
                 if(prop in this)
-                    this[prop] = props[prop]
+                    this[prop] = props[prop];
             }
         }
         

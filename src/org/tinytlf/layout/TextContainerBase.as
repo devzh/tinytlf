@@ -13,7 +13,7 @@ package org.tinytlf.layout
     import flash.text.engine.TextBlock;
     import flash.text.engine.TextLine;
     import flash.utils.Dictionary;
-
+    
     import org.tinytlf.ITextEngine;
     import org.tinytlf.layout.description.TextAlign;
     
@@ -68,28 +68,23 @@ package org.tinytlf.layout
             if(shapesContainer === _shapes)
                 return;
             
-            var children:Array = prepareShapesChildren();
-
-            _shapes = shapesContainer;
-            
-            while(children.length)
-                shapes.addChild(children.shift());
-        }
-
-        private function prepareShapesChildren():Array
-        {
-            var children:Array = [];
-            if (shapes)
+            var children:Array;
+            if(_shapes)
             {
                 children = createArrayOfShapesChildren();
                 removeShapesFromParent();
             }
-            return children;
+            
+            _shapes = shapesContainer;
+            
+            if(children)
+                while(children.length)
+                    shapes.addChild(children.shift());
         }
 
         private function removeShapesFromParent():void
         {
-            if (shapes.parent && shapes.parent.contains(shapes))
+            if (shapes && shapes.parent && shapes.parent.contains(shapes))
                 shapes.parent.removeChild(shapes);
         }
 
@@ -156,7 +151,12 @@ package org.tinytlf.layout
 
         public function resetShapes():void
         {
-            while (shapes && shapes.numChildren)
+            if(!shapes)
+                return;
+            
+            shapes.graphics.clear();
+            
+            while(shapes.numChildren)
                     shapes.removeChildAt(0);
         }
 
@@ -241,6 +241,10 @@ package org.tinytlf.layout
         
         protected function hookLine(line:TextLine):DisplayObjectContainer
         {
+            line.doubleClickEnabled = true;
+            
+            engine.interactor.getMirror(line);
+            
             lines[line] = true;
             return line;
         }

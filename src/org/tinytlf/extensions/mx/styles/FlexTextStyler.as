@@ -50,33 +50,34 @@ package org.tinytlf.extensions.mx.styles
             var reduceBoilerplate:Function = function(style:String, defaultValue:*):*
                 {
                     return (elementStyleDeclaration.getStyle(style) || mainStyleDeclaration.getStyle(style) || defaultValue);
-                }
+                };
             
+            //Using primitive values here instead of referencing the constants saves SWC size.
             return new ElementFormat(
                 new FontDescription(
                 reduceBoilerplate("fontFamily", "_sans"),
-                reduceBoilerplate("fontWeight", FontWeight.NORMAL),
-                reduceBoilerplate("fontStyle", FontPosture.NORMAL),
-                reduceBoilerplate("fontLookup", FontLookup.DEVICE),
-                reduceBoilerplate("renderingMode", RenderingMode.CFF),
-                reduceBoilerplate("cffHinting", CFFHinting.HORIZONTAL_STEM)
+                reduceBoilerplate("fontWeight", 'normal'),
+                reduceBoilerplate("fontStyle", 'normal'),
+                reduceBoilerplate("fontLookup", 'device'),
+                reduceBoilerplate("renderingMode", 'cff'),
+                reduceBoilerplate("cffHinting", 'horizontalStem')
                 ),
                 reduceBoilerplate("fontSize", 12),
                 reduceBoilerplate("color", 0x0),
                 reduceBoilerplate("fontAlpha", 1),
-                reduceBoilerplate("textRotation", TextRotation.AUTO),
-                reduceBoilerplate("dominantBaseLine", TextBaseline.ROMAN),
-                reduceBoilerplate("alignmentBaseLine", TextBaseline.USE_DOMINANT_BASELINE),
+                reduceBoilerplate("textRotation", 'auto'),
+                reduceBoilerplate("dominantBaseLine", 'roman'),
+                reduceBoilerplate("alignmentBaseLine", 'useDominantBaseline'),
                 reduceBoilerplate("baseLineShift", 0.0),
-                reduceBoilerplate("kerning", Kerning.ON),
+                reduceBoilerplate("kerning", 'on'),
                 reduceBoilerplate("trackingRight", 0.0),
                 reduceBoilerplate("trackingLeft", 0.0),
                 reduceBoilerplate("locale", "en"),
-                reduceBoilerplate("breakOpportunity", BreakOpportunity.AUTO),
-                reduceBoilerplate("digitCase", DigitCase.DEFAULT),
-                reduceBoilerplate("digitWidth", DigitWidth.DEFAULT),
-                reduceBoilerplate("ligatureLevel", LigatureLevel.COMMON),
-                reduceBoilerplate("typographicCase", TypographicCase.DEFAULT)
+                reduceBoilerplate("breakOpportunity", 'auto'),
+                reduceBoilerplate("digitCase", 'default'),
+                reduceBoilerplate("digitWidth", 'default'),
+                reduceBoilerplate("ligatureLevel", 'common'),
+                reduceBoilerplate("typographicCase", 'default')
                 );
         }
         
