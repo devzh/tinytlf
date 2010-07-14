@@ -19,15 +19,16 @@ package org.tinytlf.layout
     
     public class TextContainerBase implements ITextContainer
     {
-        public function TextContainerBase(container:DisplayObjectContainer, allowedWidth:Number = NaN, allowedHeight:Number = NaN)
+        public function TextContainerBase(container:DisplayObjectContainer, explicitWidth:Number = NaN, explicitHeight:Number = NaN)
         {
             this.target = container;
             
-            _allowedWidth = allowedWidth;
-            _allowedHeight = allowedHeight;
+            _explicitWidth = explicitWidth;
+            _explicitHeight = explicitHeight;
         }
         
         protected var _target:DisplayObjectContainer;
+        
         public function get target():DisplayObjectContainer
         {
             return _target;
@@ -44,6 +45,7 @@ package org.tinytlf.layout
         }
         
         protected var _engine:ITextEngine;
+        
         public function get engine():ITextEngine
         {
             return _engine;
@@ -58,6 +60,7 @@ package org.tinytlf.layout
         }
         
         private var _shapes:Sprite;
+        
         public function get shapes():Sprite
         {
             return _shapes;
@@ -68,56 +71,44 @@ package org.tinytlf.layout
             if(shapesContainer === _shapes)
                 return;
             
-            var children:Array;
-            if(_shapes)
+            var children:Array = [];
+            if(shapes)
             {
-                children = createArrayOfShapesChildren();
-                removeShapesFromParent();
+                while(shapes.numChildren)
+                    children.push(shapes.removeChildAt(0));
+                if(shapes.parent && shapes.parent.contains(shapes))
+                    shapes.parent.removeChild(shapes);
             }
             
             _shapes = shapesContainer;
             
-            if(children)
+            if(shapes)
                 while(children.length)
                     shapes.addChild(children.shift());
         }
-
-        private function removeShapesFromParent():void
+        
+        protected var _explicitWidth:Number = NaN;
+        
+        public function get explicitWidth():Number
         {
-            if (shapes && shapes.parent && shapes.parent.contains(shapes))
-                shapes.parent.removeChild(shapes);
-        }
-
-        private function createArrayOfShapesChildren():Array
-        {
-            var children:Array = [];
-            while (shapes.numChildren)
-                children.push(shapes.removeChildAt(0));
-            return children;
+            return _explicitWidth;
         }
         
-        protected var _allowedWidth:Number = NaN;
-        
-        public function get allowedWidth():Number
+        public function set explicitWidth(value:Number):void
         {
-            return _allowedWidth;
+            _explicitWidth = value;
         }
         
-        public function set allowedWidth(value:Number):void
+        protected var _explicitHeight:Number = NaN;
+        
+        public function get explicitHeight():Number
         {
-            _allowedWidth = value;
+            return _explicitHeight;
         }
         
-        protected var _allowedHeight:Number = NaN;
-        
-        public function get allowedHeight():Number
+        public function set explicitHeight(value:Number):void
         {
-            return _allowedHeight;
-        }
-        
-        public function set allowedHeight(value:Number):void
-        {
-            _allowedHeight = value;
+            _explicitHeight = value;
         }
         
         protected var width:Number = 0;
@@ -144,11 +135,14 @@ package org.tinytlf.layout
         public function clear():void
         {
             for(var line:* in lines)
+            {
                 target.removeChild(line);
+                delete lines[line];
+            }
             
             height = 0;
         }
-
+        
         public function resetShapes():void
         {
             if(!shapes)
@@ -157,9 +151,9 @@ package org.tinytlf.layout
             shapes.graphics.clear();
             
             while(shapes.numChildren)
-                    shapes.removeChildAt(0);
+                shapes.removeChildAt(0);
         }
-
+        
         public function layout(block:TextBlock, line:TextLine):TextLine
         {
             var doc:DisplayObjectContainer;
@@ -174,7 +168,7 @@ package org.tinytlf.layout
             
             while(line)
             {
-                width = allowedWidth;
+                width = explicitWidth;
                 
                 line.userData = engine;
                 
@@ -188,7 +182,7 @@ package org.tinytlf.layout
                 
                 height += props.lineHeight;
                 
-                if(!isNaN(allowedHeight) && measuredHeight > allowedHeight)
+                if(!isNaN(explicitHeight) && measuredHeight > explicitHeight)
                     return line;
                 
                 line = createLine(block, line);
@@ -203,7 +197,7 @@ package org.tinytlf.layout
         {
             var props:LayoutProperties = getLayoutProperties(block);
             
-            var w:Number = allowedWidth || props.width;
+            var w:Number = props.width || explicitWidth;
             var x:Number = 0;
             
             if(line == null)

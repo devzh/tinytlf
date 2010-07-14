@@ -45,7 +45,7 @@ package org.tinytlf
                 return;
             
             _height = value;
-            container.allowedHeight = Math.max(value - 1, 0);
+            container.explicitHeight = Math.max(value - 1, 0);
             hookEngine();
             engine.invalidate();
         }
@@ -62,7 +62,7 @@ package org.tinytlf
                 return;
             
             _width = value;
-            container.allowedWidth = Math.max(value - 1, 0);
+            container.explicitWidth = Math.max(value - 1, 0);
             hookEngine();
             engine.invalidate();
         }
@@ -75,6 +75,7 @@ package org.tinytlf
         override public function getBounds(targetCoordinateSpace:DisplayObject):Rectangle
         {
             var bounds:Rectangle = super.getBounds(targetCoordinateSpace);
+            
             bounds.width = _width;
             bounds.height = _height || container.measuredHeight;
             bounds.left = 0;

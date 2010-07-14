@@ -6,12 +6,12 @@
  */
 package org.tinytlf.layout
 {
-    import org.tinytlf.ITextEngine;
-    
     import flash.display.DisplayObjectContainer;
     import flash.display.Sprite;
     import flash.text.engine.TextBlock;
     import flash.text.engine.TextLine;
+    
+    import org.tinytlf.ITextEngine;
     
     public interface ITextContainer
     {
@@ -24,18 +24,19 @@ package org.tinytlf.layout
         function get shapes():Sprite;
         function set shapes(shapesContainer:Sprite):void;
         
-        function get allowedWidth():Number;
-        function set allowedWidth(value:Number):void;
+        function get explicitWidth():Number;
+        function set explicitWidth(value:Number):void;
         
-        function get allowedHeight():Number;
-        function set allowedHeight(value:Number):void;
+        function get explicitHeight():Number;
+        function set explicitHeight(value:Number):void;
         
         function get measuredWidth():Number;
         function get measuredHeight():Number;
         
         function clear():void;
-        function layout(block:TextBlock, line:TextLine):TextLine;
         function resetShapes():void;
+        
+        function layout(block:TextBlock, line:TextLine):TextLine;
         function hasLine(line:TextLine):Boolean;
     }
 }

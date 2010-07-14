@@ -6,6 +6,7 @@
 */
 package org.tinytlf.interaction.gesture.behaviors
 {
+    import flash.display.Stage;
     import flash.events.KeyboardEvent;
     import flash.events.MouseEvent;
     

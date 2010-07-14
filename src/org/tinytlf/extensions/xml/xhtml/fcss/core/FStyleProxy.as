@@ -34,7 +34,7 @@ package org.tinytlf.extensions.xml.xhtml.fcss.core
         {
             if(styleProp in styles)
                 return styles[styleProp];
-            else if(sheet)
+            else if(sheet && styleProp in sheet)
                 return sheet.getStyle(styleProp);
         }
     }

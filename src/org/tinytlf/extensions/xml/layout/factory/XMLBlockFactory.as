@@ -28,7 +28,7 @@ package org.tinytlf.extensions.xml.layout.factory
             
             ancestorList = [];
             
-            if(xml.children().length())
+            if(xml.children().length() && xml.nodeKind() != 'text')
                 for each(var child:XML in xml.children())
                     elements.push(getElementForNode(child));
             else
@@ -40,7 +40,10 @@ package org.tinytlf.extensions.xml.layout.factory
         protected function getXML(xmlOrString:Object):XML
         {
             try{
-                return XML(xmlOrString);
+                if(xmlOrString is XML)
+                    return XML(xmlOrString);
+                else if(xmlOrString is String)
+                    return new XML("<_><_>" + xmlOrString + "</_></_>");
             }
             catch(e:Error){
                 //If we failed the first time, maybe they passed in a string like this:
@@ -74,7 +77,7 @@ package org.tinytlf.extensions.xml.layout.factory
             if(node.nodeKind() != "text")
             {
                 var ancestor:XML = new XML(String(node.toXMLString().match(nodePattern)[0]).replace(endNodePattern, '/>'));
-                ancestor.@unique = escape(node.text().toString());
+//                ancestor.@unique = escape(node.text().toString());
                 ancestorList.push(ancestor);
             }
             

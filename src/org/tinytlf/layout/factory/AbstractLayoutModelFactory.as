@@ -95,7 +95,8 @@ package org.tinytlf.layout.factory
         while(_blocks.length > 0)
         {
           block = _blocks.pop();
-          block.releaseLines(block.firstLine, block.lastLine);
+          if(block.firstLine)
+              block.releaseLines(block.firstLine, block.lastLine);
         }
       }
       else

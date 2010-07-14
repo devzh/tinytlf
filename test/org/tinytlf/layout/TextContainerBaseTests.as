@@ -103,13 +103,13 @@ package org.tinytlf.layout
         [Test]
         public function allowed_width_default_is_NaN():void
         {
-            Assert.assertTrue(isNaN(container.allowedWidth));
+            Assert.assertTrue(isNaN(container.explicitWidth));
         }
         
         [Test]
         public function allowed_height_default_is_NaN():void
         {
-            Assert.assertTrue(isNaN(container.allowedHeight));
+            Assert.assertTrue(isNaN(container.explicitHeight));
         }
     }
 }

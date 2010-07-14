@@ -26,6 +26,7 @@ package org.tinytlf.interaction.gesture
             var charSelect:CharacterSelectionBehavior = new CharacterSelectionBehavior();
             var wordSelect:WordSelectionBehavior = new WordSelectionBehavior();
             var lineSelect:LineSelectionBehavior = new LineSelectionBehavior();
+            var charBack:CharacterBackspaceBehavior = new CharacterBackspaceBehavior();
             
             addGesture(new KeyboardGesture(), focus);
             addGesture(new MouseOverGesture(), iBeam);
@@ -33,6 +34,7 @@ package org.tinytlf.interaction.gesture
             addGesture(new MouseClickGesture(), focus, charSelect);
             addGesture(new MouseDoubleDownGesture(), wordSelect);
             addGesture(new MouseTripleDownGesture(), lineSelect);
+            addGesture(new BackspaceGesture(), charBack);
         }
         
         override public function getMirror(element:* = null):EventDispatcher

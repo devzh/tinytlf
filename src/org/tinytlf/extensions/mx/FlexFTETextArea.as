@@ -157,7 +157,7 @@ package org.tinytlf.extensions.mx
                 w -= (verticalScrollPolicy == ScrollPolicy.ON || (verticalScrollPolicy == ScrollPolicy.AUTO && verticalScrollBar)) ?
                     verticalScrollBar.getExplicitOrMeasuredWidth() : 0;
                 
-                container.allowedWidth = w;
+                container.explicitWidth = w;
                 
                 engine.blockFactory.data = data;
                 
