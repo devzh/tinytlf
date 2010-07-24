@@ -1,4 +1,4 @@
-package org.tinytlf.extensions.fcss.xhtml.styles
+package org.tinytlf.extensions.xml.xhtml.fcss.styles
 {
     import flash.text.engine.ElementFormat;
     

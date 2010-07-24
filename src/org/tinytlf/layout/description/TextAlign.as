@@ -6,17 +6,12 @@
  */
 package org.tinytlf.layout.description
 {
-    public class TextAlign extends Enum
+    public class TextAlign
     {
-        public function TextAlign(identifier:String)
-        {
-            super(id);
-        }
-        
-        public static const LEFT:TextAlign = new TextAlign("left");
-        public static const CENTER:TextAlign = new TextAlign("center");
-        public static const RIGHT:TextAlign = new TextAlign("right");
-        public static const JUSTIFY:TextAlign = new TextAlign("justify");
+        public static const LEFT:String = "left";
+        public static const CENTER:String = "center";
+        public static const RIGHT:String = "right";
+        public static const JUSTIFY:String = "justify";
     }
 }
 

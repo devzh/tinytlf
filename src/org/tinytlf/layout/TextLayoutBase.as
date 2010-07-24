@@ -10,7 +10,9 @@ package org.tinytlf.layout
     import flash.text.engine.TextLine;
     
     import org.tinytlf.ITextEngine;
-    
+    import org.tinytlf.extensions.layout.factory.xml.XMLBlockFactory;
+    import org.tinytlf.layout.factory.ILayoutModelFactory;
+
     public class TextLayoutBase implements ITextLayout
     {
         protected var _engine:ITextEngine;
@@ -27,7 +29,27 @@ package org.tinytlf.layout
             
             _engine = textEngine;
         }
-        
+
+        protected var _textBlockFactory:ILayoutModelFactory;
+
+        public function get textBlockFactory():ILayoutModelFactory
+        {
+            if(!_textBlockFactory)
+                textBlockFactory = new XMLBlockFactory();
+
+            return _textBlockFactory;
+        }
+
+        public function set textBlockFactory(value:ILayoutModelFactory):void
+        {
+            if(value === _textBlockFactory)
+                return;
+
+            _textBlockFactory = value;
+
+            _textBlockFactory.engine = engine;
+        }
+
         public function clear():void
         {
             for (var i:int = 0; i < containers.length; i++)

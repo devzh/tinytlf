@@ -19,11 +19,10 @@ package org.tinytlf
     import org.tinytlf.decor.decorations.SelectionDecoration;
     import org.tinytlf.decor.decorations.StrikeThroughDecoration;
     import org.tinytlf.decor.decorations.UnderlineDecoration;
-    import org.tinytlf.extensions.xml.xhtml.interaction.AnchorInteractor;
-    import org.tinytlf.extensions.xml.xhtml.layout.adapter.AnchorAdapter;
+    import org.tinytlf.extensions.interaction.xml.html.CSSInteractor;
     import org.tinytlf.layout.ITextContainer;
     import org.tinytlf.layout.TextContainerBase;
-    
+
     public class TextField extends Sprite implements IStyleAware
     {
         public function TextField()
@@ -134,7 +133,7 @@ package org.tinytlf
                 return;
             
             _text = value;
-            engine.blockFactory.data = _text;
+            engine.layout.textBlockFactory.data = _text;
             hookEngine();
             engine.prerender();
             engine.invalidate();
@@ -193,14 +192,8 @@ package org.tinytlf
             if(!engine.decor.hasDecoration("caret"))
                 engine.decor.mapDecoration("caret", CaretDecoration);
             
-            if(!engine.blockFactory.hasElementAdapter("a"))
-                engine.blockFactory.mapElementAdapter("a", AnchorAdapter);
-            
             if(!engine.interactor.hasMirror("a"))
-                engine.interactor.mapMirror("a", AnchorInteractor);
-            
-            if(!engine.styler.getDecorations("a"))
-                engine.styler.mapStyle("a", {underline:true});
+                engine.interactor.mapMirror("a", CSSInteractor);
         }
         
         private function onAddedToStage(event:Event):void

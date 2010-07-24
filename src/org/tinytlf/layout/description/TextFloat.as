@@ -6,15 +6,10 @@
  */
 package org.tinytlf.layout.description
 {
-    public class TextFloat extends Enum
+    public class TextFloat
     {
-        public function TextFloat(identifier:String)
-        {
-            super(identifier);
-        }
-        
-        public static const LEFT:TextFloat = new TextFloat("left");
-        public static const RIGHT:TextFloat = new TextFloat("right");
+        public static const LEFT:String = "left";
+        public static const RIGHT:String = "right";
     }
 }
 

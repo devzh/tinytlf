@@ -6,12 +6,10 @@
  */
 package org.tinytlf.layout.factory
 {
-    import flash.text.engine.ContentElement;
     import flash.text.engine.TextBlock;
     
     import org.tinytlf.ITextEngine;
     import org.tinytlf.layout.adapter.IContentElementAdapter;
-    import org.tinytlf.layout.adapter.ITextBlockAdapter;
     
     /**
      * Ultimately the job of BlockFactory is to generate TextBlocks for us. It just
@@ -20,9 +18,6 @@ package org.tinytlf.layout.factory
      */
     public interface ILayoutModelFactory
     {
-        function get blockAdapter():ITextBlockAdapter;
-        function set blockAdapter(adapter:ITextBlockAdapter):void;
-        
         function get data():Object;
         function set data(value:Object):void;
         
@@ -30,10 +25,8 @@ package org.tinytlf.layout.factory
         function set engine(textEngine:ITextEngine):void;
         
         function get blocks():Vector.<TextBlock>;
-        function get elements():Vector.<ContentElement>;
         
         function createBlocks(...args):Vector.<TextBlock>;
-        function createElements(...args):Vector.<ContentElement>;
         
         function hasElementAdapter(element:*):Boolean;
         function getElementAdapter(element:*):IContentElementAdapter;

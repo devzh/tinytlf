@@ -18,9 +18,6 @@ package org.tinytlf
     
     public interface ITextEngine
     {
-        function get blockFactory():ILayoutModelFactory;
-        function set blockFactory(value:ILayoutModelFactory):void;
-        
         function get decor():ITextDecor;
         function set decor(textDecor:ITextDecor):void;
         

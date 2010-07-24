@@ -6,17 +6,12 @@
  */
 package org.tinytlf.layout.description
 {
-    public class TextTransform extends Enum
+    public class TextTransform
     {
-        public function TextTransform(identifier:String)
-        {
-            super(identifier);
-        }
-        
-        public static const CAPITALIZE:TextTransform = new TextTransform('capitalize');
-        public static const UPPERCASE:TextTransform = new TextTransform('uppercase');
-        public static const LOWERCASE:TextTransform = new TextTransform('lowercase');
-        public static const NONE:TextTransform = new TextTransform('none');
+        public static const CAPITALIZE:String = 'capitalize';
+        public static const UPPERCASE:String = 'uppercase';
+        public static const LOWERCASE:String = 'lowercase';
+        public static const NONE:String = 'none';
     }
 }
 

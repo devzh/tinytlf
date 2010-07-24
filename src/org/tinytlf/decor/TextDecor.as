@@ -158,7 +158,7 @@ package org.tinytlf.decor
             {
                 for(styleProp in styleObj)
                 {
-                    if(hasDecoration(styleProp) && styleObj[styleProp] != null)
+                    if(hasDecoration(styleProp) && styleObj[styleProp] != null && styleObj[styleProp] !== false && styleObj[styleProp] !== 'false')
                     {
                         decoration = ITextDecoration(theLayer[element][styleProp] = getDecoration(styleProp, containers));
                         for(styleProp in styleObj)

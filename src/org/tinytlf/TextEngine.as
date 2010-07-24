@@ -16,44 +16,20 @@ package org.tinytlf
     import flash.text.engine.TextLine;
     import flash.utils.Dictionary;
     import flash.utils.setTimeout;
-    
+
     import org.tinytlf.core.Dimension;
     import org.tinytlf.decor.*;
-    import org.tinytlf.extensions.xml.layout.factory.XMLBlockFactory;
-    import org.tinytlf.extensions.xml.xhtml.fcss.styles.FCSSTextStyler;
+    import org.tinytlf.extensions.styles.fcss.FCSSTextStyler;
     import org.tinytlf.interaction.*;
     import org.tinytlf.interaction.gesture.GestureInteractor;
     import org.tinytlf.layout.*;
-    import org.tinytlf.layout.factory.*;
     import org.tinytlf.styles.*;
-    
+
     public class TextEngine extends EventDispatcher implements ITextEngine
     {
         public function TextEngine(stage:Stage = null)
         {
             this.stage = stage;
-        }
-        
-        protected var _blockFactory:ILayoutModelFactory;
-        
-        public function get blockFactory():ILayoutModelFactory
-        {
-            if(!_blockFactory)
-                _blockFactory = new XMLBlockFactory();
-            
-            _blockFactory.engine = this;
-            
-            return _blockFactory;
-        }
-        
-        public function set blockFactory(value:ILayoutModelFactory):void
-        {
-            if(value === _blockFactory)
-                return;
-            
-            _blockFactory = value;
-            
-            blockFactory.engine = this;
         }
         
         protected var _decor:ITextDecor;
@@ -334,7 +310,7 @@ package org.tinytlf
         {
             decor.removeAll();
             
-            var textBlocks:Vector.<TextBlock> = blockFactory.createBlocks(args);
+            var textBlocks:Vector.<TextBlock> = layout.textBlockFactory.createBlocks(args);
             if(!blocks)
                 blocks = new Dimension();
             
@@ -421,7 +397,7 @@ package org.tinytlf
         public function renderLines():void
         {
             layout.clear();
-            layout.render(blockFactory.blocks);
+            layout.render(layout.textBlockFactory.blocks);
         }
         
         public function renderDecorations():void

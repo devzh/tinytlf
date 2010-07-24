@@ -10,9 +10,13 @@ package org.tinytlf.layout
     import flash.text.engine.TextLine;
     
     import org.tinytlf.ITextEngine;
-    
+    import org.tinytlf.layout.factory.ILayoutModelFactory;
+
     public interface ITextLayout
     {
+        function get textBlockFactory():ILayoutModelFactory;
+        function set textBlockFactory(value:ILayoutModelFactory):void;
+        
         function get engine():ITextEngine;
         function set engine(textEngine:ITextEngine):void;
         

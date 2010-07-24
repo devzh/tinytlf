@@ -159,7 +159,7 @@ package org.tinytlf.extensions.mx
                 
                 container.explicitWidth = w;
                 
-                engine.blockFactory.data = data;
+                engine.layout.textBlockFactory.data = data;
                 
                 renderText();
                 

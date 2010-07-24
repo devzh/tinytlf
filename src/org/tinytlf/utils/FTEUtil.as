@@ -11,6 +11,8 @@ package org.tinytlf.utils
     import flash.text.engine.GroupElement;
     import flash.text.engine.TextLine;
     
+    import org.tinytlf.gesture.util.Type;
+    
     public class FTEUtil
     {
         public static function getContentElementAt(element:ContentElement, index:int):ContentElement
@@ -57,9 +59,10 @@ package org.tinytlf.utils
                 atomIndex = line.atomCount - 1;
             
             var rawText:String = line.textBlock.content.rawText;
-            var adjustedIndex:int = line.getAtomTextBlockBeginIndex(atomIndex);/*left ?
-                line.getAtomTextBlockBeginIndex(atomIndex) :
-                line.getAtomTextBlockEndIndex(atomIndex);*/
+            var adjustedIndex:int = line.getAtomTextBlockBeginIndex(atomIndex);
+            /*left ?
+               line.getAtomTextBlockBeginIndex(atomIndex) :
+             line.getAtomTextBlockEndIndex(atomIndex);*/
             
             if(nonWordPattern.test(rawText.charAt(adjustedIndex)))
             {
@@ -80,6 +83,33 @@ package org.tinytlf.utils
             }
             
             return Math.max(atomIndex, 0);
+        }
+        
+        /**
+        * Compares the properties of two objects, including the properties of sub-properties and so on.
+        * @return true if there are differences, false otherwise.
+        */
+        public static function compare(a:*, b:*):Boolean
+        {
+            var aClass:Class = Type.getType(a);
+            
+            if(!(b is aClass))
+                throw new Error('Cannot compare objects of different types.');
+            
+            if(a is Number || a is int || a is uint || a is String || a is Boolean)
+                return a !== b;
+            
+            var properties:XMLList = Type.describeProperties(a);
+            
+            for each(var prop:* in properties)
+            {
+                prop = prop.@name.toString();
+                if(prop in b)
+                    if(compare(a[prop], b[prop]))
+                        return true;
+            }
+            
+            return false;
         }
         
         /**

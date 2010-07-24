@@ -6,6 +6,8 @@
  */
 package org.tinytlf.layout
 {
+    import flash.text.engine.TextBlock;
+
     import org.tinytlf.layout.description.TextAlign;
     import org.tinytlf.layout.description.TextDirection;
     import org.tinytlf.layout.description.TextFloat;
@@ -13,19 +15,19 @@ package org.tinytlf.layout
     
     public class LayoutProperties
     {
-        public function LayoutProperties(props:Object = null)
+        public function LayoutProperties(props:Object = null, block:TextBlock = null)
         {
             if(!props)
                 return;
             
             for(var prop:String in props)
-            {
                 if(prop in this)
                     this[prop] = props[prop];
-            }
+
+            this.block = block;
         }
         
-        public var associatedItem:*;
+        public var block:TextBlock;
         
         public var width:Number = 0;
         public var lineHeight:Number = 0;
@@ -35,10 +37,10 @@ package org.tinytlf.layout
         public var paddingBottom:Number = 0;
         public var paddingTop:Number = 0;
         
-        public var textAlign:TextAlign = TextAlign.LEFT;
-        public var textDirection:TextDirection = TextDirection.LTR;
-        public var textTransform:TextTransform = TextTransform.NONE;
-        public var float:TextFloat = TextFloat.LEFT;
+        public var textAlign:String = TextAlign.LEFT;
+        public var textDirection:String = TextDirection.LTR;
+        public var textTransform:String = TextTransform.NONE;
+        public var float:String = TextFloat.LEFT;
     }
 }
 

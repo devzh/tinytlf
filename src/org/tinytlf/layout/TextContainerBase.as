@@ -174,13 +174,13 @@ package org.tinytlf.layout
                 
                 doc = hookLine(line);
                 
-                height += doc.height;
+                height += line.ascent;
                 
                 doc.y = height;
                 
                 target.addChild(doc);
                 
-                height += props.lineHeight;
+                height += line.descent + props.lineHeight;
                 
                 if(!isNaN(explicitHeight) && measuredHeight > explicitHeight)
                     return line;

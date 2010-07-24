@@ -6,7 +6,6 @@
  */
 package org.tinytlf.interaction
 {
-    import flash.display.DisplayObjectContainer;
     import flash.events.Event;
     import flash.events.EventDispatcher;
     import flash.events.MouseEvent;
@@ -15,11 +14,11 @@ package org.tinytlf.interaction
     import flash.text.engine.TextLineMirrorRegion;
     import flash.text.engine.TextLineValidity;
     import flash.utils.getDefinitionByName;
-    
+
     import org.tinytlf.ITextEngine;
     import org.tinytlf.layout.ITextContainer;
     import org.tinytlf.utils.FTEUtil;
-    
+
     public class EventLineInfo
     {
         public static var uiLineClass:Class = checkFlex();

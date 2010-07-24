@@ -60,7 +60,7 @@ package org.tinytlf.styles
         
         protected var styleMap:Dictionary = new Dictionary(true);
         
-        public function getDecorations(element:*):Object
+        public function describeElement(element:*):Object
         {
             var obj:Object;
             

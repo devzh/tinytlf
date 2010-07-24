@@ -82,7 +82,7 @@ package org.tinytlf
         [Test]
         public function engine_has_default_block_factory():void
         {
-            var factory:ILayoutModelFactory = engine.blockFactory;
+            var factory:ILayoutModelFactory = engine.layout.textBlockFactory;
             
             Assert.assertTrue(factory is AbstractLayoutModelFactory);
         }
@@ -140,7 +140,7 @@ package org.tinytlf
             var blockFactory:ILayoutModelFactory = nice(ILayoutModelFactory);
             stub(blockFactory).method("createBlocks").returns(new <TextBlock>[new TextBlock(new TextElement("mockolate-d"))]);
             
-            engine.blockFactory = blockFactory;
+            engine.layout.textBlockFactory = blockFactory;
             engine.prerender();
             
             verify(blockFactory).method("createBlocks").once();
@@ -293,7 +293,7 @@ package org.tinytlf
         {
             var target:Sprite = new Sprite();
             engine.layout.addContainer(new TextContainerBase(target, 100));
-            engine.blockFactory.data = "Let's test this shit.";
+            engine.layout.textBlockFactory.data = "Let's test this shit.";
             engine.prerender();
             engine.invalidate();
             engine.render();

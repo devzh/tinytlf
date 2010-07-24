@@ -41,10 +41,12 @@ package org.tinytlf.layout.adapter
             if(!(element is GroupElement))
             {
                 //Do any decorations for this element
-                var dec:Object = engine.styler.getDecorations(context.length ? context : name);
+                var dec:Object = engine.styler.describeElement(context.length ? context : name);
                 if(dec != null)
                     engine.decor.decorate(element, dec, 'layer' in dec ? int(dec['layer']) : 2);
             }
+
+            element.userData = context;
             
             return element;
         }
