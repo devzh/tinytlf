@@ -309,6 +309,7 @@ package org.tinytlf
         public function prerender(... args):void
         {
             decor.removeAll();
+            layout.clear();
             
             var textBlocks:Vector.<TextBlock> = layout.textBlockFactory.createBlocks(args);
             if(!blocks)
@@ -396,7 +397,6 @@ package org.tinytlf
         
         public function renderLines():void
         {
-            layout.clear();
             layout.render(layout.textBlockFactory.blocks);
         }
         

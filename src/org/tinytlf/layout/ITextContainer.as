@@ -36,6 +36,7 @@ package org.tinytlf.layout
         function clear():void;
         function resetShapes():void;
         
+        function prepLayout():void;
         function layout(block:TextBlock, line:TextLine):TextLine;
         function hasLine(line:TextLine):Boolean;
     }

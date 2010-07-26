@@ -80,7 +80,7 @@ package org.tinytlf.decor.decorations
             {
                 rect = rects.pop();
                 color = colors.pop();
-
+                colors.unshift(color);
                 g = getShapeForRectangle(rect).graphics;
                 g.lineStyle(2, color);
                 g.drawRect(rect.x, rect.y, rect.width, rect.height);

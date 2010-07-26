@@ -6,7 +6,7 @@
  */
 package org.tinytlf.decor.decorations
 {
-    import flash.display.Sprite;
+    import flash.display.Graphics;
     import flash.geom.Point;
     import flash.geom.Rectangle;
     
@@ -21,31 +21,30 @@ package org.tinytlf.decor.decorations
             var start:Point;
             var end:Point;
             var rect:Rectangle;
-            var parent:Sprite;
+            var g:Graphics;
             
             while(bounds.length > 0)
             {
                 rect = bounds.pop();
-                parent = getShapeForRectangle(rect);
-                
-                if(!parent)
-                    continue;
+                g = getShapeForRectangle(rect).graphics;
                 
                 start = new Point(rect.x, rect.y + (rect.height * 0.5));
                 end = new Point(rect.x + rect.width, rect.y + (rect.height * 0.5));
                 
-                parent.graphics.lineStyle(
+                g.lineStyle(
                     getStyle("weight") || 2,
-                    getStyle("color") || getStyle("color") || 0x00,
-                    getStyle("alpha") || 1,
+                    getStyle("strikethroughColor") || getStyle("color") || 0x00,
+                    getStyle("strikethroughAlpha") || getStyle("alpha") || 1,
                     getStyle("pixelHinting") || false,
                     getStyle("scaleMode") || "normal",
                     getStyle("caps") || null,
                     getStyle("joints") || null,
                     getStyle("miterLimit") || 3);
                 
-                parent.graphics.moveTo(start.x, start.y);
-                parent.graphics.lineTo(end.x, end.y);
+                g.moveTo(start.x, start.y);
+                g.lineTo(end.x, end.y);
+                
+                g.lineStyle();
             }
         }
     }

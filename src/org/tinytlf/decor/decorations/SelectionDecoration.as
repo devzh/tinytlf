@@ -6,10 +6,8 @@
  */
 package org.tinytlf.decor.decorations
 {
-    import flash.display.Sprite;
-    import flash.geom.Point;
+    import flash.display.Graphics;
     import flash.geom.Rectangle;
-    import flash.text.engine.TextLine;
     
     import org.tinytlf.decor.TextDecoration;
     
@@ -20,18 +18,19 @@ package org.tinytlf.decor.decorations
             super.draw(bounds);
             
             var rect:Rectangle;
-            var parent:Sprite;
+            var copy:Vector.<Rectangle> = bounds.concat();
+            var g:Graphics;
+            var color:uint;
+            var alpha:Number;
             
-            while(bounds.length > 0)
+            while(copy.length > 0)
             {
-                rect = bounds.pop();
-                parent = getShapeForRectangle(rect);
-                
-                if(!parent)
-                    continue;
-                
-                parent.graphics.beginFill(getStyle("selectionColor") || 0x000000, getStyle("selectionAlpha") || 1);
-                parent.graphics.drawRect(rect.x, rect.y, rect.width, rect.height);
+                rect = copy.pop();
+                g = getShapeForRectangle(rect).graphics;
+                color = uint(getStyle("selectionColor"));
+                alpha = Number(getStyle("selectionAlpha"));
+                g.beginFill(color || 0x000000, isNaN(alpha) ? 1 : alpha);
+                g.drawRect(rect.x, rect.y, rect.width, rect.height);
             }
         }
     }

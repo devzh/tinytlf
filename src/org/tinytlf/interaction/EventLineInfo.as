@@ -42,7 +42,7 @@ package org.tinytlf.interaction
             if(!canProcess)
                 return null;
             
-            var line:TextLine = (target as TextLine) || Object(target).line;
+            var line:TextLine = (target as TextLine) || target.line;
             
             if(line.validity == TextLineValidity.INVALID)
                 return null;

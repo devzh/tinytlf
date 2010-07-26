@@ -2,7 +2,7 @@ package org.tinytlf.extensions.layout.factory.xml
 {
     import flash.text.engine.ContentElement;
     import flash.text.engine.TextBlock;
-
+    
     import org.tinytlf.extensions.layout.adapter.xml.XMLElementAdapter;
     import org.tinytlf.layout.LayoutProperties;
     import org.tinytlf.layout.adapter.ContentElementAdapter;
@@ -13,6 +13,7 @@ package org.tinytlf.extensions.layout.factory.xml
     public class XMLBlockFactory extends AbstractLayoutModelFactory
     {
         XML.ignoreWhitespace = false;
+        XML.prettyPrinting = false;
 
         override protected function generateTextBlocks():Vector.<TextBlock>
         {
@@ -24,13 +25,17 @@ package org.tinytlf.extensions.layout.factory.xml
 
             try{
                 xml = XML(data);
+                
                 if(xml.nodeKind() == 'text')
                     xml = new XML("<_><p>" + xml + "</p></_>");
                 else
                     ancestorList.push(getXMLDefinition(xml));
             }
             catch(e:Error){
-                xml = new XML("<_>" + data.toString() + "</_>");
+                xml = new XML("<p>" + data.toString() + "</p>");
+                
+                if((xml.*[0] as XML).nodeKind() == 'text')
+                    xml = new XML("<_>" + xml + "</_>");
             }
 
             var blocks:Vector.<TextBlock> = new <TextBlock>[];

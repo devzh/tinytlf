@@ -23,6 +23,7 @@ package org.tinytlf.interaction.gesture
             
             var focus:FocusBehavior = new FocusBehavior();
             var iBeam:IBeamBehavior = new IBeamBehavior();
+            var events:EnsureMouseEventsReceivedBehavior = new EnsureMouseEventsReceivedBehavior();
             var charSelect:CharacterSelectionBehavior = new CharacterSelectionBehavior();
             var wordSelect:WordSelectionBehavior = new WordSelectionBehavior();
             var lineSelect:LineSelectionBehavior = new LineSelectionBehavior();
@@ -30,7 +31,7 @@ package org.tinytlf.interaction.gesture
             
             addGesture(new KeyboardGesture(), focus);
             addGesture(new MouseOverGesture(), iBeam);
-            addGesture(new MouseOutGesture(), iBeam);
+            addGesture(new MouseOutGesture(), iBeam/*, events*/);
             addGesture(new MouseClickGesture(), focus, charSelect);
             addGesture(new MouseDoubleDownGesture(), wordSelect);
             addGesture(new MouseTripleDownGesture(), lineSelect);

@@ -164,6 +164,10 @@ package org.tinytlf.decor
                         for(styleProp in styleObj)
                             decoration.setStyle(styleProp, styleObj[styleProp]);
                     }
+                    else if(hasDecoration(styleProp) && styleProp in theLayer[element])
+                    {
+                        delete theLayer[element][styleProp];
+                    }
                 }
             }
             

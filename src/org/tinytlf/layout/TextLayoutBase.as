@@ -74,9 +74,13 @@ package org.tinytlf.layout
             var blockIndex:int = 0;
             var containerIndex:int = 0;
             
-            var block:TextBlock;
-            var container:ITextContainer;
+            var block:TextBlock = blocks[0];
+            var container:ITextContainer = containers[0];
+            container.prepLayout();
+            
             var line:TextLine;
+            if(block.firstInvalidLine)
+                line = block.firstInvalidLine.previousLine;
             
             while(blockIndex < blocks.length)
             {
@@ -86,9 +90,19 @@ package org.tinytlf.layout
                 line = container.layout(block, line);
                 
                 if(line && ++containerIndex < containers.length)
+                {
                     container = containers[containerIndex];
+                    container.prepLayout();
+                }
                 else if(++blockIndex < blocks.length)
+                {
                     block = blocks[blockIndex];
+                    
+                    if(block.firstInvalidLine)
+                    {
+                        line = block.firstInvalidLine.previousLine;
+                    }
+                }
                 else
                     return;
             }

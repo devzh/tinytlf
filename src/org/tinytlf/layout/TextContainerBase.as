@@ -125,19 +125,27 @@ package org.tinytlf.layout
             return height;
         }
         
-        protected var lines:Dictionary = new Dictionary(false);
+        protected var blocks:Dictionary = new Dictionary(false);
         
         public function hasLine(line:TextLine):Boolean
         {
-            return (line in lines);
+            for(var block:* in blocks)
+            {
+                if(line in blocks[block])
+                    return true;
+            }
+            
+            return false;
         }
         
         public function clear():void
         {
-            for(var line:* in lines)
+            for(var block:* in blocks)
             {
-                target.removeChild(line);
-                delete lines[line];
+                for(var line:* in blocks[block])
+                    removeLine(line);
+                
+                delete blocks[block];
             }
             
             height = 0;
@@ -154,33 +162,45 @@ package org.tinytlf.layout
                 shapes.removeChildAt(0);
         }
         
+        public function prepLayout():void
+        {
+            height = 0;
+            width = explicitWidth;
+        }
+        
         public function layout(block:TextBlock, line:TextLine):TextLine
         {
+            if(!(block in blocks))
+                blocks[block] = new Dictionary(false);
+            
             var doc:DisplayObjectContainer;
             var props:LayoutProperties = getLayoutProperties(block);
             
-            height += props.paddingTop;
+            setupBlockJustifier(block);
             
-            if(props.textAlign == TextAlign.JUSTIFY)
-                block.textJustifier = new SpaceJustifier("en", LineJustification.ALL_BUT_LAST, true);
+            var y:Number = height + props.paddingTop;
+            if(block.firstInvalidLine)
+            {
+                line = block.firstInvalidLine;
+                y = line.y - line.ascent;
+                line = line.previousLine;
+            }
             
             line = createLine(block, line);
             
             while(line)
             {
-                width = explicitWidth;
+                blocks[block][line] = true;
                 
                 line.userData = engine;
                 
                 doc = hookLine(line);
                 
-                height += line.ascent;
-                
-                doc.y = height;
+                y += line.ascent;
+                doc.y = y;
+                y += line.descent + props.lineHeight;
                 
                 target.addChild(doc);
-                
-                height += line.descent + props.lineHeight;
                 
                 if(!isNaN(explicitHeight) && measuredHeight > explicitHeight)
                     return line;
@@ -188,7 +208,25 @@ package org.tinytlf.layout
                 line = createLine(block, line);
             }
             
-            height += props.paddingBottom;
+            height = y + props.paddingBottom;
+            
+            var blockLines:Dictionary = new Dictionary(true);
+            line = block.firstLine;
+            while(line)
+            {
+                blockLines[line] = true;
+                line = line.nextLine;
+            }
+            
+            for(var l:* in blocks[block])
+            {
+                if(!(l in blockLines))
+                {
+                    removeLine(l);
+                }
+            }
+            
+            blockLines = null;
             
             return line;
         }
@@ -209,7 +247,7 @@ package org.tinytlf.layout
             w -= props.paddingLeft;
             w -= props.paddingRight;
             
-            line = block.createTextLine(line, w);
+            line = block.createTextLine(line, w, 0, true);
             
             if(!line)
                 return null;
@@ -233,23 +271,42 @@ package org.tinytlf.layout
             return line;
         }
         
+        protected function removeLine(line:TextLine):void
+        {
+            if(target.contains(line))
+                target.removeChild(line);
+            
+            var block:TextBlock = line.textBlock;
+            
+            delete blocks[block][line];
+        }
+        
         protected function hookLine(line:TextLine):DisplayObjectContainer
         {
             line.doubleClickEnabled = true;
             
             engine.interactor.getMirror(line);
             
-            lines[line] = true;
             return line;
+        }
+        
+        protected function setupBlockJustifier(block:TextBlock):void
+        {
+            var props:LayoutProperties = getLayoutProperties(block);
+            var justification:String = LineJustification.UNJUSTIFIED;
+            
+            if(props.textAlign == TextAlign.JUSTIFY)
+                justification = LineJustification.ALL_BUT_LAST;
+            
+            if(!block.textJustifier || block.textJustifier.lineJustification != justification)
+            {
+                block.textJustifier = new SpaceJustifier("en", justification, true);
+            }
         }
         
         protected function getLayoutProperties(block:TextBlock):LayoutProperties
         {
-            var data:Object = block.userData;
-            if(data is LayoutProperties)
-                return LayoutProperties(data);
-            
-            return new LayoutProperties();
+            return (block.userData as LayoutProperties) || new LayoutProperties();
         }
     }
 }

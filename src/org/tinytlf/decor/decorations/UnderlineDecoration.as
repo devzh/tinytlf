@@ -7,7 +7,6 @@
 package org.tinytlf.decor.decorations
 {
     import flash.display.Graphics;
-    import flash.display.Sprite;
     import flash.geom.Point;
     import flash.geom.Rectangle;
     
@@ -36,7 +35,7 @@ package org.tinytlf.decor.decorations
                 g.lineStyle(
                     getStyle("underlineThickness") || 2,
                     getStyle("underlineColor") || getStyle("color") || 0x00,
-                    getStyle("underlineAlpha") || 1,
+                    getStyle("underlineAlpha") || getStyle("alpha") || 1,
                     getStyle("pixelHinting") || false,
                     getStyle("scaleMode") || "normal",
                     getStyle("caps") || null,
@@ -45,6 +44,7 @@ package org.tinytlf.decor.decorations
                 
                 g.moveTo(start.x, start.y);
                 g.lineTo(end.x, end.y);
+                
                 g.lineStyle();
             }
         }

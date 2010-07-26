@@ -12,6 +12,7 @@ package org.tinytlf.extensions.interaction.xml.html
     import org.tinytlf.interaction.EventLineInfo;
     import org.tinytlf.styles.ITextStyler;
     import org.tinytlf.utils.FTEUtil;
+    import org.tinytlf.utils.XMLUtil;
 
     public class CSSInteractor extends TextDispatcherBase
     {
@@ -20,6 +21,9 @@ package org.tinytlf.extensions.interaction.xml.html
             super.onClick(event);
             
             var info:EventLineInfo = EventLineInfo.getInfo(event, this);
+            if(!info)
+                return;
+            
             applyCSSFormatting(info, 'visited');
             applyCSSDecorations(info, 'visited');
             applyCursor(info, 'hover');
@@ -30,6 +34,9 @@ package org.tinytlf.extensions.interaction.xml.html
             super.onRollOver(event);
             
             var info:EventLineInfo = EventLineInfo.getInfo(event, this);
+            if(!info)
+                return;
+            
             applyCSSFormatting(info, 'hover');
             applyCSSDecorations(info, 'hover');
             applyCursor(info, 'hover');
@@ -40,6 +47,9 @@ package org.tinytlf.extensions.interaction.xml.html
             super.onMouseMove(event);
             
             var info:EventLineInfo = EventLineInfo.getInfo(event, this);
+            if(!info)
+                return;
+            
             applyCursor(info, 'hover');
         }
         
@@ -48,6 +58,9 @@ package org.tinytlf.extensions.interaction.xml.html
             super.onMouseUp(event);
             
             var info:EventLineInfo = EventLineInfo.getInfo(event, this);
+            if(!info)
+                return;
+            
             applyCursor(info, 'hover');
         }
 
@@ -56,8 +69,12 @@ package org.tinytlf.extensions.interaction.xml.html
             super.onRollOut(event);
             
             var info:EventLineInfo = EventLineInfo.getInfo(event, this);
+            if(!info)
+                return;
+            
             repealCSSFormatting(info);
             repealCSSDecorations(info, 'hover');
+            applyCSSDecorations(info);
             applyCursor(info);
         }
 
@@ -66,12 +83,15 @@ package org.tinytlf.extensions.interaction.xml.html
             super.onMouseDown(event);
             
             var info:EventLineInfo = EventLineInfo.getInfo(event, this);
+            if(!info)
+                return;
+            
             applyCSSFormatting(info, 'active');
             applyCSSDecorations(info, 'active');
             applyCursor(info, 'hover');
         }
         
-        protected function applyCSSDecorations(info:EventLineInfo, state:String):void
+        protected function applyCSSDecorations(info:EventLineInfo, state:String = ''):void
         {
             var attr:Object = resolveCSSAttributes(info, state);
             var engine:ITextEngine = info.engine;
@@ -80,7 +100,7 @@ package org.tinytlf.extensions.interaction.xml.html
                 engine.decor.decorate(info.element, attr);
         }
         
-        protected function repealCSSDecorations(info:EventLineInfo, state:String):void
+        protected function repealCSSDecorations(info:EventLineInfo, state:String = ''):void
         {
             var element:ContentElement = info.element;
             var decor:ITextDecor = info.engine.decor;
@@ -139,7 +159,7 @@ package org.tinytlf.extensions.interaction.xml.html
 
         protected function resolveCSSAttributes(info:EventLineInfo, state:String):Object
         {
-            if(state in stateCache)
+            if(state && state in stateCache)
                 return stateCache[state];
             
             var tree:Array = (info.element.userData as Array);
@@ -147,12 +167,17 @@ package org.tinytlf.extensions.interaction.xml.html
             if(!tree)
                 return {};
             
-            return stateCache[state] = info.engine.styler.describeElement(applyStateToAncestorChain(tree, state));
+            var style:Object = info.engine.styler.describeElement(applyStateToAncestorChain(tree, state));
+            
+            if(state)
+                stateCache[state] = style
+            
+            return style;
         }
         
         protected function applyStateToAncestorChain(chain:Array, state:String):Array
         {
-            var chainStr:String = chain.toString() + state;
+            var chainStr:String = XMLUtil.arrayToString(chain) + ':' + state;
             
             if(chainStr in stateCache)
                 return stateCache[chainStr];

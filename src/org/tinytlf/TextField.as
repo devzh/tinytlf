@@ -19,7 +19,7 @@ package org.tinytlf
     import org.tinytlf.decor.decorations.SelectionDecoration;
     import org.tinytlf.decor.decorations.StrikeThroughDecoration;
     import org.tinytlf.decor.decorations.UnderlineDecoration;
-    import org.tinytlf.extensions.interaction.xml.html.CSSInteractor;
+    import org.tinytlf.extensions.interaction.xml.html.AnchorInteractor;
     import org.tinytlf.layout.ITextContainer;
     import org.tinytlf.layout.TextContainerBase;
 
@@ -193,7 +193,7 @@ package org.tinytlf
                 engine.decor.mapDecoration("caret", CaretDecoration);
             
             if(!engine.interactor.hasMirror("a"))
-                engine.interactor.mapMirror("a", CSSInteractor);
+                engine.interactor.mapMirror("a", AnchorInteractor);
         }
         
         private function onAddedToStage(event:Event):void
