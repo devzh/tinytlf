@@ -20,6 +20,8 @@ package org.tinytlf
     import org.tinytlf.decor.decorations.StrikeThroughDecoration;
     import org.tinytlf.decor.decorations.UnderlineDecoration;
     import org.tinytlf.extensions.interaction.xml.html.AnchorInteractor;
+    import org.tinytlf.extensions.layout.adapter.xml.html.HTMLListAdapter;
+    import org.tinytlf.extensions.layout.adapter.xml.html.HTMLListItemAdapter;
     import org.tinytlf.layout.ITextContainer;
     import org.tinytlf.layout.TextContainerBase;
 
@@ -194,6 +196,11 @@ package org.tinytlf
             
             if(!engine.interactor.hasMirror("a"))
                 engine.interactor.mapMirror("a", AnchorInteractor);
+            
+            if(!engine.layout.textBlockFactory.hasElementAdapter('ul'))
+                engine.layout.textBlockFactory.mapElementAdapter('ul', HTMLListAdapter);
+            if(!engine.layout.textBlockFactory.hasElementAdapter('li'))
+                engine.layout.textBlockFactory.mapElementAdapter('li', HTMLListItemAdapter);
         }
         
         private function onAddedToStage(event:Event):void
