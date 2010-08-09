@@ -3,7 +3,7 @@ package org.tinytlf.interaction.gestures.mouse
     import flash.events.IEventDispatcher;
     import flash.events.MouseEvent;
     import flash.utils.getTimer;
-
+    
     import org.tinytlf.interaction.gestures.Gesture;
 
     [Event("mouseDown")]

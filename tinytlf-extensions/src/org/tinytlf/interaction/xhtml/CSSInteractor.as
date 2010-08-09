@@ -1,5 +1,7 @@
 package org.tinytlf.interaction.xhtml
 {
+    import adobe.utils.XMLUI;
+    
     import flash.events.MouseEvent;
     import flash.text.engine.ContentElement;
     import flash.text.engine.ElementFormat;
@@ -7,9 +9,9 @@ package org.tinytlf.interaction.xhtml
     import flash.ui.MouseCursor;
     
     import org.tinytlf.ITextEngine;
-    import org.tinytlf.interaction.TextDispatcherBase;
     import org.tinytlf.decor.ITextDecor;
     import org.tinytlf.interaction.EventLineInfo;
+    import org.tinytlf.interaction.TextDispatcherBase;
     import org.tinytlf.styles.ITextStyler;
     import org.tinytlf.util.FTEUtil;
     import org.tinytlf.util.XMLUtil;
@@ -169,7 +171,7 @@ package org.tinytlf.interaction.xhtml
             
             var style:Object = info.engine.styler.describeElement(applyStateToAncestorChain(tree, state));
             
-            if(state)
+            if(state && style)
                 stateCache[state] = style
             
             return style;
@@ -188,7 +190,7 @@ package org.tinytlf.interaction.xhtml
             
             for(var i:int = 0; i < n; ++i)
             {
-                xml = new XML(chain[i]);
+                xml = new XML(XMLUtil.toCamelCase(chain[i].toXMLString()));
                 xml.@cssState = state;
                 a.push(xml);
             }

@@ -11,10 +11,9 @@ package org.tinytlf.decor
     import flash.geom.*;
     import flash.text.engine.*;
     import flash.utils.*;
-
+    
     import org.tinytlf.ITextEngine;
     import org.tinytlf.core.StyleAwareActor;
-    import org.tinytlf.interaction.EventLineInfo;
     import org.tinytlf.layout.ITextContainer;
 
     public class TextDecoration extends StyleAwareActor implements ITextDecoration

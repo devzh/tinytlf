@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="tinytlf" basedir="." default="test">
+<project name="tinytlf" basedir="." default="build-components">
     <!-- set up a prefix for all environment variables -->
     <property environment="env."/>
     <!-- System environment must contain FLEX_HOME variable that points to Flex SDK -->
@@ -15,12 +15,15 @@
         <echo message=""/>
         <echo message="Available targets are:"/>
         <echo message=""/>
-        <echo message="test          --&gt; Build tinytlf SWC and run unit tests"/>
-        <echo message="asdoc         --&gt; Build tinytlf SWC, test, and generate asdocs"/>
-        <echo message="package       --&gt; Build tinytlf SWC, test, and create release zip"/>
-        <echo message="compile       --&gt; Build tinytlf SWC"/>
-        <echo message="clean         --&gt; Remove all folders created by build script"/>
-        <echo message="init          --&gt; Clean and create build folders"/>
+        <echo message="test              --&gt; Build tinytlf SWC and run unit tests"/>
+        <echo message="asdoc             --&gt; Build tinytlf SWC, test, and generate asdocs"/>
+        <echo message="package           --&gt; Build tinytlf SWC, test, and create release zip"/>
+        <echo message="build-core        --&gt; Build tinytlf core SWC"/>
+        <echo message="build-gestures    --&gt; Build tinytlf gestures SWC"/>
+        <echo message="build-extensions  --&gt; Build tinytlf extensions SWC"/>
+        <echo message="build-components  --&gt; Build tinytlf components SWC"/>
+        <echo message="clean             --&gt; Remove all folders created by build script"/>
+        <echo message="init              --&gt; Clean and create build folders"/>
         <echo message=""/>
     </target>
     <!-- Clean Build and Report files -->
@@ -44,66 +47,114 @@
         <mkdir dir="${report.loc}"/>
         <echo>[init] Bin and Report directories created</echo>
     </target>
-    <!-- Compile Release SWC -->
-    <target name="compile" depends="init">
-        <echo>[compile] Compiling release SWC</echo>
-        <echo>[compile] Using Flex SDK at: ${FLEX_HOME}</echo>
+
+    <!-- Compile core SWC -->
+    <target name="build-core" depends="init">
+        <echo>[build-core] Compiling core release SWC</echo>
+        <echo>[build-core] Using Flex SDK at: ${FLEX_HOME}</echo>
         <java jar="${FLEX_HOME}/lib/compc.jar" dir="${FLEX_HOME}/frameworks" fork="true" failonerror="true">
             <!-- Build our SWC with a versioned name. -->
-            <arg value="-output=${bin.loc}/${project.name.versioned}.swc"/>
+            <arg value="-output=${bin.loc}/${project.name.versioned}-core.swc"/>
             <!-- We want all the org package classes in the SWC being built. -->
-            <arg value="-include-sources=${main.src.loc}/org"/>
+            <arg value="-include-sources=${core.src.loc}/org"/>
             <!-- Include classes from SWCs in this folder, but only the ones we use. -->
             <arg value="-library-path+=${lib.loc}"/>
-			<!-- Generate a link report -->
-            <arg value="-link-report=${project.name.versioned}_report.xml"/>
+            <!-- Generate a link report -->
+            <arg value="-link-report=${project.name.versioned}_core_report.xml"/>
             <!-- Boolean mosh pit! -->
             <arg value="-incremental=true"/>
             <arg value="-static-link-runtime-shared-libraries=true"/>
             <arg value="-verbose-stacktraces=true"/>
             <arg value="-headless-server=true"/>
+            <arg value="-keep-as3-metadata+=Event"/>
         </java>
-        <echo>[compile] Release SWC ${project.name.versioned}.swc created successfully</echo>
     </target>
-    <!-- Run Unit Tests -->
-    <target name="test" depends="compile">
-        <echo>[test] Running Unit Tests</echo>
-        <!-- Compile TestRunner.mxml as a SWF -->
-        <java jar="${FLEX_HOME}/lib/mxmlc.jar" dir="${FLEX_HOME}/frameworks" fork="true" failonerror="true">
-            <arg value="${test.src.loc}/TinyTLFTest.mxml"/>
-            <arg value="-source-path=${main.src.loc}"/>
-            <!-- Flash those sweet legs. Blink and you'll miss 'em. -->
-            <arg value="-output=${bin.loc}/TestRunner.swf"/>
-            <arg value="-default-size=200,200"/>
-            <arg value="-default-background-color=0x000000"/>
+
+    <!-- Compile gestures SWC -->
+    <target name="build-gestures" depends="build-core">
+        <echo>[build-gestures] Compiling gestures release SWC</echo>
+        <echo>[build-gestures] Using Flex SDK at: ${FLEX_HOME}</echo>
+        <java jar="${FLEX_HOME}/lib/compc.jar" dir="${FLEX_HOME}/frameworks" fork="true" failonerror="true">
+            <!-- Build our SWC with a versioned name. -->
+            <arg value="-output=${bin.loc}/${project.name.versioned}-gestures.swc"/>
+            <!-- We want all the org package classes in the SWC being built. -->
+            <arg value="-include-sources=${gestures.src.loc}/org"/>
             <!-- Include classes from SWCs in this folder, but only the ones we use. -->
             <arg value="-library-path+=${lib.loc}"/>
-            <!-- So true. -->
+            <arg value="-library-path+=${bin.loc}"/>
+            <!-- Generate a link report -->
+            <arg value="-link-report=${project.name.versioned}_gestures_report.xml"/>
+            <!-- Boolean mosh pit! -->
             <arg value="-incremental=true"/>
+            <arg value="-static-link-runtime-shared-libraries=true"/>
             <arg value="-verbose-stacktraces=true"/>
             <arg value="-headless-server=true"/>
+            <arg value="-keep-as3-metadata+=Event"/>
         </java>
-        <!-- Execute TestRunner.swf as FlexUnit tests and publish reports -->
-        <flexunit swf="bin/TestRunner.swf" toDir="${report.loc}" haltonfailure="true" verbose="true" localTrusted="true"/>
-        <!-- Generate readable JUnit-style reports -->
-        <junitreport todir="${report.loc}">
-            <fileset dir="${report.loc}">
-                <include name="TEST-*.xml"/>
-            </fileset>
-            <report format="frames" todir="${report.loc}/html"/>
-        </junitreport>
-        <echo>[test] Finished running Unit Tests</echo>
     </target>
+
+    <!-- Compile extensions SWC -->
+    <target name="build-extensions" depends="build-gestures">
+        <echo>[build-extensions] Compiling extensions release SWC</echo>
+        <echo>[build-extensions] Using Flex SDK at: ${FLEX_HOME}</echo>
+        <java jar="${FLEX_HOME}/lib/compc.jar" dir="${FLEX_HOME}/frameworks" fork="true" failonerror="true">
+            <!-- Build our SWC with a versioned name. -->
+            <arg value="-output=${bin.loc}/${project.name.versioned}-extensions.swc"/>
+            <!-- We want all the org package classes in the SWC being built. -->
+            <arg value="-include-sources=${extensions.src.loc}/org"/>
+            <!-- Include classes from SWCs in this folder, but only the ones we use. -->
+            <arg value="-library-path+=${lib.loc}"/>
+            <arg value="-library-path+=${bin.loc}"/>
+            <!-- Generate a link report -->
+            <arg value="-link-report=${project.name.versioned}_extensions_report.xml"/>
+            <!-- Boolean mosh pit! -->
+            <arg value="-incremental=true"/>
+            <arg value="-static-link-runtime-shared-libraries=true"/>
+            <arg value="-verbose-stacktraces=true"/>
+            <arg value="-headless-server=true"/>
+            <arg value="-keep-as3-metadata+=Event"/>
+        </java>
+    </target>
+
+    <!-- Compile components SWC -->
+    <target name="build-components" depends="build-extensions">
+        <echo>[build-components] Compiling components release SWC</echo>
+        <echo>[build-components] Using Flex SDK at: ${FLEX_HOME}</echo>
+        <java jar="${FLEX_HOME}/lib/compc.jar" dir="${FLEX_HOME}/frameworks" fork="true" failonerror="true">
+            <!-- Build our SWC with a versioned name. -->
+            <arg value="-output=${bin.loc}/${project.name.versioned}-components.swc"/>
+            <!-- We want all the org package classes in the SWC being built. -->
+            <arg value="-include-sources=${components.src.loc}/org"/>
+            <!-- Include classes from SWCs in this folder, but only the ones we use. -->
+            <arg value="-library-path+=${lib.loc}"/>
+            <arg value="-library-path+=${bin.loc}"/>
+            <!-- Generate a link report -->
+            <arg value="-link-report=${project.name.versioned}_components_report.xml"/>
+            <!-- Boolean mosh pit! -->
+            <arg value="-incremental=true"/>
+            <arg value="-static-link-runtime-shared-libraries=true"/>
+            <arg value="-verbose-stacktraces=true"/>
+            <arg value="-headless-server=true"/>
+            <arg value="-keep-as3-metadata+=Event"/>
+        </java>
+    </target>
+
     <!-- Build Documentation -->
-    <target name="asdoc" depends="test">
+    <target name="asdoc" depends="build-components">
         <echo>[asdoc] Generating ASDOC documentation</echo>
         <tstamp>
             <format property="docgen.time" pattern="MM/dd/yyyy hh:mm aa" unit="hour"/>
         </tstamp>
         <java jar="${FLEX_HOME}/lib/asdoc.jar" dir="${FLEX_HOME}/frameworks" fork="true" failonerror="true">
             <arg line="-external-library-path ${lib.loc}"/>
-            <arg line="-doc-sources ${main.src.loc}"/>
-            <arg line="-source-path ${main.src.loc}"/>
+            <arg line="-doc-sources ${core.src.loc}"/>
+            <arg line="-source-path ${core.src.loc}"/>
+            <arg line="-doc-sources ${gestures.src.loc}"/>
+            <arg line="-source-path ${gestures.src.loc}"/>
+            <arg line="-doc-sources ${extensions.src.loc}"/>
+            <arg line="-source-path ${extensions.src.loc}"/>
+            <arg line="-doc-sources ${components.src.loc}"/>
+            <arg line="-source-path ${components.src.loc}"/>
             <arg line="-output ${doc.loc}"/>
             <arg line="-window-title 'tinytlf ${tinytlf.ver.num}'"/>
             <arg line="-main-title 'tinytlf ${tinytlf.ver.num}'"/>
@@ -124,10 +175,10 @@
         <mkdir dir="${dist.loc}/libs"/>
         <copy file="${bin.loc}/${project.name.versioned}.swc" todir="${dist.loc}/bin"/>
         <copy todir="${dist.loc}/src/org">
-            <fileset dir="${main.src.loc}/org"/>
-        </copy>
-        <copy todir="${dist.loc}/src/mx">
-            <fileset dir="${main.src.loc}/mx"/>
+            <fileset dir="${core.src.loc}/org"/>
+            <fileset dir="${gestures.src.loc}/org"/>
+            <fileset dir="${extensions.src.loc}/org"/>
+            <fileset dir="${components.src.loc}/org"/>
         </copy>
         <copy todir="${dist.loc}/docs">
             <fileset dir="${doc.loc}"/>

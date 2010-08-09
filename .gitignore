@@ -12,7 +12,10 @@ CVS-*
 CVS/*
 *.iml
 
-/.settings/*
+.settings/*
+.settings
+.idea/*
+.idea
 
 /html-template/*
 /bin-debug/*

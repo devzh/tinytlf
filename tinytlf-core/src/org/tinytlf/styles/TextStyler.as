@@ -62,11 +62,10 @@ package org.tinytlf.styles
         
         public function describeElement(element:*):Object
         {
-            var obj:Object;
+            var obj:Object = {};
             
             if(element in styleMap)
             {
-                obj = {};
                 var mappedObj:Object = styleMap[element];
                 for(var styleProp:String in mappedObj)
                     obj[styleProp] = mappedObj[styleProp];

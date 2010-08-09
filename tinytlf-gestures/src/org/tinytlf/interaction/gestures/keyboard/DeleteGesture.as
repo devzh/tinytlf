@@ -3,7 +3,7 @@ package org.tinytlf.interaction.gestures.keyboard
     import flash.events.IEventDispatcher;
     import flash.events.KeyboardEvent;
     import flash.ui.Keyboard;
-
+    
     import org.tinytlf.interaction.gestures.Gesture;
 
     [Event("keyDown")]

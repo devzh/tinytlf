@@ -6,17 +6,12 @@
  */
 package org.tinytlf
 {
-    import flash.display.DisplayObjectContainer;
     import flash.display.Stage;
     import flash.events.Event;
-    import flash.geom.Point;
-    import flash.geom.Rectangle;
-    import flash.text.engine.TextBlock;
-    import flash.text.engine.TextLine;
-    import flash.utils.Dictionary;
-    import flash.utils.setTimeout;
+    import flash.geom.*;
+    import flash.text.engine.*;
+    import flash.utils.*;
     
-    import org.tinytlf.core.Dimension;
     import org.tinytlf.decor.*;
     import org.tinytlf.interaction.*;
     import org.tinytlf.layout.*;
@@ -127,13 +122,42 @@ package org.tinytlf
         
         public function getBlockPosition(block:TextBlock):int
         {
-            return blocks.getItemPosition(block);
+			var n:int = blocks.length;
+			var count:int = 0;
+			for(var i:int = 0; i < n; ++i)
+			{
+				if(blocks[i] === block)
+					return count;
+				
+				count += blocks[i].content.rawText.length;
+			}
+			
+			return count;
         }
         
         public function getBlockSize(block:TextBlock):int
         {
-            return blocks.getItemSize(block);
+			return block.content.rawText.length;
         }
+		
+		protected function getBlockRange(startIndex:int, endIndex:int):Vector.<TextBlock>
+		{
+			var textBlocks:Vector.<TextBlock> = new Vector.<TextBlock>();
+			var n:int = blocks.length;
+			var aggregateSize:int = 0;
+			
+			for(var i:int = 0; i < n; ++i)
+			{
+				if((aggregateSize + getBlockSize(blocks[i])) > startIndex && aggregateSize <= endIndex)
+					textBlocks.push(blocks[i]);
+				else if(aggregateSize > endIndex)
+					return textBlocks;
+				
+				aggregateSize += getBlockSize(blocks[i]);
+			}
+			
+			return textBlocks;
+		}
         
         private var _caretIndex:int = 0;
         public function get caretIndex():int
@@ -205,7 +229,7 @@ package org.tinytlf
             endIndex = Math.max(temp.x, temp.y);
 			
             //  Get the textBlocks that span these indicies
-            var textBlocks:Array = blocks.getItemsAt(startIndex, endIndex, false);
+            var textBlocks:Vector.<TextBlock> = getBlockRange(startIndex, endIndex);
             
             if(!textBlocks || !textBlocks.length)
                 return;
@@ -213,7 +237,7 @@ package org.tinytlf
             selection.x = startIndex;
             selection.y = endIndex;
             
-            //  Gotta keep track of which containers this selection spans
+            //  Keep track of which containers this selection spans
             var containers:Dictionary = new Dictionary(false);
             
             //  The rectangles that this selection represents
@@ -288,9 +312,9 @@ package org.tinytlf
             if(!blocks || !blocks.length)
                 return null;
             
-            var items:Array = blocks.getItemsAt(index, 0);
-            if(items.length)
-                return items[0];
+            var textBlocks:Vector.<TextBlock> = getBlockRange(index, index);
+            if(textBlocks.length)
+                return textBlocks[0];
             
             return null;
         }
@@ -383,28 +407,15 @@ package org.tinytlf
             rendering = false;
         }
 		
-		protected var blocks:Dimension;
+		protected var blocks:Vector.<TextBlock>;
 		
 		protected function renderData():void
 		{
 			decor.removeAll();
 			layout.clear();
 			
-			var textBlocks:Vector.<TextBlock> = createTextBlocks();
-			
-			if(!blocks)
-				blocks = new Dimension();
-			
-			blocks.clear();
-			
-			if(!textBlocks || !textBlocks.length)
-				return;
-			
-			var n:int = textBlocks.length;
-			for(var i:int = 0; i < n; i++)
-			{
-				blocks.add(textBlocks[i], textBlocks[i].content.rawText.length);
-			}
+			blocks = createTextBlocks();
+//			blocks.add(textBlocks[i], textBlocks[i].content.rawText.length);
 		}
 		
 		protected function createTextBlocks():Vector.<TextBlock>

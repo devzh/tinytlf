@@ -83,7 +83,6 @@ package org.tinytlf.components.flash
 			var paragraphSelect:ParagraphSelectionBehavior = new ParagraphSelectionBehavior();
 			var charBack:CharacterBackspaceBehavior = new CharacterBackspaceBehavior();
 			
-			var keyboard:KeyboardGesture = new KeyboardGesture();
 			var mouseOver:MouseOverGesture = new MouseOverGesture();
 			var mouseOut:MouseOutGesture = new MouseOutGesture();
 			var mouseClick:MouseClickGesture = new MouseClickGesture();
@@ -93,7 +92,6 @@ package org.tinytlf.components.flash
 			
 			if(selectable)
 			{
-				interactor.addGesture(keyboard, focus);
 				interactor.addGesture(mouseOver, iBeam);
 				interactor.addGesture(mouseOut, iBeam);
 				interactor.addGesture(mouseClick, focus, charSelect);
