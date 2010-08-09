@@ -158,6 +158,20 @@ package org.tinytlf
 			
 			return textBlocks;
 		}
+		
+		protected function get totalLength():Number
+		{
+			var textBlocks:Vector.<TextBlock> = new Vector.<TextBlock>();
+			var n:int = blocks.length;
+			var aggregateSize:int = 0;
+			
+			for(var i:int = 0; i < n; ++i)
+			{
+				aggregateSize += getBlockSize(blocks[i]);
+			}
+			
+			return aggregateSize;
+		}
         
         private var _caretIndex:int = 0;
         public function get caretIndex():int
@@ -165,9 +179,15 @@ package org.tinytlf
             return _caretIndex;
         }
         
+		private var caretIndexChanged:Boolean = false;
         public function set caretIndex(index:int):void
         {
-			//Don't set the caretIndex if we don't have a caret decoration.
+			if(index === _caretIndex)
+				return;
+			
+            _caretIndex = Math.max(Math.min(index, totalLength - 1), 0);
+            
+			//Don't draw the caretIndex if we don't have a caret decoration.
 			if(!decor.hasDecoration('caret'))
 				return;
 			
@@ -176,28 +196,10 @@ package org.tinytlf
             var block:TextBlock = indexToTextBlock(index);
             if(!block)
                 return;
-            
-            _caretIndex = index;
-            
-            var blockPosition:int = getBlockPosition(block);
-            var blockSize:int = getBlockSize(block);
 			
-            var line:TextLine = block.getTextLineAtCharIndex(Math.max(
-				0, 
-				Math.min(index - blockPosition, blockSize - 1)
-			));
+			caretIndexChanged = true;
 			
-			var atomIndex:int = Math.min(index - blockPosition - line.textBlockBeginIndex, line.atomCount - 1);
-            var rect:Rectangle = line.getAtomBounds(atomIndex);
-			
-            rect.x += line.x;
-            rect.y += line.y;
-			
-			var pos:String = index - blockPosition - line.textBlockBeginIndex >= line.atomCount ? 'right' : 'left';
-			
-            decor.decorate(rect, {caret:true, position:pos}, TextDecor.CARET_LAYER, 
-				new <ITextContainer>[layout.getContainerForLine(line)]
-			);
+			invalidateDecorations();
         }
         
         private var _selection:Point = new Point(NaN, NaN);
@@ -207,26 +209,25 @@ package org.tinytlf
             return _selection;
         }
         
+		private var selectionChanged:Boolean = false;
         public function select(startIndex:Number = NaN, endIndex:Number = NaN):void
         {
-			//Don't try to select if we don't have a selection decoration.
-			if(!decor.hasDecoration('selection'))
-				return;
-			
-            decor.undecorate(null, 'selection');
-            
             if(isNaN(startIndex) || isNaN(endIndex))
             {
                 selection.x = NaN;
                 selection.y = NaN;
+				decor.undecorate(null, 'selection');
                 return;
             }
-            
+			
             var temp:Point = new Point(startIndex, endIndex);
             
             //  Normalize the inputs.
             startIndex = Math.min(temp.x, temp.y);
             endIndex = Math.max(temp.x, temp.y);
+			
+			if(startIndex == selection.x && endIndex == selection.y)
+				return;
 			
             //  Get the textBlocks that span these indicies
             var textBlocks:Vector.<TextBlock> = getBlockRange(startIndex, endIndex);
@@ -237,77 +238,18 @@ package org.tinytlf
             selection.x = startIndex;
             selection.y = endIndex;
             
-            //  Keep track of which containers this selection spans
-            var containers:Dictionary = new Dictionary(false);
-            
-            //  The rectangles that this selection represents
-            var rects:Vector.<Rectangle> = new <Rectangle>[];
-            var rect:Rectangle;
-            
-            var blockPosition:int;
-            var blockSize:int;
-            var lineSize:int;
-            
-            var block:TextBlock;
-            var line:TextLine;
-            
-            var n:int = textBlocks.length;
-            for(var i:int = 0; i < n; i++)
-            {
-                block = textBlocks[i];
-                
-                blockPosition = getBlockPosition(block);
-                blockSize = getBlockSize(block);
-                
-                startIndex -= blockPosition;
-                endIndex -= blockPosition;
-                
-                line = block.getTextLineAtCharIndex(startIndex);
-                while(line)
-                {
-                    containers[layout.getContainerForLine(line)] = true;
-                    
-                    lineSize = line.textBlockBeginIndex + line.atomCount;
-                    
-                    rect = line.getAtomBounds(startIndex - line.textBlockBeginIndex);
-                    rect = (endIndex < lineSize) ?
-                        rect.union(line.getAtomBounds(Math.max(endIndex - line.textBlockBeginIndex, 0))) :
-                        rect.union(line.getAtomBounds(line.atomCount - 1));
-                    
-                    rect.x += line.x;
-                    rect.y += line.y;
-
-                    rects.push(rect);
-                    
-                    line = endIndex >= lineSize ? line.nextLine : null;
-					
-                    if(line)
-					{
-                        startIndex = line.textBlockBeginIndex;
-					}
-                }
-                
-                startIndex = blockPosition + blockSize;
-                endIndex += blockPosition;
-            }
-            
-            var textContainers:Vector.<ITextContainer> = new <ITextContainer>[];
-            for(var container:* in containers)
-                textContainers.push(container);
-            
-            containers = null;
-            
-            decor.decorate(rects,
-                {
-					selection:true, 
-					selectionColor:styler.getStyle('selectionColor'), 
-					selectionAlpha: styler.getStyle('selectionAlpha')
-				},
-                TextDecor.SELECTION_LAYER,
-                textContainers);
+			//Don't draw selection if we don't have a selection decoration.
+			if(!decor.hasDecoration('selection'))
+				return;
+			
+            decor.undecorate(null, 'selection');
+			
+			selectionChanged = true;
+			
+			invalidateDecorations();
         }
         
-        private function indexToTextBlock(index:int):TextBlock
+		protected function indexToTextBlock(index:int):TextBlock
         {
             if(!blocks || !blocks.length)
                 return null;
@@ -430,8 +372,120 @@ package org.tinytlf
         
 		protected function renderDecorations():void
         {
+			if(selectionChanged)
+				renderSelection();
+			selectionChanged = false;
+			
+			if(caretIndexChanged)
+				renderCaretIndex();
+			caretIndexChanged = false;
+			
             layout.resetShapes();
             decor.render();
         }
+		
+		protected function renderSelection():void
+		{
+			var startIndex:Number = selection.x;
+			var endIndex:Number = selection.y;
+			
+			//  Get the textBlocks that span these indicies
+			var textBlocks:Vector.<TextBlock> = getBlockRange(startIndex, endIndex);
+			
+			//  Keep track of which containers this selection spans
+			var containers:Dictionary = new Dictionary(false);
+			
+			//  The rectangles that this selection represents
+			var rects:Vector.<Rectangle> = new <Rectangle>[];
+			var rect:Rectangle;
+			
+			var blockPosition:int;
+			var blockSize:int;
+			var lineSize:int;
+			
+			var block:TextBlock;
+			var line:TextLine;
+			
+			var n:int = textBlocks.length;
+			for(var i:int = 0; i < n; i++)
+			{
+				block = textBlocks[i];
+				
+				blockPosition = getBlockPosition(block);
+				blockSize = getBlockSize(block);
+				
+				startIndex -= blockPosition;
+				endIndex -= blockPosition;
+				
+				line = block.getTextLineAtCharIndex(startIndex);
+				while(line)
+				{
+					containers[layout.getContainerForLine(line)] = true;
+					
+					lineSize = line.textBlockBeginIndex + line.atomCount;
+					
+					rect = line.getAtomBounds(startIndex - line.textBlockBeginIndex);
+					rect = (endIndex < lineSize) ?
+						rect.union(line.getAtomBounds(Math.max(endIndex - line.textBlockBeginIndex, 0))) :
+						rect.union(line.getAtomBounds(line.atomCount - 1));
+					
+					rect.x += line.x;
+					rect.y += line.y;
+					
+					rects.push(rect);
+					
+					line = endIndex >= lineSize ? line.nextLine : null;
+					
+					if(line)
+					{
+						startIndex = line.textBlockBeginIndex;
+					}
+				}
+				
+				startIndex = blockPosition + blockSize;
+				endIndex += blockPosition;
+			}
+			
+			var textContainers:Vector.<ITextContainer> = new <ITextContainer>[];
+			for(var container:* in containers)
+				textContainers.push(container);
+			
+			containers = null;
+			
+			decor.decorate(rects,
+				{
+					selection:true, 
+					selectionColor:styler.getStyle('selectionColor'), 
+					selectionAlpha: styler.getStyle('selectionAlpha')
+				},
+				TextDecor.SELECTION_LAYER,
+				textContainers);
+		}
+		
+		protected function renderCaretIndex():void
+		{
+			var block:TextBlock = indexToTextBlock(caretIndex);
+			var blockPosition:int = getBlockPosition(block);
+			var blockSize:int = getBlockSize(block);
+			
+			var line:TextLine = block.getTextLineAtCharIndex(Math.max(
+				0, 
+				Math.min(caretIndex - blockPosition, blockSize - 1)
+			));
+			
+			var atomIndex:int = Math.min(caretIndex - blockPosition - line.textBlockBeginIndex, line.atomCount - 1);
+			var rect:Rectangle = line.getAtomBounds(atomIndex);
+			
+			rect.x += line.x;
+			rect.y += line.y;
+			
+			var pos:String = atomIndex == (line.atomCount - 1) ? 'right' : 'left';
+			
+			decor.decorate(rect, {caret:true, position:'left'}, TextDecor.CARET_LAYER, 
+				new <ITextContainer>[layout.getContainerForLine(line)]
+			);
+			
+			line.stage.focus = line;
+		}
     }
 }

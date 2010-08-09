@@ -7,7 +7,7 @@
 package org.tinytlf.layout
 {
     import flash.text.engine.TextBlock;
-
+    
     import org.tinytlf.layout.descriptions.TextAlign;
     import org.tinytlf.layout.descriptions.TextDirection;
     import org.tinytlf.layout.descriptions.TextFloat;
@@ -41,6 +41,7 @@ package org.tinytlf.layout
         public var textDirection:String = TextDirection.LTR;
         public var textTransform:String = TextTransform.NONE;
         public var float:String = TextFloat.LEFT;
+		public var spaceJustify:Boolean = false;
     }
 }
 

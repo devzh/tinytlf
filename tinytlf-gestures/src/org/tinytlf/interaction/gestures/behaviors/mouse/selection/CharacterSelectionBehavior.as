@@ -4,7 +4,7 @@
 * Permission is hereby granted to use, modify, and distribute this file
 * in accordance with the terms of the license agreement accompanying it.
 */
-package org.tinytlf.interaction.gestures.behaviors
+package org.tinytlf.interaction.gestures.behaviors.mouse.selection
 {
     import flash.events.MouseEvent;
     import flash.geom.Point;
@@ -16,6 +16,7 @@ package org.tinytlf.interaction.gestures.behaviors
     import org.tinytlf.util.FTEUtil;
     
     import spark.primitives.Line;
+    import org.tinytlf.interaction.gestures.behaviors.Behavior;
 
     public class CharacterSelectionBehavior extends Behavior
     {
@@ -36,11 +37,6 @@ package org.tinytlf.interaction.gestures.behaviors
             var m:MouseEvent = MouseEvent(info.event);
             
             var atomIndex:int = FTEUtil.getAtomIndexAtPoint(line, m.stageX, m.stageY);
-			
-			if(atomIndex < 0)
-			{
-				atomIndex = FTEUtil.getAdjustedLineExtremity(line, m.stageX, m.stageY);
-			}
             
             engine.select();
 			
@@ -73,11 +69,6 @@ package org.tinytlf.interaction.gestures.behaviors
             var block:TextBlock = line.textBlock;
             var selection:Point = engine.selection.clone();
             var index:int = FTEUtil.getAtomIndexAtPoint(line, m.stageX, m.stageY);
-            
-            if(index < 0)
-			{
-				index = FTEUtil.getAdjustedLineExtremity(line, m.stageX, m.stageY);
-			}
             
             var atomIndex:int = line.getAtomTextBlockBeginIndex(
 				Math.min(index, line.atomCount - 1)) + engine.getBlockPosition(block);

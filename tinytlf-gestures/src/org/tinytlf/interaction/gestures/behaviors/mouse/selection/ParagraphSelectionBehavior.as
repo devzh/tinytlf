@@ -1,4 +1,4 @@
-package org.tinytlf.interaction.gestures.behaviors
+package org.tinytlf.interaction.gestures.behaviors.mouse.selection
 {
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
@@ -7,6 +7,7 @@ package org.tinytlf.interaction.gestures.behaviors
 	
 	import org.tinytlf.ITextEngine;
 	import org.tinytlf.interaction.EventLineInfo;
+	import org.tinytlf.interaction.gestures.behaviors.Behavior;
 
 	public class ParagraphSelectionBehavior extends Behavior
 	{

@@ -13,9 +13,9 @@ package org.tinytlf.styles.fcss
     import flash.text.engine.*;
     import flash.utils.Dictionary;
     
+    import org.tinytlf.core.fcss.FStyleProxy;
     import org.tinytlf.styles.TextStyler;
     import org.tinytlf.util.XMLUtil;
-    import org.tinytlf.core.fcss.FStyleProxy;
 
     public class FCSSTextStyler extends TextStyler
     {
@@ -42,6 +42,12 @@ package org.tinytlf.styles.fcss
             new StyleApplicator().applyStyle(format, fStyle);
             var description:FontDescription = new FontDescription();
             new StyleApplicator().applyStyle(description, fStyle);
+			
+			//This is a poor excuse for applying default styles.
+			//TODO: Specify default FTE properties/styles somewhere.
+			//If no fontLookup was specified, we probably wanna use EMBEDDED_CFF.
+			if(!('fontLookup' in fStyle))
+				description.fontLookup = FontLookup.EMBEDDED_CFF;
 
             format.fontDescription = description;
 

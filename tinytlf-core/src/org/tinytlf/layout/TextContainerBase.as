@@ -302,7 +302,7 @@ package org.tinytlf.layout
             
             if(!block.textJustifier || block.textJustifier.lineJustification != justification)
             {
-                block.textJustifier = new SpaceJustifier("en", justification, true);
+                block.textJustifier = new SpaceJustifier("en", justification, props.spaceJustify);
             }
         }
         

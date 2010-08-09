@@ -7,12 +7,19 @@
 package org.tinytlf.util
 {
     import flash.geom.Point;
+    import flash.system.Capabilities;
     import flash.text.engine.ContentElement;
     import flash.text.engine.GroupElement;
     import flash.text.engine.TextLine;
     
     import org.tinytlf.util.Type;
     
+	/**
+	 * Generic utility functions for tinytlf that make working with the FTE
+	 * a much more enjoyable process. By no means comprehensive, but a nice
+	 * starting point.
+	 */
+	
     public class FTEUtil
     {
         public static function getContentElementAt(element:ContentElement, index:int):ContentElement
@@ -31,23 +38,26 @@ package org.tinytlf.util
             return element;
         }
 		
+		/**
+		 * If the specified stageX is outside the boundaries of the specified 
+		 * line, this will find the index of the proper
+		 */
 		public static function getAdjustedLineExtremity(line:TextLine, stageX:Number, stageY:Number):int
 		{
 			var pt:Point = line.localToGlobal(new Point(0, 1));
+			
 			if(stageX < pt.x)
 				return 0;
-			else if(stageX > pt.x)
-				return line.atomCount;
 			
-			return line.getAtomIndexAtPoint(stageX, pt.y);
+			return line.atomCount - 1;
 		}
         
         public static function getAtomIndexAtPoint(line:TextLine, stageX:Number, stageY:Number):int
         {
             var atomIndex:int = line.getAtomIndexAtPoint(stageX, stageY);
             
-            if(atomIndex == -1)
-                return -1;
+            if(atomIndex < 0)
+                return getAdjustedLineExtremity(line, stageX, stageY);
             
             var atomIncrement:int = getAtomSide(line, stageX, stageY) ? 0 : 1;
             
@@ -76,11 +86,10 @@ package org.tinytlf.util
             if(!pattern)
                 pattern = defaultWordBoundaryPattern;
             
-            if(atomIndex < 0)
-                return atomIndex;
-            
             if(atomIndex >= line.atomCount)
                 atomIndex = line.atomCount - 1;
+			else if(atomIndex < 0)
+				atomIndex = 0;
             
             var rawText:String = line.textBlock.content.rawText;
             var adjustedIndex:int = line.getAtomTextBlockBeginIndex(atomIndex);
@@ -108,6 +117,12 @@ package org.tinytlf.util
             
             return Math.max(atomIndex, 0);
         }
+		
+		private static var mac:Boolean = RegExp(/mac/i).test(Capabilities.os);
+		public static function isMac():Boolean
+		{
+			return mac;
+		}
         
         /**
         * Compares the properties of two objects, including the properties of sub-properties and so on.

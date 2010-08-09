@@ -1,4 +1,4 @@
-package org.tinytlf.interaction.gestures.behaviors
+package org.tinytlf.interaction.gestures.behaviors.keyboard
 {
     import flash.events.KeyboardEvent;
     import flash.text.engine.ContentElement;
@@ -7,6 +7,7 @@ package org.tinytlf.interaction.gestures.behaviors
     
     import org.tinytlf.ITextEngine;
     import org.tinytlf.interaction.EventLineInfo;
+    import org.tinytlf.interaction.gestures.behaviors.Behavior;
     
     public class CharacterBackspaceBehavior extends Behavior
     {

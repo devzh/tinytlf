@@ -153,7 +153,8 @@ package org.tinytlf.decor
 
                 if (!(rect in rectToSpriteMap))
                 {
-                    throw new Error('Couldn\'t match the Rectangle ' + rect.toString() + ' to any ITextContainer instances. Break and figure out why, thx.');
+					// Should I throw this error or ignore it?
+//                    throw new Error('Couldn\'t match the Rectangle ' + rect.toString() + ' to any ITextContainer instances. Break and figure out why, thx.');
                 }
             }
         }
@@ -185,7 +186,7 @@ package org.tinytlf.decor
 
         protected function getShapeForRectangle(rect:Rectangle):Sprite
         {
-            return rectToSpriteMap[rect];
+            return rectToSpriteMap[rect] || new Sprite();
         }
 
         protected function getBoundsForContentElement(element:ContentElement):Vector.<Rectangle>

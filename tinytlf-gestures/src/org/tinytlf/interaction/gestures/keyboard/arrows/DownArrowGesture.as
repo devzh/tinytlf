@@ -6,7 +6,7 @@ package org.tinytlf.interaction.gestures.keyboard.arrows
 	
 	import org.tinytlf.interaction.gestures.Gesture;
 	
-	[Event(KeyboardEvent.KEY_DOWN)]
+	[Event("keyDown")]
 	
 	public class DownArrowGesture extends Gesture
 	{

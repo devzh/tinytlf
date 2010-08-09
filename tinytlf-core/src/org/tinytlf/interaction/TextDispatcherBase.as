@@ -12,6 +12,8 @@ package org.tinytlf.interaction
     import flash.events.MouseEvent;
     import flash.geom.Point;
     import flash.utils.getTimer;
+    
+    import org.tinytlf.util.FTEUtil;
 
     public class TextDispatcherBase extends EventDispatcher
     {
@@ -22,12 +24,12 @@ package org.tinytlf.interaction
             addListeners(this);
         }
 
-        public static const UP:uint = 0x0001;
-        public static const OVER:uint = 0x0002;
-        public static const DOWN:uint = 0x0004;
+        public static const UP:uint = 0x1;
+        public static const OVER:uint = 0x2;
+        public static const DOWN:uint = 0x4;
 
-        protected static var mouseState:uint = UP; // | DOWN;
-        protected static var mouseCoords:Point;
+        protected var mouseState:uint = UP; // | DOWN;
+        protected var mouseCoords:Point;
 
         protected function onClick(event:MouseEvent):void
         {
@@ -63,7 +65,7 @@ package org.tinytlf.interaction
 
         protected function onMouseDown(event:MouseEvent):void
         {
-            mouseState |= DOWN;
+			mouseState |= DOWN;
             mouseState &= ~UP;
             mouseCoords = new Point(event.stageX, event.stageY);
         }
