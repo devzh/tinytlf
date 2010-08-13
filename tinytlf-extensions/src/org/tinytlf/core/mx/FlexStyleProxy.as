@@ -10,7 +10,7 @@ package org.tinytlf.core.mx
     import mx.styles.CSSStyleDeclaration;
     import mx.styles.IStyleManager2;
     
-    import org.tinytlf.core.StyleAwareActor;
+    import org.tinytlf.styles.StyleAwareActor;
     
     public class FlexStyleProxy extends StyleAwareActor
     {

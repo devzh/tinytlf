@@ -15,6 +15,26 @@ package org.tinytlf
     import org.tinytlf.layout.ITextLayout;
     import org.tinytlf.styles.ITextStyler;
     
+	/**
+	 * <p>The <code>ITextEngine</code> is a facade pattern which unifies the 
+	 * subsystems of tinytlf. Since tinytlf is relies on external definitions 
+	 * for implementation, the engine provides access to the <code>decor</code>,
+	 * <code>interactor</code>, <code>styler</code>, and <code>layout</code>, 
+	 * and <code>ITextEngine</code> supports configuration through the 
+	 * <code>ITextEngineConfiguration</code> interface. To apply a 
+	 * configuration, write a class that implements 
+	 * <code>ITextEngineConfiguration</code> and pass an instance into the
+	 * <code>configuration</code> setter of <code>ITextEngine</code>.</p>
+	 * <p>The <code>ITextEngine</code> is also responsible for invalidation, 
+	 * selection, and the <code>TextBlock</code>s that make up a tinytlf text 
+	 * field.</p>
+	 * 
+	 * @see org.tinytlf.decor.ITextDecor
+	 * @see org.tinytlf.interaction.ITextInteractor
+	 * @see org.tinytlf.layout.ITextLayout
+	 * @see org.tinytlf.styles.ITextStyler
+	 * @see org.tinytlf.ITextEngineConfiguration
+	 */
     public interface ITextEngine
     {
 		/**

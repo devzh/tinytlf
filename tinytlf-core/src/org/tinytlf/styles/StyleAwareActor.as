@@ -4,7 +4,7 @@
  * Permission is hereby granted to use, modify, and distribute this file
  * in accordance with the terms of the license agreement accompanying it.
  */
-package org.tinytlf.core
+package org.tinytlf.styles
 {
     import flash.utils.Proxy;
     import flash.utils.describeType;
@@ -16,23 +16,20 @@ package org.tinytlf.core
      * StyleAwareActor is a useful base class for objects with sealed properties
      * but who also wish to dynamically accept and store named values.
      *
-     * Since he is a Proxy implementation, he overrides the flash_proxy functions
-     * for setting and retrieving data. If you are calling a sealed property on
-     * StyleAwareActor or one of his subclasses, the property or function is called
-     * like normal. However, if you dynamically call or set a property on him, he
-     * calls his <code>getStyle</code> and <code>setStyle</code> methods instead.
+     * Since it extends Proxy, it overrides the flash_proxy functions for setting 
+	 * and retrieving data. If you are calling a sealed property on 
+	 * StyleAwareActor or one of his subclasses, the property or function is called
+     * like normal. However, if you dynamically set or call a property on it, 
+	 * <code>getStyle</code> and <code>setStyle</code> are called instead.
      *
-     * StyleAwareActor has an internal <code>styles</code> object on which these
-     * properties and values are stored. However, you can override this
-     * functionality by passing in your own implementation to store styles on. You
-     * can do this by calling <code>setStyle("styleProxy", myProxyImplem)</code>.
-     * This will set the <code>myProxyImpl</code> instance as the new internal
-     * styles storage object, as well as copy over all the key/value pairs currently
-     * on the <code>myProxyImpl</code> instance.
+     * StyleAwareActor has a <code>style</code> member, on which the style 
+	 * properties and values are stored. You can pass in your own dynamic 
+	 * instance to store styles on by setting the <code>style</code> setter. 
+	 * This will set the new value as the internal styles storage object, as 
+	 * well as copy over all the key/value pairs currently on the new instance.
      *
-     * This is particularly useful if you wish to proxy together multiple
-     * StyleAwareActors for something similar to CSS inheritance, or to support
-     * external CSS implementations (currently Flex and F*CSS).
+     * This is useful if you wish to proxy styles, or to support external styling 
+	 * implementations (currently Flex and F*CSS).
      */
     public class StyleAwareActor extends Proxy implements IStyleAware
     {

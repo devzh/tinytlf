@@ -11,7 +11,6 @@ package org.tinytlf.styles
     import flash.utils.Dictionary;
     
     import org.tinytlf.ITextEngine;
-    import org.tinytlf.core.StyleAwareActor;
     
     public class TextStyler extends StyleAwareActor implements ITextStyler
     {

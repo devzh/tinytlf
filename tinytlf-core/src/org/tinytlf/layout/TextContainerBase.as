@@ -150,7 +150,8 @@ package org.tinytlf.layout
                 delete blocks[block];
             }
             
-            height = 0;
+			height = 0;
+			width = 0;
         }
         
         public function resetShapes():void
@@ -167,7 +168,7 @@ package org.tinytlf.layout
         public function prepLayout():void
         {
             height = 0;
-            width = explicitWidth;
+            width = 0;
         }
         
         public function layout(block:TextBlock, line:TextLine):TextLine
@@ -181,6 +182,7 @@ package org.tinytlf.layout
             setupBlockJustifier(block);
             
             var y:Number = height + props.paddingTop;
+			
             if(block.firstInvalidLine)
             {
                 line = block.firstInvalidLine;
@@ -201,7 +203,7 @@ package org.tinytlf.layout
                 y += line.ascent;
                 doc.y = y;
                 y += line.descent + props.lineHeight;
-                
+				
                 target.addChild(doc);
                 
                 if(!isNaN(explicitHeight) && measuredHeight > explicitHeight)
@@ -210,7 +212,12 @@ package org.tinytlf.layout
                 line = createLine(block, line);
             }
             
-            height = y + props.paddingBottom;
+			height = y;
+			
+			//If there are no more lines in the TextBlock, 
+			//include the paddingBottom in the height.
+			if(!line)
+            	height +=props.paddingBottom;
             
             var blockLines:Dictionary = new Dictionary(true);
             line = block.firstLine;
@@ -237,22 +244,28 @@ package org.tinytlf.layout
         {
             var props:LayoutProperties = getLayoutProperties(block);
             
-            var w:Number = props.width || explicitWidth;
+            var w:Number = isNaN(props.width) ? isNaN(explicitWidth) ? 1000000 : explicitWidth : props.width;
+			var lineWidth:Number = w;
             var x:Number = 0;
             
             if(line == null)
             {
-                w -= props.textIndent;
+				lineWidth -= props.textIndent;
                 x += props.textIndent;
             }
             
-            w -= props.paddingLeft;
-            w -= props.paddingRight;
+			lineWidth -= props.paddingLeft;
+			lineWidth -= props.paddingRight;
             
-            line = block.createTextLine(line, w, 0, true);
+            line = block.createTextLine(line, lineWidth, 0, true);
             
             if(!line)
                 return null;
+			
+			lineWidth = line.width;
+			
+			if(lineWidth > width)
+				width = lineWidth;
             
             switch(props.textAlign)
             {
@@ -261,10 +274,10 @@ package org.tinytlf.layout
                     x += props.paddingLeft;
                     break;
                 case TextAlign.CENTER:
-                    x = (width - line.width) * 0.5;
+                    x = (w - lineWidth) * 0.5;
                     break;
                 case TextAlign.RIGHT:
-                    x = width - line.width + props.paddingRight;
+                    x = w - lineWidth + props.paddingRight;
                     break;
             }
             

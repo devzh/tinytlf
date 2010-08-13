@@ -8,7 +8,7 @@ package org.tinytlf.core.fcss
 {
     import com.flashartofwar.fcss.stylesheets.FStyleSheet;
     
-    import org.tinytlf.core.StyleAwareActor;
+    import org.tinytlf.styles.StyleAwareActor;
     
     public class FStyleProxy extends StyleAwareActor
     {

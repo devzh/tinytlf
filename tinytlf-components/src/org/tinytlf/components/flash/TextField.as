@@ -11,7 +11,7 @@ package org.tinytlf.components.flash
     import flash.geom.Rectangle;
     
     import org.tinytlf.*;
-    import org.tinytlf.core.IStyleAware;
+    import org.tinytlf.styles.IStyleAware;
     import org.tinytlf.decor.decorations.*;
     import org.tinytlf.layout.*;
 

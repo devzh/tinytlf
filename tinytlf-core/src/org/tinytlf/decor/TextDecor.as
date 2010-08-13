@@ -11,6 +11,11 @@ package org.tinytlf.decor
     import org.tinytlf.ITextEngine;
     import org.tinytlf.layout.ITextContainer;
     
+	/**
+	 * The decoration actor for tinytlf.
+	 * 
+	 * @see org.tinytlf.decor.ITextDecoration
+	 */
     public class TextDecor implements ITextDecor
     {
         public static const CARET_LAYER:int = 0;
@@ -240,10 +245,10 @@ package org.tinytlf.decor
         
         private var decorationsMap:Object = {};
         
-        public function mapDecoration(styleProp:String, decorationClassOrInstance:Object):void
+        public function mapDecoration(styleProp:String, decorationClassOrFactory:Object):void
         {
-			if(decorationClassOrInstance)
-	            decorationsMap[styleProp] = decorationClassOrInstance;
+			if(decorationClassOrFactory)
+	            decorationsMap[styleProp] = decorationClassOrFactory;
 			else
 				unMapDecoration(styleProp);
         }

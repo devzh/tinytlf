@@ -29,7 +29,8 @@ package org.tinytlf.layout
         
         public var block:TextBlock;
         
-        public var width:Number = 0;
+        public var width:Number = NaN;
+        public var height:Number = NaN;
         public var lineHeight:Number = 0;
         public var textIndent:Number = 0;
         public var paddingLeft:Number = 0;

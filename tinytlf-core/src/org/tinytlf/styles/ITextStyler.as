@@ -9,7 +9,6 @@ package org.tinytlf.styles
     import flash.text.engine.ElementFormat;
     
     import org.tinytlf.ITextEngine;
-    import org.tinytlf.core.IStyleAware;
     
     public interface ITextStyler extends IStyleAware
     {

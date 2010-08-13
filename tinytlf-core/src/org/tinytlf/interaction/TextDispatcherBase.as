@@ -6,138 +6,142 @@
  */
 package org.tinytlf.interaction
 {
-    import flash.events.EventDispatcher;
-    import flash.events.IEventDispatcher;
-    import flash.events.KeyboardEvent;
-    import flash.events.MouseEvent;
-    import flash.geom.Point;
-    import flash.utils.getTimer;
-    
-    import org.tinytlf.util.FTEUtil;
-
-    public class TextDispatcherBase extends EventDispatcher
-    {
-        public function TextDispatcherBase(target:IEventDispatcher = null)
-        {
-            super(target);
-
-            addListeners(this);
-        }
-
-        public static const UP:uint = 0x1;
-        public static const OVER:uint = 0x2;
-        public static const DOWN:uint = 0x4;
-
-        protected var mouseState:uint = UP; // | DOWN;
-        protected var mouseCoords:Point;
-
-        protected function onClick(event:MouseEvent):void
-        {
-            mouseState &= ~DOWN;
-            mouseState |= UP;
-            mouseCoords = new Point(event.stageX, event.stageY);
-        }
-
-        protected function onDoubleClick(event:MouseEvent):void
-        {
-            mouseState &= ~DOWN;
-            mouseState |= UP;
-            mouseCoords = new Point(event.stageX, event.stageY);
-        }
-
-        protected function onRollOver(event:MouseEvent):void
-        {
-            mouseState |= OVER;
-            mouseCoords = new Point(event.stageX, event.stageY);
-        }
-
-        protected function onRollOut(event:MouseEvent):void
-        {
-            mouseState &= ~OVER;
-            mouseCoords = new Point(event.stageX, event.stageY);
-        }
-
-        protected function onMouseMove(event:MouseEvent):void
-        {
-            mouseState |= OVER;
-            mouseCoords = new Point(event.stageX, event.stageY);
-        }
-
-        protected function onMouseDown(event:MouseEvent):void
-        {
+	import flash.events.EventDispatcher;
+	import flash.events.IEventDispatcher;
+	import flash.events.KeyboardEvent;
+	import flash.events.MouseEvent;
+	import flash.geom.Point;
+	import flash.utils.getTimer;
+	
+	import org.tinytlf.util.FTEUtil;
+	
+	/**
+	 * <p>
+	 * <code>TextDispatcherBase</code> is a convenient base class for classes
+	 * which handle interactive capabilities in tinytlf. It's especially 
+	 * convenient to subclass for eventMirrors for FTE 
+	 * <code>ContentElements</code>.
+	 * </p>
+	 * <p>
+	 * <code>TextDispatcherBase</code> keeps track of the mouse states and
+	 * coordinates.
+	 * </p>
+	 */
+	public class TextDispatcherBase extends EventDispatcher
+	{
+		public function TextDispatcherBase(target:IEventDispatcher = null)
+		{
+			super(target);
+			
+			addListeners(this);
+		}
+		
+		public static const UP:uint = 0x1;
+		public static const OVER:uint = 0x2;
+		public static const DOWN:uint = 0x4;
+		
+		protected var mouseState:uint = UP;
+		protected var mouseCoords:Point;
+		
+		protected function onClick(event:MouseEvent):void
+		{
+			mouseState &= ~DOWN;
+			mouseState |= UP;
+			mouseCoords = new Point(event.stageX, event.stageY);
+		}
+		
+		protected function onDoubleClick(event:MouseEvent):void
+		{
+			mouseState &= ~DOWN;
+			mouseState |= UP;
+			mouseCoords = new Point(event.stageX, event.stageY);
+		}
+		
+		protected function onRollOver(event:MouseEvent):void
+		{
+			mouseState |= OVER;
+			mouseCoords = new Point(event.stageX, event.stageY);
+		}
+		
+		protected function onRollOut(event:MouseEvent):void
+		{
+			mouseState &= ~OVER;
+			mouseCoords = new Point(event.stageX, event.stageY);
+		}
+		
+		protected function onMouseMove(event:MouseEvent):void
+		{
+			mouseState |= OVER;
+			mouseCoords = new Point(event.stageX, event.stageY);
+		}
+		
+		protected function onMouseDown(event:MouseEvent):void
+		{
 			mouseState |= DOWN;
-            mouseState &= ~UP;
-            mouseCoords = new Point(event.stageX, event.stageY);
-        }
-
-        protected function onMouseUp(event:MouseEvent):void
-        {
-            mouseState &= ~DOWN;
-            mouseState |= UP;
-            mouseCoords = new Point(event.stageX, event.stageY);
-        }
-
-        protected function onKeyDown(event:KeyboardEvent):void
-        {
-        }
-
-        protected function onKeyUp(event:KeyboardEvent):void
-        {
-        }
-
-        public function addListeners(target:IEventDispatcher):void
-        {
-            target.addEventListener(MouseEvent.MOUSE_OVER, onRollOver, false, 0, true);
-            target.addEventListener(MouseEvent.MOUSE_OUT, onRollOut, false, 0, true);
-
-            target.addEventListener(MouseEvent.ROLL_OVER, onRollOver, false, 0, true);
-            target.addEventListener(MouseEvent.ROLL_OUT, onRollOut, false, 0, true);
-
-            target.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove, false, 0, true);
-            target.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown, false, 0, true);
-            target.addEventListener(MouseEvent.MOUSE_UP, onMouseUp, false, 0, true);
-            target.addEventListener(MouseEvent.CLICK, onClick, false, 0, true);
-            target.addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick, false, 0, true);
-
-            target.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown, false, 0, true);
-            target.addEventListener(KeyboardEvent.KEY_UP, onKeyUp, false, 0, true);
-        }
-
-        public function removeListeners(target:IEventDispatcher):void
-        {
-            target.removeEventListener(MouseEvent.MOUSE_OVER, onRollOver);
-            target.removeEventListener(MouseEvent.MOUSE_OUT, onRollOut);
-
-            target.removeEventListener(MouseEvent.ROLL_OVER, onRollOver);
-            target.removeEventListener(MouseEvent.ROLL_OUT, onRollOut);
-
-            target.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
-            target.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-            target.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
-            target.removeEventListener(MouseEvent.CLICK, onClick);
-            target.removeEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
-
-            target.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
-            target.removeEventListener(KeyboardEvent.KEY_UP, onKeyUp);
-        }
-
-        protected static var eventTime:int = 0;
-
-        protected static function get allowEvent():Boolean
-        {
-            var time:int = getTimer();
-            var ret:Boolean = (time - eventTime) > 100;
-            eventTime = time;
-            return ret;
-        }
-
-        protected static function get allowFastEvent():Boolean
-        {
-            var time:int = getTimer();
-            var ret:Boolean = (time - eventTime) > 10;
-            eventTime = time;
-            return ret;
-        }
-    }
+			mouseState &= ~UP;
+			mouseCoords = new Point(event.stageX, event.stageY);
+		}
+		
+		protected function onMouseUp(event:MouseEvent):void
+		{
+			mouseState &= ~DOWN;
+			mouseState |= UP;
+			mouseCoords = new Point(event.stageX, event.stageY);
+		}
+		
+		protected function onKeyDown(event:KeyboardEvent):void
+		{
+		}
+		
+		protected function onKeyUp(event:KeyboardEvent):void
+		{
+		}
+		
+		public function addListeners(target:IEventDispatcher):void
+		{
+			target.addEventListener(MouseEvent.MOUSE_OVER, onRollOver, false, 0, true);
+			target.addEventListener(MouseEvent.MOUSE_OUT, onRollOut, false, 0, true);
+			
+			target.addEventListener(MouseEvent.ROLL_OVER, onRollOver, false, 0, true);
+			target.addEventListener(MouseEvent.ROLL_OUT, onRollOut, false, 0, true);
+			
+			target.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove, false, 0, true);
+			target.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown, false, 0, true);
+			target.addEventListener(MouseEvent.MOUSE_UP, onMouseUp, false, 0, true);
+			target.addEventListener(MouseEvent.CLICK, onClick, false, 0, true);
+			target.addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick, false, 0, true);
+			
+			target.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown, false, 0, true);
+			target.addEventListener(KeyboardEvent.KEY_UP, onKeyUp, false, 0, true);
+		}
+		
+		public function removeListeners(target:IEventDispatcher):void
+		{
+			target.removeEventListener(MouseEvent.MOUSE_OVER, onRollOver);
+			target.removeEventListener(MouseEvent.MOUSE_OUT, onRollOut);
+			
+			target.removeEventListener(MouseEvent.ROLL_OVER, onRollOver);
+			target.removeEventListener(MouseEvent.ROLL_OUT, onRollOut);
+			
+			target.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+			target.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+			target.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+			target.removeEventListener(MouseEvent.CLICK, onClick);
+			target.removeEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
+			
+			target.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+			target.removeEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+		}
+		
+		protected var eventTime:int = 0;
+		
+		protected function allowEvent(checkTime:Number = 100):Boolean
+		{
+			var time:int = getTimer();
+			var ret:Boolean = (time - eventTime) > checkTime;
+			eventTime = time;
+			return ret;
+		}
+	}
 }
 

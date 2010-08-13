@@ -29,6 +29,19 @@ package org.tinytlf.interaction
         }
         
         private var mirrorMap:Dictionary = new Dictionary(true);
+		
+        public function mapMirror(element:*, mirrorClassOrFactory:Object):void
+        {
+            mirrorMap[element] = mirrorClassOrFactory;
+        }
+        
+        public function unMapMirror(element:*):Boolean
+        {
+            if(element in mirrorMap)
+                return delete mirrorMap[element];
+            
+            return false;
+        }
         
         public function hasMirror(element:*):Boolean
         {
@@ -48,19 +61,7 @@ package org.tinytlf.interaction
             if(mirror is Function)
                 return (mirror as Function)() as EventDispatcher;
             
-            return mirror as EventDispatcher;
-        }
-        public function mapMirror(element:*, mirrorClassOrInstance:Object):void
-        {
-            mirrorMap[element] = mirrorClassOrInstance;
-        }
-        
-        public function unMapMirror(element:*):Boolean
-        {
-            if(element in mirrorMap)
-                return delete mirrorMap[element];
-            
-            return false;
+            return new EventDispatcher();
         }
     }
 }

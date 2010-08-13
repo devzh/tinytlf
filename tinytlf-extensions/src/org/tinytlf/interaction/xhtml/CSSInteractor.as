@@ -1,7 +1,5 @@
 package org.tinytlf.interaction.xhtml
 {
-    import adobe.utils.XMLUI;
-    
     import flash.events.MouseEvent;
     import flash.text.engine.ContentElement;
     import flash.text.engine.ElementFormat;

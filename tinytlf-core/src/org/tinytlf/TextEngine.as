@@ -16,7 +16,10 @@ package org.tinytlf
     import org.tinytlf.interaction.*;
     import org.tinytlf.layout.*;
     import org.tinytlf.styles.*;
-
+	
+	/**
+	 * @see org.tinytlf.ITextEngine
+	 */
     public class TextEngine implements ITextEngine
     {
         public function TextEngine(stage:Stage = null)

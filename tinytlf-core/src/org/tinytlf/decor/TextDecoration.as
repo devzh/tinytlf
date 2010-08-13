@@ -13,7 +13,7 @@ package org.tinytlf.decor
     import flash.utils.*;
     
     import org.tinytlf.ITextEngine;
-    import org.tinytlf.core.StyleAwareActor;
+    import org.tinytlf.styles.StyleAwareActor;
     import org.tinytlf.layout.ITextContainer;
 
     public class TextDecoration extends StyleAwareActor implements ITextDecoration
@@ -154,6 +154,9 @@ package org.tinytlf.decor
                 if (!(rect in rectToSpriteMap))
                 {
 					// Should I throw this error or ignore it?
+					// It's an important error, but sometimes the FTE does
+					// annoying things which can accidentally cause this, but
+					// it isn't relevant then.
 //                    throw new Error('Couldn\'t match the Rectangle ' + rect.toString() + ' to any ITextContainer instances. Break and figure out why, thx.');
                 }
             }
@@ -281,34 +284,7 @@ package org.tinytlf.decor
 
             return regions;
         }
-
-        private var dispatcher:EventDispatcher = new EventDispatcher();
-
-        public function addEventListener(type:String, listener:Function, useCapture:Boolean = false, priority:int = 0, useWeakReference:Boolean = true):void
-        {
-            dispatcher.addEventListener(type, listener, useCapture, priority, useWeakReference);
-        }
-
-        public function removeEventListener(type:String, listener:Function, useCapture:Boolean = false):void
-        {
-            dispatcher.removeEventListener(type, listener, useCapture);
-        }
-
-        public function dispatchEvent(event:Event):Boolean
-        {
-            return dispatcher.dispatchEvent(event);
-        }
-
-        public function hasEventListener(type:String):Boolean
-        {
-            return dispatcher.hasEventListener(type);
-        }
-
-        public function willTrigger(type:String):Boolean
-        {
-            return dispatcher.willTrigger(type);
-        }
-
+		
         //Statically generate a map of the properties in this object
         generatePropertiesMap(new TextDecoration());
     }
