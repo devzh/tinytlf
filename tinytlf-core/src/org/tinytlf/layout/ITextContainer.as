@@ -14,33 +14,27 @@ package org.tinytlf.layout
     import org.tinytlf.ITextEngine;
     
 	/**
-	 * <p>
-	 * <code>ITextContainer</code> is the layout controller for a 
-	 * <code>DisplayObjectContainer</code> used in text layout. Tinytlf can 
-	 * render <code>TextLines</code> across multiple 
-	 * <code>DisplayObjectContainer</code>s, but it delegates final control over
-	 * layout and line creation to the <code>ITextContainer</code>s.
-	 * </p>
-	 * <p>
-	 * For a <code>DisplayObjectContainer</code> to be used for layout, it must
-	 * belong to an <code>ITextContainer</code> registered with the
-	 * <code>ITextLayout</code> layout actor. <code>ITextLayout</code> handles
-	 * rendering across containers. <code>ITextContainer</code> participates
-	 * in layout by rendering as many lines as possible into its target
-	 * <code>DisplayObjectContainer</code>, then returning either:
+	 * ITextContainer</code> is the layout controller for a 
+	 * DisplayObjectContainer used in text layout. Tinytlf renders TextLines
+	 * across multiple DisplayObjectContainers, and it delegates control 
+	 * over layout and line creation to ITextContainers.
+	 * 
+	 * <p>For a DisplayObjectContainer to be used for layout, it must belong to
+	 * an ITextContainer registered with the ITextLayout layout actor. 
+	 * ITextLayout handles rendering across containers. ITextContainer 
+	 * participates in layout by rendering as many lines as possible into its 
+	 * target DisplayObjectContainer, then returning either:
 	 * <ul>
 	 * <li>the last line successfully rendered, meaning there's no more room for
-	 * lines in the target <code>DisplayObjectContainer</code>, or</li>
+	 * lines in the target DisplayObjectContainer, or</li>
 	 * <li><code>null</code>, meaning all the lines from the TextBlock were
 	 * rendered and there's still more space in the target 
-	 * <code>DisplayObjectContainer</code></li>
+	 * DisplayObjectContainer.</li>
 	 * </ul>
 	 * </p>
-	 * <p>
-	 * <code>ITextContainer</code> exposes a <code>shapes</code> Sprite, used 
-	 * for drawing decorations into the target 
-	 * <code>DisplayObjectContainer</code>.
-	 * </p>
+	 * 
+	 * <p>ITextContainer exposes a <code>shapes</code> Sprite, used 
+	 * for drawing decorations into the target DisplayObjectContainer.</p>
 	 * 
 	 * @see org.tinytlf.layout.ITextLayout
 	 */
@@ -145,19 +139,27 @@ package org.tinytlf.layout
         function prepLayout():void;
 		
 		/**
-		 * <p>
 		 * Renders as many <code>TextLine</code>s from the specified
 		 * <code>TextBlock</code> into the target as possible.
-		 * </p>
-		 * <p>
-		 * There is a special contract between this method and 
-		 * <code>ITextLayout#render</code>.
-		 * </p>
+		 * 
+		 * <p>There is a special contract between layout and 
+		 * <code>ITextLayout#render</code>.<br/>
+		 * This method is passed a TextBlock to render into the
+		 * target DisplayObjectContainer. If all the lines from the
+		 * TextBlock were able to be rendered into the target, this method 
+		 * returns null, indicating that there is still space left in the 
+		 * target. If the TextLines went out of the targets boundaries, this
+		 * method returns the last TextLine that fit, indicating that there is
+		 * no more room in the target and the ITextLayout should move to the
+		 * next container.</p>
 		 * 
 		 * @see org.tinytlf.layout.ITextLayout#render
 		 */
         function layout(block:TextBlock, line:TextLine):TextLine;
 		
+		/**
+		 * Checks whether this ITextContainer has a particular TextLine.
+		 */
         function hasLine(line:TextLine):Boolean;
     }
 }

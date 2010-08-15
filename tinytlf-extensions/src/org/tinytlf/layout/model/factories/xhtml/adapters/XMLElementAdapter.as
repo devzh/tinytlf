@@ -48,7 +48,7 @@ package org.tinytlf.layout.model.factories.xhtml.adapters
                             elements.push(adapter.execute.apply(null, [child].concat(context, getXMLDefinition(child))));
                     }
 
-                    return new GroupElement(elements, getElementFormat(context), getEventMirror(name));
+                    return new GroupElement(elements, getElementFormat(context));
                 }
             }
 

@@ -33,7 +33,7 @@ package org.tinytlf.layout.model.factories
             else if(data is String)
                 element = new TextElement(String(data), getElementFormat(context), getEventMirror(name));
             else if(data is Vector.<ContentElement>)
-                element = new GroupElement(Vector.<ContentElement>(data), getElementFormat(context), getEventMirror(name));
+                element = new GroupElement(Vector.<ContentElement>(data), getElementFormat(context));
             
             if(!element)
                 return null;
