@@ -12,7 +12,6 @@ package org.tinytlf.styles.mx
     import mx.styles.CSSStyleDeclaration;
     import mx.styles.IStyleManager2;
     
-    import org.tinytlf.core.mx.FlexStyleProxy;
     import org.tinytlf.styles.TextStyler;
     
     public class FlexTextStyler extends TextStyler

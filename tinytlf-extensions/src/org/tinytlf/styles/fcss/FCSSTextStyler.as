@@ -13,7 +13,6 @@ package org.tinytlf.styles.fcss
     import flash.text.engine.*;
     import flash.utils.Dictionary;
     
-    import org.tinytlf.core.fcss.FStyleProxy;
     import org.tinytlf.styles.TextStyler;
     import org.tinytlf.util.XMLUtil;
 

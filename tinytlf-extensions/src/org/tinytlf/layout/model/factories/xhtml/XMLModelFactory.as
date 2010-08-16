@@ -45,12 +45,12 @@ package org.tinytlf.layout.model.factories.xhtml
             {
                 if(child.nodeKind() == 'text')
                 {
-                    element = getElementAdapter(xml.localName()).execute.apply(null, [child.toString()].concat(ancestorList));
+                    element = getElementFactory(xml.localName()).execute.apply(null, [child.toString()].concat(ancestorList));
                 }
                 else
                 {
                     ancestorList.push(getXMLDefinition(child));
-                    element = getElementAdapter(child.localName()).execute.apply(null, [child].concat(ancestorList));
+                    element = getElementFactory(child.localName()).execute.apply(null, [child].concat(ancestorList));
                     ancestorList.pop();
                 }
 
@@ -65,7 +65,7 @@ package org.tinytlf.layout.model.factories.xhtml
         private static const nodePattern:RegExp = /\<[^\/](.*?)\>/;
         private static const endNodePattern:RegExp = /(\/>)|(\>)/;
 
-        override public function getElementAdapter(element:*):IContentElementFactory
+        override public function getElementFactory(element:*):IContentElementFactory
         {
             if (!(element in elementAdapterMap))
             {
@@ -74,7 +74,7 @@ package org.tinytlf.layout.model.factories.xhtml
                 return adapter;
             }
             
-            return super.getElementAdapter(element);
+            return super.getElementFactory(element);
         }
 
         protected function getXMLDefinition(node:XML):XML

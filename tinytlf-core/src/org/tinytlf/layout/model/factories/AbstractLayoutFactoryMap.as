@@ -78,12 +78,12 @@ package org.tinytlf.layout.model.factories
 
         protected var elementAdapterMap:Dictionary = new Dictionary(false);
 
-        public function hasElementAdapter(element:*):Boolean
+        public function hasElementFactory(element:*):Boolean
         {
             return Boolean(element in elementAdapterMap);
         }
 
-        public function getElementAdapter(element:*):IContentElementFactory
+        public function getElementFactory(element:*):IContentElementFactory
         {
             var adapter:*;
 
@@ -106,12 +106,12 @@ package org.tinytlf.layout.model.factories
             return IContentElementFactory(adapter);
         }
 
-        public function mapElementAdapter(element:*, adapterClassOrInstance:Object):void
+        public function mapElementFactory(element:*, adapterClassOrInstance:Object):void
         {
             elementAdapterMap[element] = adapterClassOrInstance;
         }
 
-        public function unMapElementAdapter(element:*):Boolean
+        public function unMapElementFactory(element:*):Boolean
         {
             if (!(element in elementAdapterMap))
                 return false;

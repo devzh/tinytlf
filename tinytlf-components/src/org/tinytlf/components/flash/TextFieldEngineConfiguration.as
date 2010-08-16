@@ -4,11 +4,9 @@ package org.tinytlf.components.flash
 	import org.tinytlf.decor.decorations.*;
 	import org.tinytlf.interaction.*;
 	import org.tinytlf.interaction.gestures.behaviors.*;
-	import org.tinytlf.interaction.gestures.behaviors.keyboard.*;
 	import org.tinytlf.interaction.gestures.behaviors.keyboard.selection.*;
 	import org.tinytlf.interaction.gestures.behaviors.mouse.*;
 	import org.tinytlf.interaction.gestures.behaviors.mouse.selection.*;
-	import org.tinytlf.interaction.gestures.keyboard.*;
 	import org.tinytlf.interaction.gestures.keyboard.arrows.*;
 	import org.tinytlf.interaction.gestures.mouse.*;
 	import org.tinytlf.interaction.xhtml.*;
@@ -128,14 +126,14 @@ package org.tinytlf.components.flash
 		
 		protected function mapElementAdapters(engine:ITextEngine):void
 		{
-			if (!engine.layout.textBlockFactory.hasElementAdapter('ul'))
-				engine.layout.textBlockFactory.mapElementAdapter('ul', HTMLListAdapter);
+			if (!engine.layout.textBlockFactory.hasElementFactory('ul'))
+				engine.layout.textBlockFactory.mapElementFactory('ul', HTMLListAdapter);
 			
-			if (!engine.layout.textBlockFactory.hasElementAdapter('li'))
-				engine.layout.textBlockFactory.mapElementAdapter('li', HTMLListItemAdapter);
+			if (!engine.layout.textBlockFactory.hasElementFactory('li'))
+				engine.layout.textBlockFactory.mapElementFactory('li', HTMLListItemAdapter);
 			
-			if (!engine.layout.textBlockFactory.hasElementAdapter('br'))
-				engine.layout.textBlockFactory.mapElementAdapter('br', HTMLLineBreakAdapter);
+			if (!engine.layout.textBlockFactory.hasElementFactory('br'))
+				engine.layout.textBlockFactory.mapElementFactory('br', HTMLLineBreakAdapter);
 		}
 	}
 }

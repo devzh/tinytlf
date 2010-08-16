@@ -26,10 +26,10 @@ package org.tinytlf.layout.model.factories
         
         function createBlocks(...args):Vector.<TextBlock>;
         
-        function hasElementAdapter(element:*):Boolean;
-        function getElementAdapter(element:*):IContentElementFactory;
-        function mapElementAdapter(element:*, adapterClassOrInstance:Object):void;
-        function unMapElementAdapter(element:*):Boolean;
+        function hasElementFactory(element:*):Boolean;
+        function getElementFactory(element:*):IContentElementFactory;
+        function mapElementFactory(element:*, adapterClassOrInstance:Object):void;
+        function unMapElementFactory(element:*):Boolean;
     }
 }
 

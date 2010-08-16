@@ -9,7 +9,7 @@ package org.tinytlf.decor.mx
     import org.tinytlf.decor.ITextDecoration;
     import org.tinytlf.decor.TextDecor;
     import org.tinytlf.layout.ITextContainer;
-    import org.tinytlf.core.mx.FlexStyleProxy;
+    import org.tinytlf.styles.mx.FlexStyleProxy;
     
     public class FlexTextDecor extends TextDecor
     {
@@ -23,6 +23,8 @@ package org.tinytlf.decor.mx
 										  layer:int = 0, 
 										  containers:Vector.<ITextContainer> = null):void
         {
+			//  They can pass in a Flex style selector and we'll grab all the
+			//  decoration definitions off of it.
             if(styleObj is String)
 			{
                 styleObj = new FlexStyleProxy(String(styleObj));

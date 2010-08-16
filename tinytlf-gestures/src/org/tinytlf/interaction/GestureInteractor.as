@@ -8,12 +8,14 @@ package org.tinytlf.interaction
 {
     import flash.display.Sprite;
     import flash.events.*;
+    import flash.text.engine.TextBlock;
     import flash.text.engine.TextLine;
     
     import org.tinytlf.interaction.gestures.IGesture;
     import org.tinytlf.interaction.gestures.behaviors.*;
     import org.tinytlf.interaction.gestures.keyboard.*;
     import org.tinytlf.interaction.gestures.mouse.*;
+    import org.tinytlf.layout.LayoutProperties;
 
     public class GestureInteractor extends TextInteractorBase implements IGestureInteractor
     {
@@ -141,12 +143,26 @@ package org.tinytlf.interaction
 			}
         }
 		
+		/**
+		 * Adds a catcher to the TextLine so that mouse events bubble and can be
+		 * caught by the gestures.
+		 * @private
+		 */
 		private function createBackground(line:TextLine):void
 		{
+			//Try to guess the original paragraph width.
+			var lp:LayoutProperties = (line.textBlock.userData as LayoutProperties)  || new LayoutProperties();
+			var w:Number = line.specifiedWidth;
+			w += lp.paddingLeft;
+			w += lp.paddingRight;
+			
+			//Add in the indent if this is the first line in the TextBlock
+			if(!line.previousLine)
+				w += lp.textIndent;
+			
 			var sprite:Sprite = new Sprite();
 			sprite.graphics.beginFill(0x00, 0);
-			sprite.graphics.drawRect(0, 0, line.specifiedWidth, line.height);
-			sprite.y = -line.ascent;
+			sprite.graphics.drawRect(-line.x, -line.ascent, w, line.height);
 			line.addChild(sprite);
 		}
     }

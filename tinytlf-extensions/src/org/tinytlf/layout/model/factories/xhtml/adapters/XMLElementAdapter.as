@@ -30,7 +30,7 @@ package org.tinytlf.layout.model.factories.xhtml.adapters
 
                 if (node..*.length() == 1)
                 {
-                    return blockFactory.getElementAdapter(name).execute.apply(null, [node.text().toString()].concat(context));
+                    return blockFactory.getElementFactory(name).execute.apply(null, [node.text().toString()].concat(context));
                 }
 
                 if (node..*.length() > 1)
@@ -40,7 +40,7 @@ package org.tinytlf.layout.model.factories.xhtml.adapters
 
                     for each(var child:XML in node.*)
                     {
-                        adapter = blockFactory.getElementAdapter(child.localName());
+                        adapter = blockFactory.getElementFactory(child.localName());
 
                         if (child.nodeKind() == "text")
                             elements.push(super.execute.apply(null, [child.toString()].concat(context)));
