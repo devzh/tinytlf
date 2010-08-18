@@ -26,21 +26,23 @@ package org.tinytlf.layout.model.factories.xhtml
                 xml = XML(data);
                 
                 if(xml.nodeKind() == 'text')
-                    xml = new XML("<_><p>" + xml + "</p></_>");
-                else
+                    xml = new XML("<body><p>" + xml + "</p></body>");
+				else
                     ancestorList.push(getXMLDefinition(xml));
             }
             catch(e:Error){
-                xml = new XML("<p>" + data.toString() + "</p>");
+                xml = new XML("<body><p>" + data.toString() + "</p></body>");
                 
                 if((xml.*[0] as XML).nodeKind() == 'text')
-                    xml = new XML("<_>" + xml + "</_>");
+                    xml = new XML("<body>" + xml + "</body>");
             }
 
             var blocks:Vector.<TextBlock> = new <TextBlock>[];
             var block:TextBlock;
             var element:ContentElement;
-
+			
+			ancestorList.push(getXMLDefinition(xml))
+			
             for each(var child:XML in xml.*)
             {
                 if(child.nodeKind() == 'text')

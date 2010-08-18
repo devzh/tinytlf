@@ -28,8 +28,9 @@ package org.tinytlf.layout.model.factories.xhtml.adapters
 				
 				engine.decor.decorate(graphic, {bullet:true});
 				
-                return new GroupElement(new <ContentElement>[graphic, item,
-						new TextElement('\n', new ElementFormat(), new EventDispatcher())
+                return new GroupElement(new <ContentElement>[
+						new TextElement('\n', new ElementFormat(), new EventDispatcher()),
+						graphic, item
 					]);
             }
             else

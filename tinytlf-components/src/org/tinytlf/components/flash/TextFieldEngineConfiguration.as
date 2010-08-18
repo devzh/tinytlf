@@ -47,6 +47,9 @@ package org.tinytlf.components.flash
 			if (!engine.decor.hasDecoration("bullet"))
 				engine.decor.mapDecoration("bullet", BulletDecoration);
 			
+			if (!engine.decor.hasDecoration("horizontalRule"))
+				engine.decor.mapDecoration("horizontalRule", HorizontalRuleDecoration);
+			
 			if (!engine.decor.hasDecoration("selection"))
 				engine.decor.mapDecoration("selection", SelectionDecoration);
 			
@@ -136,6 +139,12 @@ package org.tinytlf.components.flash
 			
 			if (!engine.layout.textBlockFactory.hasElementFactory('br'))
 				engine.layout.textBlockFactory.mapElementFactory('br', HTMLLineBreakAdapter);
+			
+			if (!engine.layout.textBlockFactory.hasElementFactory('img'))
+				engine.layout.textBlockFactory.mapElementFactory('img', HTMLImageAdapter);
+			
+			if (!engine.layout.textBlockFactory.hasElementFactory('hr'))
+				engine.layout.textBlockFactory.mapElementFactory('hr', HTMLHorizontalRuleAdapter);
 		}
 	}
 }

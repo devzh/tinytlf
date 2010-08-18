@@ -11,7 +11,7 @@ package org.tinytlf.layout.model.factories.xhtml.adapters
 	{
 		override public function execute(data:Object, ...parameters):ContentElement
 		{
-			return new TextElement('\n', new ElementFormat(), new EventDispatcher());
+			return new TextElement('\n', new ElementFormat());
 		}
 	}
 }

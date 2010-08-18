@@ -57,9 +57,12 @@ package org.tinytlf.styles.fcss
         {
             if (!(style is FStyleProxy))
                 return super.describeElement(element);
-
+			
+			if(!element)
+				return {};
+			
             var context:Array = (element as Array) || [element];
-            var obj:Object = super.describeElement(context[context.length - 1].localName()) || {};
+			var obj:Object = super.describeElement(context[context.length - 1].localName()) || {};
 
             var fStyle:IStyle = computeStyles(context);
             for (var styleProp:String in fStyle)
@@ -88,7 +91,7 @@ package org.tinytlf.styles.fcss
             var idName:String;
             var uniqueNodeName:String;
             var inlineStyle:String = 'a:a;';
-            var inheritanceStructure:Array = ['global'];
+            var inheritanceStructure:Array = ['*'];
 
             var str:String = '';
 

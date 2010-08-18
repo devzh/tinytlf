@@ -140,7 +140,8 @@ package org.tinytlf
         
         public function getBlockSize(block:TextBlock):int
         {
-			return block.content.rawText.length;
+			return block.content ? 
+				block.content.rawText ? block.content.rawText.length : 0 : 0;
         }
 		
 		protected function getBlockRange(startIndex:int, endIndex:int):Vector.<TextBlock>

@@ -53,7 +53,7 @@ package org.tinytlf.decor
 			_engine = textEngine;
 		}
 		
-		private var rectToContainer:Dictionary = new Dictionary(true);
+		protected var rectToContainer:Dictionary = new Dictionary(true);
 		
 		public function setup(layer:int = 0, ... args):Vector.<Rectangle>
 		{

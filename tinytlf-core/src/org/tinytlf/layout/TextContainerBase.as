@@ -13,7 +13,6 @@ package org.tinytlf.layout
     import flash.text.engine.SpaceJustifier;
     import flash.text.engine.TextBlock;
     import flash.text.engine.TextLine;
-    import flash.text.engine.TextLineValidity;
     import flash.utils.Dictionary;
     
     import org.tinytlf.ITextEngine;
