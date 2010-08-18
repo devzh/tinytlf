@@ -7,8 +7,9 @@ package org.tinytlf.interaction.gestures.behaviors.mouse.selection
     
     import org.tinytlf.ITextEngine;
     import org.tinytlf.interaction.EventLineInfo;
-    import org.tinytlf.util.FTEUtil;
     import org.tinytlf.interaction.gestures.behaviors.Behavior;
+    import org.tinytlf.util.TinytlfUtil;
+    import org.tinytlf.util.fte.TextLineUtil;
 
     public class WordSelectionBehavior extends Behavior
     {
@@ -25,12 +26,13 @@ package org.tinytlf.interaction.gestures.behaviors.mouse.selection
             
             var engine:ITextEngine = info.engine;
             var line:TextLine = info.line;
-            var blockPosition:int = engine.getBlockPosition(line.textBlock);
+			var atomIndex:int = TextLineUtil.getAtomIndexAtPoint(line, new Point(event.stageX, event.stageY));
             
-            var atomIndex:int = line.getAtomIndexAtPoint(event.stageX, event.stageY);
-            
-            var begin:int = line.getAtomTextBlockBeginIndex(FTEUtil.getAtomWordBoundary(line, atomIndex)) + blockPosition;
-            var end:int = line.getAtomTextBlockBeginIndex(FTEUtil.getAtomWordBoundary(line, atomIndex, false)) + blockPosition;
+            var begin:int = TextLineUtil.getAtomWordBoundary(line, atomIndex);
+			begin = TinytlfUtil.atomIndexToGlobalIndex(engine, line, begin);
+			
+            var end:int = TextLineUtil.getAtomWordBoundary(line, atomIndex, false);
+			end = TinytlfUtil.atomIndexToGlobalIndex(engine, line, end);
             
             selectionBegin.x = begin;
             selectionBegin.y = end;
@@ -63,23 +65,25 @@ package org.tinytlf.interaction.gestures.behaviors.mouse.selection
             var line:TextLine = info.line;
             var block:TextBlock = line.textBlock;
             var selection:Point = engine.selection.clone();
-            var atomIndex:int = FTEUtil.getAtomIndexAtPoint(line, event.stageX, event.stageY);
+            var atomIndex:int = TextLineUtil.getAtomIndexAtPoint(line, new Point(event.stageX, event.stageY));
             
             var caretIndex:int = engine.caretIndex;
-            var blockPosition:int = engine.getBlockPosition(block);
-            var adjustedIndex:int = line.getAtomTextBlockBeginIndex(Math.min(atomIndex, line.atomCount - 1)) + blockPosition;
+            var globalIndex:int = TinytlfUtil.atomIndexToGlobalIndex(engine, line, atomIndex);
             
-            if(adjustedIndex < selectionBegin.x)
+            if(globalIndex < selectionBegin.x)
             {
-                selection.x = line.getAtomTextBlockBeginIndex(FTEUtil.getAtomWordBoundary(line, atomIndex)) + blockPosition;
+                selection.x = TinytlfUtil.atomIndexToGlobalIndex(engine, line,
+					TextLineUtil.getAtomWordBoundary(line, atomIndex));
+				
                 selection.y = selectionBegin.y;
                 caretIndex = selection.x;
             }
-            else if(adjustedIndex > selectionBegin.y)
+            else if(globalIndex > selectionBegin.y)
             {
                 selection.x = selectionBegin.x;
-                selection.y = line.getAtomTextBlockBeginIndex(
-					FTEUtil.getAtomWordBoundary(line, atomIndex, false)) + blockPosition;
+                selection.y = TinytlfUtil.atomIndexToGlobalIndex(engine, line,
+					TextLineUtil.getAtomWordBoundary(line, atomIndex, false));
+				
                 caretIndex = selection.y + 1;
             }
             else

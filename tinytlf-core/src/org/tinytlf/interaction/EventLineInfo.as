@@ -9,15 +9,16 @@ package org.tinytlf.interaction
     import flash.events.Event;
     import flash.events.EventDispatcher;
     import flash.events.MouseEvent;
+    import flash.geom.Point;
     import flash.text.engine.ContentElement;
     import flash.text.engine.TextLine;
     import flash.text.engine.TextLineMirrorRegion;
     import flash.text.engine.TextLineValidity;
-    import flash.utils.getDefinitionByName;
     
     import org.tinytlf.ITextEngine;
     import org.tinytlf.layout.ITextContainer;
-    import org.tinytlf.util.FTEUtil;
+    import org.tinytlf.util.TinytlfUtil;
+    import org.tinytlf.util.fte.TextLineUtil;
 
     public class EventLineInfo
     {
@@ -33,14 +34,16 @@ package org.tinytlf.interaction
             if(line.validity == TextLineValidity.INVALID)
                 return null;
             
-            var index:int = line.textBlockBeginIndex;
-            
+            var engine:ITextEngine = ITextEngine(line.userData);
+            var index:int = TinytlfUtil.blockIndexToGlobalIndex(engine, line.textBlock, line.textBlockBeginIndex);
+			
             if(event is MouseEvent)
 			{
-                index = FTEUtil.getAtomIndexAtPoint(line, MouseEvent(event).stageX, MouseEvent(event).stageY);
+                index = TinytlfUtil.atomIndexToGlobalIndex(engine, line, 
+					TextLineUtil.getAtomIndexAtPoint(line, new Point(event['stageX'], event['stageY'])));
 			}
             
-            var element:ContentElement = FTEUtil.getContentElementAt(line.textBlock.content, index);
+            var element:ContentElement = TinytlfUtil.globalIndexToContentElement(engine, index);
             var mirrorRegion:TextLineMirrorRegion;
 			
 			if(line.mirrorRegions)
@@ -50,21 +53,21 @@ package org.tinytlf.interaction
             
             return new EventLineInfo(
                 line, 
-                line.userData, 
+                engine, 
                 mirrorRegion, 
                 mirrorRegion == null ? element : mirrorRegion.element,
                 event
             );
         }
         
-        public function EventLineInfo(line:TextLine, engine:ITextEngine, mirrorRegion:TextLineMirrorRegion, element:ContentElement, event:Event)
+        public function EventLineInfo(line:TextLine, engine:ITextEngine, 
+									  mirrorRegion:TextLineMirrorRegion, element:ContentElement, event:Event)
         {
             _engine = engine;
             _element = element;
             _line = line;
             _mirrorRegion = mirrorRegion;
             _container = engine.layout.getContainerForLine(line);
-            _event = event;
         }
         
         private var _container:ITextContainer;
@@ -95,12 +98,6 @@ package org.tinytlf.interaction
         public function get mirrorRegion():TextLineMirrorRegion
         {
             return _mirrorRegion;
-        }
-        
-        private var _event:Event;
-        public function get event():Event
-        {
-            return _event;
         }
     }
 }

@@ -2,14 +2,12 @@ package org.tinytlf.interaction.gestures.behaviors.keyboard.selection
 {
 	import flash.events.KeyboardEvent;
 	import flash.geom.Point;
-	import flash.system.System;
 	import flash.text.engine.TextBlock;
 	import flash.text.engine.TextLine;
 	import flash.ui.Keyboard;
 	
 	import org.tinytlf.ITextEngine;
 	import org.tinytlf.interaction.EventLineInfo;
-	import org.tinytlf.util.FTEUtil;
 	import org.tinytlf.interaction.gestures.behaviors.Behavior;
 
 	public class CharacterLeftRightBehavior extends Behavior

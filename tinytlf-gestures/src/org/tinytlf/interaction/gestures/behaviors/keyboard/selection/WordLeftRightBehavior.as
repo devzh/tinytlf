@@ -8,7 +8,8 @@ package org.tinytlf.interaction.gestures.behaviors.keyboard.selection
 	import org.tinytlf.ITextEngine;
 	import org.tinytlf.interaction.EventLineInfo;
 	import org.tinytlf.interaction.gestures.behaviors.Behavior;
-	import org.tinytlf.util.FTEUtil;
+	import org.tinytlf.util.TinytlfUtil;
+	import org.tinytlf.util.fte.TextLineUtil;
 	
 	public class WordLeftRightBehavior extends Behavior
 	{
@@ -23,9 +24,7 @@ package org.tinytlf.interaction.gestures.behaviors.keyboard.selection
 			
 			var engine:ITextEngine = info.engine;
 			var line:TextLine = info.line;
-			var block:TextBlock = line.textBlock;
 			var caretIndex:int = engine.caretIndex;
-			var blockPosition:int = engine.getBlockPosition(block);
 			
 			var direction:int = event.keyCode == Keyboard.LEFT ? -1 : 1;
 			
@@ -36,12 +35,13 @@ package org.tinytlf.interaction.gestures.behaviors.keyboard.selection
 				selection.y = caretIndex;
 			
 			var oldCaretIndex:int = caretIndex;
-			var atomIndex:int = caretIndex - blockPosition - line.textBlockBeginIndex;
+			var atomIndex:int = TinytlfUtil.caretIndexToTextLineAtomIndex(engine, line);
 			
 			if (direction < 0)
 				atomIndex += direction;
 			
-			caretIndex = line.getAtomTextBlockBeginIndex(FTEUtil.getAtomWordBoundary(line, atomIndex, direction < 0)) + blockPosition;
+			caretIndex = TinytlfUtil.atomIndexToGlobalIndex(engine, line, 
+				TextLineUtil.getAtomWordBoundary(line, atomIndex, direction < 0));
 			
 			if (oldCaretIndex == caretIndex)
 				caretIndex += direction;

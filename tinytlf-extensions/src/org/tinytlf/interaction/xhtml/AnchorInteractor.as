@@ -6,7 +6,7 @@ package org.tinytlf.interaction.xhtml
 	import flash.net.navigateToURL;
 	
 	import org.tinytlf.interaction.EventLineInfo;
-	import org.tinytlf.util.FTEUtil;
+	import org.tinytlf.util.TinytlfUtil;
 	import org.tinytlf.util.XMLUtil;
 	
 	public class AnchorInteractor extends CSSInteractor
@@ -24,7 +24,7 @@ package org.tinytlf.interaction.xhtml
 			var link:Object = XMLUtil.buildKeyValueAttributes(tree.concat().pop().attributes());
 			var href:String = link['href'];
 			
-			if (FTEUtil.isBitSet(mouseState, DOWN))
+			if (TinytlfUtil.isBitSet(mouseState, DOWN))
 			{
 				//If there's an href, launch the URL. Otherwise, dispatch an event from this TextLine.
 				if (href)

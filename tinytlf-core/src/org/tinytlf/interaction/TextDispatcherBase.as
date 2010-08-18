@@ -13,8 +13,6 @@ package org.tinytlf.interaction
 	import flash.geom.Point;
 	import flash.utils.getTimer;
 	
-	import org.tinytlf.util.FTEUtil;
-	
 	/**
 	 * <p>
 	 * <code>TextDispatcherBase</code> is a convenient base class for classes

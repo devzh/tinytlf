@@ -2,7 +2,6 @@ package org.tinytlf.interaction.xhtml
 {
     import flash.events.MouseEvent;
     import flash.text.engine.ContentElement;
-    import flash.text.engine.ElementFormat;
     import flash.ui.Mouse;
     import flash.ui.MouseCursor;
     
@@ -11,7 +10,7 @@ package org.tinytlf.interaction.xhtml
     import org.tinytlf.interaction.EventLineInfo;
     import org.tinytlf.interaction.TextDispatcherBase;
     import org.tinytlf.styles.ITextStyler;
-    import org.tinytlf.util.FTEUtil;
+    import org.tinytlf.util.TinytlfUtil;
     import org.tinytlf.util.XMLUtil;
 
     public class CSSInteractor extends TextDispatcherBase
@@ -31,8 +30,11 @@ package org.tinytlf.interaction.xhtml
 
         override protected function onRollOver(event:MouseEvent):void
         {
-            super.onRollOver(event);
+			if(TinytlfUtil.isBitSet(mouseState, OVER))
+				return;
             
+            super.onRollOver(event);
+			
             var info:EventLineInfo = EventLineInfo.getInfo(event, this);
             if(!info)
                 return;
@@ -40,6 +42,20 @@ package org.tinytlf.interaction.xhtml
             applyCSSFormatting(info, 'hover');
             applyCSSDecorations(info, 'hover');
             applyCursor(info, 'hover');
+        }
+
+        override protected function onRollOut(event:MouseEvent):void
+        {
+            super.onRollOut(event);
+			
+            var info:EventLineInfo = EventLineInfo.getInfo(event, this);
+            if(!info)
+                return;
+            
+            repealCSSFormatting(info);
+            repealCSSDecorations(info, 'hover');
+            applyCSSDecorations(info);
+            applyCursor(info);
         }
         
         override protected function onMouseMove(event:MouseEvent):void
@@ -62,20 +78,6 @@ package org.tinytlf.interaction.xhtml
                 return;
             
             applyCursor(info, 'hover');
-        }
-
-        override protected function onRollOut(event:MouseEvent):void
-        {
-            super.onRollOut(event);
-            
-            var info:EventLineInfo = EventLineInfo.getInfo(event, this);
-            if(!info)
-                return;
-            
-            repealCSSFormatting(info);
-            repealCSSDecorations(info, 'hover');
-            applyCSSDecorations(info);
-            applyCursor(info);
         }
 
         override protected function onMouseDown(event:MouseEvent):void
@@ -120,13 +122,8 @@ package org.tinytlf.interaction.xhtml
             
             var styler:ITextStyler = info.engine.styler;
             var a:Array = applyStateToAncestorChain(tree, state);
-            var format:ElementFormat = styler.getElementFormat(a);
-            
-            if(FTEUtil.compare(element.elementFormat.clone(), format))
-            {
-                element.elementFormat = format;
-                info.engine.invalidateLines();
-            }
+            element.elementFormat = styler.getElementFormat(a).clone();
+            info.engine.invalidateLines();
         }
         
         protected function repealCSSFormatting(info:EventLineInfo):void
@@ -137,13 +134,8 @@ package org.tinytlf.interaction.xhtml
                 return;
             
             var styler:ITextStyler = info.engine.styler;
-            var format:ElementFormat = styler.getElementFormat(tree);
-            
-            if(FTEUtil.compare(element.elementFormat.clone(), format))
-            {
-                element.elementFormat = format;
-                info.engine.invalidateLines();
-            }
+            element.elementFormat = styler.getElementFormat(tree).clone();
+            info.engine.invalidateLines();
         }
         
         protected function applyCursor(info:EventLineInfo, state:String = ''):void

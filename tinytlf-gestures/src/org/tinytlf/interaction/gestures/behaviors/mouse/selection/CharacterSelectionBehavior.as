@@ -8,15 +8,13 @@ package org.tinytlf.interaction.gestures.behaviors.mouse.selection
 {
     import flash.events.MouseEvent;
     import flash.geom.Point;
-    import flash.text.engine.TextBlock;
     import flash.text.engine.TextLine;
     
     import org.tinytlf.ITextEngine;
     import org.tinytlf.interaction.EventLineInfo;
-    import org.tinytlf.util.FTEUtil;
-    
-    import spark.primitives.Line;
     import org.tinytlf.interaction.gestures.behaviors.Behavior;
+    import org.tinytlf.util.TinytlfUtil;
+    import org.tinytlf.util.fte.TextLineUtil;
 
     public class CharacterSelectionBehavior extends Behavior
     {
@@ -33,14 +31,11 @@ package org.tinytlf.interaction.gestures.behaviors.mouse.selection
             
             var engine:ITextEngine = info.engine;
             var line:TextLine = info.line;
-            var blockPosition:int = engine.getBlockPosition(line.textBlock);
-            var m:MouseEvent = MouseEvent(info.event);
-            
-            var atomIndex:int = FTEUtil.getAtomIndexAtPoint(line, m.stageX, m.stageY);
             
             engine.select();
 			
-			selectionBeginIndex = line.textBlockBeginIndex + atomIndex + blockPosition;
+			selectionBeginIndex = TinytlfUtil.atomIndexToGlobalIndex(engine, line, 
+				TextLineUtil.getAtomIndexAtPoint(line, new Point(m.stageX, m.stageY)));
 			
             engine.caretIndex = selectionBeginIndex;
         }
@@ -66,12 +61,10 @@ package org.tinytlf.interaction.gestures.behaviors.mouse.selection
             
             var engine:ITextEngine = info.engine;
             var line:TextLine = info.line;
-            var block:TextBlock = line.textBlock;
             var selection:Point = engine.selection.clone();
-            var index:int = FTEUtil.getAtomIndexAtPoint(line, m.stageX, m.stageY);
-            
-            var atomIndex:int = line.getAtomTextBlockBeginIndex(
-				Math.min(index, line.atomCount - 1)) + engine.getBlockPosition(block);
+            var index:int = TextLineUtil.getAtomIndexAtPoint(line, new Point(m.stageX, m.stageY));
+			
+            var atomIndex:int = TinytlfUtil.atomIndexToGlobalIndex(engine, line, index);
 			
             var caretIndex:int = engine.caretIndex;
             
@@ -81,7 +74,7 @@ package org.tinytlf.interaction.gestures.behaviors.mouse.selection
             if(isNaN(selection.y))
                 selection.y = selectionBeginIndex;
 			
-			var atomSide:Boolean = FTEUtil.getAtomSide(line, m.stageX, m.stageY);
+			var atomSide:Boolean = TextLineUtil.getAtomSide(line, new Point(m.stageX, m.stageY));
 			
 			var atEnd:Boolean = (index == line.atomCount);
             

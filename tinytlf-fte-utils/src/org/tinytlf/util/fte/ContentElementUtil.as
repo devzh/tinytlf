@@ -1,4 +1,4 @@
-package org.tinytlf.util
+package org.tinytlf.util.fte
 {
 	import flash.geom.Rectangle;
 	import flash.text.engine.ContentElement;

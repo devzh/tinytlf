@@ -2,7 +2,7 @@ package org.tinytlf.interaction.gestures.keyboard.arrows
 {
 	import flash.events.KeyboardEvent;
 	
-	import org.tinytlf.util.FTEUtil;
+	import org.tinytlf.util.TinytlfUtil;
 	
 	[Event("keyDown")]
 	
@@ -10,7 +10,7 @@ package org.tinytlf.interaction.gestures.keyboard.arrows
 	{
 		override public function left(event:KeyboardEvent):Boolean
 		{
-			return super.left(event) && FTEUtil.isMac() ? event.altKey : event.ctrlKey;
+			return super.left(event) && TinytlfUtil.isMac() ? event.altKey : event.ctrlKey;
 		}
 	}
 }

@@ -125,7 +125,8 @@ package org.tinytlf.layout
 					}
 					else if (blockIndex < blocks.length - 1)
 					{
-						block.releaseLineCreationData();
+						//Add this back in once I fix the build to work w/ 10.1
+//						block.releaseLineCreationData();
 						++blockIndex;
 					}
 					else

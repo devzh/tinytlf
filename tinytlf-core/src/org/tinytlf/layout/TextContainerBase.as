@@ -212,7 +212,10 @@ package org.tinytlf.layout
             setupBlockJustifier(block);
             
             var props:LayoutProperties = getLayoutProperties(block);
-			var y:Number = height + props.paddingTop;
+			var y:Number = height;
+			
+			if(block.firstLine == null)
+				y += props.paddingTop;
 			
             if(!isNaN(explicitHeight) && y > explicitHeight)
                 return line;
@@ -245,20 +248,17 @@ package org.tinytlf.layout
 			
 			var block:TextBlock = line.textBlock;
 			
-			var x:Number = line.x;
 			var y:Number = line.y;
 			var index:int = target.getChildIndex(line);
 			
 			target.removeChild(line);
 			removeLine(line);
 			
-			line = block.createTextLine(line.previousLine, line.specifiedWidth, 0, true);
+			line = createLine(block, line.previousLine);
 //			line = block.recreateTextLine(line, line.previousLine, line.specifiedWidth, 0, true);
 			
 			target.addChildAt(line, index);
 			addLine(line);
-			
-			line.x = x;
 			line.y = y;
 			
 			if(hasFocus)
@@ -283,6 +283,7 @@ package org.tinytlf.layout
 		{
             var props:LayoutProperties = getLayoutProperties(block);
 			var w:Number = isNaN(props.width) ? isNaN(explicitWidth) ? 1000000 : explicitWidth : props.width;
+			
             var lineWidth:Number = line.width;
 			if(lineWidth > width)
 				width = lineWidth;

@@ -2,8 +2,11 @@ package org.tinytlf.interaction.gestures
 {
     import flash.events.Event;
     import flash.events.IEventDispatcher;
-
-    import org.tinytlf.util.Type;
+    import flash.utils.Dictionary;
+    import flash.utils.Proxy;
+    import flash.utils.describeType;
+    import flash.utils.getDefinitionByName;
+    import flash.utils.getQualifiedClassName;
 
     public class Gesture implements IGesture
     {
@@ -44,7 +47,7 @@ package org.tinytlf.interaction.gestures
 
         protected function addListeners(target:IEventDispatcher):void
         {
-            var events:XMLList = Type.describeType(this).factory.metadata.(@name == 'Event');
+            var events:XMLList = describeType(this).factory.metadata.(@name == 'Event');
             var type:String;
             for each(var event:XML in events)
             {
@@ -56,7 +59,7 @@ package org.tinytlf.interaction.gestures
 
         protected function removeListeners(target:IEventDispatcher):void
         {
-            var events:XMLList = Type.describeType(this).factory.metadata.(@name == 'Event');
+            var events:XMLList = describeType(this).factory.metadata.(@name == 'Event');
             var type:String;
             for each(var event:XML in events)
             {
@@ -152,5 +155,24 @@ package org.tinytlf.interaction.gestures
                 behavior.dispatchEvent(GestureEvent.getEvent(event));
             }
         }
+		
+		private static var typeCache:Dictionary = new Dictionary(false);
+		private static function describeType(value:Object, refreshCache:Boolean = false):XML
+		{
+			if (!(value is Class))
+			{
+				if (value is Proxy)
+					value = getDefinitionByName(getQualifiedClassName(value)) as Class;
+				else
+					value = value.constructor as Class;
+			}
+			
+			if (refreshCache || typeCache[value] == null)
+			{
+				typeCache[value] = flash.utils.describeType(value);
+			}
+			
+			return typeCache[value];
+		}
     }
 }

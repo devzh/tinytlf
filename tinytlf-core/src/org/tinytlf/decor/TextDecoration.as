@@ -15,7 +15,7 @@ package org.tinytlf.decor
     import org.tinytlf.ITextEngine;
     import org.tinytlf.layout.ITextContainer;
     import org.tinytlf.styles.StyleAwareActor;
-    import org.tinytlf.util.ContentElementUtil;
+    import org.tinytlf.util.fte.ContentElementUtil;
 
     public class TextDecoration extends StyleAwareActor implements ITextDecoration
     {
