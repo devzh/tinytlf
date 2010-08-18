@@ -4,9 +4,11 @@ package org.tinytlf.components.flash
 	import org.tinytlf.decor.decorations.*;
 	import org.tinytlf.interaction.*;
 	import org.tinytlf.interaction.gestures.behaviors.*;
+	import org.tinytlf.interaction.gestures.behaviors.keyboard.CharacterBackspaceBehavior;
 	import org.tinytlf.interaction.gestures.behaviors.keyboard.selection.*;
 	import org.tinytlf.interaction.gestures.behaviors.mouse.*;
 	import org.tinytlf.interaction.gestures.behaviors.mouse.selection.*;
+	import org.tinytlf.interaction.gestures.keyboard.BackspaceGesture;
 	import org.tinytlf.interaction.gestures.keyboard.arrows.*;
 	import org.tinytlf.interaction.gestures.mouse.*;
 	import org.tinytlf.interaction.xhtml.*;

@@ -84,8 +84,8 @@ package org.tinytlf.decor
 		 * 
 		 * @see org.tinytlf.decor.TextDecor
 		 */
-        function decorate(element:*, styleObj:Object, layer:int = 2, 
-						  containers:Vector.<ITextContainer> = null):void;
+        function decorate(element:*, styleObject:Object, layer:int = 2, 
+						  container:ITextContainer = null):void;
 		
 		/**
 		 * <p>
@@ -152,11 +152,10 @@ package org.tinytlf.decor
 		 * <p>
 		 * Gets or instantiates an instance of an <code>ITextDecoration</code> 
 		 * for the specified <code>decorationProp</code>. Optionally associates
-		 * the specified <code>ITextContainer</code>s with the decoration.
+		 * the specified <code>ITextContainer</code> with the decoration.
 		 * <p>
 		 */
-        function getDecoration(decorationProp:String, 
-							   containers:Vector.<ITextContainer> = null):ITextDecoration;
+        function getDecoration(decorationProp:String, container:ITextContainer = null):ITextDecoration;
     }
 }
 

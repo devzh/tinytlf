@@ -8,11 +8,9 @@ package org.tinytlf.decor.decorations
 {
     import flash.display.Graphics;
     import flash.display.Shape;
-    import flash.display.Sprite;
     import flash.events.TimerEvent;
     import flash.geom.Rectangle;
     import flash.utils.Timer;
-    import flash.utils.setTimeout;
     
     import org.tinytlf.decor.TextDecoration;
     
@@ -43,7 +41,7 @@ package org.tinytlf.decor.decorations
             
             rect = bounds[0];
             
-            g = Shape(getShapeForRectangle(rect).addChild(new Shape())).graphics;
+            g = Shape(rectToLayer(rect).addChild(new Shape())).graphics;
             
             if(!timer.hasEventListener(TimerEvent.TIMER))
                 timer.addEventListener(TimerEvent.TIMER, toggle);

@@ -45,8 +45,8 @@ package org.tinytlf.decor
 	 */
     public interface ITextDecoration extends IStyleAware
     {
-        function get containers():Vector.<ITextContainer>
-        function set containers(textContainers:Vector.<ITextContainer>):void;
+        function get container():ITextContainer;
+        function set container(textContainer:ITextContainer):void;
         
         function get engine():ITextEngine;
         function set engine(textEngine:ITextEngine):void;

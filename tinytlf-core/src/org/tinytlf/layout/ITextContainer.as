@@ -76,16 +76,6 @@ package org.tinytlf.layout
         
 		/**
 		 * <p>
-		 * The defined width to render TextLines during layout. If this value is
-		 * not set, lines are created with <code>TextBlock</code>'s default size
-		 * for <code>TextLine</code>s, 1000000.
-		 * </p>
-		 */
-        function get explicitWidth():Number;
-        function set explicitWidth(value:Number):void;
-        
-		/**
-		 * <p>
 		 * The height within which to render and lay out TextLines. If this
 		 * value is not set, the <code>ITextContainer</code> will render lines
 		 * into this container indefinitely, never signaling that the container
@@ -94,6 +84,16 @@ package org.tinytlf.layout
 		 */
         function get explicitHeight():Number;
         function set explicitHeight(value:Number):void;
+        
+		/**
+		 * <p>
+		 * The defined width to render TextLines during layout. If this value is
+		 * not set, lines are created with <code>TextBlock</code>'s default size
+		 * for <code>TextLine</code>s, 1000000.
+		 * </p>
+		 */
+        function get explicitWidth():Number;
+        function set explicitWidth(value:Number):void;
         
 		/**
 		 * <p>
@@ -138,6 +138,8 @@ package org.tinytlf.layout
 		 */
         function prepLayout():void;
 		
+        function cleanupLines(fromBlock:TextBlock):void;
+        
 		/**
 		 * Renders as many <code>TextLine</code>s from the specified
 		 * <code>TextBlock</code> into the target as possible.
@@ -161,6 +163,11 @@ package org.tinytlf.layout
 		 * Checks whether this ITextContainer has a particular TextLine.
 		 */
         function hasLine(line:TextLine):Boolean;
+		
+		/**
+		 * Recreates an individual line in the TextContainer
+		 */
+        function recreateTextLine(line:TextLine):TextLine;
     }
 }
 

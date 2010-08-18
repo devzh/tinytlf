@@ -33,7 +33,7 @@ package org.tinytlf.decor.decorations
             while(copy.length > 0)
             {
                 rect = copy.pop();
-                g = getShapeForRectangle(rect).graphics;
+                g = rectToLayer(rect).graphics;
                 start = new Point(rect.left, rect.bottom - underlineDelta);
                 end = new Point(rect.right, rect.bottom - underlineDelta);
                 

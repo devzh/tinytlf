@@ -6,281 +6,325 @@
  */
 package org.tinytlf.decor
 {
-    import flash.utils.Dictionary;
-    
-    import org.tinytlf.ITextEngine;
-    import org.tinytlf.layout.ITextContainer;
+	import flash.utils.Dictionary;
+	
+	import org.tinytlf.ITextEngine;
+	import org.tinytlf.layout.ITextContainer;
 	
 	////
-	//  I have some major problems with this implementation:
-	//  
-	//  1. There's a bug where the decorations' layers are exactly backwards.
-	//  2. I don't like how it stores the decorations. Maps of maps of maps is
-	//     not cool.
-	//  3. It renders every decoration again every time the decorations are 
-	//     invalidated. Isn't there a way to know which decorations changed and
-	//     only clear/render those? I mean without creating separate
-	//     Shapes/Sprites per decoration (ick!).
-	//  4. Right now the TextDecoration base class is resolving multi-container
-	//     issues, but I feel that should be done here, individual TextDecorations
-	//     shouldn't give a shit about which containers they're rendering into.
-	//     This also makes it very very hard to write an ITextDecoration that
-	//     doesn't extend TextDecoration. 
-	//  
-	//  Eff.
+	//  This renders every decoration again every time the decorations are 
+	//  invalidated. Isn't there a way to know which decorations changed and
+	//  only clear/render those? I mean without creating separate
+	//  Shapes/Sprites per decoration (ick!).
 	////
-    
+	
 	/**
 	 * The decoration actor for tinytlf.
-	 * 
+	 *
 	 * @see org.tinytlf.decor.ITextDecoration
 	 */
-    public class TextDecor implements ITextDecor
-    {
-        public static const CARET_LAYER:int = 0;
-        public static const SELECTION_LAYER:int = 1;
-        
-        protected var _engine:ITextEngine;
-        
-        public function get engine():ITextEngine
-        {
-            return _engine;
-        }
-        
-        public function set engine(textEngine:ITextEngine):void
-        {
-            if(textEngine == _engine)
-                return;
-            
-            _engine = textEngine;
-        }
-        
-        public function render():void
-        {
-            var n:int = layers.length;
-            var layer:Dictionary;
-            var element:*;
-            var decorationProp:String;
-            var decoration:ITextDecoration;
-            
-            for(var i:int = 0; i < n; ++i)
-            {
-                layer = layers[i];
-                for(element in layer)
-                    for each(decoration in layer[element])
-                        if(decoration)
-                            decoration.draw(decoration.setup(i, element));
-            }
-        }
-        
-        public function removeAll():void
-        {
-            for(var layer:* in layers)
-            {
-                for(var element:* in layers[layer])
-                {
-                    for(var decoration:String in layers[layer][element])
-                    {
-                        ITextDecoration(layers[layer][element][decoration]).destroy();
-                        delete layers[layer][element][decoration];
-                    }
-                    delete layers[layer][element];
-                }
-                delete layers[layer];
-            }
-            
-            engine.invalidateDecorations();
-        }
-        
-        protected var layers:Array = [];
-        
-        public function decorate(element:*, styleObj:Object, layer:int = 2, containers:Vector.<ITextContainer> = null):void
-        {
-            if(!element || !styleObj)
-                return;
-            
-            //  Resolve the layer business first
-            var theLayer:Dictionary = resolveLayer(layer);
-            if(!(element in theLayer) || theLayer[element] == null)
-            {
-                theLayer[element] = new Dictionary(false);
-            }
-            
-            var decoration:ITextDecoration;
-            var styleProp:String;
-            
-            if(styleObj is String && hasDecoration(String(styleObj)))
-            {
-                theLayer[element][styleObj] = getDecoration(String(styleObj), containers);
-            }
-            else
-            {
-                for(styleProp in styleObj)
-                {
-					//Jesus how many ways do you have to check for not-null?
-                    if(hasDecoration(styleProp) && 
-						styleObj[styleProp] != null && 
-						styleObj[styleProp] !== false && 
-						styleObj[styleProp] !== 'false')
-                    {
-                        decoration = ITextDecoration(theLayer[element][styleProp] = getDecoration(styleProp, containers));
-						decoration.style = styleObj;
-                    }
-                    else if(hasDecoration(styleProp) && styleProp in theLayer[element])
-                    {
-                        delete theLayer[element][styleProp];
-                    }
-                }
-            }
-            
-            engine.invalidateDecorations();
-        }
-        
-        /**
-         * Undecorate can completely dress down the element passed in, or it can strip
-         * out the decoration for a particular property, leaving the others intact.
-         */
-        public function undecorate(element:* = null, decorationProp:String = null):void
-        {
-            var i:int = layers.length - 1;
-            var layer:Dictionary;
-            
-            for(; i >= 0; i--)
-            {
-                layer = Dictionary(layers[i]);
-                
-                if(!layer)
-                    continue;
-                
-                if(element)
-                {
-                    if(!(element in layer) || layer[element] == null)
-                        continue;
-                    
-                    if(!decorationProp)
-                    {
-                        for(var dec:String in layer[element])
-                        {
-                            ITextDecoration(layer[element][dec]).destroy();
-                            delete layer[element][dec];
-                        }
-                    }
-                    else if(decorationProp in layer[element])
-                    {
-                        ITextDecoration(layer[element][decorationProp]).destroy();
-                        delete layer[element][decorationProp];
-                    }
-                    
-                    if(isEmpty(layer[element]))
-                    {
-                        delete layer[element];
-                    }
-                }
-                else if(decorationProp)
-                {
-                    for(var e:* in layer)
-                    {
-                        if(layer[e] == null)
-                            continue;
-                        
-                        if(decorationProp in layer[e])
-                        {
-                            ITextDecoration(layer[e][decorationProp]).destroy();
-                            delete layer[e][decorationProp];
-                        }
-                        
-                        if(isEmpty(layer[e]))
-                        {
-                            delete layer[e];
-                        }
-                    }
-                }
-            }
-            
-            engine.invalidateDecorations();
-        }
-        
-        private var decorationsMap:Object = {};
-        
-        public function mapDecoration(styleProp:String, decorationClassOrFactory:Object):void
-        {
-			if(decorationClassOrFactory)
-	            decorationsMap[styleProp] = decorationClassOrFactory;
+	public class TextDecor implements ITextDecor
+	{
+		public static const CARET_LAYER:int = 0;
+		public static const SELECTION_LAYER:int = 1;
+		
+		protected var _engine:ITextEngine;
+		
+		public function get engine():ITextEngine
+		{
+			return _engine;
+		}
+		
+		public function set engine(textEngine:ITextEngine):void
+		{
+			if (textEngine == _engine)
+				return;
+			
+			_engine = textEngine;
+		}
+		
+		public function render():void
+		{
+			for each (var el:Element in elements)
+			{
+				el.decorations.sort(function(d1:Decoration, d2:Decoration):int
+				{
+					return d1.layer - d2.layer;
+				});
+				
+				for each (var dec:Decoration in el.decorations)
+				{
+					dec.draw(dec.setup(el.element));
+				}
+			}
+		}
+		
+		public function removeAll():void
+		{
+			for each (var el:Element in elements)
+			{
+				for each (var dec:Decoration in el.decorations)
+				{
+					el.removeDecoration(dec);
+					dec.destroy();
+				}
+			}
+			
+			elements.length = 0;
+		}
+		
+		private var elements:Vector.<Element> = new Vector.<Element>();
+		
+		public function decorate(element:*, styleObject:Object, layer:int = 2, container:ITextContainer = null):void
+		{
+			var styleProp:String = String(styleObject);
+			
+			if (styleObject is String)
+			{
+				if (!hasDecoration(styleProp))
+					return;
+			}
+			else
+			{
+				var hasOne:Boolean = false;
+				for (styleProp in styleObject)
+				{
+					hasOne = hasOne || hasDecoration(styleProp);
+				}
+				
+				if (hasOne == false)
+					return;
+			}
+			
+			var el:Element = getElement(element);
+			
+			if (styleObject is String && hasDecoration(styleProp))
+			{
+				el.addDecoration(new Decoration(getDecoration(styleProp, container), layer));
+			}
+			else
+			{
+				var decoration:ITextDecoration;
+				var styleValue:*;
+				
+				for (styleProp in styleObject)
+				{
+					styleValue = styleObject[styleProp];
+					//You can de-apply a decoration by passing in {decoration:false} or {decoration:null}
+					if (styleValue === false || styleValue === 'false' || styleValue == null)
+					{
+						undecorate(element, styleProp);
+					}
+					else if (hasDecoration(styleProp))
+					{
+						decoration = getDecoration(styleProp, container);
+						decoration.style = styleObject;
+						el.addDecoration(new Decoration(decoration, layer));
+					}
+				}
+			}
+			
+			engine.invalidateDecorations();
+		}
+		
+		public function undecorate(element:* = null, decorationProp:String = null):void
+		{
+			if (element === null && decorationProp === null)
+				return;
+			
+			var el:Element;
+			var dec:Decoration;
+			
+			if (element)
+			{
+				el = getElement(element);
+				
+				if (!el)
+					return;
+				
+				if (decorationProp)
+				{
+					if (!hasDecoration(decorationProp))
+						return;
+					
+					dec = el.getDecoration(decorationsMap[decorationProp]);
+					el.removeDecoration(dec);
+				}
+				else
+				{
+					var decorations:Vector.<Decoration> = el.decorations.concat();
+					for each (dec in decorations)
+					{
+						el.removeDecoration(dec);
+						dec.destroy();
+						dec.decoration = null;
+					}
+				}
+				
+				cleanupElement(el);
+			}
+			else
+			{
+				if (!hasDecoration(decorationProp))
+					return;
+				
+				var type:Class = decorationsMap[decorationProp];
+				var ements:Vector.<Element> = elements.concat();
+				
+				for each (el in ements)
+				{
+					dec = el.getDecoration(type);
+					if (dec)
+					{
+						el.removeDecoration(dec);
+						dec.destroy();
+						dec.decoration = null;
+						
+						cleanupElement(el);
+					}
+				}
+			}
+			
+			engine.invalidateDecorations();
+		}
+		
+		protected var decorationsMap:Object = {};
+		
+		public function mapDecoration(styleProp:String, decorationClassOrFactory:Object):void
+		{
+			if (decorationClassOrFactory)
+				decorationsMap[styleProp] = decorationClassOrFactory;
 			else
 				unMapDecoration(styleProp);
-        }
-        
-        public function unMapDecoration(styleProp:String):Boolean
-        {
-            if(!hasDecoration(styleProp))
-                return false;
-            
-            return delete decorationsMap[styleProp];
-        }
-        
-        public function hasDecoration(decorationProp:String):Boolean
-        {
-            return Boolean(decorationProp in decorationsMap);
-        }
-        
-        public function getDecoration(styleProp:String, containers:Vector.<ITextContainer> = null):ITextDecoration
-        {
-            if(!hasDecoration(styleProp))
-                return null;
-            
-            var decoration:* = decorationsMap[styleProp];
-            if(decoration is Class)
-                decoration = ITextDecoration(new decoration());
-            else if(decoration is Function)
-                decoration = ITextDecoration((decoration as Function)());
-            
-            if(!decoration)
-                return null;
-            
-            var vec:Vector.<ITextContainer> = new Vector.<ITextContainer>();
-            if(containers)
-                vec = vec.concat(containers);
-            
-            ITextDecoration(decoration).containers = vec;
-            
-            ITextDecoration(decoration).engine = engine;
-            
-            return ITextDecoration(decoration);
-        }
-        
-        protected function resolveLayer(layer:int):Dictionary
-        {
-            if(layer < 0)
-                layer = 0;
-            
-            //  Allow a larger layer than we've created so far, but keep the 
-            //  Array densly populated. This helps with performance, but also 
-            //  allows a developer to specify a deeper level than has been 
-            //  created so far. Originally I kept the layers within the bounds 
-            //  of the array, but that introduced race condition-y scenarios.
-            else if(layer > layers.length)
-            {
-                var i:int = layers.length - 1;
-                while(++i < layer)
-                    layers[i] = (i in layers) ? layers[i] : null;
-            }
-            
-            if(!(layers[layer]))
-                layers[layer] = new Dictionary(false);
-            
-            return Dictionary(layers[layer]);
-        }
-        
-        private function isEmpty(dict:Object):Boolean
-        {
-            if(!dict)
-                return true;
-            
-            for(var prop:* in dict)
-                if(dict[prop])
-                    return false;
-            
-            return true;
-        }
-    }
+		}
+		
+		public function unMapDecoration(styleProp:String):Boolean
+		{
+			if (!hasDecoration(styleProp))
+				return false;
+			
+			return delete decorationsMap[styleProp];
+		}
+		
+		public function hasDecoration(decorationProp:String):Boolean
+		{
+			return Boolean(decorationProp in decorationsMap);
+		}
+		
+		public function getDecoration(styleProp:String, container:ITextContainer = null):ITextDecoration
+		{
+			if (!hasDecoration(styleProp))
+				return null;
+			
+			var decoration:* = decorationsMap[styleProp];
+			if (decoration is Class)
+				decoration = ITextDecoration(new decoration());
+			else if (decoration is Function)
+				decoration = ITextDecoration((decoration as Function)());
+			
+			if (!decoration)
+				return null;
+			
+			ITextDecoration(decoration).container = container;
+			
+			ITextDecoration(decoration).engine = engine;
+			
+			return ITextDecoration(decoration);
+		}
+		
+		protected function getElement(element:*):Element
+		{
+			var filter:Vector.<Element> = elements.filter(function(e:Element, ... args):Boolean
+			{
+				return e.element === element;
+			});
+			
+			if (filter.length)
+				return filter[0];
+			
+			var el:Element = new Element(element);
+			elements.push(el);
+			return el;
+		}
+		
+		protected function cleanupElement(el:Element):void
+		{
+			if (el.decorations.length > 0)
+				return;
+			
+			elements.splice(elements.indexOf(el), 1);
+			el.decorations = null;
+			el.element = null;
+		}
+	}
+}
+
+import flash.events.EventDispatcher;
+import flash.geom.Rectangle;
+import flash.text.engine.ContentElement;
+
+import org.tinytlf.decor.ITextDecoration;
+
+internal class Element
+{
+	public function Element(e:*)
+	{
+		this.element = e;
+		
+		if(e is ContentElement && ContentElement(e).eventMirror == null)
+			ContentElement(e).eventMirror = new EventDispatcher();
+	}
+	
+	public var element:*;
+	public var decorations:Vector.<Decoration> = new Vector.<Decoration>();
+	
+	public function getDecoration(decorationType:Class):Decoration
+	{
+		var filter:Vector.<Decoration> = decorations.filter(function(d:Decoration, ... args):Boolean
+		{
+			return (d.decoration is decorationType);
+		});
+		
+		return filter.length ? filter[0] : null;
+	}
+	
+	public function addDecoration(decoration:Decoration):void
+	{
+		if (decorations.indexOf(decoration) == -1)
+			decorations.push(decoration);
+	}
+	
+	public function removeDecoration(decoration:Decoration):void
+	{
+		var i:int = decorations.indexOf(decoration);
+		if (i != -1)
+			decorations.splice(i, 1);
+	}
+}
+
+internal class Decoration
+{
+	public function Decoration(decoration:ITextDecoration, layer:int = 2)
+	{
+		this.decoration = decoration;
+		this.layer = layer;
+	}
+	
+	public function destroy():void
+	{
+		decoration.destroy();
+	}
+	
+	public function setup(... args):Vector.<Rectangle>
+	{
+		return decoration.setup.apply(null, [layer].concat(args));
+	}
+	
+	public function draw(bounds:Vector.<Rectangle>):void
+	{
+		decoration.draw(bounds);
+	}
+	
+	public var layer:int = 2;
+	public var decoration:ITextDecoration;
 }

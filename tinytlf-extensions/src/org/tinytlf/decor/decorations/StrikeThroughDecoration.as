@@ -31,7 +31,7 @@ package org.tinytlf.decor.decorations
             while(bounds.length > 0)
             {
                 rect = bounds.pop();
-                g = getShapeForRectangle(rect).graphics;
+                g = rectToLayer(rect).graphics;
                 
                 start = new Point(rect.x, rect.y + (rect.height * 0.5));
                 end = new Point(rect.x + rect.width, rect.y + (rect.height * 0.5));

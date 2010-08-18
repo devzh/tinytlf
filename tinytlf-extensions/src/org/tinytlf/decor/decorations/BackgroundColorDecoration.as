@@ -17,7 +17,7 @@ package org.tinytlf.decor.decorations
         {
             super(styleObject);
         }
-        
+		
         override public function draw(bounds:Vector.<Rectangle>):void
         {
             super.draw(bounds);
@@ -31,7 +31,7 @@ package org.tinytlf.decor.decorations
             while(copy.length > 0)
             {
                 rect = copy.pop();
-                g = getShapeForRectangle(rect).graphics;
+                g = rectToLayer(rect).graphics;
                 g.lineStyle();
                 
                 bgColor = uint(getStyle('backgroundColor'));

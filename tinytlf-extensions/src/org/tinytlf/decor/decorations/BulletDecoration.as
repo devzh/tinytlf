@@ -22,7 +22,7 @@ package org.tinytlf.decor.decorations
 			while(copy.length)
 			{
 				rect = copy.pop();
-				g = getShapeForRectangle(rect).graphics;
+				g = rectToLayer(rect).graphics;
 				
 				g.beginFill(getStyle('bulletColor') || getStyle('fontColor') || 0x00,
 					getStyle('bulletAlpha') || getStyle('fontAlpha') || 1);

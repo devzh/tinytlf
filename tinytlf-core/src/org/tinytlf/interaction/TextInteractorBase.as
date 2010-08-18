@@ -52,16 +52,13 @@ package org.tinytlf.interaction
         {
             var mirror:Object = mirrorMap[element];
             
-            if(!mirror)
-                return new EventDispatcher();
-            
             if(mirror is Class)
                 return new(mirror as Class)() as EventDispatcher;
             
             if(mirror is Function)
                 return (mirror as Function)() as EventDispatcher;
             
-            return new EventDispatcher();
+            return null;
         }
     }
 }

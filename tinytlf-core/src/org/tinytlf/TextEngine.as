@@ -360,7 +360,6 @@ package org.tinytlf
 			layout.clear();
 			
 			blocks = createTextBlocks();
-//			blocks.add(textBlocks[i], textBlocks[i].content.rawText.length);
 		}
 		
 		protected function createTextBlocks():Vector.<TextBlock>
@@ -397,9 +396,10 @@ package org.tinytlf
 			
 			//  Keep track of which containers this selection spans
 			var containers:Dictionary = new Dictionary(false);
+			var container:ITextContainer;
 			
 			//  The rectangles that this selection represents
-			var rects:Vector.<Rectangle> = new <Rectangle>[];
+			var rects:Vector.<Rectangle> = new Vector.<Rectangle>();
 			var rect:Rectangle;
 			
 			var blockPosition:int;
@@ -423,7 +423,12 @@ package org.tinytlf
 				line = block.getTextLineAtCharIndex(startIndex);
 				while(line)
 				{
-					containers[layout.getContainerForLine(line)] = true;
+					container = layout.getContainerForLine(line);
+					if(!(container in containers))
+					{
+						rects = new Vector.<Rectangle>();
+						containers[container] = rects;
+					}
 					
 					lineSize = line.textBlockBeginIndex + line.atomCount;
 					
@@ -449,20 +454,19 @@ package org.tinytlf
 				endIndex += blockPosition;
 			}
 			
-			var textContainers:Vector.<ITextContainer> = new <ITextContainer>[];
-			for(var container:* in containers)
-				textContainers.push(container);
+			for(var tmp:* in containers)
+			{
+				decor.decorate(containers[tmp],
+					{
+						selection:true, 
+						selectionColor:styler.getStyle('selectionColor'), 
+						selectionAlpha: styler.getStyle('selectionAlpha')
+					},
+					TextDecor.SELECTION_LAYER,
+					ITextContainer(tmp));
+			}
 			
 			containers = null;
-			
-			decor.decorate(rects,
-				{
-					selection:true, 
-					selectionColor:styler.getStyle('selectionColor'), 
-					selectionAlpha: styler.getStyle('selectionAlpha')
-				},
-				TextDecor.SELECTION_LAYER,
-				textContainers);
 		}
 		
 		protected function renderCaretIndex():void
@@ -476,6 +480,9 @@ package org.tinytlf
 				Math.min(caretIndex - blockPosition, blockSize - 1)
 			));
 			
+			if(!line)
+				return;
+			
 			var atomIndex:int = Math.min(caretIndex - blockPosition - line.textBlockBeginIndex, line.atomCount - 1);
 			var rect:Rectangle = line.getAtomBounds(atomIndex);
 			
@@ -485,7 +492,7 @@ package org.tinytlf
 			var pos:String = atomIndex == (line.atomCount - 1) ? 'right' : 'left';
 			
 			decor.decorate(rect, {caret:true, position:'left'}, TextDecor.CARET_LAYER, 
-				new <ITextContainer>[layout.getContainerForLine(line)]
+				layout.getContainerForLine(line)
 			);
 			
 			line.stage.focus = line;
