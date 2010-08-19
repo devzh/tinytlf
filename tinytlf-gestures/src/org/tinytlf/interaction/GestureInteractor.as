@@ -12,7 +12,7 @@ package org.tinytlf.interaction
     import flash.text.engine.TextLine;
     
     import org.tinytlf.interaction.gestures.IGesture;
-    import org.tinytlf.interaction.gestures.behaviors.*;
+    import org.tinytlf.interaction.behaviors.*;
     import org.tinytlf.interaction.gestures.keyboard.*;
     import org.tinytlf.interaction.gestures.mouse.*;
     import org.tinytlf.layout.LayoutProperties;

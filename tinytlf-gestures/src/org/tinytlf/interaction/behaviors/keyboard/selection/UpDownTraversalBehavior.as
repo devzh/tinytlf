@@ -1,4 +1,4 @@
-package org.tinytlf.interaction.gestures.behaviors.keyboard.selection
+package org.tinytlf.interaction.behaviors.keyboard.selection
 {
 	import flash.events.KeyboardEvent;
 	import flash.geom.Point;
@@ -9,7 +9,7 @@ package org.tinytlf.interaction.gestures.behaviors.keyboard.selection
 	
 	import org.tinytlf.ITextEngine;
 	import org.tinytlf.interaction.EventLineInfo;
-	import org.tinytlf.interaction.gestures.behaviors.Behavior;
+	import org.tinytlf.interaction.behaviors.Behavior;
 
 	public class UpDownTraversalBehavior extends Behavior
 	{

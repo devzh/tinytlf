@@ -4,7 +4,7 @@
 * Permission is hereby granted to use, modify, and distribute this file
 * in accordance with the terms of the license agreement accompanying it.
 */
-package org.tinytlf.interaction.gestures.behaviors
+package org.tinytlf.interaction.behaviors
 {
     import flash.display.Stage;
     import flash.events.KeyboardEvent;

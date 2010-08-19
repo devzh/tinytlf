@@ -1,17 +1,19 @@
 package org.tinytlf.components.flash
 {
 	import org.tinytlf.*;
+	import org.tinytlf.decor.ITextDecor;
 	import org.tinytlf.decor.decorations.*;
 	import org.tinytlf.interaction.*;
-	import org.tinytlf.interaction.gestures.behaviors.*;
-	import org.tinytlf.interaction.gestures.behaviors.keyboard.CharacterBackspaceBehavior;
-	import org.tinytlf.interaction.gestures.behaviors.keyboard.selection.*;
-	import org.tinytlf.interaction.gestures.behaviors.mouse.*;
-	import org.tinytlf.interaction.gestures.behaviors.mouse.selection.*;
+	import org.tinytlf.interaction.behaviors.*;
+	import org.tinytlf.interaction.behaviors.keyboard.CharacterBackspaceBehavior;
+	import org.tinytlf.interaction.behaviors.keyboard.selection.*;
+	import org.tinytlf.interaction.behaviors.mouse.*;
+	import org.tinytlf.interaction.behaviors.mouse.selection.*;
 	import org.tinytlf.interaction.gestures.keyboard.BackspaceGesture;
 	import org.tinytlf.interaction.gestures.keyboard.arrows.*;
 	import org.tinytlf.interaction.gestures.mouse.*;
 	import org.tinytlf.interaction.xhtml.*;
+	import org.tinytlf.layout.model.factories.ILayoutFactoryMap;
 	import org.tinytlf.layout.model.factories.xhtml.*;
 	import org.tinytlf.layout.model.factories.xhtml.adapters.*;
 	import org.tinytlf.styles.fcss.FCSSTextStyler;
@@ -41,32 +43,34 @@ package org.tinytlf.components.flash
 		
 		protected function mapDecorations(engine:ITextEngine):void
 		{
-			if (!engine.decor.hasDecoration("backgroundColor"))
-				engine.decor.mapDecoration("backgroundColor", BackgroundColorDecoration);
+			var decor:ITextDecor = engine.decor;
 			
-			if (!engine.decor.hasDecoration("bullet"))
-				engine.decor.mapDecoration("bullet", BulletDecoration);
+			if (!decor.hasDecoration("backgroundColor"))
+				decor.mapDecoration("backgroundColor", BackgroundColorDecoration);
 			
-			if (!engine.decor.hasDecoration("horizontalRule"))
-				engine.decor.mapDecoration("horizontalRule", HorizontalRuleDecoration);
+			if (!decor.hasDecoration("bullet"))
+				decor.mapDecoration("bullet", BulletDecoration);
 			
-			if (!engine.decor.hasDecoration("selection"))
-				engine.decor.mapDecoration("selection", SelectionDecoration);
+			if (!decor.hasDecoration("horizontalRule"))
+				decor.mapDecoration("horizontalRule", HorizontalRuleDecoration);
+			
+			if (!decor.hasDecoration("selection"))
+				decor.mapDecoration("selection", SelectionDecoration);
+			
+			if (!decor.hasDecoration("underline"))
+				decor.mapDecoration("underline", UnderlineDecoration);
+			
+			if (!decor.hasDecoration("strikethrough"))
+				decor.mapDecoration("strikethrough", StrikeThroughDecoration);
+			
+			if (!decor.hasDecoration("caret"))
+				decor.mapDecoration("caret", CaretDecoration);
 			
 			if (!selectable)
-				engine.decor.unMapDecoration("selection");
-			
-			if (!engine.decor.hasDecoration("underline"))
-				engine.decor.mapDecoration("underline", UnderlineDecoration);
-			
-			if (!engine.decor.hasDecoration("strikethrough"))
-				engine.decor.mapDecoration("strikethrough", StrikeThroughDecoration);
-			
-			if (!engine.decor.hasDecoration("caret"))
-				engine.decor.mapDecoration("caret", CaretDecoration);
+				decor.unMapDecoration("selection");
 			
 			if (!editable)
-				engine.decor.unMapDecoration("caret");
+				decor.unMapDecoration("caret");
 		}
 		
 		protected function mapEventMirrors(engine:ITextEngine):void
@@ -131,20 +135,22 @@ package org.tinytlf.components.flash
 		
 		protected function mapElementAdapters(engine:ITextEngine):void
 		{
-			if (!engine.layout.textBlockFactory.hasElementFactory('ul'))
-				engine.layout.textBlockFactory.mapElementFactory('ul', HTMLListAdapter);
+			var factory:ILayoutFactoryMap = engine.layout.textBlockFactory;
 			
-			if (!engine.layout.textBlockFactory.hasElementFactory('li'))
-				engine.layout.textBlockFactory.mapElementFactory('li', HTMLListItemAdapter);
+			if (!factory.hasElementFactory('ul'))
+				factory.mapElementFactory('ul', HTMLListAdapter);
 			
-			if (!engine.layout.textBlockFactory.hasElementFactory('br'))
-				engine.layout.textBlockFactory.mapElementFactory('br', HTMLLineBreakAdapter);
+			if (!factory.hasElementFactory('li'))
+				factory.mapElementFactory('li', HTMLListItemAdapter);
 			
-			if (!engine.layout.textBlockFactory.hasElementFactory('img'))
-				engine.layout.textBlockFactory.mapElementFactory('img', HTMLImageAdapter);
+			if (!factory.hasElementFactory('br'))
+				factory.mapElementFactory('br', HTMLLineBreakAdapter);
 			
-			if (!engine.layout.textBlockFactory.hasElementFactory('hr'))
-				engine.layout.textBlockFactory.mapElementFactory('hr', HTMLHorizontalRuleAdapter);
+			if (!factory.hasElementFactory('img'))
+				factory.mapElementFactory('img', HTMLImageAdapter);
+			
+			if (!factory.hasElementFactory('hr'))
+				factory.mapElementFactory('hr', HTMLHorizontalRuleAdapter);
 		}
 	}
 }

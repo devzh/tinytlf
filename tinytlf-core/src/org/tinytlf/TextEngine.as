@@ -433,7 +433,9 @@ package org.tinytlf
 					
 					lineSize = line.textBlockBeginIndex + line.atomCount;
 					
-					rect = line.getAtomBounds(startIndex - line.textBlockBeginIndex);
+					rect = line.getAtomBounds(Math.min(startIndex - line.textBlockBeginIndex, 
+						line.atomCount - 1));
+					
 					rect = (endIndex < lineSize) ?
 						rect.union(line.getAtomBounds(Math.max(endIndex - line.textBlockBeginIndex, 0))) :
 						rect.union(line.getAtomBounds(line.atomCount - 1));

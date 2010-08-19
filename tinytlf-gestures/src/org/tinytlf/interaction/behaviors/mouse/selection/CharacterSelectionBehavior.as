@@ -4,7 +4,7 @@
 * Permission is hereby granted to use, modify, and distribute this file
 * in accordance with the terms of the license agreement accompanying it.
 */
-package org.tinytlf.interaction.gestures.behaviors.mouse.selection
+package org.tinytlf.interaction.behaviors.mouse.selection
 {
     import flash.events.MouseEvent;
     import flash.geom.Point;
@@ -12,7 +12,7 @@ package org.tinytlf.interaction.gestures.behaviors.mouse.selection
     
     import org.tinytlf.ITextEngine;
     import org.tinytlf.interaction.EventLineInfo;
-    import org.tinytlf.interaction.gestures.behaviors.Behavior;
+    import org.tinytlf.interaction.behaviors.Behavior;
     import org.tinytlf.util.TinytlfUtil;
     import org.tinytlf.util.fte.TextLineUtil;
 

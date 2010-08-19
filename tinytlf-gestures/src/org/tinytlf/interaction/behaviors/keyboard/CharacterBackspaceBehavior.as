@@ -1,4 +1,4 @@
-package org.tinytlf.interaction.gestures.behaviors.keyboard
+package org.tinytlf.interaction.behaviors.keyboard
 {
     import flash.events.KeyboardEvent;
     import flash.text.engine.ContentElement;
@@ -6,7 +6,7 @@ package org.tinytlf.interaction.gestures.behaviors.keyboard
     
     import org.tinytlf.ITextEngine;
     import org.tinytlf.interaction.EventLineInfo;
-    import org.tinytlf.interaction.gestures.behaviors.Behavior;
+    import org.tinytlf.interaction.behaviors.Behavior;
     import org.tinytlf.util.TinytlfUtil;
     
 	////

@@ -1,4 +1,4 @@
-package org.tinytlf.interaction.gestures.behaviors
+package org.tinytlf.interaction.behaviors
 {
     import flash.events.Event;
     import flash.events.IEventDispatcher;

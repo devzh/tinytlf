@@ -4,12 +4,12 @@
 * Permission is hereby granted to use, modify, and distribute this file
 * in accordance with the terms of the license agreement accompanying it.
 */
-package org.tinytlf.interaction.gestures.behaviors.mouse
+package org.tinytlf.interaction.behaviors.mouse
 {
     import flash.events.MouseEvent;
     import flash.ui.Mouse;
     import flash.ui.MouseCursor;
-    import org.tinytlf.interaction.gestures.behaviors.Behavior;
+    import org.tinytlf.interaction.behaviors.Behavior;
     
     public class IBeamBehavior extends Behavior
     {
