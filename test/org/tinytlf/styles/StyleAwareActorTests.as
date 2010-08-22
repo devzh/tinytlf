@@ -1,4 +1,4 @@
-package org.tinytlf.core
+package org.tinytlf.styles
 {
     public class StyleAwareActorTests
     {

@@ -20,6 +20,9 @@ package org.tinytlf.decor.decorations
 			if(arg is ContentElement)
 			{
 				var lines:Vector.<TextLine> = ContentElementUtil.getTextLines(ContentElement(arg));
+				if(!lines.length)
+					return new <Rectangle>[];
+				
 				var line:TextLine = lines[0];
 				var rect:Rectangle = line.getBounds(line.parent);
 				rect.width = line.specifiedWidth;

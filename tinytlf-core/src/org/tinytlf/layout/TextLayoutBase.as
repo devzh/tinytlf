@@ -78,7 +78,7 @@ package org.tinytlf.layout
 			
 			var block:TextBlock = blocks[0];
 			var container:ITextContainer = containers[0];
-			container.prepLayout();
+			container.prepForLayout();
 			
 			var line:TextLine;
 			
@@ -118,7 +118,7 @@ package org.tinytlf.layout
 						if (containerIndex < containers.length - 1)
 						{
 							container = containers[++containerIndex];
-							container.prepLayout();
+							container.prepForLayout();
 						}
 						else
 							return;

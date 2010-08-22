@@ -169,7 +169,7 @@ package org.tinytlf.layout
                 shapes.removeChildAt(0);
         }
         
-        public function prepLayout():void
+        public function prepForLayout():void
         {
 			if(target.numChildren)
 			{

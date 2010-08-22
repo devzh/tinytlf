@@ -4,9 +4,11 @@ package org.tinytlf.layout.model.factories.xhtml
     import flash.text.engine.TextBlock;
     
     import org.tinytlf.layout.LayoutProperties;
-    import org.tinytlf.layout.model.factories.xhtml.adapters.XMLElementAdapter;
     import org.tinytlf.layout.model.factories.AbstractLayoutFactoryMap;
     import org.tinytlf.layout.model.factories.IContentElementFactory;
+    import org.tinytlf.layout.model.factories.xhtml.adapters.XMLElementAdapter;
+    import org.tinytlf.styles.IStyleAware;
+    import org.tinytlf.styles.StyleAwareActor;
     import org.tinytlf.util.XMLUtil;
 
     public class XMLModelFactory extends AbstractLayoutFactoryMap
@@ -55,9 +57,17 @@ package org.tinytlf.layout.model.factories.xhtml
                     element = getElementFactory(child.localName()).execute.apply(null, [child].concat(ancestorList));
                     ancestorList.pop();
                 }
-
+				
+				var style:IStyleAware = new StyleAwareActor(engine.styler.describeElement([child]));
+				
                 block = new TextBlock(element);
-                block.userData = new LayoutProperties(XMLUtil.buildKeyValueAttributes(child.attributes()), block);
+				
+				for(var styleProp:String in style)
+					if(styleProp in block)
+						block[styleProp] = style[styleProp];
+				
+                block.userData = new LayoutProperties(style, block);
+				
                 blocks.push(block);
             }
 

@@ -136,9 +136,9 @@ package org.tinytlf.layout
 		 * Called just before layout to prepare the <code>ITextContainer</code>.
 		 * </p>
 		 */
-        function prepLayout():void;
+        function prepForLayout():void;
 		
-        function cleanupLines(fromBlock:TextBlock):void;
+        function cleanupLines(from:TextBlock):void;
         
 		/**
 		 * Renders as many <code>TextLine</code>s from the specified
@@ -165,7 +165,7 @@ package org.tinytlf.layout
         function hasLine(line:TextLine):Boolean;
 		
 		/**
-		 * Recreates an individual line in the TextContainer
+		 * Recreates an individual line in the TextContainer.
 		 */
         function recreateTextLine(line:TextLine):TextLine;
     }

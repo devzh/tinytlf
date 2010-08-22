@@ -357,8 +357,8 @@ package org.tinytlf
 		
 		protected function renderData():void
 		{
-			decor.removeAll();
 			layout.clear();
+			decor.removeAll();
 			
 			blocks = createTextBlocks();
 		}
@@ -370,7 +370,7 @@ package org.tinytlf
         
         protected function renderLines():void
         {
-            layout.render(layout.textBlockFactory.blocks);
+            layout.render(blocks);
         }
         
 		protected function renderDecorations():void
@@ -498,7 +498,8 @@ package org.tinytlf
 				layout.getContainerForLine(line)
 			);
 			
-			line.stage.focus = line;
+			if(line.stage)
+				line.stage.focus = line;
 		}
     }
 }

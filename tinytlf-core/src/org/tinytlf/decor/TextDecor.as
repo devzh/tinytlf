@@ -79,17 +79,17 @@ package org.tinytlf.decor
 		{
 			var styleProp:String = String(styleObject);
 			
-			if (styleObject is String)
-			{
-				if (!hasDecoration(styleProp))
-					return;
-			}
+			//  Early return optimizations not to loop or invalidate
+			//  if there are no decorations in the styleObject.
+			if (styleObject is String && !hasDecoration(styleProp))
+				return;
 			else
 			{
 				var hasOne:Boolean = false;
 				for (styleProp in styleObject)
 				{
-					hasOne = hasOne || hasDecoration(styleProp);
+					if(hasOne = hasDecoration(styleProp))
+						break;
 				}
 				
 				if (hasOne == false)

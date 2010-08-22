@@ -1,18 +1,18 @@
-package org.tinytlf.extensions.fcss.xhtml.styles
+package org.tinytlf.extensions.fcss
 {
     import flash.text.engine.ElementFormat;
     
     import org.flexunit.Assert;
     import org.tinytlf.ITextEngine;
     import org.tinytlf.TextEngine;
-    import org.tinytlf.extensions.styles.fcss.FCSSTextStyler;
+    import org.tinytlf.styles.fcss.FCSSTextStyler;
     
     public class FCSSTextStylerTest
     {
         private var engine:ITextEngine;
         private var styler:FCSSTextStyler;
         private var css:XML = <_><![CDATA[
-            global{
+            *{
                 fontName: Times;
                 fontSize: 26;
                 fontWeight: normal;

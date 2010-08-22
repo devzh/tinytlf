@@ -126,9 +126,9 @@ package org.tinytlf.components.flash
 					mouseTripleDown.addBehavior(mouseLineSelect);
 					
 					//Experimental
-//					var charBack:CharacterBackspaceBehavior = new CharacterBackspaceBehavior();
-//					var backspace:BackspaceGesture = new BackspaceGesture();
-//					interactor.addGesture(backspace, charBack);
+					var charBack:CharacterBackspaceBehavior = new CharacterBackspaceBehavior();
+					var backspace:BackspaceGesture = new BackspaceGesture();
+					interactor.addGesture(backspace, charBack);
 				}
 			}
 		}

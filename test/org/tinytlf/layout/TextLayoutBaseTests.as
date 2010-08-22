@@ -215,7 +215,6 @@ package org.tinytlf.layout
             
             layout.render(blocks);
             
-            
             verify(container).method("layout").args(block, null).once();
             
             verify(container2).method("layout").args(block, line).once();

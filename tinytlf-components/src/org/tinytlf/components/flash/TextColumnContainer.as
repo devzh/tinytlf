@@ -127,9 +127,9 @@ package org.tinytlf.components.flash
 			container.resetShapes();
 		}
 		
-		public function prepLayout():void
+		public function prepForLayout():void
 		{
-			container.prepLayout();
+			container.prepForLayout();
 		}
 		
 		public function cleanupLines(fromBlock:TextBlock):void

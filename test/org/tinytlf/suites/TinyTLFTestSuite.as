@@ -1,7 +1,7 @@
 package org.tinytlf.suites
 {
     import org.tinytlf.*;
-    import org.tinytlf.extensions.fcss.xhtml.styles.FCSSTextStylerTest;
+    import org.tinytlf.extensions.fcss.FCSSTextStylerTest;
     import org.tinytlf.layout.TextContainerBaseTests;
     import org.tinytlf.layout.TextLayoutBaseTests;
 

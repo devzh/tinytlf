@@ -60,8 +60,11 @@ package org.tinytlf.interaction.xhtml
         
         override protected function onMouseMove(event:MouseEvent):void
         {
+			if(!TinytlfUtil.isBitSet(mouseState, OVER))
+				return;
+			
             super.onMouseMove(event);
-            
+			
             var info:EventLineInfo = EventLineInfo.getInfo(event, this);
             if(!info)
                 return;
