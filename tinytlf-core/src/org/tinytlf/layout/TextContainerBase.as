@@ -6,197 +6,195 @@
  */
 package org.tinytlf.layout
 {
-    import flash.display.DisplayObject;
-    import flash.display.DisplayObjectContainer;
-    import flash.display.Sprite;
-    import flash.text.engine.LineJustification;
-    import flash.text.engine.SpaceJustifier;
-    import flash.text.engine.TextBlock;
-    import flash.text.engine.TextLine;
-    import flash.utils.Dictionary;
-    
-    import org.tinytlf.ITextEngine;
-    import org.tinytlf.layout.descriptions.TextAlign;
-    
-    public class TextContainerBase implements ITextContainer
-    {
-        public function TextContainerBase(container:DisplayObjectContainer, 
-										  explicitWidth:Number = NaN, 
-										  explicitHeight:Number = NaN)
-        {
-            this.target = container;
-            
-            _explicitWidth = explicitWidth;
-            _explicitHeight = explicitHeight;
-        }
-        
-        protected var _target:DisplayObjectContainer;
-        
-        public function get target():DisplayObjectContainer
-        {
-            return _target;
-        }
-        
-        public function set target(doc:DisplayObjectContainer):void
-        {
-            if(doc == _target)
-                return;
-            
-            _target = doc;
-            
-            shapes = Sprite(target.addChild(new Sprite()));
-        }
-        
-        protected var _engine:ITextEngine;
-        
-        public function get engine():ITextEngine
-        {
-            return _engine;
-        }
-        
-        public function set engine(textEngine:ITextEngine):void
-        {
-            if(textEngine == _engine)
-                return;
-            
-            _engine = textEngine;
-        }
-        
-        private var _shapes:Sprite;
-        
-        public function get shapes():Sprite
-        {
-            return _shapes;
-        }
-        
-        public function set shapes(shapesContainer:Sprite):void
-        {
-            if(shapesContainer === _shapes)
-                return;
-            
-            var children:Array = [];
-            if(shapes)
-            {
-                while(shapes.numChildren)
-                    children.push(shapes.removeChildAt(0));
-                if(shapes.parent && shapes.parent.contains(shapes))
-                    shapes.parent.removeChild(shapes);
-            }
-            
-            _shapes = shapesContainer;
-            
-            if(shapes)
-                while(children.length)
-                    shapes.addChild(children.shift());
-        }
-        
-        protected var _explicitHeight:Number = NaN;
-        
-        public function get explicitHeight():Number
-        {
-            return _explicitHeight;
-        }
-        
-        public function set explicitHeight(value:Number):void
-        {
-			if(value === _explicitHeight)
+	import flash.display.DisplayObject;
+	import flash.display.DisplayObjectContainer;
+	import flash.display.Sprite;
+	import flash.text.engine.LineJustification;
+	import flash.text.engine.SpaceJustifier;
+	import flash.text.engine.TextBlock;
+	import flash.text.engine.TextLine;
+	import flash.utils.Dictionary;
+	
+	import org.tinytlf.ITextEngine;
+	import org.tinytlf.layout.descriptions.TextAlign;
+	
+	public class TextContainerBase implements ITextContainer
+	{
+		public function TextContainerBase(container:DisplayObjectContainer, explicitWidth:Number = NaN, explicitHeight:Number = NaN)
+		{
+			this.target = container;
+			
+			_explicitWidth = explicitWidth;
+			_explicitHeight = explicitHeight;
+		}
+		
+		protected var _target:DisplayObjectContainer;
+		
+		public function get target():DisplayObjectContainer
+		{
+			return _target;
+		}
+		
+		public function set target(doc:DisplayObjectContainer):void
+		{
+			if (doc == _target)
 				return;
 			
-            _explicitHeight = value;
-			engine.invalidate();
-        }
-        
-        protected var _explicitWidth:Number = NaN;
-        
-        public function get explicitWidth():Number
-        {
-            return _explicitWidth;
-        }
-        
-        public function set explicitWidth(value:Number):void
-        {
-			if(value === _explicitWidth)
+			_target = doc;
+			
+			shapes = Sprite(target.addChild(new Sprite()));
+		}
+		
+		protected var _engine:ITextEngine;
+		
+		public function get engine():ITextEngine
+		{
+			return _engine;
+		}
+		
+		public function set engine(textEngine:ITextEngine):void
+		{
+			if (textEngine == _engine)
 				return;
 			
-            _explicitWidth = value;
-			engine.invalidate();
-        }
-        
-        protected var width:Number = 0;
-        
-        public function get measuredWidth():Number
-        {
-            return width;
-        }
-        
-        protected var height:Number = 0;
-        
-        public function get measuredHeight():Number
-        {
-            return height;
-        }
-        
-        protected var lines:Dictionary = new Dictionary(false);
-        
-        public function hasLine(line:TextLine):Boolean
-        {
-            if(line in lines)
-                return true;
-            
-            return false;
-        }
-        
-        public function clear():void
-        {
-            for(var line:* in lines)
+			_engine = textEngine;
+		}
+		
+		private var _shapes:Sprite;
+		
+		public function get shapes():Sprite
+		{
+			return _shapes;
+		}
+		
+		public function set shapes(shapesContainer:Sprite):void
+		{
+			if (shapesContainer === _shapes)
+				return;
+			
+			var children:Array = [];
+			if (shapes)
 			{
-                removeLine(line);
+				while (shapes.numChildren)
+					children.push(shapes.removeChildAt(0));
+				if (shapes.parent && shapes.parent.contains(shapes))
+					shapes.parent.removeChild(shapes);
+			}
+			
+			_shapes = shapesContainer;
+			
+			if (shapes)
+				while (children.length)
+					shapes.addChild(children.shift());
+		}
+		
+		protected var _explicitHeight:Number = NaN;
+		
+		public function get explicitHeight():Number
+		{
+			return _explicitHeight;
+		}
+		
+		public function set explicitHeight(value:Number):void
+		{
+			if (value === _explicitHeight)
+				return;
+			
+			_explicitHeight = value;
+			engine.invalidate();
+		}
+		
+		protected var _explicitWidth:Number = NaN;
+		
+		public function get explicitWidth():Number
+		{
+			return _explicitWidth;
+		}
+		
+		public function set explicitWidth(value:Number):void
+		{
+			if (value === _explicitWidth)
+				return;
+			
+			_explicitWidth = value;
+			engine.invalidate();
+		}
+		
+		protected var width:Number = 0;
+		
+		public function get measuredWidth():Number
+		{
+			return width;
+		}
+		
+		protected var height:Number = 0;
+		
+		public function get measuredHeight():Number
+		{
+			return height;
+		}
+		
+		protected var lines:Dictionary = new Dictionary(false);
+		
+		public function hasLine(line:TextLine):Boolean
+		{
+			if (line in lines)
+				return true;
+			
+			return false;
+		}
+		
+		public function clear():void
+		{
+			for (var line:* in lines)
+			{
+				removeLine(line);
 				target.removeChild(line);
 			}
-            
+			
 			height = 0;
 			width = 0;
-        }
-        
-        public function resetShapes():void
-        {
-            if(!shapes)
-                return;
-            
-            shapes.graphics.clear();
-            
-            while(shapes.numChildren)
-                shapes.removeChildAt(0);
-        }
-        
-        public function prepForLayout():void
-        {
-			if(target.numChildren)
+		}
+		
+		public function resetShapes():void
+		{
+			if (!shapes)
+				return;
+			
+			shapes.graphics.clear();
+			
+			while (shapes.numChildren)
+				shapes.removeChildAt(0);
+		}
+		
+		public function prepForLayout():void
+		{
+			if (target.numChildren)
 			{
 				var child:DisplayObject = target.getChildAt(target.numChildren - 1);
-	            height = child.y + child.height;
+				height = child.y + child.height;
 			}
 			else
 			{
 				width = 0;
 				height = 0;
 			}
-        }
+		}
 		
 		public function cleanupLines(fromBlock:TextBlock):void
 		{
 			var blockLines:Dictionary = new Dictionary(true);
 			var line:TextLine = fromBlock.firstLine;
-			while(line)
+			while (line)
 			{
 				blockLines[line] = true;
 				line = line.nextLine;
 			}
 			
-			for(var obj:* in lines)
+			for (var obj:* in lines)
 			{
 				line = TextLine(obj);
-				if(line.textBlock == fromBlock && !(line in blockLines))
+				if (line.textBlock == fromBlock && !(line in blockLines))
 				{
 					target.removeChild(line);
 					removeLine(line);
@@ -205,41 +203,41 @@ package org.tinytlf.layout
 			
 			blockLines = null;
 		}
-        
-        public function layout(block:TextBlock, line:TextLine):TextLine
-        {
-            setupBlockJustifier(block);
-            
-            var props:LayoutProperties = getLayoutProperties(block);
+		
+		public function layout(block:TextBlock, line:TextLine):TextLine
+		{
+			setupBlockJustifier(block);
+			
+			var props:LayoutProperties = getLayoutProperties(block);
 			var y:Number = height;
 			
-			if(block.firstLine == null)
+			if (block.firstLine == null)
 				y += props.paddingTop;
 			
-            if(!isNaN(explicitHeight) && y > explicitHeight)
-                return line;
-            
-            line = createLine(block, line);
-            
-            while(line)
-            {
-                y += line.ascent;
-                line.y = y;
-                y += line.descent + props.lineHeight;
+			if (!isNaN(explicitHeight) && y > explicitHeight)
+				return line;
+			
+			line = createLine(block, line);
+			
+			while (line)
+			{
+				y += line.ascent;
+				line.y = y;
+				y += line.descent + props.lineHeight;
 				
 				addLine(line)
-                target.addChild(line);
-                
-                if(!isNaN(explicitHeight) && y > explicitHeight)
-                    return line;
-                
-                line = createLine(block, line);
-            }
-            
+				target.addChild(line);
+				
+				if (!isNaN(explicitHeight) && y > explicitHeight)
+					return line;
+				
+				line = createLine(block, line);
+			}
+			
 			height = y + props.paddingBottom;
 			
-            return null;
-        }
+			return null;
+		}
 		
 		public function recreateTextLine(line:TextLine):TextLine
 		{
@@ -260,18 +258,18 @@ package org.tinytlf.layout
 			addLine(line);
 			line.y = y;
 			
-			if(hasFocus)
+			if (hasFocus)
 				target.stage.focus = line;
 			
 			return line;
 		}
-        
-        protected function createLine(block:TextBlock, line:TextLine = null):TextLine
-        {
-            line = block.createTextLine(line, getLineWidth(block, line), 0, true);
-            
-            if(!line)
-                return null;
+		
+		protected function createLine(block:TextBlock, line:TextLine = null):TextLine
+		{
+			line = block.createTextLine(line, getLineWidth(block, line), 0, true);
+			
+			if (!line)
+				return null;
 			
 			layoutLine(block, line);
 			
@@ -280,34 +278,34 @@ package org.tinytlf.layout
 		
 		protected function layoutLine(block:TextBlock, line:TextLine):void
 		{
-            var props:LayoutProperties = getLayoutProperties(block);
+			var props:LayoutProperties = getLayoutProperties(block);
 			var w:Number = isNaN(props.width) ? isNaN(explicitWidth) ? 1000000 : explicitWidth : props.width;
 			
-            var lineWidth:Number = line.width;
-			if(lineWidth > width)
+			var lineWidth:Number = line.width;
+			if (lineWidth > width)
 				width = lineWidth;
 			
 			var x:Number = 0;
 			
-			if(!line.previousLine)
+			if (!line.previousLine)
 				x += props.textIndent;
 			
-            switch(props.textAlign)
-            {
-                case TextAlign.LEFT:
-                case TextAlign.JUSTIFY:
-                    x += props.paddingLeft;
-                    break;
-                case TextAlign.CENTER:
-                    x = (w - lineWidth) * 0.5;
-                    break;
-                case TextAlign.RIGHT:
-                    x = w - lineWidth + props.paddingRight;
-                    break;
-            }
-            
-            line.x = x;
-        }
+			switch (props.textAlign)
+			{
+				case TextAlign.LEFT:
+				case TextAlign.JUSTIFY:
+					x += props.paddingLeft;
+					break;
+				case TextAlign.CENTER:
+					x = (w - lineWidth) * 0.5;
+					break;
+				case TextAlign.RIGHT:
+					x = w - lineWidth + props.paddingRight;
+					break;
+			}
+			
+			line.x = x;
+		}
 		
 		protected function getLineWidth(block:TextBlock, previousLine:TextLine):Number
 		{
@@ -315,7 +313,7 @@ package org.tinytlf.layout
 			var w:Number = isNaN(props.width) ? isNaN(explicitWidth) ? 1000000 : explicitWidth : props.width;
 			var lineWidth:Number = w;
 			
-			if(previousLine == null)
+			if (previousLine == null)
 			{
 				lineWidth -= props.textIndent;
 			}
@@ -324,40 +322,40 @@ package org.tinytlf.layout
 			lineWidth -= props.paddingRight;
 			return lineWidth;
 		}
-        
-        protected function removeLine(line:TextLine):void
-        {
+		
+		protected function removeLine(line:TextLine):void
+		{
 			line.userData = null;
 			
-            delete lines[line];
-        }
-        
-        protected function addLine(line:TextLine):void
-        {
+			delete lines[line];
+		}
+		
+		protected function addLine(line:TextLine):void
+		{
 			lines[line] = true;
 			line.userData = engine;
 			line.doubleClickEnabled = true;
 			engine.interactor.getMirror(line);
-        }
-        
-        protected function setupBlockJustifier(block:TextBlock):void
-        {
-            var props:LayoutProperties = getLayoutProperties(block);
-            var justification:String = LineJustification.UNJUSTIFIED;
-            
-            if(props.textAlign == TextAlign.JUSTIFY)
-                justification = LineJustification.ALL_BUT_LAST;
-            
-            if(!block.textJustifier || block.textJustifier.lineJustification != justification)
-            {
-                block.textJustifier = new SpaceJustifier("en", justification, props.spaceJustify);
-            }
-        }
-        
-        protected function getLayoutProperties(block:TextBlock):LayoutProperties
-        {
-            return (block.userData as LayoutProperties) || new LayoutProperties();
-        }
-    }
+		}
+		
+		protected function setupBlockJustifier(block:TextBlock):void
+		{
+			var props:LayoutProperties = getLayoutProperties(block);
+			var justification:String = LineJustification.UNJUSTIFIED;
+			
+			if (props.textAlign == TextAlign.JUSTIFY)
+				justification = LineJustification.ALL_BUT_LAST;
+			
+			if (!block.textJustifier || block.textJustifier.lineJustification != justification)
+			{
+				block.textJustifier = new SpaceJustifier("en", justification, props.spaceJustify);
+			}
+		}
+		
+		protected function getLayoutProperties(block:TextBlock):LayoutProperties
+		{
+			return (block.userData as LayoutProperties) || new LayoutProperties();
+		}
+	}
 }
 
