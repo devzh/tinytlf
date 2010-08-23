@@ -21,10 +21,8 @@ package org.tinytlf.decor
     public interface ITextDecor
     {
 		/**
-		 * <p>
 		 * Reference to the central <code>ITextEngine</code> facade for this
 		 * <code>decor</code>.
-		 * </p>
 		 * 
 		 * @see org.tinytlf.ITextEngine
 		 */
@@ -32,30 +30,24 @@ package org.tinytlf.decor
         function set engine(textEngine:ITextEngine):void;
 		
         /**
-		 * <p>
 		 * Renders all the decorations in the text field.
-		 * </p>
 		 * 
 		 * @see org.tinytlf.ITextEngine#invalidateDecorations()
 		 */
         function render():void;
         
 		/**
-		 * <p>
 		 * Removes all the decorations in the text field.
-		 * </p>
 		 */
         function removeAll():void;
         
 		/**
-		 * <p>
 		 * Creates a decoration at the specified <code>layer</code> for the 
 		 * <code>element</code> based on the <code>styleObj</code>. An optional
 		 * <code>containers</code> argument can be supplied if it is known which
 		 * <code>ITextContainer</code>s this decoration will render onto. This
 		 * is an optimization, as the <code>ITextContainers</code> can be 
 		 * determined at render time, though it can be an expensive operation.
-		 * </p>
 		 * 
 		 * <p>
 		 * The element type is deliberately ambiguous, as it's up to the 
@@ -88,7 +80,6 @@ package org.tinytlf.decor
 						  container:ITextContainer = null):void;
 		
 		/**
-		 * <p>
 		 * <code>Undecorate</code> has three expected functions:
 		 * <ul>
 		 * <li>If <code>element</code> and <code>decorationProp</code> are 
@@ -102,14 +93,12 @@ package org.tinytlf.decor
 		 * of the decoration from all elements in the 
 		 * <code>ITextDecor</code>.</li>
 		 * </ul>
-		 * </p>
 		 * 
 		 * @see org.tinytlf.decor.ITextDecoration
 		 */
         function undecorate(element:* = null, decorationProp:String = null):void;
         
 		/**
-		 * <p>
 		 * Associates the specified <code>decorationProp</code> with the 
 		 * <code>decorationClassOrFactory</code> (decoration). The 
 		 * <code>decoration</code> can be a Class reference for an object which
@@ -120,7 +109,6 @@ package org.tinytlf.decor
 		 * <code>decoration</code> is instantiated and returned. If 
 		 * <code>decoration</code> is a Function, the Function is called and the
 		 * return value used as the <code>ITextDecoration</code> instance.
-		 * </p>
 		 * 
 		 * @see org.tinytlf.decor.ITextDecoration
 		 */
@@ -128,32 +116,26 @@ package org.tinytlf.decor
 							   decorationClassOrFactory:Object):void;
 		
 		/**
-		 * <p>
 		 * Unmaps a decoration for the specified <code>decorationProp</code>.
 		 * @returns True if <code>decorationProp</code> was successfully 
 		 * unmapped, False if there was an error or there was no 
 		 * <code>ITextDecoration</code> mapped for this 
 		 * <code>decorationProp</code>.
-		 * </p>
 		 */
         function unMapDecoration(decorationProp:String):Boolean;
 		
 		/**
-		 * <p>
 		 * Checks to see if an <code>ITextDecoration</code> has been mapped for
 		 * the specified <code>decorationProp</code>.
 		 * @returns True if there is an <code>ITextDecoration</code>, False if 
 		 * there isn't.
-		 * </p>
 		 */
         function hasDecoration(decorationProp:String):Boolean;
 		
 		/**
-		 * <p>
 		 * Gets or instantiates an instance of an <code>ITextDecoration</code> 
 		 * for the specified <code>decorationProp</code>. Optionally associates
 		 * the specified <code>ITextContainer</code> with the decoration.
-		 * <p>
 		 */
         function getDecoration(decorationProp:String, container:ITextContainer = null):ITextDecoration;
     }
