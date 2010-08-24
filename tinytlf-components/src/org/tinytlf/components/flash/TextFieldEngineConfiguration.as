@@ -31,7 +31,7 @@ package org.tinytlf.components.flash
 		
 		public function configure(engine:ITextEngine):void
 		{
-			engine.interactor = new GestureInteractor();
+			engine.interactor = new CascadingTextInteractor();
 			engine.styler = new FCSSTextStyler();
 			engine.layout.textBlockFactory = new XMLModelFactory();
 			
@@ -154,3 +154,4 @@ package org.tinytlf.components.flash
 		}
 	}
 }
+
