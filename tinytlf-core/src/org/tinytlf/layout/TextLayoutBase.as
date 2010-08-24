@@ -200,22 +200,22 @@ package org.tinytlf.layout
 				return startContainer;
 			
 			var container:ITextContainer = startContainer;
-			container.prepForLayout();
 			var containerIndex:int = containers.indexOf(container);
 			
 			var line:TextLine = container.layout(block, block.firstLine);
 			while (line)
 			{
+				container.postLayout();
+				
 				if (++containerIndex < containers.length)
-				{
 					container = containers[containerIndex];
-					container.prepForLayout();
-				}
 				else
 					return null;
 				
 				line = container.layout(block, line);
 			}
+			
+			container.postLayout();
 			
 			return container;
 		}

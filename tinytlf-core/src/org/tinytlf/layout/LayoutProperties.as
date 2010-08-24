@@ -19,7 +19,10 @@ package org.tinytlf.layout
         public function LayoutProperties(props:Object = null, block:TextBlock = null)
         {
             this.block = block;
-			style = props;
+			
+			for(var prop:String in props)
+				if(prop in this && !(this[prop] is Function))
+					this[prop] = props[prop];
         }
         
         public var block:TextBlock;

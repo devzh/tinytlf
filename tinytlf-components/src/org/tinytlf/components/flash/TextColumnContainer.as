@@ -7,6 +7,7 @@ package org.tinytlf.components.flash
 	
 	import org.tinytlf.ITextEngine;
 	import org.tinytlf.layout.ITextContainer;
+	import org.tinytlf.layout.ImageFlowContainer;
 	import org.tinytlf.layout.TextContainerBase;
 	
 	/**
@@ -21,7 +22,8 @@ package org.tinytlf.components.flash
 		public function TextColumnContainer()
 		{
 			super();
-			container = new TextContainerBase(this, 100);
+//			container = new TextContainerBase(this, 100);
+			container = new ImageFlowContainer(this, 100);
 		}
 		
 		
@@ -127,9 +129,9 @@ package org.tinytlf.components.flash
 			container.resetShapes();
 		}
 		
-		public function prepForLayout():void
+		public function postLayout():void
 		{
-			container.prepForLayout();
+			container.postLayout();
 		}
 		
 		public function cleanupLines(fromBlock:TextBlock):void

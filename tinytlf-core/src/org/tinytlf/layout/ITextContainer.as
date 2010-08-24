@@ -132,9 +132,9 @@ package org.tinytlf.layout
         function resetShapes():void;
         
 		/**
-		 * Called just before layout to prepare the <code>ITextContainer</code>.
+		 * Called after layout inside this container is finished.
 		 */
-        function prepForLayout():void;
+        function postLayout():void;
 		
 		/**
 		 * Called after the layout algorithm for re-rendering invalid TextLines,
