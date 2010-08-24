@@ -62,9 +62,7 @@ package org.tinytlf.layout.model.factories.xhtml
 				
                 block = new TextBlock(element);
 				
-				for(var styleProp:String in style)
-					if(styleProp in block)
-						block[styleProp] = style[styleProp];
+				style.applyStyles(block);
 				
                 block.userData = new LayoutProperties(style, block);
 				
