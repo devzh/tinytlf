@@ -151,18 +151,20 @@ package org.tinytlf.styles
             return propertiesMap ? name in propertiesMap : false;
         }
         
-        protected var names:Array = [];
+        protected var _names:Array = [];
         
         override flash_proxy function nextNameIndex(index:int):int
         {
             if(index == 0)
             {
-                names.length = 0;
-                for(var prop:String in styles)
-                    names.push(prop);
+				if(_names.length == 0)
+				{
+	                for(var prop:String in styles)
+						_names.push(prop);
+				}
             }
-            
-            if(index < names.length)
+			
+			if(index < _names.length)
                 return index + 1;
             
             return 0;
@@ -170,12 +172,12 @@ package org.tinytlf.styles
         
         override flash_proxy function nextName(index:int):String
         {
-            return names[index - 1];
+            return _names[index - 1];
         }
         
         override flash_proxy function nextValue(index:int):*
         {
-            return this[names[index]];
+            return this[_names[index]];
         }
         
         generatePropertiesMap(new StyleAwareActor());
