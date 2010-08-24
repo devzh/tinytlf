@@ -22,16 +22,11 @@ package org.tinytlf.layout.model.factories
         {
             var element:ContentElement;
             
-            var name:String = "";
-            
-            if(context.length)
-                name = context[context.length - 1].localName();
-            
             //If the data is an empty string, insert a placeholder GraphicElement.
             if(data is String && data === "")
-                element = new GraphicElement(new Shape(), 1, 1, getElementFormat(context), getEventMirror(name));
+                element = new GraphicElement(new Shape(), 1, 1, getElementFormat(context), getEventMirror(context));
             else if(data is String)
-                element = new TextElement(String(data), getElementFormat(context), getEventMirror(name));
+                element = new TextElement(String(data), getElementFormat(context), getEventMirror(context));
             else if(data is Vector.<ContentElement>)
                 element = new GroupElement(Vector.<ContentElement>(data), getElementFormat(context));
             
@@ -75,12 +70,12 @@ package org.tinytlf.layout.model.factories
             return engine.styler.getElementFormat(context);
         }
         
-        protected function getEventMirror(forName:String):EventDispatcher
+        protected function getEventMirror(context:Object):EventDispatcher
         {
             if(!_engine)
                 return null;
             
-            return engine.interactor.getMirror(forName);
+            return engine.interactor.getMirror(context);
         }
     }
 }
