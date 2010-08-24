@@ -64,6 +64,7 @@ package org.tinytlf.interaction
 		protected function onRollOut(event:MouseEvent):void
 		{
 			mouseState &= ~OVER;
+			mouseState &= ~DOWN;
 			mouseCoords = new Point(event.stageX, event.stageY);
 		}
 		
