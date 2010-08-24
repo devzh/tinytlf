@@ -6,12 +6,16 @@
  */
 package org.tinytlf.layout
 {
+	import flash.text.engine.LineJustification;
+	import flash.text.engine.SpaceJustifier;
 	import flash.text.engine.TextBlock;
+	import flash.text.engine.TextJustifier;
 	import flash.text.engine.TextLine;
-	import flash.text.engine.TextLineValidity;
+	import flash.text.engine.TextLineCreationResult;
 	import flash.utils.Dictionary;
 	
 	import org.tinytlf.ITextEngine;
+	import org.tinytlf.layout.descriptions.TextAlign;
 	import org.tinytlf.layout.model.factories.AbstractLayoutFactoryMap;
 	import org.tinytlf.layout.model.factories.ILayoutFactoryMap;
 	
@@ -52,6 +56,9 @@ package org.tinytlf.layout
 			_textBlockFactory.engine = engine;
 		}
 		
+		/**
+		 * Clears all the TextLines from this Layout's ITextContainers.
+		 */
 		public function clear():void
 		{
 			for (var i:int = 0; i < containers.length; i++)
@@ -60,85 +67,14 @@ package org.tinytlf.layout
 			}
 		}
 		
+		/**
+		 * Clears the shapes out of this Layout's ITextContainers.
+		 */
 		public function resetShapes():void
 		{
 			for (var i:int = 0; i < containers.length; i++)
 			{
 				containers[i].resetShapes();
-			}
-		}
-		
-		public function render(blocks:Vector.<TextBlock>):void
-		{
-			if (!containers || !containers.length || !blocks || !blocks.length)
-				return;
-			
-			var blockIndex:int = 0;
-			var containerIndex:int = 0;
-			
-			var block:TextBlock = blocks[0];
-			var container:ITextContainer = containers[0];
-			container.prepForLayout();
-			
-			var line:TextLine;
-			
-			while (blockIndex < blocks.length)
-			{
-				block = blocks[blockIndex]
-				
-				if (block.firstInvalidLine)
-				{
-					var touchedContainers:Dictionary = new Dictionary(true);
-					while (block.firstInvalidLine)
-					{
-						line = block.firstInvalidLine;
-						container = getContainerForLine(line);
-						
-						if(!container)
-							break;
-						
-						touchedContainers[container] = true;
-						container.recreateTextLine(line);
-					}
-					
-					for (var tmp:* in touchedContainers)
-					{
-						ITextContainer(tmp).cleanupLines(block);
-					}
-					
-					touchedContainers = null;
-					line = null;
-					++blockIndex;
-				}
-				else if (!block.firstLine || line)
-				{
-					line = container.layout(block, line);
-					if (line)
-					{
-						if (containerIndex < containers.length - 1)
-						{
-							container = containers[++containerIndex];
-							container.prepForLayout();
-						}
-						else
-							return;
-					}
-					else if (blockIndex < blocks.length - 1)
-					{
-						//Add this back in once I fix the build to work w/ 10.1
-//						block.releaseLineCreationData();
-						++blockIndex;
-					}
-					else
-						return;
-				}
-				else
-				{
-					line = null;
-					if(container)
-						container.cleanupLines(block);
-					++blockIndex;
-				}
 			}
 		}
 		
@@ -181,6 +117,134 @@ package org.tinytlf.layout
 			}
 			
 			return null;
+		}
+		
+		/**
+		 * Renders all the TextLines from the list of TextBlocks into this
+		 * layout's ITextContainers.
+		 *
+		 * <p>
+		 * Each TextBlock can be in one of three states:
+		 * <ul>
+		 * <li>TextBlock has rendered no TextLines, and needs the entire layout pass,</li>
+		 * <li>The TextBlock has previously rendered TextLines, but needs to re-render certain invalid TextLines,</li>
+		 * <li>The TextBlock has rendered all the TextLines and has no invalid TextLines.</li>
+		 * </ul>
+		 *
+		 * This method handles the first two cases, and skips to the next
+		 * TextBlock if we encounter the third case.
+		 * </p>
+		 */
+		public function render(blocks:Vector.<TextBlock>):void
+		{
+			if (!containers || !containers.length || !blocks || !blocks.length)
+				return;
+			
+			var block:TextBlock = blocks[0];
+			var i:int = 0;
+			var container:ITextContainer = containers[0];
+			
+			while (block && container)
+			{
+				setupBlockJustifier(block);
+				
+				//Do we need to re-render the invalid TextLines?
+				if (block.firstInvalidLine)
+				{
+					recreateTextLines(block);
+				}
+				//Otherwise, do we need to do the full layout pass?
+				else if (!block.firstLine)
+				{
+					container = renderBlockAcrossContainers(block, container);
+				}
+				
+				block = ++i < blocks.length ? blocks[i] : null;
+			}
+		}
+		
+		/**
+		 * Applies the justification properties to the TextBlock before it's rendered.
+		 */
+		protected function setupBlockJustifier(block:TextBlock):void
+		{
+			var props:LayoutProperties = (block.userData as LayoutProperties) || new LayoutProperties();
+			var justification:String = LineJustification.UNJUSTIFIED;
+			var justifier:TextJustifier = TextJustifier.getJustifierForLocale(props.locale);
+			
+			if (props.textAlign == TextAlign.JUSTIFY)
+				justification = LineJustification.ALL_BUT_LAST;
+			
+			justifier.lineJustification = justification;
+			
+			if (!block.textJustifier || block.textJustifier.lineJustification != justification || block.textJustifier.locale != props.locale)
+			{
+				props.applyStyles(justifier);
+				
+				block.textJustifier = justifier;
+			}
+		}
+		
+		/**
+		 * Renders all the lines from the input TextBlock into the containers,
+		 * starting from the container specified by <code>startContainer</code>.
+		 *
+		 * This method should render every line from the TextBlock into the
+		 * ITextContainers.
+		 *
+		 * @returns The last ITextContainer rendered into.
+		 */
+		protected function renderBlockAcrossContainers(block:TextBlock, startContainer:ITextContainer):ITextContainer
+		{
+			if (!containers || !containers.length)
+				return startContainer;
+			
+			var container:ITextContainer = startContainer;
+			container.prepForLayout();
+			var containerIndex:int = containers.indexOf(container);
+			
+			var line:TextLine = container.layout(block, block.firstLine);
+			while (line)
+			{
+				if (++containerIndex < containers.length)
+				{
+					container = containers[containerIndex];
+					container.prepForLayout();
+				}
+				else
+					return null;
+				
+				line = container.layout(block, line);
+			}
+			
+			return container;
+		}
+		
+		/**
+		 * Recreates each of the TextBlock's invalid TextLines.
+		 */
+		protected function recreateTextLines(block:TextBlock):void
+		{
+			var touchedContainers:Dictionary = new Dictionary(true);
+			var line:TextLine;
+			var container:ITextContainer;
+			
+			while (block.firstInvalidLine)
+			{
+				line = block.firstInvalidLine;
+				container = getContainerForLine(line);
+				
+				if (!container)
+					break;
+				
+				touchedContainers[container] = true;
+				container.recreateTextLine(line);
+			}
+			
+			for (var tmp:* in touchedContainers)
+			{
+				ITextContainer(tmp).cleanupLines(block);
+			}
 		}
 	}
 }

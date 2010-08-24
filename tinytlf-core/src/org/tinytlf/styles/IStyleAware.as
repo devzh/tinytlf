@@ -35,6 +35,11 @@ package org.tinytlf.styles
 		 * Sets a styleProp to the value defined by newValue.
 		 */
         function setStyle(styleProp:String, newValue:*):void;
+		
+		/**
+		 * Applies this IStyleAware's styles to the specified to Object.
+		 */
+		function applyStyles(to:*):void;
     }
 }
 

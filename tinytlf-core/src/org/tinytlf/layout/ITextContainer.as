@@ -132,16 +132,18 @@ package org.tinytlf.layout
         function resetShapes():void;
         
 		/**
-		 * <p>
 		 * Called just before layout to prepare the <code>ITextContainer</code>.
-		 * </p>
 		 */
         function prepForLayout():void;
 		
+		/**
+		 * Called after the layout algorithm for re-rendering invalid TextLines,
+		 * which can cause the TextBlock to orphan TextLines on the display list.
+		 */
         function cleanupLines(from:TextBlock):void;
         
 		/**
-		 * Renders as many <code>TextLine</code>s from the specified
+		 * Renders as many <code>TextLines</code> from the specified
 		 * <code>TextBlock</code> into the target as possible.
 		 * 
 		 * <p>There is a special contract between layout and 

@@ -217,6 +217,11 @@ package org.tinytlf.components.flash
             engine.styler.setStyle(styleProp, newValue);
         }
 		
+		public function applyStyles(to:*):void
+		{
+			engine.styler.applyStyles(to);
+		}
+		
         private function onAddedToStage(event:Event):void
         {
             if(event.eventPhase != EventPhase.AT_TARGET)

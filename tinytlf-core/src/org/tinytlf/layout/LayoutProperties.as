@@ -12,19 +12,14 @@ package org.tinytlf.layout
     import org.tinytlf.layout.descriptions.TextDirection;
     import org.tinytlf.layout.descriptions.TextFloat;
     import org.tinytlf.layout.descriptions.TextTransform;
+    import org.tinytlf.styles.StyleAwareActor;
     
-    public class LayoutProperties
+    public class LayoutProperties extends StyleAwareActor
     {
         public function LayoutProperties(props:Object = null, block:TextBlock = null)
         {
-            if(!props)
-                return;
-            
-            for(var prop:String in props)
-                if(prop in this)
-                    this[prop] = props[prop];
-
             this.block = block;
+			style = props;
         }
         
         public var block:TextBlock;
@@ -42,6 +37,9 @@ package org.tinytlf.layout
         public var textTransform:String = TextTransform.NONE;
         public var float:String = TextFloat.LEFT;
 		public var spaceJustify:Boolean = false;
+		public var locale:String = 'en';
+		
+		generatePropertiesMap(new LayoutProperties());
     }
 }
 

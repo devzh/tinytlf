@@ -7,7 +7,6 @@
 package org.tinytlf.layout
 {
     import flash.events.Event;
-    
     import flash.text.engine.*;
     
     import mockolate.*;
@@ -152,13 +151,13 @@ package org.tinytlf.layout
         {
             var blocks:Vector.<TextBlock> = new Vector.<TextBlock>;
             var block:TextBlock = createTextBlockWithSmallContent();
-            var line:TextLine = block.createTextLine();
+            var line:TextLine = block.createTextLine(null, 0, 0, true);
             
             var container:ITextContainer = nice(ITextContainer);
-            stub(container).method("layout").args(block, null).returns(line);
+            stub(container).method("layout").args(instanceOf(TextBlock), instanceOf(TextLine)).returns(line);
             
             var container2:ITextContainer = nice(ITextContainer);
-            stub(container2).method("layout").args(block, line);
+            stub(container2).method("layout").args(instanceOf(TextBlock), instanceOf(TextLine));
             
             blocks.push(block);
             
@@ -166,7 +165,6 @@ package org.tinytlf.layout
             layout.addContainer(container2);
             
             layout.render(blocks);
-            
             
             verify(container2).method("layout").once();
         }
@@ -199,13 +197,13 @@ package org.tinytlf.layout
             var blocks:Vector.<TextBlock> = new Vector.<TextBlock>;
             var block:TextBlock = createTextBlockWithSmallContent();
             var block2:TextBlock = createTextBlockWithSmallContent();
-            var line:TextLine = block.createTextLine();
+            var line:TextLine = block.createTextLine(null, 0, 0, true);
             
             var container:ITextContainer = nice(ITextContainer);
-            stub(container).method("layout").args(instanceOf(TextBlock), null).returns(line);
+            stub(container).method("layout").args(instanceOf(TextBlock), instanceOf(TextLine)).returns(line);
             
             var container2:ITextContainer = nice(ITextContainer);
-            stub(container2).method("layout").args(instanceOf(TextBlock), null);
+            stub(container2).method("layout").args(instanceOf(TextBlock), instanceOf(TextLine));
             
             blocks.push(block);
             blocks.push(block2);
@@ -215,7 +213,7 @@ package org.tinytlf.layout
             
             layout.render(blocks);
             
-            verify(container).method("layout").args(block, null).once();
+            verify(container).method("layout").args(block, line).once();
             
             verify(container2).method("layout").args(block, line).once();
             verify(container2).method("layout").args(block2, null).once();

@@ -107,6 +107,19 @@ package org.tinytlf.styles
         {
             styles[styleProp] = newValue;
         }
+		
+		public function applyStyles(to:*):void
+		{
+			var styleProp:String;
+			
+			for(styleProp in this)
+				if(styleProp in to && !(to[styleProp] is Function))
+					to[styleProp] = this[styleProp];
+			
+			for(styleProp in propertiesMap)
+				if(styleProp in to && !(to[styleProp] is Function))
+					to[styleProp] = this[styleProp];
+		}
         
         override flash_proxy function callProperty(name:*, ... parameters):*
         {

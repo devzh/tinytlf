@@ -206,8 +206,6 @@ package org.tinytlf.layout
 		
 		public function layout(block:TextBlock, line:TextLine):TextLine
 		{
-			setupBlockJustifier(block);
-			
 			var props:LayoutProperties = getLayoutProperties(block);
 			var y:Number = height;
 			
@@ -336,20 +334,6 @@ package org.tinytlf.layout
 			line.userData = engine;
 			line.doubleClickEnabled = true;
 			engine.interactor.getMirror(line);
-		}
-		
-		protected function setupBlockJustifier(block:TextBlock):void
-		{
-			var props:LayoutProperties = getLayoutProperties(block);
-			var justification:String = LineJustification.UNJUSTIFIED;
-			
-			if (props.textAlign == TextAlign.JUSTIFY)
-				justification = LineJustification.ALL_BUT_LAST;
-			
-			if (!block.textJustifier || block.textJustifier.lineJustification != justification)
-			{
-				block.textJustifier = new SpaceJustifier("en", justification, props.spaceJustify);
-			}
 		}
 		
 		protected function getLayoutProperties(block:TextBlock):LayoutProperties
