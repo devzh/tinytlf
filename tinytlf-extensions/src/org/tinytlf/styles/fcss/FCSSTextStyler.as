@@ -25,6 +25,8 @@ package org.tinytlf.styles.fcss
                 var sheet:FStyleSheet = new FStyleSheet();
                 sheet.parseCSS(value as String);
                 value = new FStyleProxy(sheet);
+				//Add the global styles onto this ITextStyler dude.
+				FStyleProxy(value).style = sheet.getStyle("*");
             }
 
             super.style = value;

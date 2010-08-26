@@ -76,7 +76,7 @@ package org.tinytlf.styles
                     // Object, we have to be sure not to replace any styles that already
                     // exist on the new guy.
                     for(styleProp in proxy)
-                        if(!(styleProp in this))
+                        if(this[styleProp] === undefined)
                             this[styleProp] = proxy[styleProp];
                 }
                 else

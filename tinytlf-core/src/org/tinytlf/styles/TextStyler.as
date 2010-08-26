@@ -17,11 +17,6 @@ package org.tinytlf.styles
         public function TextStyler(styleObject:Object = null)
         {
             super(styleObject);
-            
-            if(getStyle('selectionColor') == null)
-                setStyle('selectionColor', 0x003399);
-            if(getStyle('selectionAlpha') == null)
-                setStyle('selectionAlpha', 0.2);
         }
         
         protected var _engine:ITextEngine;

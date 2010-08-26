@@ -16,6 +16,7 @@ package org.tinytlf.components.flash
 	import org.tinytlf.layout.model.factories.ILayoutFactoryMap;
 	import org.tinytlf.layout.model.factories.xhtml.*;
 	import org.tinytlf.layout.model.factories.xhtml.adapters.*;
+	import org.tinytlf.styles.ITextStyler;
 	import org.tinytlf.styles.fcss.FCSSTextStyler;
 	
 	public class TextFieldEngineConfiguration implements ITextEngineConfiguration
@@ -39,6 +40,7 @@ package org.tinytlf.components.flash
 			mapEventMirrors(engine);
 			mapGestures(engine);
 			mapElementAdapters(engine);
+			mapStyles(engine);
 		}
 		
 		protected function mapDecorations(engine:ITextEngine):void
@@ -151,6 +153,16 @@ package org.tinytlf.components.flash
 			
 			if (!factory.hasElementFactory('hr'))
 				factory.mapElementFactory('hr', HTMLHorizontalRuleAdapter);
+		}
+		
+		protected function mapStyles(engine:ITextEngine):void
+		{
+			var styler:ITextStyler = engine.styler;
+			
+			if(!styler.getStyle('selectionColor'))
+				styler.setStyle('selectionColor', 0x003399);
+			if(!styler.getStyle('selectionAlpha'))
+				styler.setStyle('selectionAlpha', 0.2);
 		}
 	}
 }
