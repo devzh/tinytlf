@@ -159,7 +159,7 @@ package org.tinytlf.layout
 					graphic = line.getAtomGraphic(i);
 					if (graphic)
 					{
-						element = TextLineUtil.getElementForAtAtomIndex(line, i);
+						element = TextLineUtil.getElementAtAtomIndex(line, i);
 						layout = new LayoutElement(/*getLayoutProperties(element.userData)*/null, line, i);
 						graphics.push(layout);
 					}

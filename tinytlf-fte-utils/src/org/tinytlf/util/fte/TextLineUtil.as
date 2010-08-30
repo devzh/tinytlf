@@ -2,6 +2,10 @@ package org.tinytlf.util.fte
 {
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import flash.text.engine.ContentElement;
+	import flash.text.engine.GroupElement;
+	import flash.text.engine.TextBlock;
+	import flash.text.engine.TextElement;
 	import flash.text.engine.TextLine;
 	
 	public class TextLineUtil
@@ -77,6 +81,19 @@ package org.tinytlf.util.fte
 			}
 			
 			return Math.max(atomIndex, 0);
+		}
+		
+		public static function getElementAtAtomIndex(line:TextLine, atomIndex:int):ContentElement
+		{
+			var block:TextBlock = line.textBlock;
+			var blockBeginIndex:int = line.textBlockBeginIndex;
+			var content:ContentElement = block.content;
+			if(content is GroupElement)
+			{
+				content = GroupElement(content).getElementAtCharIndex(blockBeginIndex + atomIndex);
+			}
+			
+			return content;
 		}
 	}
 }
