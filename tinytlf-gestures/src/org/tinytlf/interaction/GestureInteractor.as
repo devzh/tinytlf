@@ -11,11 +11,12 @@ package org.tinytlf.interaction
     import flash.text.engine.TextBlock;
     import flash.text.engine.TextLine;
     
-    import org.tinytlf.interaction.gestures.IGesture;
     import org.tinytlf.interaction.behaviors.*;
+    import org.tinytlf.interaction.gestures.IGesture;
     import org.tinytlf.interaction.gestures.keyboard.*;
     import org.tinytlf.interaction.gestures.mouse.*;
     import org.tinytlf.layout.LayoutProperties;
+    import org.tinytlf.layout.descriptions.TextAlign;
 
     public class GestureInteractor extends TextInteractorBase implements IGestureInteractor
     {
@@ -156,13 +157,26 @@ package org.tinytlf.interaction
 			w += lp.paddingLeft;
 			w += lp.paddingRight;
 			
+			var x:Number = 0;
+			
 			//Add in the indent if this is the first line in the TextBlock
 			if(!line.previousLine)
+			{
 				w += lp.textIndent;
+				x -= lp.textIndent;
+			}
+			
+			switch(lp.textAlign)
+			{
+				case TextAlign.CENTER:
+				case TextAlign.RIGHT:
+					x = -line.x;
+					break;
+			}
 			
 			var sprite:Sprite = new Sprite();
 			sprite.graphics.beginFill(0x00, 0);
-			sprite.graphics.drawRect(-line.x, -line.ascent, w, line.height);
+			sprite.graphics.drawRect(x, -line.ascent, w, line.height);
 			line.addChild(sprite);
 		}
     }
