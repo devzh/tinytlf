@@ -43,7 +43,7 @@ package org.tinytlf.layout.model.factories.xhtml
             var block:TextBlock;
             var element:ContentElement;
 			
-			ancestorList.push(getXMLDefinition(xml))
+//			ancestorList.push(getXMLDefinition(xml))
 			
             for each(var child:XML in xml.*)
             {
@@ -58,7 +58,7 @@ package org.tinytlf.layout.model.factories.xhtml
                     ancestorList.pop();
                 }
 				
-				var style:IStyleAware = new StyleAwareActor(engine.styler.describeElement([child]));
+				var style:IStyleAware = new StyleAwareActor(engine.styler.describeElement([getXMLDefinition(child)]));
 				
                 block = new TextBlock(element);
 				
