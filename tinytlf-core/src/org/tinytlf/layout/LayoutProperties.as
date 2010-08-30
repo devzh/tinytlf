@@ -28,7 +28,7 @@ package org.tinytlf.layout
         public var block:TextBlock;
         
         public var width:Number = NaN;
-        public var lineHeight:Number = 0;
+        public var leading:Number = 0;
         public var textIndent:Number = 0;
         public var paddingLeft:Number = 0;
         public var paddingRight:Number = 0;
@@ -39,7 +39,7 @@ package org.tinytlf.layout
         public var textDirection:String = TextDirection.LTR;
         public var textTransform:String = TextTransform.NONE;
         public var float:String = TextFloat.LEFT;
-		public var spaceJustify:Boolean = false;
+		public var letterSpacing:Boolean = false;
 		public var locale:String = 'en';
 		
 		generatePropertiesMap(new LayoutProperties());

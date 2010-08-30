@@ -12,6 +12,7 @@ package org.tinytlf.layout
 	import flash.geom.Point;
 	import flash.text.engine.TextBlock;
 	import flash.text.engine.TextLine;
+	import flash.text.engine.TextLineCreationResult;
 	import flash.utils.Dictionary;
 	
 	import org.tinytlf.ITextEngine;
@@ -172,7 +173,7 @@ package org.tinytlf.layout
 			
 			layoutPosition.y += line.ascent;
 			line.y = layoutPosition.y;
-			layoutPosition.y += line.descent + props.lineHeight;
+			layoutPosition.y += line.descent + props.leading;
 		}
 		
 		protected function checkTargetConstraints():Boolean
@@ -374,12 +375,17 @@ package org.tinytlf.layout
 			return target.getChildIndex(line);
 		}
 		
-		protected function getLayoutProperties(block:TextBlock):LayoutProperties
+		protected function getLayoutProperties(element:*):LayoutProperties
 		{
-			if(block.userData is LayoutProperties)
-				return LayoutProperties(block.userData);
+			if(element is TextBlock)
+			{
+				if(TextBlock(element).userData is LayoutProperties)
+					return LayoutProperties(TextBlock(element).userData);
+				
+				return TextBlock(element).userData = new LayoutProperties(null, TextBlock(element));
+			}
 			
-			return block.userData = new LayoutProperties(null, block);
+			return new LayoutProperties();
 		}
 		
 		protected function getTotalSize(block:TextBlock):Number
