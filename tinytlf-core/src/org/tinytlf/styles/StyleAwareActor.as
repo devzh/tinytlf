@@ -31,7 +31,7 @@ package org.tinytlf.styles
      * This is useful if you wish to proxy styles, or to support external styling 
 	 * implementations (currently Flex and F*CSS).
      */
-    public class StyleAwareActor extends Proxy implements IStyleAware
+    public dynamic class StyleAwareActor extends Proxy implements IStyleAware
     {
         public function StyleAwareActor(styleObject:Object = null)
         {
@@ -114,11 +114,23 @@ package org.tinytlf.styles
 			
 			for(styleProp in this)
 				if(styleProp in to && !(to[styleProp] is Function))
-					to[styleProp] = this[styleProp];
+					attemptWrite(to, styleProp, this[styleProp]);
 			
 			for(styleProp in propertiesMap)
 				if(styleProp in to && !(to[styleProp] is Function))
-					to[styleProp] = this[styleProp];
+					attemptWrite(to, styleProp, this[styleProp]);
+			
+			for(styleProp in variablesMap)
+				if(styleProp in to)
+					attemptWrite(to, styleProp, this[styleProp]);
+		}
+		
+		private function attemptWrite(to:*, prop:*, value:*):void
+		{
+			try{
+				to[prop] = value;
+			}
+			catch(e:Error){}
 		}
         
         override flash_proxy function callProperty(name:*, ... parameters):*
@@ -145,11 +157,24 @@ package org.tinytlf.styles
             
             return getStyle(name);
         }
+		
+		override flash_proxy function deleteProperty(name:*):Boolean
+		{
+			if(name in this)
+				return delete this[name];
+			
+			return clearStyle(name);
+		}
         
         override flash_proxy function hasProperty(name:*):Boolean
         {
             return propertiesMap ? name in propertiesMap : false;
         }
+		
+		override flash_proxy function isAttribute(name:*):Boolean
+		{
+			return variablesMap ? name in variablesMap : false;
+		}
         
         protected var _names:Array = [];
         
@@ -157,11 +182,10 @@ package org.tinytlf.styles
         {
             if(index == 0)
             {
-				if(_names.length == 0)
-				{
-	                for(var prop:String in styles)
-						_names.push(prop);
-				}
+				_names = [];
+				
+                for(var prop:String in styles)
+					_names.push(prop);
             }
 			
 			if(index < _names.length)
@@ -183,11 +207,13 @@ package org.tinytlf.styles
         generatePropertiesMap(new StyleAwareActor());
         
         private static var propertiesMap:Object;
+        private static var variablesMap:Object;
         
         protected static function generatePropertiesMap(typeOf:*):void
         {
             propertiesMap = {};
-            
+			variablesMap = {};
+			
             var type:XML = describeType(typeOf);
             var prop:XML;
             for each(prop in type..method)
@@ -198,6 +224,11 @@ package org.tinytlf.styles
             for each(prop in type..accessor.(@access == "readwrite"))
             {
                 propertiesMap[prop.@name] = true;
+            }
+            
+            for each(prop in type..variable)
+            {
+				variablesMap[prop.@name] = true;
             }
         }
     }
