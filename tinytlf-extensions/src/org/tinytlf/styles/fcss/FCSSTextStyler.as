@@ -132,10 +132,11 @@ package org.tinytlf.styles.fcss
                         str += " ." + className;
                     if (idName)
                         str += " #" + idName;
-
-                    str += uniqueNodeName;
-
-                    FStyleProxy(style).sheet.parseCSS(uniqueNodeName + '{' + inlineStyle + '}');
+					if(uniqueNodeName)
+					{
+                    	str += uniqueNodeName;
+	                    FStyleProxy(style).sheet.parseCSS(uniqueNodeName + '{' + inlineStyle + '}');
+					}
 
                     nodeCache[node] = str;
                 }
