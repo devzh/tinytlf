@@ -160,9 +160,9 @@ package org.tinytlf.components.flash
 			var styler:ITextStyler = engine.styler;
 			
 			if(!styler.getStyle('selectionColor'))
-				styler.setStyle('selectionColor', 0x003399);
+				styler.setStyle('selectionColor', 0x0068FC);
 			if(!styler.getStyle('selectionAlpha'))
-				styler.setStyle('selectionAlpha', 0.2);
+				styler.setStyle('selectionAlpha', 0.28);
 		}
 	}
 }
