@@ -69,24 +69,34 @@ package org.tinytlf.components.flash
 			container.engine = textEngine;
 		}
 		
-		public function get target():DisplayObjectContainer
+		public function get target():Sprite
 		{
 			return this;
 		}
 		
-		public function set target(textContainer:DisplayObjectContainer):void
+		public function set target(textContainer:Sprite):void
 		{
 			//do nothing
 		}
 		
-		public function get shapes():Sprite
+		public function get background():Sprite
 		{
-			return container.shapes;
+			return container.background;
 		}
 		
-		public function set shapes(shapesContainer:Sprite):void
+		public function set background(shapesContainer:Sprite):void
 		{
-			container.shapes = shapesContainer;
+			container.background = shapesContainer;
+		}
+		
+		public function get foreground():Sprite
+		{
+			return container.foreground;
+		}
+		
+		public function set foreground(shapesContainer:Sprite):void
+		{
+			container.foreground = shapesContainer;
 		}
 		
 		public function get explicitWidth():Number

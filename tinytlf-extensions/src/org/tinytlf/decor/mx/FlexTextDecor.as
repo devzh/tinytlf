@@ -21,7 +21,7 @@ package org.tinytlf.decor.mx
         override public function decorate(element:*, 
 										  styleObj:Object, 
 										  layer:int = 0, 
-										  container:ITextContainer = null):void
+										  container:ITextContainer = null, foreground:Boolean = false):void
         {
 			//  They can pass in a Flex style selector and we'll grab all the
 			//  decoration definitions off of it.

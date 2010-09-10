@@ -15,6 +15,7 @@ package org.tinytlf.decor.decorations
     import flash.text.engine.TextLineMirrorRegion;
     
     import org.tinytlf.decor.TextDecoration;
+    import org.tinytlf.layout.ITextContainer;
     import org.tinytlf.util.fte.ContentElementUtil;
     
     public class UnderlineDecoration extends TextDecoration
@@ -27,7 +28,7 @@ package org.tinytlf.decor.decorations
 		override public function setup(layer:int=0, ...parameters):Vector.<Rectangle>
 		{
 			if(parameters.length < 1)
-				return super.setup.apply(null, [layer].concat(parameters));
+				return super.setup.apply(null, [layer, foreground].concat(parameters));
 			
 			var arg:* = parameters[0];
 			if(!(arg is ContentElement))
@@ -44,6 +45,7 @@ package org.tinytlf.decor.decorations
 			var tlmr:TextLineMirrorRegion;
 			var line:TextLine;
 			var rect:Rectangle;
+			var container:ITextContainer;
 			
 			var n:int = tlmrs.length;
 			for(var i:int = 0; i < n; ++i)
@@ -55,8 +57,7 @@ package org.tinytlf.decor.decorations
 				
 				rect.offset(tlmr.textLine.x, tlmr.textLine.y);
 				
-				rectToContainer[rect] = assureLayerExists(
-					engine.layout.getContainerForLine(tlmr.textLine), layer);
+				rectToContainer[rect] = assureLayerExists(engine.layout.getContainerForLine(tlmr.textLine), layer);
 				
 				bounds.push(rect);
 			}

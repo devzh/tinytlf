@@ -6,8 +6,6 @@
  */
 package org.tinytlf.decor
 {
-	import flash.utils.Dictionary;
-	
 	import org.tinytlf.ITextEngine;
 	import org.tinytlf.layout.ITextContainer;
 	
@@ -16,6 +14,9 @@ package org.tinytlf.decor
 	//  invalidated. Isn't there a way to know which decorations changed and
 	//  only clear/render those? I mean without creating separate
 	//  Shapes/Sprites per decoration (ick!).
+	//  
+	//  09/05/2010: did some testing tonight, seems this isn't as big a deal (yet)
+	//    as I thought it could be. Will keep my eye on the situation.
 	////
 	
 	/**
@@ -75,7 +76,8 @@ package org.tinytlf.decor
 		
 		private var elements:Vector.<Element> = new Vector.<Element>();
 		
-		public function decorate(element:*, styleObject:Object, layer:int = 2, container:ITextContainer = null):void
+		public function decorate(element:*, styleObject:Object, layer:int = 2, 
+								 container:ITextContainer = null, foreground:Boolean = false):void
 		{
 			var styleProp:String = String(styleObject);
 			
@@ -118,6 +120,7 @@ package org.tinytlf.decor
 					else if (hasDecoration(styleProp))
 					{
 						decoration = getDecoration(styleProp, container);
+						decoration.foreground = foreground;
 						decoration.style = styleObject;
 						el.addDecoration(new Decoration(decoration, layer));
 					}

@@ -52,6 +52,12 @@ package org.tinytlf.decor
         function set engine(textEngine:ITextEngine):void;
         
 		/**
+		 * Whether this decoration is in the foreground (on top of the TextLines)
+		 * or in the background (behind the TextLines).
+		 */
+		function set foreground(value:Boolean):void;
+		
+		/**
 		 * <p>
 		 * Prepares this decoration for rendering. <code>Setup</code> takes its
 		 * input and should return a Vector of 
@@ -70,7 +76,7 @@ package org.tinytlf.decor
 		 * 
 		 * @see org.tinytlf.decor.ITextDecor#decorate()
 		 */
-        function setup(layer:int = 0, ...args):Vector.<Rectangle>;
+        function setup(layer:int = 2, ...args):Vector.<Rectangle>;
         
 		/**
 		 * <p>

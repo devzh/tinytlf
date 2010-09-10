@@ -465,8 +465,7 @@ package org.tinytlf
 						selectionColor:styler.getStyle('selectionColor'), 
 						selectionAlpha: styler.getStyle('selectionAlpha')
 					},
-					TextDecor.SELECTION_LAYER,
-					ITextContainer(tmp));
+					TextDecor.SELECTION_LAYER, ITextContainer(tmp), true);
 			}
 			
 			containers = null;
@@ -495,8 +494,7 @@ package org.tinytlf
 			var pos:String = atomIndex == (line.atomCount - 1) ? 'right' : 'left';
 			
 			decor.decorate(rect, {caret:true, position:'left'}, TextDecor.CARET_LAYER, 
-				layout.getContainerForLine(line)
-			);
+				layout.getContainerForLine(line), true);
 			
 			if(line.stage)
 				line.stage.focus = line;

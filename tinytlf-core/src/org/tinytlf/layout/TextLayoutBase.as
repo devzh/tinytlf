@@ -7,17 +7,16 @@
 package org.tinytlf.layout
 {
 	import flash.text.engine.LineJustification;
-	import flash.text.engine.SpaceJustifier;
 	import flash.text.engine.TextBlock;
 	import flash.text.engine.TextJustifier;
 	import flash.text.engine.TextLine;
-	import flash.text.engine.TextLineCreationResult;
 	import flash.utils.Dictionary;
 	
 	import org.tinytlf.ITextEngine;
 	import org.tinytlf.layout.descriptions.TextAlign;
 	import org.tinytlf.layout.model.factories.AbstractLayoutFactoryMap;
 	import org.tinytlf.layout.model.factories.ILayoutFactoryMap;
+	import org.tinytlf.layout.properties.LayoutProperties;
 	
 	public class TextLayoutBase implements ITextLayout
 	{

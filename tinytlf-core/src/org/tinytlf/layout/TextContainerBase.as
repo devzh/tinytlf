@@ -12,15 +12,15 @@ package org.tinytlf.layout
 	import flash.geom.Point;
 	import flash.text.engine.TextBlock;
 	import flash.text.engine.TextLine;
-	import flash.text.engine.TextLineCreationResult;
 	import flash.utils.Dictionary;
 	
 	import org.tinytlf.ITextEngine;
 	import org.tinytlf.layout.descriptions.TextAlign;
+	import org.tinytlf.layout.properties.LayoutProperties;
 	
 	public class TextContainerBase implements ITextContainer
 	{
-		public function TextContainerBase(container:DisplayObjectContainer, explicitWidth:Number = NaN, explicitHeight:Number = NaN)
+		public function TextContainerBase(container:Sprite, explicitWidth:Number = NaN, explicitHeight:Number = NaN)
 		{
 			this.target = container;
 			
@@ -35,9 +35,9 @@ package org.tinytlf.layout
 			setupLayoutPosition(block);
 			
 			line = createAndLayoutLine(block, line);
-			while(line)
+			while (line)
 			{
-				if(checkTargetConstraints())
+				if (checkTargetConstraints())
 					return line;
 				
 				line = createAndLayoutLine(block, line);
@@ -82,7 +82,7 @@ package org.tinytlf.layout
 			layoutPosition.x = 0;
 			layoutPosition.y = height;
 			
-			if(block.firstLine == null)
+			if (block.firstLine == null)
 			{
 				layoutPosition.x = props.textIndent;
 				layoutPosition.y += props.paddingTop;
@@ -100,7 +100,7 @@ package org.tinytlf.layout
 		{
 			var line:TextLine = createTextLine(block, previousLine);
 			
-			if(!line)
+			if (!line)
 				return null;
 			
 			registerLine(line);
@@ -178,27 +178,28 @@ package org.tinytlf.layout
 		
 		protected function checkTargetConstraints():Boolean
 		{
-			if(isNaN(explicitHeight))
+			if (isNaN(explicitHeight))
 				return false;
 			
 			return layoutPosition.y > explicitHeight;
 		}
 		
-		protected var _target:DisplayObjectContainer;
+		protected var _target:Sprite;
 		
-		public function get target():DisplayObjectContainer
+		public function get target():Sprite
 		{
 			return _target;
 		}
 		
-		public function set target(doc:DisplayObjectContainer):void
+		public function set target(doc:Sprite):void
 		{
 			if (doc == _target)
 				return;
 			
 			_target = doc;
 			
-			shapes = Sprite(target.addChild(new Sprite()));
+			foreground = Sprite(target.addChild(fgShapes || new Sprite()));
+			background = Sprite(target.addChildAt(bgShapes || new Sprite(), 0));
 		}
 		
 		protected var _engine:ITextEngine;
@@ -216,32 +217,67 @@ package org.tinytlf.layout
 			_engine = textEngine;
 		}
 		
-		private var _shapes:Sprite;
+		private var bgShapes:Sprite;
 		
-		public function get shapes():Sprite
+		public function get background():Sprite
 		{
-			return _shapes;
+			return bgShapes;
 		}
 		
-		public function set shapes(shapesContainer:Sprite):void
+		public function set background(shapesContainer:Sprite):void
 		{
-			if (shapesContainer === _shapes)
+			if (shapesContainer === bgShapes)
 				return;
 			
-			var children:Array = [];
-			if (shapes)
-			{
-				while (shapes.numChildren)
-					children.push(shapes.removeChildAt(0));
-				if (shapes.parent && shapes.parent.contains(shapes))
-					shapes.parent.removeChild(shapes);
-			}
+			var children:Vector.<DisplayObject> = storeChildren(fgShapes);
+			if (bgShapes && target.contains(bgShapes))
+				target.removeChild(bgShapes);
 			
-			_shapes = shapesContainer;
+			bgShapes = shapesContainer;
 			
-			if (shapes)
+			if (bgShapes)
 				while (children.length)
-					shapes.addChild(children.shift());
+					bgShapes.addChild(children.shift());
+		}
+		
+		private var fgShapes:Sprite;
+		
+		public function get foreground():Sprite
+		{
+			return fgShapes;
+		}
+		
+		public function set foreground(shapesContainer:Sprite):void
+		{
+			if (shapesContainer === fgShapes)
+				return;
+			
+			var children:Vector.<DisplayObject> = storeChildren(fgShapes);
+			if (fgShapes && target.contains(fgShapes))
+				target.removeChild(fgShapes);
+			
+			fgShapes = shapesContainer;
+			
+			if (fgShapes)
+			{
+				while (children.length)
+					fgShapes.addChild(children.shift());
+				
+				fgShapes.mouseEnabled = false;
+				fgShapes.mouseChildren = false;
+			}
+		}
+		
+		private function storeChildren(container:DisplayObjectContainer):Vector.<DisplayObject>
+		{
+			if (!container)
+				return new <DisplayObject>[];
+			
+			var children:Vector.<DisplayObject> = new <DisplayObject>[];
+			while (container.numChildren)
+				children.push(container.removeChildAt(0));
+			
+			return children;
 		}
 		
 		protected var _explicitHeight:Number = NaN;
@@ -335,13 +371,18 @@ package org.tinytlf.layout
 		
 		public function resetShapes():void
 		{
-			if (!shapes)
-				return;
-			
-			shapes.graphics.clear();
-			
-			while (shapes.numChildren)
-				shapes.removeChildAt(0);
+			if(foreground)
+			{
+				foreground.graphics.clear();
+				while (foreground.numChildren)
+					foreground.removeChildAt(0);
+			}
+			if(background)
+			{
+				background.graphics.clear();
+				while (background.numChildren)
+					background.removeChildAt(0);
+			}
 		}
 		
 		protected function registerLine(line:TextLine):void
@@ -361,7 +402,7 @@ package org.tinytlf.layout
 		
 		protected function addLineToTarget(line:TextLine, index:int = 0):TextLine
 		{
-			index ||= target.numChildren;
+			index ||= target.numChildren > 1 ? target.numChildren - 1 : 1;
 			return TextLine(target.addChildAt(line, index));
 		}
 		
@@ -377,9 +418,9 @@ package org.tinytlf.layout
 		
 		protected function getLayoutProperties(element:*):LayoutProperties
 		{
-			if(element is TextBlock)
+			if (element is TextBlock)
 			{
-				if(TextBlock(element).userData is LayoutProperties)
+				if (TextBlock(element).userData is LayoutProperties)
 					return LayoutProperties(TextBlock(element).userData);
 				
 				return TextBlock(element).userData = new LayoutProperties(null, TextBlock(element));

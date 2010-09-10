@@ -53,9 +53,20 @@ package org.tinytlf.decor
 			_engine = textEngine;
 		}
 		
+		private var _foreground:Boolean = false;
+		public function set foreground(value:Boolean):void
+		{
+			_foreground = value;
+		}
+		
+		public function get foreground():Boolean
+		{
+			return _foreground;
+		}
+		
 		protected var rectToContainer:Dictionary = new Dictionary(true);
 		
-		public function setup(layer:int = 0, ... args):Vector.<Rectangle>
+		public function setup(layer:int = 2, ... args):Vector.<Rectangle>
 		{
 			var bounds:Vector.<Rectangle> = new <Rectangle>[];
 			
@@ -91,8 +102,8 @@ package org.tinytlf.decor
 					tlmr = tlmrs[i];
 					rect = tlmr.bounds.clone();
 					rect.offset(tlmr.textLine.x, tlmr.textLine.y);
-					rectToContainer[rect] = assureLayerExists(
-						engine.layout.getContainerForLine(tlmr.textLine), layer);
+					rectToContainer[rect] = 
+						assureLayerExists(engine.layout.getContainerForLine(tlmr.textLine), layer)
 					bounds.push(rect);
 				}
 			}
@@ -135,7 +146,7 @@ package org.tinytlf.decor
 		
 		protected function assureLayerExists(container:ITextContainer, layer:int):Sprite
 		{
-			var shapes:Sprite = container.shapes;
+			var shapes:Sprite = foreground ? container.foreground : container.background;
 			while(shapes.numChildren < (layer + 1))
 			{
 				shapes.addChild(new Sprite());
@@ -146,7 +157,7 @@ package org.tinytlf.decor
 		
 		protected function rectToLayer(rect:Rectangle):Sprite
 		{
-			return rectToContainer[rect] || container.shapes;
+			return rectToContainer[rect] || container.foreground;
 		}
 		
 		//Statically generate a map of the properties in this object

@@ -77,7 +77,7 @@ package org.tinytlf.decor
 		 * @see org.tinytlf.decor.TextDecor
 		 */
         function decorate(element:*, styleObject:Object, layer:int = 2, 
-						  container:ITextContainer = null):void;
+						  container:ITextContainer = null, foreground:Boolean = false):void;
 		
 		/**
 		 * <code>Undecorate</code> has three expected functions:

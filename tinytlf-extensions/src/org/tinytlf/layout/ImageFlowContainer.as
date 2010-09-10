@@ -1,24 +1,21 @@
 package org.tinytlf.layout
 {
 	import flash.display.DisplayObject;
-	import flash.display.DisplayObjectContainer;
+	import flash.display.Sprite;
 	import flash.geom.Rectangle;
 	import flash.text.engine.ContentElement;
-	import flash.text.engine.GraphicElement;
 	import flash.text.engine.TextBlock;
 	import flash.text.engine.TextLine;
-	import flash.utils.Dictionary;
 	
 	import org.tinytlf.styles.IStyleAware;
 	import org.tinytlf.styles.StyleAwareActor;
-	import org.tinytlf.util.TinytlfUtil;
-	import org.tinytlf.util.XMLUtil;
-	import org.tinytlf.util.fte.ContentElementUtil;
 	import org.tinytlf.util.fte.TextLineUtil;
+	import org.tinytlf.layout.properties.LayoutProperties;
 	
 	public class ImageFlowContainer extends TextContainerBase
 	{
-		public function ImageFlowContainer(container:DisplayObjectContainer, explicitWidth:Number = NaN, explicitHeight:Number = NaN)
+		public function ImageFlowContainer(container:Sprite, 
+										   explicitWidth:Number = NaN, explicitHeight:Number = NaN)
 		{
 			super(container, explicitWidth, explicitHeight);
 		}
@@ -56,12 +53,17 @@ package org.tinytlf.layout
 			var totalSize:Number = size;
 			var n:int = graphics.length;
 			var layout:LayoutElement;
+			var line:TextLine;
 			
 			for (var i:int = 0; i < n; ++i)
 			{
 				layout = graphics[i];
+				line = layout.associatedLine;
 				
-				if (layout.containsY(layoutPosition.y))
+				if(line.y >= layoutPosition.y)
+					continue;
+				
+				if(layout.containsY(layoutPosition.y))
 				{
 					if(layoutPosition.x < layout.x)
 					{
@@ -160,7 +162,7 @@ package org.tinytlf.layout
 					if (graphic)
 					{
 						element = TextLineUtil.getElementAtAtomIndex(line, i);
-						layout = new LayoutElement(/*getLayoutProperties(element.userData)*/null, line, i);
+						layout = new LayoutElement(line, i);
 						graphics.push(layout);
 					}
 				}
@@ -185,41 +187,41 @@ import flash.display.DisplayObject;
 import flash.geom.Rectangle;
 import flash.text.engine.TextLine;
 
-import org.tinytlf.layout.LayoutProperties;
-
 internal class LayoutElement
 {
 	public var associatedLine:TextLine;
 	
 	private var rect:Rectangle;
-	private var properties:LayoutProperties;
 	
-	public function LayoutElement(props:LayoutProperties, line:TextLine, atomIndex:int):void
+	public function LayoutElement(line:TextLine, atomIndex:int):void
 	{
 		rect = line.getAtomBounds(atomIndex);
 		rect.offset(line.x, line.y);
-		properties = props || new LayoutProperties();
+		rect.x = Math.round(rect.x);
+		rect.y = Math.round(rect.y);
+		rect.width = Math.round(rect.width);
+		rect.height = Math.round(rect.height);
 		associatedLine = line;
 	}
 	
 	public function get x():Number
 	{
-		return rect.x - properties.paddingLeft;
+		return rect.x;
 	}
 	
 	public function get y():Number
 	{
-		return rect.y - properties.paddingTop;
+		return rect.y;
 	}
 	
 	public function get width():Number
 	{
-		return rect.width + properties.paddingLeft + properties.paddingRight;
+		return rect.width;
 	}
 	
 	public function get height():Number
 	{
-		return rect.height + properties.paddingTop + properties.paddingBottom;
+		return rect.height;
 	}
 	
 	public function containsX(hasX:Number):Boolean

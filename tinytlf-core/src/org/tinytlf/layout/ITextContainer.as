@@ -60,19 +60,32 @@ package org.tinytlf.layout
 		 * 
 		 * @see org.tinytlf.layout.ITextLayout
 		 */
-        function get target():DisplayObjectContainer;
-        function set target(textContainer:DisplayObjectContainer):void;
+        function get target():Sprite;
+        function set target(textContainer:Sprite):void;
         
 		/**
 		 * <p>
-		 * The Sprite which decorations are rendered into.
+		 * The Sprite which background decorations are rendered into. Background
+		 * decorations exist behind the TextLines.
 		 * </p>
 		 * 
 		 * @see org.tinytlf.decor.ITextDecor
 		 * @see org.tinytlf.decor.ITextDecoration
 		 */
-        function get shapes():Sprite;
-        function set shapes(shapesContainer:Sprite):void;
+        function get background():Sprite;
+        function set background(shapesContainer:Sprite):void;
+        
+		/**
+		 * <p>
+		 * The Sprite which foreground decorations are rendered into. Foreground
+		 * decorations exist in front of the TextLines.
+		 * </p>
+		 * 
+		 * @see org.tinytlf.decor.ITextDecor
+		 * @see org.tinytlf.decor.ITextDecoration
+		 */
+        function get foreground():Sprite;
+        function set foreground(shapesContainer:Sprite):void;
         
 		/**
 		 * <p>

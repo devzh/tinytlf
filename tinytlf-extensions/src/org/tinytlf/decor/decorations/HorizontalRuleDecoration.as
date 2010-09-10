@@ -5,6 +5,7 @@ package org.tinytlf.decor.decorations
 	import flash.text.engine.TextLine;
 	
 	import org.tinytlf.decor.TextDecoration;
+	import org.tinytlf.layout.ITextContainer;
 	import org.tinytlf.util.fte.ContentElementUtil;
 	
 	public class HorizontalRuleDecoration extends StrikeThroughDecoration
@@ -25,6 +26,8 @@ package org.tinytlf.decor.decorations
 				
 				var line:TextLine = lines[0];
 				var rect:Rectangle = line.getBounds(line.parent);
+				var container:ITextContainer;
+				
 				rect.width = line.specifiedWidth;
 				
 				rectToContainer[rect] = assureLayerExists(engine.layout.getContainerForLine(line), layer);
