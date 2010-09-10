@@ -13,7 +13,7 @@ package org.tinytlf.layout.model.factories.xhtml.adapters
     import flash.text.engine.GraphicElement;
     import flash.text.engine.TextBaseline;
     
-    import org.tinytlf.layout.LayoutProperties;
+    import org.tinytlf.layout.properties.LayoutProperties;
     import org.tinytlf.layout.model.factories.ContentElementFactory;
 
     public class HTMLImageAdapter extends ContentElementFactory
