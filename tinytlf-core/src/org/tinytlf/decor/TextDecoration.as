@@ -159,9 +159,6 @@ package org.tinytlf.decor
 		{
 			return rectToContainer[rect] || container.foreground;
 		}
-		
-		//Statically generate a map of the properties in this object
-		generatePropertiesMap(new TextDecoration());
     }
 }
 

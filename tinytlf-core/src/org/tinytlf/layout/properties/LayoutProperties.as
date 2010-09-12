@@ -41,8 +41,6 @@ package org.tinytlf.layout.properties
         public var float:String = TextFloat.LEFT;
 		public var letterSpacing:Boolean = false;
 		public var locale:String = 'en';
-		
-		generatePropertiesMap(new LayoutProperties());
     }
 }
 

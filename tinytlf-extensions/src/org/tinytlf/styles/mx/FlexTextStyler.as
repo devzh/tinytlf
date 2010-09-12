@@ -36,8 +36,8 @@ package org.tinytlf.styles.mx
                 
                 css = new CSSStyleDeclaration(name);
                 
-                for(var s:String in styles)
-                    css.setStyle(s, styles[s]);
+                for(var s:String in properties)
+                    css.setStyle(s, properties[s]);
             }
         }
         

@@ -80,9 +80,6 @@ package org.tinytlf.styles
             
             return false;
         }
-        
-        //Statically generate a map of the properties in this object
-        generatePropertiesMap(new TextStyler());
     }
 }
 

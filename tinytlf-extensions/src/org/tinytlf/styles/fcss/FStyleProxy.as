@@ -32,8 +32,8 @@ package org.tinytlf.styles.fcss
         
         override public function getStyle(styleProp:String):*
         {
-            if(styleProp in styles)
-                return styles[styleProp];
+            if(styleProp in properties)
+                return properties[styleProp];
             else if(sheet && styleProp in sheet)
                 return sheet.getStyle(styleProp);
         }

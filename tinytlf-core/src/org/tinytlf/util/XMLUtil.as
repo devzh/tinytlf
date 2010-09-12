@@ -11,17 +11,16 @@ package org.tinytlf.util
             for (var i:int = 0; i < n; ++i)
             {
                 attr = attributes[i];
-                obj[toCamelCase(attr.localName())] = toCamelCase(attr.toString());
+                obj[stripSeparators(attr.localName())] = stripSeparators(attr.toString());
             }
 
             return obj;
 		}
 		
 		/**
-		 * Converts a string from underscore or dash separators
-		 * to lower camelCase.
+		 * Converts a string from underscore or dash separators to no separators.
 		 */
-		public static function toCamelCase(str:String):String
+		public static function stripSeparators(str:String):String
 		{
 			var s:String = str.replace(/(-|_)(\w)/g, function(...args):String{
 				return String(args[2]).toUpperCase();
@@ -37,9 +36,9 @@ package org.tinytlf.util
             for(var i:int = 0; i < n; ++i)
             {
                 if(array[i] is XML || array[i] is XMLList)
-                    s += toCamelCase(array[i].toXMLString());
+                    s += stripSeparators(array[i].toXMLString());
                 else
-                    s += toCamelCase(array[i].toString());
+                    s += stripSeparators(array[i].toString());
             }
             
             return s;

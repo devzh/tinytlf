@@ -4,14 +4,15 @@ package org.tinytlf.interaction.xhtml
 	import flash.text.engine.ContentElement;
 	import flash.ui.Mouse;
 	import flash.ui.MouseCursor;
+	import flash.utils.Dictionary;
 	
 	import org.tinytlf.ITextEngine;
 	import org.tinytlf.decor.ITextDecor;
 	import org.tinytlf.interaction.EventLineInfo;
 	import org.tinytlf.interaction.TextDispatcherBase;
+	import org.tinytlf.layout.model.factories.xhtml.XMLDescription;
 	import org.tinytlf.styles.ITextStyler;
 	import org.tinytlf.util.TinytlfUtil;
-	import org.tinytlf.util.XMLUtil;
 	
 	public class CSSInteractor extends TextDispatcherBase
 	{
@@ -56,15 +57,9 @@ package org.tinytlf.interaction.xhtml
 		{
 			super.onRollOut(event);
 			
-			if (cssState == ACTIVE)
-				cssState = VISITED;
-			
 			var info:EventLineInfo = EventLineInfo.getInfo(event, this);
 			if (!info)
 				return;
-			
-			if (cssState != VISITED)
-				repealCSSFormatting(info);
 			
 			repealCSSDecorations(info, cssState);
 			
@@ -144,12 +139,12 @@ package org.tinytlf.interaction.xhtml
 		protected function applyCSSFormatting(info:EventLineInfo, state:String):void
 		{
 			var element:ContentElement = info.element;
-			var tree:Array = (element.userData as Array);
+			var tree:Vector.<XMLDescription> = (element.userData as Vector.<XMLDescription>);
 			if (!tree)
 				return;
 			
 			var styler:ITextStyler = info.engine.styler;
-			var a:Array = applyStateToAncestorChain(tree, state);
+			var a:Vector.<XMLDescription> = applyStateToAncestorChain(tree, state);
 			element.elementFormat = styler.getElementFormat(a).clone();
 			info.engine.invalidateLines();
 		}
@@ -157,7 +152,7 @@ package org.tinytlf.interaction.xhtml
 		protected function repealCSSFormatting(info:EventLineInfo):void
 		{
 			var element:ContentElement = info.element;
-			var tree:Array = (element.userData as Array);
+			var tree:Vector.<XMLDescription> = (element.userData as Vector.<XMLDescription>);
 			if (!tree)
 				return;
 			
@@ -175,14 +170,14 @@ package org.tinytlf.interaction.xhtml
 				Mouse.cursor = MouseCursor.IBEAM;
 		}
 		
-		protected var stateCache:Object = {};
+		protected var stateCache:Dictionary = new Dictionary(true);
 		
 		protected function resolveCSSAttributes(info:EventLineInfo, state:String):Object
 		{
 			if (state && state in stateCache)
 				return stateCache[state];
 			
-			var tree:Array = (info.element.userData as Array);
+			var tree:Vector.<XMLDescription> = (info.element.userData as Vector.<XMLDescription>);
 			
 			if (!tree)
 				return {};
@@ -195,25 +190,18 @@ package org.tinytlf.interaction.xhtml
 			return style;
 		}
 		
-		protected function applyStateToAncestorChain(chain:Array, state:String):Array
+		protected function applyStateToAncestorChain(chain:Vector.<XMLDescription>, state:String):Vector.<XMLDescription>
 		{
-			var chainStr:String = XMLUtil.arrayToString(chain) + ':' + state;
-			
-			if (chainStr in stateCache)
-				return stateCache[chainStr];
-			
-			var a:Array = [];
+			var a:Vector.<XMLDescription> = new <XMLDescription>[];
 			var n:int = chain.length;
-			var xml:XML;
+			var xml:XMLDescription;
 			
 			for (var i:int = 0; i < n; ++i)
 			{
-				xml = new XML(XMLUtil.toCamelCase(chain[i].toXMLString()));
-				xml.@cssState = state;
+				xml = chain[i];
+				xml.attributes.cssState = state;
 				a.push(xml);
 			}
-			
-			stateCache[chainStr] = a;
 			
 			return a;
 		}

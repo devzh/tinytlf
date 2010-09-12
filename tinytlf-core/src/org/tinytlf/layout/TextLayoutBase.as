@@ -178,7 +178,7 @@ package org.tinytlf.layout
 			
 			if (!block.textJustifier || block.textJustifier.lineJustification != justification || block.textJustifier.locale != props.locale)
 			{
-				props.applyStyles(justifier);
+				props.merge(justifier);
 				
 				block.textJustifier = justifier;
 			}

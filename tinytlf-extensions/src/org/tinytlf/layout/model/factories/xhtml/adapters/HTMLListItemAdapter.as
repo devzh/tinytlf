@@ -10,6 +10,8 @@ package org.tinytlf.layout.model.factories.xhtml.adapters
     import flash.text.engine.TextBaseline;
     import flash.text.engine.TextElement;
     
+    import org.tinytlf.layout.model.factories.xhtml.XMLDescription;
+    
     import spark.primitives.Graphic;
     
     public class HTMLListItemAdapter extends XMLElementAdapter
@@ -43,28 +45,16 @@ package org.tinytlf.layout.model.factories.xhtml.adapters
         {
             var numListParents:int = 0;
             var i:int = context.length - 1;
-            var xml:XML;
+            var xml:XMLDescription;
             
             for(; i >= 0; --i)
             {
                 xml = context[i];
-                if(xml.localName().toString() === 'ul')
+                if(xml.name === 'ul')
                     ++numListParents;
             }
             
             return numListParents;
         }
-    }
-}
-import flash.display.Shape;
-
-internal class Bullet extends Shape
-{
-    public function Bullet(radius:Number = 4, marginLeft:Number = 25)
-    {
-        graphics.beginFill(0x00, 1);
-        graphics.drawCircle(marginLeft + (radius * 2), radius * 2, radius);
-		graphics.beginFill(0x00, 0);
-		graphics.drawRect(0, 0, marginLeft, 1);
     }
 }

@@ -6,8 +6,10 @@
  */
 package org.tinytlf.styles
 {
-    import flash.utils.Proxy;
-    import flash.utils.describeType;
+    import com.flashartofwar.fcss.objects.AbstractOrderedObject;
+    import com.flashartofwar.fcss.styles.IStyle;
+    
+    import flash.net.registerClassAlias;
     import flash.utils.flash_proxy;
     
     use namespace flash_proxy;
@@ -31,206 +33,75 @@ package org.tinytlf.styles
      * This is useful if you wish to proxy styles, or to support external styling 
 	 * implementations (currently Flex and F*CSS).
      */
-    public dynamic class StyleAwareActor extends Proxy implements IStyleAware
+    public dynamic class StyleAwareActor extends AbstractOrderedObject implements IStyleAware, IStyle
     {
         public function StyleAwareActor(styleObject:Object = null)
         {
+			super(this);
+			
             if(!styleObject)
                 return;
             
             style = styleObject;
         }
         
-        public function toString():String
-        {
-            return style.toString();
-        }
-        
-        private var _style:Object;
-        
         public function get style():Object
         {
-            return _style;
+            return properties;
         }
         
         public function set style(value:Object):void
         {
-            if(value === _style)
-                return;
-            
-            if(!(value is String))
-            {
-                var proxy:Object;
-                var styleProp:String;
-                
-                // Use value as the new styles object. This allows you to pass in
-                // and use your own subclass of StyleAwareActor 
-                // (useful for F*CSS or Flex styles)
-                if(value is IStyleAware)
-                {
-                    proxy = styles;
-                    styles = value;
-                    
-                    // Copy values from the proxy styles Object to this.
-                    // Since here we're copying the old styles onto the replacement styles
-                    // Object, we have to be sure not to replace any styles that already
-                    // exist on the new guy.
-                    for(styleProp in proxy)
-                        if(this[styleProp] === undefined)
-                            this[styleProp] = proxy[styleProp];
-                }
-                else
-                {
-                    proxy = value;
-                    // Copy values from the proxy styles Object to this.
-                    for(styleProp in proxy)
-                        this[styleProp] = proxy[styleProp];
-                }
-            }
-            
-            _style = value;
+			if(value === properties)
+				return;
+			
+			merge(value);
+			
+			if(value is IStyleAware)
+			{
+				IStyleAware(value).merge(this);
+				properties = value;
+			}
         }
-        
-        protected var styles:Object = {};
         
         public function clearStyle(styleProp:String):Boolean
         {
-            return styleProp in styles ? delete styles[styleProp] : false;
+            return delete this[styleProp];
         }
         
         public function getStyle(styleProp:String):*
         {
-            return styles ? styles[styleProp] : null;
+            return this[styleProp];
         }
         
         public function setStyle(styleProp:String, newValue:*):void
         {
-            styles[styleProp] = newValue;
+            this[styleProp] = newValue;
         }
 		
-		public function applyStyles(to:*):void
+		public function clone():IStyle
 		{
-			var styleProp:String;
-			
-			for(styleProp in this)
-				if(styleProp in to && !(to[styleProp] is Function))
-					attemptWrite(to, styleProp, this[styleProp]);
-			
-			for(styleProp in propertiesMap)
-				if(styleProp in to && !(to[styleProp] is Function))
-					attemptWrite(to, styleProp, this[styleProp]);
-			
-			for(styleProp in variablesMap)
-				if(styleProp in to)
-					attemptWrite(to, styleProp, this[styleProp]);
+			return new StyleAwareActor(this);
 		}
 		
-		private function attemptWrite(to:*, prop:*, value:*):void
+		private var _styleName:String = '';
+		public function set styleName(value:String):void
 		{
-			try{
-				to[prop] = value;
-			}
-			catch(e:Error){}
+			if(value === _styleName)
+				return;
+			
+			_styleName = value;
 		}
-        
-        override flash_proxy function callProperty(name:*, ... parameters):*
-        {
-            if(name in this && this[name] is Function)
-                return (this[name] as Function).apply(null, parameters);
-            
-            if(name == 'toString')
-                return toString();
-        }
-        
-        override flash_proxy function setProperty(name:*, value:*):void
-        {
-            if(name in propertiesMap)
-                this[name] = value;
-            else
-                setStyle(name, value);
-        }
-        
-        override flash_proxy function getProperty(name:*):*
-        {
-            if(name in this)
-                return this[name];
-            
-            return getStyle(name);
-        }
 		
-		override flash_proxy function deleteProperty(name:*):Boolean
+		public function get styleName():String
 		{
-			if(name in this)
-				return delete this[name];
-			
-			return clearStyle(name);
+			return _styleName;
 		}
-        
-        override flash_proxy function hasProperty(name:*):Boolean
-        {
-            return propertiesMap ? name in propertiesMap : false;
-        }
 		
-		override flash_proxy function isAttribute(name:*):Boolean
+		override protected function registerClass():void
 		{
-			return variablesMap ? name in variablesMap : false;
+			registerClassAlias("org.tinytlf.styles.StyleAwareActor", StyleAwareActor);
 		}
-        
-        protected var _names:Array = [];
-        
-        override flash_proxy function nextNameIndex(index:int):int
-        {
-            if(index == 0)
-            {
-				_names = [];
-				
-                for(var prop:String in styles)
-					_names.push(prop);
-            }
-			
-			if(index < _names.length)
-                return index + 1;
-            
-            return 0;
-        }
-        
-        override flash_proxy function nextName(index:int):String
-        {
-            return _names[index - 1];
-        }
-        
-        override flash_proxy function nextValue(index:int):*
-        {
-            return this[_names[index]];
-        }
-        
-        generatePropertiesMap(new StyleAwareActor());
-        
-        private static var propertiesMap:Object;
-        private static var variablesMap:Object;
-        
-        protected static function generatePropertiesMap(typeOf:*):void
-        {
-            propertiesMap = {};
-			variablesMap = {};
-			
-            var type:XML = describeType(typeOf);
-            var prop:XML;
-            for each(prop in type..method)
-            {
-                propertiesMap[prop.@name] = true;
-            }
-            
-            for each(prop in type..accessor.(@access == "readwrite"))
-            {
-                propertiesMap[prop.@name] = true;
-            }
-            
-            for each(prop in type..variable)
-            {
-				variablesMap[prop.@name] = true;
-            }
-        }
     }
 }
 

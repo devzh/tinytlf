@@ -34,32 +34,26 @@ package org.tinytlf.styles.mx
 				}
                 
                 css = new CSSStyleDeclaration(name);
-                for(var s:String in styles)
+                for(var s:String in properties)
 				{
-                    css.setStyle(s, styles[s]);
+                    css.setStyle(s, properties[s]);
 				}
             }
         }
         
         override public function getStyle(styleProp:String):*
         {
-            if(styleProp in styles)
-			{
-                return styles[styleProp];
-			}
+            if(styleProp in properties)
+                return properties[styleProp];
             else if(css)
-			{
                 return css.getStyle(styleProp);
-			}
         }
         
         override public function setStyle(styleProp:String, newValue:*):void
         {
-            styles[styleProp] = newValue;
+			super.setStyle(styleProp, newValue);
             if(css)
-			{
                 css.setStyle(styleProp, newValue);
-			}
         }
         
         protected function get styleManager():IStyleManager2

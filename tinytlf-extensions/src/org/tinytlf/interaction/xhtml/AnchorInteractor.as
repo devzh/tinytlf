@@ -6,6 +6,7 @@ package org.tinytlf.interaction.xhtml
 	import flash.net.navigateToURL;
 	
 	import org.tinytlf.interaction.EventLineInfo;
+	import org.tinytlf.layout.model.factories.xhtml.XMLDescription;
 	import org.tinytlf.util.TinytlfUtil;
 	import org.tinytlf.util.XMLUtil;
 	
@@ -17,11 +18,11 @@ package org.tinytlf.interaction.xhtml
 			if (!info)
 				return;
 			
-			var tree:Array = (info.element.userData as Array);
+			var tree:Vector.<XMLDescription> = (info.element.userData as Vector.<XMLDescription>);
 			if (!tree || !tree.length)
 				return;
 			
-			var link:Object = XMLUtil.buildKeyValueAttributes(tree.concat().pop().attributes());
+			var link:Object = tree.concat().pop().attributes;
 			var href:String = link['href'];
 			
 			if (TinytlfUtil.isBitSet(mouseState, DOWN))

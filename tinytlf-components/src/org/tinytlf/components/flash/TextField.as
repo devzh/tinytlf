@@ -217,9 +217,9 @@ package org.tinytlf.components.flash
             engine.styler.setStyle(styleProp, newValue);
         }
 		
-		public function applyStyles(to:*):void
+		public function merge(merge:Object):void
 		{
-			engine.styler.applyStyles(to);
+			engine.styler.merge(merge);
 		}
 		
         private function onAddedToStage(event:Event):void

@@ -26,7 +26,12 @@ package org.tinytlf.layout.model.factories.xhtml
 			{
 				XML.prettyPrinting = false;
 				XML.ignoreWhitespace = false;
-				xml = new XML('<body>' + slurp(data.toString()) + ' </body>');
+				try{
+					xml = new XML(data.toString());
+				}
+				catch(e:Error){
+					xml = new XML('<body>' + slurp(data.toString()) + ' </body>');
+				}
 			}
 			
 			var ancestorList:Array = [];
@@ -44,16 +49,16 @@ package org.tinytlf.layout.model.factories.xhtml
 				}
 				else
 				{
-					ancestorList.push(getXMLDefinition(child));
+					ancestorList.push(new XMLDescription(child));
 					element = getElementFactory(child.localName()).execute.apply(null, [child].concat(ancestorList));
 					ancestorList.pop();
 					
-					style.style = engine.styler.describeElement([getXMLDefinition(child)]);
+					style.style = engine.styler.describeElement(new XMLDescription(child));
 				}
 				
 				block = new TextBlock(element);
 				
-				style.applyStyles(block);
+				style.merge(block);
 				
 				block.userData = new LayoutProperties(style, block);
 				
@@ -78,22 +83,20 @@ package org.tinytlf.layout.model.factories.xhtml
 			return super.getElementFactory(element);
 		}
 		
-		protected function getXMLDefinition(node:XML):XML
-		{
-			return new XML(String(node.toXMLString().match(nodePattern)[0]).replace(endNodePattern, '/>'));
-		}
-		
 		private static function slurp(tags:String):String
 		{
-			//maybe? replace(/\&lt\;/g, '<').replace(/\&rt\;/g, '>').
-			return soup(tags.replace(/(\<(\w+))(.*?)(\>|\/\>)/g, function(match:String, node:String, name:String, attributes:String, end:String, ... args):String
-			{
-				if (end != '/>')
-					return match;
-				return '<' + name + attributes + '>' + '</' + name + '>';
-			}));
+			//Replace self terminating nodes with open/close pairs
+			//e.g.: <node some="attributes"/> to <node some="attributes"></node>
+			tags = tags.replace(/<[^>\S]*([^>\s|br|hr|img]+)([^>]*)\/[^>\S]*>/g, '<$1$2></$1>');
+			tags = soup(tags);
+			tags = tags.replace(/<(br|hr|img).*?>/g, '<$1/>');
+			return tags;
 		}
 		
+		/**
+		 * @private
+		 * Parses the input malformed XML tags with the
+		 */
 		private static function soup(tags:String):String
 		{
 			return ExternalInterface.call('function(tags)\
