@@ -7,6 +7,8 @@ package org.tinytlf.util.fte
 	import flash.text.engine.TextBlock;
 	import flash.text.engine.TextElement;
 	import flash.text.engine.TextLine;
+	import flash.text.engine.TextLineMirrorRegion;
+	import flash.utils.Dictionary;
 	
 	public class TextLineUtil
 	{
@@ -88,12 +90,36 @@ package org.tinytlf.util.fte
 			var block:TextBlock = line.textBlock;
 			var blockBeginIndex:int = line.textBlockBeginIndex;
 			var content:ContentElement = block.content;
-			if(content is GroupElement)
+			while(content is GroupElement)
 			{
-				content = GroupElement(content).getElementAtCharIndex(blockBeginIndex + atomIndex);
+				content = GroupElement(content).getElementAtCharIndex(blockBeginIndex - content.textBlockBeginIndex + atomIndex);
 			}
 			
 			return content;
+		}
+		
+		public static function getContentElements(line:TextLine):Vector.<ContentElement>
+		{
+			var dict:Dictionary = new Dictionary();
+			var tlmrs:Vector.<TextLineMirrorRegion> = line.mirrorRegions;
+			
+			if(!tlmrs)
+				return elements;
+			
+			var n:int = tlmrs.length;
+			
+			for(var i:int = 0; i < n; ++i)
+			{
+				dict[tlmrs[i].element] = true;
+			}
+			
+			var elements:Vector.<ContentElement> = new <ContentElement>[];
+			for(var element:* in dict)
+			{
+				elements.push(ContentElement(element));
+			}
+			
+			return elements;
 		}
 	}
 }
