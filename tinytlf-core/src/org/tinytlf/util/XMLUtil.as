@@ -11,7 +11,7 @@ package org.tinytlf.util
             for (var i:int = 0; i < n; ++i)
             {
                 attr = attributes[i];
-                obj[stripSeparators(attr.localName())] = stripSeparators(attr.toString());
+                obj[stripSeparators(attr.localName())] = attr.toString();
             }
 
             return obj;
