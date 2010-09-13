@@ -11,6 +11,7 @@ package org.tinytlf.decor.decorations
     import flash.geom.Rectangle;
     import flash.text.engine.ContentElement;
     import flash.text.engine.FontMetrics;
+    import flash.text.engine.TextElement;
     import flash.text.engine.TextLine;
     import flash.text.engine.TextLineMirrorRegion;
     
@@ -18,51 +19,27 @@ package org.tinytlf.decor.decorations
     import org.tinytlf.layout.ITextContainer;
     import org.tinytlf.util.fte.ContentElementUtil;
     
-    public class UnderlineDecoration extends TextDecoration
+    public class UnderlineDecoration extends ContentElementDecoration
     {
 		public function UnderlineDecoration(styleObject:Object = null)
 		{
 			super(styleObject);
 		}
 		
-		override public function setup(layer:int=0, ...parameters):Vector.<Rectangle>
+		override protected function processContentElement(element:ContentElement):void
 		{
-			if(parameters.length < 1)
-				return super.setup.apply(null, [layer, foreground].concat(parameters));
-			
-			var arg:* = parameters[0];
-			if(!(arg is ContentElement))
-				return super.setup.apply(null, [layer].concat(parameters));
-			
-			var element:ContentElement = ContentElement(arg);
+			super.processContentElement(element);
 			var metrics:FontMetrics = element.elementFormat.getFontMetrics();
 			setStyle("underlineThickness", metrics.underlineThickness);
-			
-			var emBox:Rectangle = metrics.emBox;
-			
-			var bounds:Vector.<Rectangle> = new Vector.<Rectangle>();
-			var tlmrs:Vector.<TextLineMirrorRegion> = ContentElementUtil.getMirrorRegions(ContentElement(arg));
-			var tlmr:TextLineMirrorRegion;
-			var line:TextLine;
-			var rect:Rectangle;
-			var container:ITextContainer;
-			
-			var n:int = tlmrs.length;
-			for(var i:int = 0; i < n; ++i)
-			{
-				tlmr = tlmrs[i];
-				rect = tlmr.bounds.clone();
-				rect.y = emBox.y;
-				rect.height = emBox.height - metrics.underlineThickness;
-				
-				rect.offset(tlmr.textLine.x, tlmr.textLine.y);
-				
-				rectToContainer[rect] = assureLayerExists(engine.layout.getContainerForLine(tlmr.textLine), layer);
-				
-				bounds.push(rect);
-			}
-			
-			return bounds;
+		}
+		
+		override protected function processTLMR(tlmr:TextLineMirrorRegion):Rectangle
+		{
+			var rect:Rectangle = tlmr.bounds.clone();
+			rect.y = emBox.y;
+			rect.height = emBox.height - getStyle('underlineThickness');
+			rect.offset(tlmr.textLine.x, tlmr.textLine.y);
+			return rect;
 		}
 		
         override public function draw(bounds:Vector.<Rectangle>):void
@@ -75,7 +52,6 @@ package org.tinytlf.decor.decorations
             var g:Graphics;
             var copy:Vector.<Rectangle> = bounds.concat();
 			var thickness:Number = getStyle("underlineThickness") || 2;
-            var underlineDelta:Number = Math.round((getStyle("fontSize") || 12) / 6);
             
             while(copy.length > 0)
             {
@@ -96,6 +72,7 @@ package org.tinytlf.decor.decorations
                 
                 g.moveTo(start.x, start.y);
                 g.lineTo(end.x, end.y);
+				g.endFill();
 	            g.lineStyle();
             }
         }

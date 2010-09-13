@@ -39,6 +39,7 @@ package org.tinytlf.decor.decorations
                 
                 g.beginFill(isNaN(bgColor) ? 0x000000 : bgColor, isNaN(bgAlpha) ? 1 : bgAlpha);
                 g.drawRect(rect.x, rect.y, rect.width, rect.height);
+				g.endFill();
             }
         }
     }

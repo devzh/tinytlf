@@ -17,7 +17,7 @@ package org.tinytlf.decor.decorations
 			var copy:Vector.<Rectangle> = bounds.concat();
 			var rect:Rectangle;
 			var g:Graphics;
-			var radius:Number = getStyle('radius') || 4;
+			var diameter:Number = getStyle('diameter') || 4;
 			
 			while(copy.length)
 			{
@@ -27,7 +27,8 @@ package org.tinytlf.decor.decorations
 				g.beginFill(getStyle('bulletColor') || getStyle('fontColor') || 0x00,
 					getStyle('bulletAlpha') || getStyle('fontAlpha') || 1);
 				
-				g.drawCircle(rect.x + (rect.width - (radius * 1.5)), rect.y + ((rect.height - radius) * 0.5), radius);
+				g.drawCircle(rect.x + (rect.width - diameter), rect.y + (diameter * 2), diameter * .5);
+				g.endFill();
 			}
 		}
 	}
