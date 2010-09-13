@@ -6,17 +6,12 @@
  */
 package org.tinytlf.layout
 {
-	import flash.display.DisplayObject;
-	import flash.display.DisplayObjectContainer;
 	import flash.display.Sprite;
-	import flash.geom.Point;
 	import flash.text.engine.TextBlock;
 	import flash.text.engine.TextLine;
 	import flash.utils.Dictionary;
 	
 	import org.tinytlf.ITextEngine;
-	import org.tinytlf.layout.descriptions.TextAlign;
-	import org.tinytlf.layout.properties.LayoutProperties;
 	
 	public class TextContainerBase implements ITextContainer
 	{
@@ -28,23 +23,8 @@ package org.tinytlf.layout
 			_explicitHeight = explicitHeight;
 		}
 		
-		protected var layoutPosition:Point = new Point();
-		
 		public function layout(block:TextBlock, line:TextLine):TextLine
 		{
-			setupLayoutPosition(block);
-			
-			line = createAndLayoutLine(block, line);
-			while (line)
-			{
-				if (checkTargetConstraints())
-					return line;
-				
-				line = createAndLayoutLine(block, line);
-			}
-			
-			positionPostLayout(block);
-			
 			return null;
 		}
 		
@@ -75,113 +55,9 @@ package org.tinytlf.layout
 			return line;
 		}
 		
-		protected function setupLayoutPosition(block:TextBlock):void
-		{
-			var props:LayoutProperties = getLayoutProperties(block);
-			
-			layoutPosition.x = 0;
-			layoutPosition.y = height;
-			
-			if (block.firstLine == null)
-			{
-				layoutPosition.x = props.textIndent;
-				layoutPosition.y += props.paddingTop;
-			}
-		}
-		
-		protected function positionPostLayout(block:TextBlock):void
-		{
-			var props:LayoutProperties = getLayoutProperties(block);
-			
-			height = layoutPosition.y + props.paddingBottom;
-		}
-		
-		protected function createAndLayoutLine(block:TextBlock, previousLine:TextLine):TextLine
-		{
-			var line:TextLine = createTextLine(block, previousLine);
-			
-			if (!line)
-				return null;
-			
-			registerLine(line);
-			
-			addLineToTarget(line);
-			layoutTextLine(line);
-			
-			return line;
-		}
-		
 		protected function createTextLine(block:TextBlock, previousLine:TextLine):TextLine
 		{
-			return block.createTextLine(previousLine, getLineSize(block, previousLine), 0.0, true);
-		}
-		
-		protected function getLineSize(block:TextBlock, previousLine:TextLine):Number
-		{
-			var props:LayoutProperties = getLayoutProperties(block);
-			var w:Number = getTotalSize(block);
-			
-			if (previousLine == null)
-			{
-				w -= props.textIndent;
-			}
-			
-			return w - props.paddingLeft - props.paddingRight;
-		}
-		
-		protected function layoutTextLine(line:TextLine):void
-		{
-			layoutX(line);
-			layoutY(line);
-		}
-		
-		protected function layoutX(line:TextLine):void
-		{
-			var props:LayoutProperties = getLayoutProperties(line.textBlock);
-			var w:Number = getTotalSize(line.textBlock);
-			
-			var lineWidth:Number = line.width;
-			if (lineWidth > width)
-				width = lineWidth;
-			
-			var x:Number = 0;
-			
-			if (!line.previousLine)
-				x += props.textIndent;
-			
-			switch (props.textAlign)
-			{
-				case TextAlign.LEFT:
-				case TextAlign.JUSTIFY:
-					x += props.paddingLeft;
-					break;
-				case TextAlign.CENTER:
-					x = (w - lineWidth) * 0.5;
-					break;
-				case TextAlign.RIGHT:
-					x = w - lineWidth + props.paddingRight;
-					break;
-			}
-			
-			line.x = x;
-			layoutPosition.x = x;
-		}
-		
-		protected function layoutY(line:TextLine):void
-		{
-			var props:LayoutProperties = getLayoutProperties(line.textBlock);
-			
-			layoutPosition.y += line.ascent;
-			line.y = layoutPosition.y;
-			layoutPosition.y += line.descent + props.leading;
-		}
-		
-		protected function checkTargetConstraints():Boolean
-		{
-			if (isNaN(explicitHeight))
-				return false;
-			
-			return layoutPosition.y > explicitHeight;
+			return null;
 		}
 		
 		protected var _target:Sprite;
@@ -229,15 +105,7 @@ package org.tinytlf.layout
 			if (shapesContainer === bgShapes)
 				return;
 			
-			var children:Vector.<DisplayObject> = storeChildren(fgShapes);
-			if (bgShapes && target.contains(bgShapes))
-				target.removeChild(bgShapes);
-			
 			bgShapes = shapesContainer;
-			
-			if (bgShapes)
-				while (children.length)
-					bgShapes.addChild(children.shift());
 		}
 		
 		private var fgShapes:Sprite;
@@ -252,32 +120,15 @@ package org.tinytlf.layout
 			if (shapesContainer === fgShapes)
 				return;
 			
-			var children:Vector.<DisplayObject> = storeChildren(fgShapes);
-			if (fgShapes && target.contains(fgShapes))
-				target.removeChild(fgShapes);
-			
 			fgShapes = shapesContainer;
 			
 			if (fgShapes)
 			{
-				while (children.length)
-					fgShapes.addChild(children.shift());
-				
+				// Don't let foreground shapes get in the way of interacting
+				// with the TextLines.
 				fgShapes.mouseEnabled = false;
 				fgShapes.mouseChildren = false;
 			}
-		}
-		
-		private function storeChildren(container:DisplayObjectContainer):Vector.<DisplayObject>
-		{
-			if (!container)
-				return new <DisplayObject>[];
-			
-			var children:Vector.<DisplayObject> = new <DisplayObject>[];
-			while (container.numChildren)
-				children.push(container.removeChildAt(0));
-			
-			return children;
 		}
 		
 		protected var _explicitHeight:Number = NaN;
@@ -365,8 +216,6 @@ package org.tinytlf.layout
 		
 		public function postLayout():void
 		{
-			layoutPosition.x = 0;
-			layoutPosition.y = 0;
 		}
 		
 		public function resetShapes():void
@@ -414,25 +263,6 @@ package org.tinytlf.layout
 		protected function getLineIndexFromTarget(line:TextLine):int
 		{
 			return target.getChildIndex(line);
-		}
-		
-		protected function getLayoutProperties(element:*):LayoutProperties
-		{
-			if (element is TextBlock)
-			{
-				if (TextBlock(element).userData is LayoutProperties)
-					return LayoutProperties(TextBlock(element).userData);
-				
-				return TextBlock(element).userData = new LayoutProperties(null, TextBlock(element));
-			}
-			
-			return new LayoutProperties();
-		}
-		
-		protected function getTotalSize(block:TextBlock):Number
-		{
-			var props:LayoutProperties = getLayoutProperties(block);
-			return isNaN(props.width) ? isNaN(explicitWidth) ? 1000000 : explicitWidth : props.width
 		}
 	}
 }

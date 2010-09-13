@@ -13,38 +13,26 @@ package org.tinytlf.layout.model.factories.xhtml.adapters
     import flash.text.engine.GraphicElement;
     import flash.text.engine.TextBaseline;
     
-    import org.tinytlf.layout.properties.LayoutProperties;
     import org.tinytlf.layout.model.factories.ContentElementFactory;
+    import org.tinytlf.layout.model.factories.xhtml.XMLDescription;
+    import org.tinytlf.layout.properties.LayoutProperties;
 
     public class HTMLImageAdapter extends ContentElementFactory
     {
         override public function execute(data:Object, ...context:Array):ContentElement
         {
-            var element:ContentElement;
-
-            var name:String = "";
-
-            var img:XML;
-            if (context.length)
-                img = context[context.length - 1];
-
-            if (!img)
-                return super.execute(data, context);
-
-            name = img.localName().toString();
-			
+            var img:XMLDescription = context[context.length - 1];
 			var style:Object = engine.styler.describeElement(img);
 			var lp:LayoutProperties = new LayoutProperties(style);
-            var url:String = img.@src;
+            var url:String = img.attributes.src;
 			
             var size:Point = new Point(Number(style.width) || 15, Number(style.height) || 15);
-            var loader:ImageLoader = new ImageLoader(url, size.x, size.y, lp.paddingLeft, lp.paddingTop);
-			
-			var format:ElementFormat = getElementFormat(context);
+            var loader:ImageLoader = new ImageLoader(url, lp);
+			var format:ElementFormat = new ElementFormat();
 			format.dominantBaseline = TextBaseline.IDEOGRAPHIC_TOP;
+            var element:ContentElement = new GraphicElement(loader, lp.width + lp.paddingLeft + lp.paddingRight, lp.height + lp.paddingTop + lp.paddingBottom, format, getEventMirror(context));
+            element.userData = Vector.<XMLDescription>(context);
 			
-            element = new GraphicElement(loader, size.x + lp.paddingLeft + lp.paddingRight, size.y + lp.paddingTop + lp.paddingBottom, format, getEventMirror(name));
-            element.userData = context;
             return element;
         }
     }
@@ -60,21 +48,21 @@ import flash.geom.Matrix;
 import flash.geom.Point;
 import flash.net.URLRequest;
 
+import org.tinytlf.layout.properties.LayoutProperties;
+
 internal class ImageLoader extends Sprite
 {
-	private var w:Number = 0;
-	private var h:Number = 0;
-	private var _x:Number = 0;
-	private var _y:Number = 0;
+	private var lp:LayoutProperties;
 	
-	public function ImageLoader(src:String, w:Number, h:Number, x:Number = 0, y:Number = 0)
+	public function ImageLoader(src:String, lp:LayoutProperties)
 	{
-		this.w = w;
-		this.h = h;
-		_x = x;
-		_y = y;
+		this.lp = lp;
+		
+		graphics.beginFill(0x00, 0);
+		graphics.drawRect(lp.paddingLeft, lp.paddingTop, lp.width + lp.paddingRight, lp.height + lp.paddingBottom);
+		
 		var loader:Loader = new Loader();
-		loader.load(new URLRequest(String(src)));
+		loader.load(new URLRequest(src));
 		loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onComplete);
 		loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, onError);
 	}
@@ -94,10 +82,10 @@ internal class ImageLoader extends Sprite
 		var child:Bitmap = Bitmap(li.content);
 		
 		var m:Matrix = new Matrix();
-		m.scale(w / child.width, h / child.height);
-		m.translate(_x, _y);
+		m.scale(lp.width / child.width, lp.height / child.height);
+		m.translate(lp.paddingLeft, lp.paddingTop);
 		
-		var bmd:BitmapData = new BitmapData(w, h);
+		var bmd:BitmapData = new BitmapData(lp.width, lp.height);
 		bmd.draw(child, m);
 		
 		var bitmap:Bitmap = new Bitmap(bmd);

@@ -1,11 +1,13 @@
 package org.tinytlf.layout.model.factories.xhtml.adapters
 {
-    import flash.events.Event;
-    import flash.events.EventDispatcher;
+    import flash.display.Graphics;
+    import flash.display.Shape;
     import flash.text.engine.ContentElement;
     import flash.text.engine.ElementFormat;
+    import flash.text.engine.GraphicElement;
     import flash.text.engine.GroupElement;
-    import flash.text.engine.TextElement;
+    
+    import org.tinytlf.layout.Terminators;
     
     public class HTMLListAdapter extends XMLElementAdapter
     {
@@ -16,15 +18,28 @@ package org.tinytlf.layout.model.factories.xhtml.adapters
             
 			if(data is XML)
 			{
-				//Sandwich the list element children between two newLines.
-				var children:Vector.<ContentElement> = new <ContentElement>[
-					new TextElement('\n', new ElementFormat(null, 0), new EventDispatcher())];
+				var styles:Object = engine.styler.describeElement(context);
 				
-				children.push(listElement);
-				
-				children.push(new TextElement('\n', new ElementFormat(null, 0), new EventDispatcher()));
-				
-	            return new GroupElement(children);
+				if(styles.listStylePosition === 'outside')
+				{
+					var marginLeft:Number = styles.marginLeft || 25;
+					var gfx:Shape = new Shape();
+					gfx.graphics.beginFill(0x00, 0);
+					gfx.graphics.drawRect(0, 0, marginLeft, 100000);
+					var graphic:GraphicElement = new GraphicElement(gfx, marginLeft, 0, new ElementFormat());
+					graphic.userData = Terminators.HTML_LIST;
+					
+					var group:GroupElement = new GroupElement(new <ContentElement>[
+						Terminators.terminateBefore(graphic),
+						listElement
+						]);
+					
+					return Terminators.terminateAfter(group, Terminators.HTML_LIST_TERMINATOR);
+				}
+				else
+				{
+		            return new GroupElement(new <ContentElement>[Terminators.getTerminatingElement({}), listElement]);
+				}
 			}
 			else
 			{

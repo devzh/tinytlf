@@ -1,14 +1,12 @@
 package org.tinytlf.components.flash
 {
-	import flash.display.DisplayObjectContainer;
 	import flash.display.Sprite;
 	import flash.text.engine.TextBlock;
 	import flash.text.engine.TextLine;
 	
 	import org.tinytlf.ITextEngine;
 	import org.tinytlf.layout.ITextContainer;
-	import org.tinytlf.layout.ImageFlowContainer;
-	import org.tinytlf.layout.TextContainerBase;
+	import org.tinytlf.layout.TextFlowContainer;
 	
 	/**
 	 * TextColumnContainer is a Sprite which conveniently implements 
@@ -23,7 +21,8 @@ package org.tinytlf.components.flash
 		{
 			super();
 //			container = new TextContainerBase(this, 100);
-			container = new ImageFlowContainer(this, 100);
+//			container = new ImageFlowContainer(this, 100);
+			container = new TextFlowContainer(this, 100);
 		}
 		
 		

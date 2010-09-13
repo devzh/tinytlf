@@ -3,6 +3,7 @@ package org.tinytlf.layout.model.factories.xhtml.adapters
 	import flash.events.EventDispatcher;
 	import flash.text.engine.*;
 	
+	import org.tinytlf.layout.Terminators;
 	import org.tinytlf.layout.model.factories.ContentElementFactory;
 	
 	public class HTMLHorizontalRuleAdapter extends ContentElementFactory
@@ -13,9 +14,8 @@ package org.tinytlf.layout.model.factories.xhtml.adapters
 			engine.decor.decorate(graphic, {horizontalRule:true});
 			
 			return new GroupElement(new <ContentElement>[
-				new TextElement('\n', new ElementFormat()), 
-				graphic/*,
-				new TextElement('\n', new ElementFormat())*/
+				Terminators.getTerminatingElement({}),
+				graphic
 			]);
 		}
 	}

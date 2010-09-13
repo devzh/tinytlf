@@ -6,6 +6,7 @@
  */
 package org.tinytlf.layout.model.factories
 {
+    import flash.display.DisplayObject;
     import flash.display.Shape;
     import flash.events.EventDispatcher;
     import flash.text.engine.ContentElement;
