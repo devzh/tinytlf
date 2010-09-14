@@ -14,18 +14,6 @@ package org.tinytlf.layout
 		public static const HTML_LIST_TERMINATOR:Object = {};
 		public static const CONTAINER_TERMINATOR:Object = {};
 		
-		public static function getTerminatingElement(terminator:Object):GroupElement
-		{
-			var graphicFormat:ElementFormat = new ElementFormat(null, 0, 0, 0, 'auto', TextBaseline.IDEOGRAPHIC_TOP);
-			var terminatingElement:GraphicElement = new GraphicElement(new Shape(), 0, 0, graphicFormat);
-			terminatingElement.userData = terminator;
-			
-			var breakFormat:ElementFormat = new ElementFormat();
-			breakFormat.breakOpportunity = BreakOpportunity.ALL;
-			
-			return new GroupElement(new <ContentElement>[terminatingElement, new GraphicElement(new Shape(), 0, 0, graphicFormat.clone())], breakFormat);
-		}
-		
 		public static function terminateBefore(element:ContentElement, marker:Object = null):GroupElement
 		{
 			var breakFormat:ElementFormat = new ElementFormat();
@@ -46,6 +34,20 @@ package org.tinytlf.layout
 			graphic.userData = marker;
 			
 			return new GroupElement(new <ContentElement>[element, graphic], breakFormat);
+		}
+		
+		public static function terminateClear(element:ContentElement, marker:Object = null):GroupElement
+		{
+			var breakFormat:ElementFormat = new ElementFormat();
+			breakFormat.breakOpportunity = BreakOpportunity.ALL;
+			
+			var start:GraphicElement = new GraphicElement(new Shape(), 0, 0, new ElementFormat());
+			start.userData = marker;
+			
+			var end:GraphicElement = new GraphicElement(new Shape(), 0, 0, new ElementFormat());
+			end.userData = marker;
+			
+			return new GroupElement(new <ContentElement>[start, element, end], breakFormat);
 		}
 	}
 }
