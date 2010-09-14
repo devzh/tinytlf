@@ -13,10 +13,11 @@ package org.tinytlf.layout.model.factories.xhtml.adapters
 			var graphic:GraphicElement = new GraphicElement(null, 0, 0, new ElementFormat(), new EventDispatcher());
 			engine.decor.decorate(graphic, {horizontalRule:true});
 			
-			return new GroupElement(new <ContentElement>[
-				Terminators.getTerminatingElement({}),
-				graphic
-			]);
+			return Terminators.terminateBefore(graphic);
+//			return new GroupElement(new <ContentElement>[
+//				Terminators.getTerminatingElement({}),
+//				graphic
+//			]);
 		}
 	}
 }
