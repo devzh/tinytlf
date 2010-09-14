@@ -4,6 +4,7 @@ package org.tinytlf.layout.direction
 	import flash.text.engine.TextLine;
 	
 	import org.tinytlf.layout.IFlowLayout;
+	import org.tinytlf.layout.ILayoutElementFactory;
 
 	public interface IFlowDirectionDelegate
 	{
@@ -31,8 +32,20 @@ package org.tinytlf.layout.direction
 		function prepForTextBlock(block:TextBlock):void;
 		
 		/**
+		 * Called from the IFlowLayout when an IFlowLayoutElement has been
+		 * detected in a TextLine.
+		 * 
+		 * @returns Boolean true if this IFlowLayoutElement should cause the
+		 * IFlowLayout to block processing any more IFlowLayoutElements, false
+		 * if it should continue.
+		 */
+		function registerFlowElement(line:TextLine, atomIndex:int):Boolean;
+		
+		/**
 		 * The IFlowLayout this direction delegate belongs to/acts on.
 		 */
 		function set target(flowLayout:IFlowLayout):void;
+		
+		function set elementFactory(factory:ILayoutElementFactory):void;
 	}
 }

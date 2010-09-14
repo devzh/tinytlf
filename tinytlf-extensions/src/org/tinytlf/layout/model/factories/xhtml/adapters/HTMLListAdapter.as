@@ -38,7 +38,8 @@ package org.tinytlf.layout.model.factories.xhtml.adapters
 				}
 				else
 				{
-		            return new GroupElement(new <ContentElement>[Terminators.getTerminatingElement({}), listElement]);
+					return Terminators.terminateBefore(listElement);
+//		            return new GroupElement(new <ContentElement>[Terminators.getTerminatingElement({}), listElement]);
 				}
 			}
 			else

@@ -65,9 +65,19 @@ package org.tinytlf.layout
 			return rect.x;
 		}
 		
+		public function set x(value:Number):void
+		{
+			rect.x = value;
+		}
+		
 		public function get y():Number
 		{
 			return rect.y;
+		}
+		
+		public function set y(value:Number):void
+		{
+			rect.y = value;
 		}
 		
 		public function get width():Number
@@ -82,12 +92,12 @@ package org.tinytlf.layout
 		
 		public function containsX(checkX:Number):Boolean
 		{
-			return checkX > x && checkX < (x + width);
+			return checkX >= x && checkX < (x + width);
 		}
 		
 		public function containsY(checkY:Number):Boolean
 		{
-			return checkY > y && checkY < (y + height);
+			return checkY >= y && checkY < (y + height);
 		}
 	}
 }

@@ -5,7 +5,6 @@ package org.tinytlf.layout
 	public interface IFlowLayout extends ITextContainer
 	{
 		function set direction(delegate:IFlowDirectionDelegate):void;
-		function set elementFactory(factory:ILayoutElementFactory):void;
 		
 		function get elements():Vector.<IFlowLayoutElement>;
 	}

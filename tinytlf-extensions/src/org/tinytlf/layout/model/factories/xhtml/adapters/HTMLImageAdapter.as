@@ -6,13 +6,14 @@
  */
 package org.tinytlf.layout.model.factories.xhtml.adapters
 {
-    import flash.geom.Point;
     import flash.net.URLRequest;
     import flash.text.engine.ContentElement;
     import flash.text.engine.ElementFormat;
     import flash.text.engine.GraphicElement;
     import flash.text.engine.TextBaseline;
     
+    import org.tinytlf.layout.Terminators;
+    import org.tinytlf.layout.descriptions.TextFloat;
     import org.tinytlf.layout.model.factories.ContentElementFactory;
     import org.tinytlf.layout.model.factories.xhtml.XMLDescription;
     import org.tinytlf.layout.properties.LayoutProperties;
@@ -24,19 +25,33 @@ package org.tinytlf.layout.model.factories.xhtml.adapters
             var img:XMLDescription = context[context.length - 1];
 			var style:Object = engine.styler.describeElement(img);
 			var lp:LayoutProperties = new LayoutProperties(style);
-            var url:String = img.attributes.src;
 			
-            var size:Point = new Point(Number(style.width) || 15, Number(style.height) || 15);
-            var loader:ImageLoader = new ImageLoader(url, lp);
 			var format:ElementFormat = new ElementFormat();
 			format.dominantBaseline = TextBaseline.IDEOGRAPHIC_TOP;
-            var element:ContentElement = new GraphicElement(loader, lp.width + lp.paddingLeft + lp.paddingRight, lp.height + lp.paddingTop + lp.paddingBottom, format, getEventMirror(context));
+			
+			var element:ContentElement;
+			
+			if(style.float)
+			{
+	            element = new GraphicElement(new ImageLoader(img.attributes.src, lp), 
+					lp.paddingLeft + lp.paddingRight, lp.paddingTop + lp.paddingBottom, format, getEventMirror(context));
+				
+	            element.userData = Vector.<XMLDescription>(context);
+				
+				return Terminators.terminateClear(element);
+			}
+			
+            element = new GraphicElement(new ImageLoader(img.attributes.src, lp), 
+				lp.width + lp.paddingLeft + lp.paddingRight, lp.height + lp.paddingTop + lp.paddingBottom, 
+				format, getEventMirror(context));
+			
             element.userData = Vector.<XMLDescription>(context);
 			
             return element;
         }
     }
 }
+
 import flash.display.Bitmap;
 import flash.display.BitmapData;
 import flash.display.Loader;
@@ -45,7 +60,6 @@ import flash.display.Sprite;
 import flash.events.Event;
 import flash.events.IOErrorEvent;
 import flash.geom.Matrix;
-import flash.geom.Point;
 import flash.net.URLRequest;
 
 import org.tinytlf.layout.properties.LayoutProperties;

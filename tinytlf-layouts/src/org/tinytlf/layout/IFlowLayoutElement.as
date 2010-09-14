@@ -20,11 +20,13 @@ package org.tinytlf.layout
 		/**
 		 * The x of this element relative to the rest of the TextLines.
 		 */
+		function set x(value:Number):void;
 		function get x():Number;
 		
 		/**
 		 * The y of this element relative to the rest of the TextLines.
 		 */
+		function set y(value:Number):void;
 		function get y():Number;
 		
 		function get width():Number;

@@ -9,6 +9,7 @@ package org.tinytlf.layout.descriptions
     public class TextFloat
     {
         public static const LEFT:String = "left";
+        public static const CENTER:String = "center";
         public static const RIGHT:String = "right";
     }
 }

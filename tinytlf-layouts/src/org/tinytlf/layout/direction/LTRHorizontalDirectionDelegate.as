@@ -1,11 +1,14 @@
 package org.tinytlf.layout.direction
 {
+	import flash.text.engine.ContentElement;
 	import flash.text.engine.TextBlock;
 	import flash.text.engine.TextLine;
 	
 	import org.tinytlf.layout.IFlowLayout;
 	import org.tinytlf.layout.IFlowLayoutElement;
+	import org.tinytlf.layout.descriptions.TextFloat;
 	import org.tinytlf.layout.properties.LayoutProperties;
+	import org.tinytlf.util.fte.TextLineUtil;
 	
 	public class LTRHorizontalDirectionDelegate extends DirectionDelegateBase
 	{
@@ -52,6 +55,36 @@ package org.tinytlf.layout.direction
 			return layoutPosition.y > layout.explicitHeight;
 		}
 		
+		override public function registerFlowElement(line:TextLine, atomIndex:int):Boolean
+		{
+			var retVal:Boolean = super.registerFlowElement(line, atomIndex);
+			
+			var contentElement:ContentElement = TextLineUtil.getElementAtAtomIndex(line, atomIndex);
+			if(contentElement.userData is Vector.<*>)
+			{
+				var element:IFlowLayoutElement = layout.elements.concat().pop();
+				var style:Object = layout.engine.styler.describeElement(contentElement.userData);
+				var totalWidth:Number = getTotalSize(line.textBlock);
+				switch(style.float)
+				{
+					case TextFloat.LEFT:
+						element.x = line.x = 0;
+						layoutPosition.x = element.width;
+						break;
+					case TextFloat.CENTER:
+						element.x = line.x = (totalWidth - element.width) * 0.5;
+						layoutPosition.x = 0;
+						break;
+					case TextFloat.RIGHT:
+						element.x = line.x = totalWidth - element.width;
+						layoutPosition.x = 0;
+						break;
+				}
+			}
+			
+			return retVal;
+		}
+		
 		protected function flow(totalSize:Number, previousLine:TextLine):Number
 		{
 			var elements:Vector.<IFlowLayoutElement> = layout.elements;
@@ -67,7 +100,7 @@ package org.tinytlf.layout.direction
 				element = elements[i];
 				line = element.textLine;
 				
-				if(line.y >= layoutPosition.y)
+				if(line.y >= layoutPosition.y && line.x < layoutPosition.x)
 					continue;
 				
 				if(element.containsY(layoutPosition.y))

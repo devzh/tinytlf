@@ -1,20 +1,24 @@
 package org.tinytlf.layout.direction
 {
 	import flash.geom.Point;
+	import flash.text.engine.ContentElement;
 	import flash.text.engine.TextBlock;
 	import flash.text.engine.TextLine;
 	
 	import org.tinytlf.layout.IFlowLayout;
 	import org.tinytlf.layout.IFlowLayoutElement;
+	import org.tinytlf.layout.ILayoutElementFactory;
 	import org.tinytlf.layout.Terminators;
 	import org.tinytlf.layout.descriptions.TextAlign;
 	import org.tinytlf.layout.properties.LayoutProperties;
+	import org.tinytlf.util.fte.TextLineUtil;
 	
 	public class DirectionDelegateBase implements IFlowDirectionDelegate
 	{
 		public function DirectionDelegateBase(target:IFlowLayout)
 		{
 			this.target = target;
+			elementFactory = new LayoutElementFactory();
 		}
 		
 		/**
@@ -57,6 +61,30 @@ package org.tinytlf.layout.direction
 		{
 		}
 		
+		
+		/**
+		 * Called when an element can potentially be added to the list of
+		 * IFlowLayoutElements. Override this to respect more types of layout
+		 * elements.
+		 */
+		public function registerFlowElement(line:TextLine, atomIndex:int):Boolean
+		{
+			var element:IFlowLayoutElement;
+			var contentElement:ContentElement = TextLineUtil.getElementAtAtomIndex(line, atomIndex);
+			if(contentElement.userData === Terminators.HTML_LIST_TERMINATOR)
+			{
+				handleListItemTermination();
+			}
+			else
+			{
+				element = elementFactory.getLayoutElement(line, atomIndex);
+				element.textLine = line;
+				layout.elements.push(element);
+			}
+			
+			return (contentElement.userData === Terminators.CONTAINER_TERMINATOR)
+		}
+		
 		protected var layout:IFlowLayout;
 		
 		public function set target(flowLayout:IFlowLayout):void
@@ -65,6 +93,26 @@ package org.tinytlf.layout.direction
 				return;
 			
 			layout = flowLayout;
+		}
+		
+		public function get target():IFlowLayout
+		{
+			return layout;
+		}
+		
+		private var _elementFactory:ILayoutElementFactory;
+		
+		public function set elementFactory(factory:ILayoutElementFactory):void
+		{
+			if(factory === _elementFactory)
+				return;
+			
+			_elementFactory = factory;
+		}
+		
+		public function get elementFactory():ILayoutElementFactory
+		{
+			return _elementFactory;
 		}
 		
 		protected function getLayoutProperties(element:*):LayoutProperties
@@ -86,7 +134,6 @@ package org.tinytlf.layout.direction
 			// A double nested ternary... it's so beautiful! what does it mean?! Ohhhh...
 			return isNaN(props.width) ? isNaN(layout.explicitWidth) ? 1000000 : layout.explicitWidth : props.width;
 		}
-		
 		
 		protected function layoutX(line:TextLine):void
 		{
@@ -125,5 +172,42 @@ package org.tinytlf.layout.direction
 			line.y = layoutPosition.y;
 			layoutPosition.y += line.descent + props.leading;
 		}
+		
+		
+		/**
+		 * When we get to the end of list item, traverse backwards in the
+		 * LayoutElement list to the first LIST_ITEM element and remove it.
+		 * This ensures we stop flowing around the bullet graphic.
+		 */
+		protected function handleListItemTermination():void
+		{
+			var elements:Vector.<IFlowLayoutElement> = layout.elements;
+			for(var i:int = elements.length - 1; i >= 0; --i)
+			{
+				if(elements[i].element.userData === Terminators.HTML_LIST)
+				{
+					elements.splice(i, 1);
+					break;
+				}
+			}
+		}
+	}
+}
+
+
+import flash.text.engine.ContentElement;
+import flash.text.engine.TextLine;
+
+import org.tinytlf.layout.FlowLayoutElement;
+import org.tinytlf.layout.IFlowLayoutElement;
+import org.tinytlf.layout.ILayoutElementFactory;
+import org.tinytlf.util.fte.TextLineUtil;
+
+internal class LayoutElementFactory implements ILayoutElementFactory
+{
+	public function getLayoutElement(line:TextLine, atomIndex:int):IFlowLayoutElement
+	{
+		var element:ContentElement = TextLineUtil.getElementAtAtomIndex(line, atomIndex);
+		return new FlowLayoutElement(element, line);
 	}
 }
