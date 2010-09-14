@@ -26,21 +26,26 @@ package org.tinytlf.styles.fcss
 			const sheet:XMLList =
 				<>
 					*{L}
-					fontLookup: {FontLookup.DEVICE};
-					fontName: _sans;
-					fontSize: 12;
+						fontLookup: {FontLookup.DEVICE};
+						fontName: _sans;
+						fontSize: 12;
 					{R}
 					h1{L}
-					fontSize: 30;
+						fontSize: 30;
 					{R}
 					b{L}
-					fontWeight: bold;
+						fontWeight: bold;
 					{R}
 					i{L}
-					fontPosture: italic;
+						fontPosture: italic;
 					{R}
 					em{L}
-					fontPosture: italic;
+						fontPosture: italic;
+					{R}
+					ul{L}
+						paddingTop: 10;
+						paddingBottom: 10;
+						listStylePosition: inside;
 					{R}
 				</>;
 			style = sheet.toString();
