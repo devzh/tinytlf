@@ -6,10 +6,8 @@
  */
 package org.tinytlf.styles
 {
-    import com.flashartofwar.fcss.objects.AbstractOrderedObject;
-    import com.flashartofwar.fcss.styles.IStyle;
-    
     import flash.net.registerClassAlias;
+    import flash.utils.Proxy;
     import flash.utils.flash_proxy;
     
     use namespace flash_proxy;
@@ -33,17 +31,18 @@ package org.tinytlf.styles
      * This is useful if you wish to proxy styles, or to support external styling 
 	 * implementations (currently Flex and F*CSS).
      */
-    public dynamic class StyleAwareActor extends AbstractOrderedObject implements IStyleAware, IStyle
+    public dynamic class StyleAwareActor extends Proxy implements IStyleAware
     {
         public function StyleAwareActor(styleObject:Object = null)
         {
-			super(this);
-			
             if(!styleObject)
                 return;
             
             style = styleObject;
         }
+		
+		protected var properties:Object = {};
+		protected var propNames:Array = [];
         
         public function get style():Object
         {
@@ -79,28 +78,96 @@ package org.tinytlf.styles
             this[styleProp] = newValue;
         }
 		
-		public function clone():IStyle
+		public function merge(object:Object):void
 		{
-			return new StyleAwareActor(this);
+			for (var prop:String in object)
+			{
+				mergeProperty(prop, object);
+			}
 		}
 		
-		private var _styleName:String = '';
-		public function set styleName(value:String):void
+		protected function mergeProperty(property:String, source:Object):void
 		{
-			if(value === _styleName)
-				return;
+			this[property] = source[property];
+		}
+		
+		public function applyTo(object:Object):void
+		{
+			for(var prop:String in properties)
+				if(prop in object && !(object[prop] is Function))
+					object[prop] = properties[prop];
+		}
+		
+		public function toString():String
+		{
+			var styleString:String = "{";
+			var i:int;
+			var total:int = propNames.length;
+			var prop:String;
+			for (i = 0; i < total; i++)
+			{
+				prop = propNames[i];
+				styleString = styleString.concat(prop, ":", properties[prop].toString(), ";");
+			}
 			
-			_styleName = value;
+			styleString = styleString.concat("}");
+			
+			return styleString;
 		}
 		
-		public function get styleName():String
+		override flash_proxy function getProperty(name:*):*
 		{
-			return _styleName;
+			return properties[name];
 		}
 		
-		override protected function registerClass():void
+		override flash_proxy function hasProperty(name:*):Boolean
 		{
-			registerClassAlias("org.tinytlf.styles.StyleAwareActor", StyleAwareActor);
+			return properties.hasOwnProperty(name);
+		}
+		
+		override flash_proxy function callProperty(name:*, ...parameters):*
+		{
+			if(properties.hasOwnProperty(name))
+				return function(...args):*{ return properties[name] };
+			
+			return null;
+		}
+		
+		override flash_proxy function deleteProperty(name:*):Boolean
+		{
+			if(delete properties[name])
+			{
+				propNames.splice(propNames.indexOf(name.toString()), 1);
+				return true;
+			}
+			
+			return false;
+		}
+		
+		override flash_proxy function setProperty(name:*, value:*):void
+		{
+			if (!properties.hasOwnProperty(name))
+				propNames.push(name.toString());
+			
+			properties[name] = value;
+		}
+		
+		override flash_proxy function nextName(index:int):String
+		{
+			return propNames[index - 1];
+		}
+		
+		override flash_proxy function nextNameIndex(index:int):int
+		{
+			if (index < propNames.length)
+				return index + 1;
+			else
+				return 0;
+		}
+		
+		override flash_proxy function nextValue(index:int):*
+		{
+			return properties[propNames[index - 1]];
 		}
     }
 }

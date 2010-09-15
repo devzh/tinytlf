@@ -222,6 +222,11 @@ package org.tinytlf.components.flash
 			engine.styler.merge(merge);
 		}
 		
+		public function applyTo(object:Object):void
+		{
+			engine.styler.applyTo(object);
+		}
+		
         private function onAddedToStage(event:Event):void
         {
             if(event.eventPhase != EventPhase.AT_TARGET)

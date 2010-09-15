@@ -10,7 +10,6 @@ package org.tinytlf.styles.fcss
 	import com.flashartofwar.fcss.stylesheets.FStyleSheet;
 	
 	import flash.text.engine.*;
-	import flash.utils.Dictionary;
 	
 	import org.tinytlf.layout.model.factories.xhtml.XMLDescription;
 	import org.tinytlf.styles.IStyleAware;
@@ -23,10 +22,10 @@ package org.tinytlf.styles.fcss
 		{
 			const L:String = '{';
 			const R:String = '}';
-			const sheet:XMLList =
+			const baseStyles:XMLList =
 				<>
 					*{L}
-						fontLookup: {FontLookup.DEVICE};
+						fontLookup: {FontLookup.EMBEDDED_CFF};
 						fontName: _sans;
 						fontSize: 12;
 					{R}
@@ -48,19 +47,21 @@ package org.tinytlf.styles.fcss
 						listStylePosition: inside;
 					{R}
 				</>;
-			style = sheet.toString();
+			style = baseStyles.toString();
 		}
+		
+		private var sheet:FStyleSheet;
 		
 		override public function set style(value:Object):void
 		{
 			if(value is String)
 			{
-				var sheet:FStyleSheet = new FStyleSheet();
-				sheet.parseCSS(value as String);
-				value = new FStyleProxy(sheet);
+				if(!sheet)
+					sheet = new TinytlfStyleSheet();
 				
+				sheet.parseCSS(String(value));
 				//Add the global styles onto this ITextStyler dude.
-				FStyleProxy(value).style = sheet.getStyle("*");
+				value = new FStyleProxy(sheet.getStyle("*"));
 			}
 			
 			super.style = value;
@@ -170,7 +171,7 @@ package org.tinytlf.styles.fcss
 					if(uniqueNodeName)
 					{
 						str += uniqueNodeName;
-						FStyleProxy(style).sheet.parseCSS(uniqueNodeName + '{' + inlineStyle + '}');
+						sheet.parseCSS(uniqueNodeName + '{' + inlineStyle + '}');
 					}
 					
 					node.styleString = str;
@@ -190,12 +191,14 @@ package org.tinytlf.styles.fcss
 				inlineStyle = 'a:a;';
 			}
 			
-			return FStyleProxy(style).sheet.getStyle.apply(null, inheritanceStructure);
+			return sheet.getStyle.apply(null, inheritanceStructure);
 		}
 	}
 }
 
 import com.flashartofwar.fcss.applicators.AbstractApplicator;
+import com.flashartofwar.fcss.styles.IStyle;
+import com.flashartofwar.fcss.stylesheets.FStyleSheet;
 import com.flashartofwar.fcss.utils.TypeHelperUtil;
 
 import flash.text.engine.BreakOpportunity;
@@ -213,6 +216,8 @@ import flash.text.engine.RenderingMode;
 import flash.text.engine.TextBaseline;
 import flash.text.engine.TextRotation;
 import flash.text.engine.TypographicCase;
+
+import org.tinytlf.styles.fcss.FStyleProxy;
 
 internal class EFApplicator extends AbstractApplicator
 {
@@ -280,5 +285,13 @@ internal class FDApplicator extends AbstractApplicator
 	override protected function valueFilter(value:String, type:String):*
 	{
 		return TypeHelperUtil.getType(value, type);
+	}
+}
+
+internal class TinytlfStyleSheet extends FStyleSheet
+{
+	override protected function createEmptyStyle():IStyle
+	{
+		return new FStyleProxy();
 	}
 }
