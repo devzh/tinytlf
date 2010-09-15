@@ -1,4 +1,4 @@
-package org.tinytlf.components.flash
+package org.tinytlf.components
 {
 	import flash.display.Sprite;
 	import flash.text.engine.TextBlock;

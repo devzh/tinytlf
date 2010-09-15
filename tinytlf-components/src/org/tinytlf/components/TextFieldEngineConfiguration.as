@@ -1,4 +1,4 @@
-package org.tinytlf.components.flash
+package org.tinytlf.components
 {
 	import org.tinytlf.*;
 	import org.tinytlf.decor.ITextDecor;
@@ -13,11 +13,11 @@ package org.tinytlf.components.flash
 	import org.tinytlf.interaction.gestures.keyboard.arrows.*;
 	import org.tinytlf.interaction.gestures.mouse.*;
 	import org.tinytlf.interaction.xhtml.*;
-	import org.tinytlf.layout.model.factories.ILayoutFactoryMap;
-	import org.tinytlf.layout.model.factories.xhtml.*;
+	import org.tinytlf.layout.model.factories.*;
 	import org.tinytlf.layout.model.factories.adapters.*;
-	import org.tinytlf.styles.ITextStyler;
+	import org.tinytlf.layout.model.factories.xhtml.*;
 	import org.tinytlf.styles.FCSSTextStyler;
+	import org.tinytlf.styles.ITextStyler;
 	
 	public class TextFieldEngineConfiguration implements ITextEngineConfiguration
 	{

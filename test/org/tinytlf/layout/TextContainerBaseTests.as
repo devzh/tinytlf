@@ -73,32 +73,32 @@ package org.tinytlf.layout
             assertThat(target.numChildren, equalTo(1));
         }
         
-        [Test]
-        public function shapes_is_target_child_after_setting_target():void
-        {
-            assertThat(container.shapes, strictlyEqualTo(target.getChildAt(0)));
-        }
-        
-        [Test]
-        public function children_moved_to_new_shapes_when_set():void
-        {
-            var shapes:Sprite = new Sprite();
-            
-            shapes.addChild(new Sprite());
-            container.shapes = shapes;
-            
-            assertThat(shapes.numChildren, equalTo(1));
-        }
-        
-        [Test]
-        public function children_removed_from_existing_shapes_when_shapes_set():void
-        {
-            var targetShapes:Sprite = container.shapes;
-            targetShapes.addChild(new Sprite());
-            container.shapes = new Sprite();
-            
-            assertThat(targetShapes.numChildren, equalTo(0));
-        }
+//        [Test]
+//        public function shapes_is_target_child_after_setting_target():void
+//        {
+//            assertThat(container.shapes, strictlyEqualTo(target.getChildAt(0)));
+//        }
+//        
+//        [Test]
+//        public function children_moved_to_new_shapes_when_set():void
+//        {
+//            var shapes:Sprite = new Sprite();
+//            
+//            shapes.addChild(new Sprite());
+//            container.shapes = shapes;
+//            
+//            assertThat(shapes.numChildren, equalTo(1));
+//        }
+//        
+//        [Test]
+//        public function children_removed_from_existing_shapes_when_shapes_set():void
+//        {
+//            var targetShapes:Sprite = container.shapes;
+//            targetShapes.addChild(new Sprite());
+//            container.shapes = new Sprite();
+//            
+//            assertThat(targetShapes.numChildren, equalTo(0));
+//        }
         
         [Test]
         public function allowed_width_default_is_NaN():void
