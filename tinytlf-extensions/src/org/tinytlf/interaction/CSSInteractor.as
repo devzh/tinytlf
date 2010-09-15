@@ -1,4 +1,4 @@
-package org.tinytlf.interaction.xhtml
+package org.tinytlf.interaction
 {
 	import flash.events.MouseEvent;
 	import flash.text.engine.ContentElement;
@@ -8,9 +8,7 @@ package org.tinytlf.interaction.xhtml
 	
 	import org.tinytlf.ITextEngine;
 	import org.tinytlf.decor.ITextDecor;
-	import org.tinytlf.interaction.EventLineInfo;
-	import org.tinytlf.interaction.TextDispatcherBase;
-	import org.tinytlf.layout.model.factories.xhtml.XMLDescription;
+	import org.tinytlf.layout.model.factories.XMLDescription;
 	import org.tinytlf.styles.ITextStyler;
 	import org.tinytlf.util.TinytlfUtil;
 	

@@ -1,12 +1,10 @@
-package org.tinytlf.layout.model.factories.xhtml
+package org.tinytlf.layout.model.factories
 {
 	import flash.external.ExternalInterface;
 	import flash.text.engine.ContentElement;
 	import flash.text.engine.TextBlock;
 	
-	import org.tinytlf.layout.model.factories.AbstractLayoutFactoryMap;
-	import org.tinytlf.layout.model.factories.IContentElementFactory;
-	import org.tinytlf.layout.model.factories.xhtml.adapters.XMLElementAdapter;
+	import org.tinytlf.layout.model.factories.adapters.XMLElementAdapter;
 	import org.tinytlf.layout.properties.LayoutProperties;
 	import org.tinytlf.styles.IStyleAware;
 	import org.tinytlf.styles.StyleAwareActor;

@@ -4,17 +4,14 @@
  * Permission is hereby granted to use, modify, and distribute this file
  * in accordance with the terms of the license agreement accompanying it.
  */
-package org.tinytlf.styles.fcss
+package org.tinytlf.styles
 {
 	import com.flashartofwar.fcss.styles.IStyle;
 	import com.flashartofwar.fcss.stylesheets.FStyleSheet;
 	
 	import flash.text.engine.*;
 	
-	import org.tinytlf.layout.model.factories.xhtml.XMLDescription;
-	import org.tinytlf.styles.IStyleAware;
-	import org.tinytlf.styles.StyleAwareActor;
-	import org.tinytlf.styles.TextStyler;
+	import org.tinytlf.layout.model.factories.XMLDescription;
 	
 	public class FCSSTextStyler extends TextStyler
 	{
@@ -61,7 +58,7 @@ package org.tinytlf.styles.fcss
 				
 				sheet.parseCSS(String(value));
 				//Add the global styles onto this ITextStyler dude.
-				value = new FStyleProxy(sheet.getStyle("*"));
+				value = new FCSSStyleProxy(sheet.getStyle("*"));
 			}
 			
 			super.style = value;
@@ -217,7 +214,7 @@ import flash.text.engine.TextBaseline;
 import flash.text.engine.TextRotation;
 import flash.text.engine.TypographicCase;
 
-import org.tinytlf.styles.fcss.FStyleProxy;
+import org.tinytlf.styles.FCSSStyleProxy;
 
 internal class EFApplicator extends AbstractApplicator
 {
@@ -292,6 +289,6 @@ internal class TinytlfStyleSheet extends FStyleSheet
 {
 	override protected function createEmptyStyle():IStyle
 	{
-		return new FStyleProxy();
+		return new FCSSStyleProxy();
 	}
 }

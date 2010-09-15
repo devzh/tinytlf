@@ -4,19 +4,17 @@
  * Permission is hereby granted to use, modify, and distribute this file
  * in accordance with the terms of the license agreement accompanying it.
  */
-package org.tinytlf.styles.fcss
+package org.tinytlf.styles
 {
 	import com.flashartofwar.fcss.styles.IStyle;
 	import com.flashartofwar.fcss.stylesheets.FStyleSheet;
 	
 	import flash.system.Capabilities;
 	
-	import org.tinytlf.styles.StyleAwareActor;
-	import org.tinytlf.styles.mx.FlexStyleProxy;
 	
-	public class FStyleProxy extends StyleAwareActor implements IStyle
+	public class FCSSStyleProxy extends StyleAwareActor implements IStyle
 	{
-		public function FStyleProxy(styleObject:Object = null)
+		public function FCSSStyleProxy(styleObject:Object = null)
 		{
 			super(styleObject);
 		}
@@ -53,7 +51,7 @@ package org.tinytlf.styles.fcss
 		
 		public function clone():IStyle
 		{
-			return new FStyleProxy(this);
+			return new FCSSStyleProxy(this);
 		}
 		
 		protected function deriveFontSizeValue(sizeValue:Object, baseFontSize:Number = 12):Number

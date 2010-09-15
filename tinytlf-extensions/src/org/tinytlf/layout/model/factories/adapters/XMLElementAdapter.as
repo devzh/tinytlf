@@ -4,7 +4,7 @@
  * Permission is hereby granted to use, modify, and distribute this file
  * in accordance with the terms of the license agreement accompanying it.
  */
-package org.tinytlf.layout.model.factories.xhtml.adapters
+package org.tinytlf.layout.model.factories.adapters
 {
 	import flash.text.engine.ContentElement;
 	import flash.text.engine.GroupElement;
@@ -12,7 +12,7 @@ package org.tinytlf.layout.model.factories.xhtml.adapters
 	import org.tinytlf.layout.model.factories.ContentElementFactory;
 	import org.tinytlf.layout.model.factories.IContentElementFactory;
 	import org.tinytlf.layout.model.factories.ILayoutFactoryMap;
-	import org.tinytlf.layout.model.factories.xhtml.XMLDescription;
+	import org.tinytlf.layout.model.factories.XMLDescription;
 	
 	public class XMLElementAdapter extends ContentElementFactory
 	{

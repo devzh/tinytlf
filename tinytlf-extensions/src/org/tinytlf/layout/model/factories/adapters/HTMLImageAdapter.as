@@ -4,7 +4,7 @@
  * Permission is hereby granted to use, modify, and distribute this file
  * in accordance with the terms of the license agreement accompanying it.
  */
-package org.tinytlf.layout.model.factories.xhtml.adapters
+package org.tinytlf.layout.model.factories.adapters
 {
     import flash.net.URLRequest;
     import flash.text.engine.ContentElement;
@@ -15,7 +15,7 @@ package org.tinytlf.layout.model.factories.xhtml.adapters
     import org.tinytlf.layout.Terminators;
     import org.tinytlf.layout.descriptions.TextFloat;
     import org.tinytlf.layout.model.factories.ContentElementFactory;
-    import org.tinytlf.layout.model.factories.xhtml.XMLDescription;
+    import org.tinytlf.layout.model.factories.XMLDescription;
     import org.tinytlf.layout.properties.LayoutProperties;
 
     public class HTMLImageAdapter extends ContentElementFactory

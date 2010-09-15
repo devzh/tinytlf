@@ -15,9 +15,9 @@ package org.tinytlf.components.flash
 	import org.tinytlf.interaction.xhtml.*;
 	import org.tinytlf.layout.model.factories.ILayoutFactoryMap;
 	import org.tinytlf.layout.model.factories.xhtml.*;
-	import org.tinytlf.layout.model.factories.xhtml.adapters.*;
+	import org.tinytlf.layout.model.factories.adapters.*;
 	import org.tinytlf.styles.ITextStyler;
-	import org.tinytlf.styles.fcss.FCSSTextStyler;
+	import org.tinytlf.styles.FCSSTextStyler;
 	
 	public class TextFieldEngineConfiguration implements ITextEngineConfiguration
 	{

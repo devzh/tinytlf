@@ -1,4 +1,4 @@
-package org.tinytlf.layout.model.factories.xhtml
+package org.tinytlf.layout.model.factories
 {
 	public final class XMLDescription
 	{

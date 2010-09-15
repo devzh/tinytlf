@@ -1,9 +1,8 @@
-package org.tinytlf.interaction.xhtml
+package org.tinytlf.interaction
 {
 	import flash.events.EventDispatcher;
 	
-	import org.tinytlf.interaction.GestureInteractor;
-	import org.tinytlf.layout.model.factories.xhtml.XMLDescription;
+	import org.tinytlf.layout.model.factories.XMLDescription;
 	
 	public class CascadingTextInteractor extends GestureInteractor
 	{

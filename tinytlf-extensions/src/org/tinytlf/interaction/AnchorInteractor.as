@@ -1,12 +1,11 @@
-package org.tinytlf.interaction.xhtml
+package org.tinytlf.interaction
 {
 	import flash.events.MouseEvent;
 	import flash.events.TextEvent;
 	import flash.net.URLRequest;
 	import flash.net.navigateToURL;
 	
-	import org.tinytlf.interaction.EventLineInfo;
-	import org.tinytlf.layout.model.factories.xhtml.XMLDescription;
+	import org.tinytlf.layout.model.factories.XMLDescription;
 	import org.tinytlf.util.TinytlfUtil;
 	import org.tinytlf.util.XMLUtil;
 	

@@ -1,4 +1,4 @@
-package org.tinytlf.layout.model.factories.xhtml.adapters
+package org.tinytlf.layout.model.factories.adapters
 {
     import flash.display.Graphics;
     import flash.display.Shape;

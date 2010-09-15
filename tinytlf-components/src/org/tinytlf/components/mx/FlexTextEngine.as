@@ -10,9 +10,7 @@ package org.tinytlf.components.mx
     
     import org.tinytlf.TextEngine;
     import org.tinytlf.decor.ITextDecor;
-    import org.tinytlf.decor.mx.FlexTextDecor;
     import org.tinytlf.styles.ITextStyler;
-    import org.tinytlf.styles.mx.FlexTextStyler;
     
     public class FlexTextEngine extends TextEngine
     {
