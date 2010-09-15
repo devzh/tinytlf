@@ -36,16 +36,16 @@ package org.tinytlf.layout
 			return new GroupElement(new <ContentElement>[element, graphic], breakFormat);
 		}
 		
-		public static function terminateClear(element:ContentElement, marker:Object = null):GroupElement
+		public static function terminateClear(element:ContentElement, markerLeft:Object = null, markerRight:Object = null):GroupElement
 		{
 			var breakFormat:ElementFormat = new ElementFormat();
 			breakFormat.breakOpportunity = BreakOpportunity.ALL;
 			
 			var start:GraphicElement = new GraphicElement(new Shape(), 0, 0, new ElementFormat());
-			start.userData = marker;
+			start.userData = markerLeft;
 			
 			var end:GraphicElement = new GraphicElement(new Shape(), 0, 0, new ElementFormat());
-			end.userData = marker;
+			end.userData = markerRight;
 			
 			return new GroupElement(new <ContentElement>[start, element, end], breakFormat);
 		}
