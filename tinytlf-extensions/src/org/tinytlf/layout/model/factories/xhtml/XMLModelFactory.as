@@ -27,7 +27,7 @@ package org.tinytlf.layout.model.factories.xhtml
 				XML.prettyPrinting = false;
 				XML.ignoreWhitespace = false;
 				try{
-					xml = new XML(data.toString());
+					xml = new XML(trim(data.toString()));
 				}
 				catch(e:Error){
 					xml = new XML('<body>' + slurp(data.toString()) + ' </body>');
@@ -81,6 +81,13 @@ package org.tinytlf.layout.model.factories.xhtml
 			}
 			
 			return super.getElementFactory(element);
+		}
+		
+		//Trims out the excess white space that is potentially in XML before parsing, since
+		//we still want to respect at least one white space.
+		private static function trim(input:String):String
+		{
+			return input.replace(/\n|\r|\t/g, '  ').replace(/>\s+</g, '><').replace(/(\s\s+)/g, ' ');
 		}
 		
 		private static function slurp(tags:String):String
