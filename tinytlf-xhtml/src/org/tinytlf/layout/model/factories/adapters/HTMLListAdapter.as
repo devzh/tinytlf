@@ -18,29 +18,7 @@ package org.tinytlf.layout.model.factories.adapters
             
 			if(data is XML)
 			{
-				var styles:Object = engine.styler.describeElement(context);
-				
-				if(styles.listStylePosition === 'outside')
-				{
-					var marginLeft:Number = styles.marginLeft || 25;
-					var gfx:Shape = new Shape();
-					gfx.graphics.beginFill(0x00, 0);
-					gfx.graphics.drawRect(0, 0, marginLeft, 100000);
-					var graphic:GraphicElement = new GraphicElement(gfx, marginLeft, 0, new ElementFormat());
-					graphic.userData = Terminators.HTML_LIST;
-					
-					var group:GroupElement = new GroupElement(new <ContentElement>[
-						Terminators.terminateBefore(graphic),
-						listElement
-						]);
-					
-					return Terminators.terminateAfter(group, Terminators.HTML_LIST_TERMINATOR);
-				}
-				else
-				{
-					return Terminators.terminateBefore(listElement);
-//		            return new GroupElement(new <ContentElement>[Terminators.getTerminatingElement({}), listElement]);
-				}
+				return Terminators.terminateBefore(listElement);
 			}
 			else
 			{

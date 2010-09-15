@@ -19,25 +19,37 @@ package org.tinytlf.layout.model.factories.adapters
 			if(data is XML)
 			{
 				var styles:Object = engine.styler.describeElement(context);
+				var outside:Boolean = styles.listStylePosition == 'outside'
+				var marginLeft:Number = styles.marginLeft || 25;
+				var graphic:GraphicElement = new GraphicElement(outside ? new TallShape(marginLeft) : new Shape(), marginLeft, 0, new ElementFormat());
+				var end:GraphicElement = new GraphicElement(new Shape(), 0, 0, new ElementFormat());
+				
 				var box:Rectangle = item.elementFormat.getFontMetrics().emBox;
-				var graphic:GraphicElement;
-				
-				if(styles.listStylePosition === 'outside')
-				{
-					graphic = new GraphicElement(new Shape(), 0, 0, new ElementFormat());
-				}
-				else
-				{
-					graphic = new GraphicElement(new Shape(), styles.marginLeft || 25, 0, new ElementFormat());
-				}
-				
 				engine.decor.decorate(graphic, {bullet: true, diameter: box.height * .25});
-				return Terminators.terminateAfter(new GroupElement(new <ContentElement>[graphic, item]));
+				
+				if(outside)
+				{
+					graphic.userData = Terminators.HTML_LIST;
+					end.userData = Terminators.HTML_LIST_TERMINATOR;
+					return Terminators.terminateAfter(new GroupElement(new <ContentElement>[graphic, item, end]));
+				}
+				
+				return new GroupElement(new <ContentElement>[graphic, item]);
 			}
 			else
 			{
 				return item;
 			}
 		}
+	}
+}
+import flash.display.Shape;
+
+internal class TallShape extends Shape
+{
+	public function TallShape(width:Number)
+	{
+		graphics.beginFill(0x00, 0);
+		graphics.drawRect(0, 0, width, 100000);
 	}
 }

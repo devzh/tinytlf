@@ -7,6 +7,7 @@
 package org.tinytlf.layout
 {
 	import flash.text.engine.LineJustification;
+	import flash.text.engine.SpaceJustifier;
 	import flash.text.engine.TextBlock;
 	import flash.text.engine.TextJustifier;
 	import flash.text.engine.TextLine;
@@ -178,7 +179,7 @@ package org.tinytlf.layout
 			
 			if (!block.textJustifier || block.textJustifier.lineJustification != justification || block.textJustifier.locale != props.locale)
 			{
-				props.merge(justifier);
+				props.applyTo(justifier);
 				
 				block.textJustifier = justifier;
 			}
@@ -201,12 +202,10 @@ package org.tinytlf.layout
 			var container:ITextContainer = startContainer;
 			var containerIndex:int = containers.indexOf(container);
 			
-			var line:TextLine = container.layout(block, block.firstLine);
+			var line:TextLine = container.layout(block, block.lastLine);
 			while (line)
 			{
-				container.postLayout();
-				
-				if (++containerIndex < containers.length)
+				if(++containerIndex < containers.length)
 					container = containers[containerIndex];
 				else
 					return null;
