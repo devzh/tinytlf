@@ -8,15 +8,23 @@ package org.tinytlf.decor.decorations
 {
     import flash.display.Graphics;
     import flash.geom.Rectangle;
+    import flash.text.engine.TextLineMirrorRegion;
     
-    import org.tinytlf.decor.TextDecoration;
-    
-    public class BackgroundColorDecoration extends TextDecoration
+    public class BackgroundColorDecoration extends ContentElementDecoration
     {
         public function BackgroundColorDecoration(styleObject:Object = null)
         {
             super(styleObject);
         }
+		
+		override protected function processTLMR(tlmr:TextLineMirrorRegion):Rectangle
+		{
+			var rect:Rectangle = tlmr.bounds.clone();
+			rect.y = emBox.y;
+			rect.height = emBox.height;
+			rect.offset(tlmr.textLine.x, tlmr.textLine.y);
+			return rect;
+		}
 		
         override public function draw(bounds:Vector.<Rectangle>):void
         {

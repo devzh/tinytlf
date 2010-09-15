@@ -11,13 +11,7 @@ package org.tinytlf.decor.decorations
     import flash.geom.Rectangle;
     import flash.text.engine.ContentElement;
     import flash.text.engine.FontMetrics;
-    import flash.text.engine.TextElement;
-    import flash.text.engine.TextLine;
     import flash.text.engine.TextLineMirrorRegion;
-    
-    import org.tinytlf.decor.TextDecoration;
-    import org.tinytlf.layout.ITextContainer;
-    import org.tinytlf.util.fte.ContentElementUtil;
     
     public class UnderlineDecoration extends ContentElementDecoration
     {
