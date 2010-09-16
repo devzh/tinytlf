@@ -1,14 +1,15 @@
 package org.tinytlf.layout.model.factories.adapters
 {
 	import flash.display.Shape;
-	import flash.events.EventDispatcher;
 	import flash.geom.Rectangle;
 	import flash.text.engine.ContentElement;
 	import flash.text.engine.ElementFormat;
 	import flash.text.engine.GraphicElement;
 	import flash.text.engine.GroupElement;
+	import flash.text.engine.TextBaseline;
 	
-	import org.tinytlf.layout.Terminators;
+	import org.tinytlf.util.fte.ContentElementUtil;
+	import org.tinytlf.util.fte.TextLineUtil;
 	
 	public class HTMLListItemAdapter extends XMLElementAdapter
 	{
@@ -21,20 +22,24 @@ package org.tinytlf.layout.model.factories.adapters
 				var styles:Object = engine.styler.describeElement(context);
 				var outside:Boolean = styles.listStylePosition == 'outside'
 				var marginLeft:Number = styles.marginLeft || 25;
-				var graphic:GraphicElement = new GraphicElement(outside ? new TallShape(marginLeft) : new Shape(), marginLeft, 0, new ElementFormat());
-				var end:GraphicElement = new GraphicElement(new Shape(), 0, 0, new ElementFormat());
+				
+				var graphicFormat:ElementFormat = new ElementFormat();
+				graphicFormat.dominantBaseline = TextBaseline.IDEOGRAPHIC_TOP;
+				var graphic:GraphicElement = new GraphicElement(outside ? new TallShape(marginLeft) : new Shape(), marginLeft, 0, graphicFormat);
+				
+				var end:GraphicElement = new GraphicElement(new Shape(), 0, 0, graphicFormat.clone());
 				
 				var box:Rectangle = item.elementFormat.getFontMetrics().emBox;
 				engine.decor.decorate(graphic, {bullet: true, diameter: box.height * .25});
 				
 				if(outside)
 				{
-					graphic.userData = Terminators.HTML_LIST;
-					end.userData = Terminators.HTML_LIST_TERMINATOR;
-					return Terminators.terminateAfter(new GroupElement(new <ContentElement>[graphic, item, end]));
+					graphic.userData = TextLineUtil.getSingletonMarker('listItem');
+					end.userData = TextLineUtil.getSingletonMarker('listItemTerminator');
+					return ContentElementUtil.lineBreakBeforeAndAfter(new GroupElement(new <ContentElement>[graphic, item, end]));
 				}
 				
-				return new GroupElement(new <ContentElement>[graphic, item]);
+				return new GroupElement(new <ContentElement>[graphic, item, end]);
 			}
 			else
 			{

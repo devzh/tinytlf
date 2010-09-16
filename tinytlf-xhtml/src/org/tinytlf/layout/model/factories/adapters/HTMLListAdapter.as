@@ -1,13 +1,8 @@
 package org.tinytlf.layout.model.factories.adapters
 {
-    import flash.display.Graphics;
-    import flash.display.Shape;
     import flash.text.engine.ContentElement;
-    import flash.text.engine.ElementFormat;
-    import flash.text.engine.GraphicElement;
-    import flash.text.engine.GroupElement;
     
-    import org.tinytlf.layout.Terminators;
+    import org.tinytlf.util.fte.ContentElementUtil;
     
     public class HTMLListAdapter extends XMLElementAdapter
     {
@@ -18,7 +13,7 @@ package org.tinytlf.layout.model.factories.adapters
             
 			if(data is XML)
 			{
-				return Terminators.terminateBefore(listElement);
+				return ContentElementUtil.lineBreakBefore(listElement);
 			}
 			else
 			{

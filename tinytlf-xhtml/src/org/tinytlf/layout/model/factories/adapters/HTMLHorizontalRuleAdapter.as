@@ -3,21 +3,19 @@ package org.tinytlf.layout.model.factories.adapters
 	import flash.events.EventDispatcher;
 	import flash.text.engine.*;
 	
-	import org.tinytlf.layout.Terminators;
 	import org.tinytlf.layout.model.factories.ContentElementFactory;
+	import org.tinytlf.util.fte.ContentElementUtil;
 	
 	public class HTMLHorizontalRuleAdapter extends ContentElementFactory
 	{
-		override public function execute(data:Object, ...parameters):ContentElement
+		override public function execute(data:Object, ...context):ContentElement
 		{
-			var graphic:GraphicElement = new GraphicElement(null, 0, 0, new ElementFormat(), new EventDispatcher());
+			var format:ElementFormat = getElementFormat(context);
+			format.dominantBaseline = TextBaseline.IDEOGRAPHIC_TOP;
+			var graphic:GraphicElement = new GraphicElement(null, 1, format.fontSize, format, new EventDispatcher());
 			engine.decor.decorate(graphic, {horizontalRule:true});
-			
-			return Terminators.terminateBefore(graphic);
-//			return new GroupElement(new <ContentElement>[
-//				Terminators.getTerminatingElement({}),
-//				graphic
-//			]);
+//			return ContentElementUtil.lineBreakBeforeAndAfter(graphic);
+			return ContentElementUtil.lineBreakBefore(graphic);
 		}
 	}
 }

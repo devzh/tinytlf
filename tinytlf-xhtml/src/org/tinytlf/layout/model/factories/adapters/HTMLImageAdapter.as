@@ -12,11 +12,10 @@ package org.tinytlf.layout.model.factories.adapters
     import flash.text.engine.GraphicElement;
     import flash.text.engine.TextBaseline;
     
-    import org.tinytlf.layout.Terminators;
-    import org.tinytlf.layout.descriptions.TextFloat;
     import org.tinytlf.layout.model.factories.ContentElementFactory;
     import org.tinytlf.layout.model.factories.XMLDescription;
     import org.tinytlf.layout.properties.LayoutProperties;
+    import org.tinytlf.util.fte.ContentElementUtil;
 
     public class HTMLImageAdapter extends ContentElementFactory
     {
@@ -38,7 +37,7 @@ package org.tinytlf.layout.model.factories.adapters
 				
 	            element.userData = Vector.<XMLDescription>(context);
 				
-				return Terminators.terminateClear(element);
+				return ContentElementUtil.lineBreakBeforeAndAfter(element);
 			}
 			
             element = new GraphicElement(new ImageLoader(img.attributes.src, lp), 
