@@ -92,7 +92,8 @@ package org.tinytlf.interaction
 			if (!info)
 				return;
 			
-			cssState = VISITED;
+			if(TinytlfUtil.isBitSet(mouseState, DOWN))
+				cssState = VISITED;
 			
 			applyCSSFormatting(info, cssState);
 			applyCSSDecorations(info, cssState);
