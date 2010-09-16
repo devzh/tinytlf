@@ -5,10 +5,10 @@ package org.tinytlf.layout.direction
 	import flash.text.engine.TextBlock;
 	import flash.text.engine.TextLine;
 	
+	import org.tinytlf.layout.FlowLayoutElement;
 	import org.tinytlf.layout.IFlowLayout;
 	import org.tinytlf.layout.IFlowLayoutElement;
 	import org.tinytlf.layout.ILayoutElementFactory;
-	import org.tinytlf.layout.Terminators;
 	import org.tinytlf.layout.descriptions.TextAlign;
 	import org.tinytlf.layout.properties.LayoutProperties;
 	import org.tinytlf.util.fte.TextLineUtil;
@@ -35,7 +35,7 @@ package org.tinytlf.layout.direction
 			// Return true if the last IFlowLayoutElement is a 
 			// ContainerTerminator, which causes tinytlf to stop laying out in 
 			// this container and move on to the next one.
-			return (elements[elements.length - 1].element.userData === Terminators.CONTAINER_TERMINATOR);
+			return (elements[elements.length - 1].element.userData === TextLineUtil.getSingletonMarker('containerTerminator'));
 		}
 		
 		public function prepForTextBlock(block:TextBlock):void
@@ -59,6 +59,8 @@ package org.tinytlf.layout.direction
 		
 		public function layoutLine(latestLine:TextLine):void
 		{
+			layoutX(latestLine);
+			layoutY(latestLine);
 		}
 		
 		
@@ -71,7 +73,7 @@ package org.tinytlf.layout.direction
 		{
 			var element:IFlowLayoutElement;
 			var contentElement:ContentElement = TextLineUtil.getElementAtAtomIndex(line, atomIndex);
-			if(contentElement.userData === Terminators.HTML_LIST_TERMINATOR)
+			if(contentElement.userData === TextLineUtil.getSingletonMarker('listItemTerminator'))
 			{
 				handleListItemTermination();
 			}
@@ -82,7 +84,7 @@ package org.tinytlf.layout.direction
 				layout.elements.push(element);
 			}
 			
-			return (contentElement.userData === Terminators.CONTAINER_TERMINATOR)
+			return (contentElement.userData === TextLineUtil.getSingletonMarker('containerTerminator'))
 		}
 		
 		protected var layout:IFlowLayout;
@@ -184,12 +186,18 @@ package org.tinytlf.layout.direction
 			var elements:Vector.<IFlowLayoutElement> = layout.elements;
 			for(var i:int = elements.length - 1; i >= 0; --i)
 			{
-				if(elements[i].element.userData === Terminators.HTML_LIST)
+				if(elements[i].element.userData === TextLineUtil.getSingletonMarker('listItem'))
 				{
-					elements.splice(i, 1);
+					removeLayoutElement(elements[i]);
 					break;
 				}
 			}
+		}
+		
+		protected function removeLayoutElement(element:IFlowLayoutElement):void
+		{
+			var elements:Vector.<IFlowLayoutElement> = layout.elements;
+			elements.splice(elements.indexOf(element), 1);
 		}
 	}
 }

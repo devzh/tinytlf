@@ -25,7 +25,7 @@ package org.tinytlf.layout.direction
 			
 			layoutPosition.x = 0;
 			
-			if (block.firstLine == null)
+			if(block.firstLine == null)
 			{
 				layoutPosition.x = props.textIndent;
 				layoutPosition.y += props.paddingTop;
@@ -39,8 +39,8 @@ package org.tinytlf.layout.direction
 		
 		override public function layoutLine(latestLine:TextLine):void
 		{
-			layoutX(latestLine);
-			layoutY(latestLine);
+			super.layoutLine(latestLine);
+			checkLayoutPositions(latestLine);
 		}
 		
 		override public function checkTargetConstraints():Boolean
@@ -49,7 +49,7 @@ package org.tinytlf.layout.direction
 			if(super.checkTargetConstraints())
 				return true;
 			
-			if (isNaN(layout.explicitHeight))
+			if(layout.explicitHeight !== layout.explicitHeight)
 				return false;
 			
 			return layoutPosition.y > layout.explicitHeight;
@@ -68,16 +68,13 @@ package org.tinytlf.layout.direction
 				switch(style.float)
 				{
 					case TextFloat.LEFT:
-						element.x = line.x = 0;
-						layoutPosition.x = element.width;
+						element.x = line.x = layoutPosition.x = 0;
 						break;
 					case TextFloat.CENTER:
-						element.x = line.x = (totalWidth - element.width) * 0.5;
-						layoutPosition.x = 0;
+						layoutPosition.x = line.x = (totalWidth - element.width) * 0.5;
 						break;
 					case TextFloat.RIGHT:
-						element.x = line.x = totalWidth - element.width;
-						layoutPosition.x = 0;
+						layoutPosition.x = line.x = totalWidth - element.width;
 						break;
 				}
 			}
@@ -85,6 +82,12 @@ package org.tinytlf.layout.direction
 			return retVal;
 		}
 		
+		/**
+		 * @private
+		 * Calculates a suitable width for the next TextLine based on the total
+		 * size of the container and the previous TextLine. Modifies the
+		 * layoutPosition.x and returns the proper size of the TextLine.
+		 */
 		protected function flow(totalSize:Number, previousLine:TextLine):Number
 		{
 			var elements:Vector.<IFlowLayoutElement> = layout.elements;
@@ -143,9 +146,8 @@ package org.tinytlf.layout.direction
 		override protected function layoutY(line:TextLine):void
 		{
 			var w:Number = getTotalSize(line.textBlock);
-			if(layoutPosition.x >= (w - 10))
+			if(layoutPosition.x >= w)
 			{
-				layoutPosition.x = 0;
 				super.layoutY(line);
 			}
 			else
@@ -171,6 +173,17 @@ package org.tinytlf.layout.direction
 					if(i == n)
 						line.y = layoutPosition.y;
 				}
+			}
+		}
+		
+		protected function checkLayoutPositions(line:TextLine):void
+		{
+			//If the X layout position has proceeded past the width of the 
+			//TextBlock, reset him back to the left edge.
+			var w:Number = getTotalSize(line.textBlock);
+			if(layoutPosition.x >= w)
+			{
+				layoutPosition.x = 0;
 			}
 		}
 	}

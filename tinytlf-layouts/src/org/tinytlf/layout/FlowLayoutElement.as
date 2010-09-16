@@ -14,9 +14,8 @@ package org.tinytlf.layout
 			if(element is GraphicElement)
 			{
 				var graphic:DisplayObject = GraphicElement(element).graphic;
-				line ||= TextLine(graphic.parent);
+				this.line ||= (graphic.parent as TextLine);
 				rect = graphic.getBounds(line);
-				rect.offset(line.x, line.y);
 				rect.x = Math.round(rect.x);
 				rect.y = Math.round(rect.y);
 				rect.width = Math.round(rect.width);
@@ -30,7 +29,7 @@ package org.tinytlf.layout
 			this.element = element;
 		}
 		
-		private var rect:Rectangle;
+		protected var rect:Rectangle;
 		
 		private var _element:ContentElement;
 		public function get element():ContentElement
@@ -62,7 +61,7 @@ package org.tinytlf.layout
 		
 		public function get x():Number
 		{
-			return rect.x;
+			return rect.x + textLine.x;
 		}
 		
 		public function set x(value:Number):void
@@ -72,7 +71,7 @@ package org.tinytlf.layout
 		
 		public function get y():Number
 		{
-			return rect.y;
+			return rect.y + textLine.y;
 		}
 		
 		public function set y(value:Number):void

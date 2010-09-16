@@ -55,9 +55,9 @@ package org.tinytlf.layout
 			{
 				addLineToTarget(line);
 				
-				delegate.layoutLine(line);
-				
 				registerLine(line);
+				
+				delegate.layoutLine(line);
 				
 				if(delegate.checkTargetConstraints())
 					return line;

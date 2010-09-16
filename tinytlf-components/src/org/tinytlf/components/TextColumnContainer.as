@@ -5,8 +5,11 @@ package org.tinytlf.components
 	import flash.text.engine.TextLine;
 	
 	import org.tinytlf.ITextEngine;
+	import org.tinytlf.layout.IFlowLayout;
+	import org.tinytlf.layout.IFlowLayoutElement;
 	import org.tinytlf.layout.ITextContainer;
 	import org.tinytlf.layout.TextFlowContainer;
+	import org.tinytlf.layout.direction.IFlowDirectionDelegate;
 	
 	/**
 	 * TextColumnContainer is a Sprite which conveniently implements 
@@ -15,13 +18,11 @@ package org.tinytlf.components
 	 * layouts without also having to manage and update an external 
 	 * ITextContainer.
 	 */
-	public class TextColumnContainer extends Sprite implements ITextContainer
+	public class TextColumnContainer extends Sprite implements ITextContainer, IFlowLayout
 	{
 		public function TextColumnContainer()
 		{
 			super();
-//			container = new TextContainerBase(this, 100);
-//			container = new ImageFlowContainer(this, 100);
 			container = new TextFlowContainer(this, 100);
 		}
 		
@@ -56,7 +57,7 @@ package org.tinytlf.components
 			container.explicitWidth = Math.max(value - 1, 0);
 		}
 		
-		private var container:ITextContainer;
+		private var container:IFlowLayout;
 		
 		public function get engine():ITextEngine
 		{
@@ -161,6 +162,21 @@ package org.tinytlf.components
 		public function hasLine(line:TextLine):Boolean
 		{
 			return container.hasLine(line);
+		}
+		
+		public function get direction():IFlowDirectionDelegate
+		{
+			return container.direction;
+		}
+		
+		public function set direction(delegate:IFlowDirectionDelegate):void
+		{
+			container.direction = delegate;
+		}
+		
+		public function get elements():Vector.<IFlowLayoutElement>
+		{
+			return container.elements;
 		}
 	}
 }
