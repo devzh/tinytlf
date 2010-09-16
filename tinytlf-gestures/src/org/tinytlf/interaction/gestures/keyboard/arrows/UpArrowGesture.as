@@ -18,7 +18,7 @@ package org.tinytlf.interaction.gestures.keyboard.arrows
 		
 		public function up(event:KeyboardEvent):Boolean
 		{
-			return event.keyCode == Keyboard.UP;
+			return (event.keyCode === Keyboard.UP);
 		}
 	}
 }

@@ -10,7 +10,7 @@ package org.tinytlf.interaction.gestures.keyboard.arrows
 	{
 		override public function down(event:KeyboardEvent):Boolean
 		{
-			return super.down(event) && TinytlfUtil.isMac() ? event.altKey : event.ctrlKey;
+			return super.down(event) && (TinytlfUtil.isMac() ? event.altKey : event.ctrlKey);
 		}
 	}
 }

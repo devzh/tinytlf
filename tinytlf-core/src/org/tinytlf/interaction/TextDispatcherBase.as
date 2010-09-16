@@ -6,6 +6,7 @@
  */
 package org.tinytlf.interaction
 {
+	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;
 	import flash.events.KeyboardEvent;
@@ -96,6 +97,22 @@ package org.tinytlf.interaction
 		{
 		}
 		
+		protected function onCopy(event:Event):void
+		{
+		}
+		
+		protected function onPaste(event:Event):void
+		{
+		}
+		
+		protected function onCut(event:Event):void
+		{
+		}
+		
+		protected function onSelectAll(event:Event):void
+		{
+		}
+		
 		public function addListeners(target:IEventDispatcher):void
 		{
 			target.addEventListener(MouseEvent.MOUSE_OVER, onRollOver, false, 0, true);
@@ -112,6 +129,11 @@ package org.tinytlf.interaction
 			
 			target.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown, false, 0, true);
 			target.addEventListener(KeyboardEvent.KEY_UP, onKeyUp, false, 0, true);
+			
+			target.addEventListener(Event.COPY, onCopy, false, 0, true);
+			target.addEventListener(Event.PASTE, onPaste, false, 0, true);
+			target.addEventListener(Event.CUT, onCut, false, 0, true);
+			target.addEventListener(Event.SELECT_ALL, onSelectAll, false, 0, true);
 		}
 		
 		public function removeListeners(target:IEventDispatcher):void
@@ -130,6 +152,11 @@ package org.tinytlf.interaction
 			
 			target.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 			target.removeEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+			
+			target.removeEventListener(Event.COPY, onCopy);
+			target.removeEventListener(Event.PASTE, onPaste);
+			target.removeEventListener(Event.CUT, onCut);
+			target.removeEventListener(Event.SELECT_ALL, onSelectAll);
 		}
 		
 		protected var eventTime:int = 0;

@@ -6,16 +6,15 @@ package org.tinytlf.components
 	import org.tinytlf.interaction.*;
 	import org.tinytlf.interaction.behaviors.*;
 	import org.tinytlf.interaction.behaviors.keyboard.CharacterBackspaceBehavior;
+	import org.tinytlf.interaction.behaviors.keyboard.CopyBehavior;
 	import org.tinytlf.interaction.behaviors.keyboard.selection.*;
 	import org.tinytlf.interaction.behaviors.mouse.*;
 	import org.tinytlf.interaction.behaviors.mouse.selection.*;
-	import org.tinytlf.interaction.gestures.keyboard.BackspaceGesture;
+	import org.tinytlf.interaction.gestures.keyboard.*;
 	import org.tinytlf.interaction.gestures.keyboard.arrows.*;
 	import org.tinytlf.interaction.gestures.mouse.*;
-	import org.tinytlf.interaction.xhtml.*;
 	import org.tinytlf.layout.model.factories.*;
 	import org.tinytlf.layout.model.factories.adapters.*;
-	import org.tinytlf.layout.model.factories.xhtml.*;
 	import org.tinytlf.styles.FCSSTextStyler;
 	import org.tinytlf.styles.ITextStyler;
 	
@@ -109,8 +108,11 @@ package org.tinytlf.components
 				var paragraphSelect:ParagraphSelectionBehavior = new ParagraphSelectionBehavior();
 				var arrowCharSelect:CharacterLeftRightBehavior = new CharacterLeftRightBehavior();
 				var arrowWordSelect:WordLeftRightBehavior = new WordLeftRightBehavior();
+				var copyBehavior:CopyBehavior = new CopyBehavior();
+				var selectAllBehavior:SelectAllBehavior = new SelectAllBehavior();
 				
 				mouseClick.addBehavior(mouseCharSelect);
+				
 				interactor.addGesture(mouseOver, iBeam);
 				interactor.addGesture(mouseOut, iBeam);
 				interactor.addGesture(mouseDoubleDown, mouseWordSelect);
@@ -121,6 +123,9 @@ package org.tinytlf.components
 				
 				interactor.addGesture(leftCtrlArrow, arrowWordSelect);
 				interactor.addGesture(rightCtrlArrow, arrowWordSelect);
+				
+				interactor.addGesture(new CopyGesture(), copyBehavior);
+				interactor.addGesture(new SelectAllGesture(), selectAllBehavior);
 				
 				if (editable)
 				{

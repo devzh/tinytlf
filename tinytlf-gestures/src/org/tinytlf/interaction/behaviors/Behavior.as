@@ -56,6 +56,11 @@ package org.tinytlf.interaction.behaviors
 
             target.addEventListener(GestureEvent.getType(KeyboardEvent.KEY_DOWN), proxy, false, 0, true);
             target.addEventListener(GestureEvent.getType(KeyboardEvent.KEY_UP), proxy, false, 0, true);
+			
+			target.addEventListener(GestureEvent.getType(Event.COPY), proxy, false, 0, true);
+			target.addEventListener(GestureEvent.getType(Event.PASTE), proxy, false, 0, true);
+			target.addEventListener(GestureEvent.getType(Event.CUT), proxy, false, 0, true);
+			target.addEventListener(GestureEvent.getType(Event.SELECT_ALL), proxy, false, 0, true);
         }
 
         override public function removeListeners(target:IEventDispatcher):void
@@ -75,6 +80,11 @@ package org.tinytlf.interaction.behaviors
 
             target.removeEventListener(GestureEvent.getType(KeyboardEvent.KEY_DOWN), proxy);
             target.removeEventListener(GestureEvent.getType(KeyboardEvent.KEY_UP), proxy);
+			
+			target.removeEventListener(GestureEvent.getType(Event.COPY), proxy);
+			target.removeEventListener(GestureEvent.getType(Event.PASTE), proxy);
+			target.removeEventListener(GestureEvent.getType(Event.CUT), proxy);
+			target.removeEventListener(GestureEvent.getType(Event.SELECT_ALL), proxy);
         }
     }
 }

@@ -13,8 +13,8 @@ package org.tinytlf.interaction.gestures.keyboard
 		{
 			super(target);
 			
-			hsm.appendChild(<up><up2><down><down2><left><right><left2><right2><b><a>
-														<enter/></a></b></right2></left2></right></left></down2></down></up2></up>);
+			hsm.appendChild(<up><up2><down><down2><left><right><left2><right2><b><a><enter/>
+													</a></b></right2></left2></right></left></down2></down></up2></up>);
 		}
 		
 		public function up(e:KeyboardEvent):Boolean

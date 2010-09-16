@@ -68,10 +68,10 @@ package org.tinytlf.interaction.behaviors.mouse.selection
 			
             var caretIndex:int = engine.caretIndex;
             
-            if(isNaN(selection.x))
+            if(selection.x != selection.x)
                 selection.x = selectionBeginIndex;
 			
-            if(isNaN(selection.y))
+            if(selection.y != selection.y)
                 selection.y = selectionBeginIndex;
 			
 			var atomSide:Boolean = TextLineUtil.getAtomSide(line, new Point(m.stageX, m.stageY));

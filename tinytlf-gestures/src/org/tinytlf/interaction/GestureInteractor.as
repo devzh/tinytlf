@@ -15,8 +15,8 @@ package org.tinytlf.interaction
     import org.tinytlf.interaction.gestures.IGesture;
     import org.tinytlf.interaction.gestures.keyboard.*;
     import org.tinytlf.interaction.gestures.mouse.*;
-    import org.tinytlf.layout.properties.LayoutProperties;
     import org.tinytlf.layout.descriptions.TextAlign;
+    import org.tinytlf.layout.properties.LayoutProperties;
 
     public class GestureInteractor extends TextInteractorBase implements IGestureInteractor
     {
@@ -130,6 +130,26 @@ package org.tinytlf.interaction
             dispatchToGestures(event);
         }
         
+        override protected function onCopy(event:Event):void
+        {
+            dispatchToGestures(event);
+        }
+        
+        override protected function onPaste(event:Event):void
+        {
+            dispatchToGestures(event);
+        }
+        
+        override protected function onCut(event:Event):void
+        {
+            dispatchToGestures(event);
+        }
+        
+        override protected function onSelectAll(event:Event):void
+        {
+            dispatchToGestures(event);
+        }
+        
         private function dispatchToGestures(event:Event):void
         {
             if(event.eventPhase == EventPhase.CAPTURING_PHASE)
@@ -145,9 +165,9 @@ package org.tinytlf.interaction
         }
 		
 		/**
+		 * @private 
 		 * Adds a catcher to the TextLine so that mouse events bubble and can be
 		 * caught by the gestures.
-		 * @private
 		 */
 		private function createBackground(line:TextLine):void
 		{
