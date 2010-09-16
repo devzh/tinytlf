@@ -12,6 +12,10 @@ package org.tinytlf.util.fte
 	
 	public class TextLineUtil
 	{
+		/**
+		 * Returns the index of the atom at a particular point. If the point
+		 * is outside the 
+		 */
 		public static function getAtomIndexAtPoint(line:TextLine, stageCoords:Point):int
 		{
 			var index:int = line.getAtomIndexAtPoint(stageCoords.x, stageCoords.y);
@@ -21,6 +25,11 @@ package org.tinytlf.util.fte
 				var bounds:Rectangle = line.getBounds(line.stage);
 				var center:Point = bounds.topLeft.clone();
 				center.offset(bounds.width * .5, bounds.height * .5);
+				
+				if(stageCoords.y < bounds.y)
+					return 0;
+				if(stageCoords.y > bounds.y + bounds.height)
+					return line.atomCount - 1;
 				
 				index = (stageCoords.x < center.x) ? 0 : line.atomCount - 1;
 			}
@@ -32,11 +41,11 @@ package org.tinytlf.util.fte
 		
 		/**
 		 * Finds which side of the atom the point is on.
-		 * @returns True for left, False for right.
+		 * @returns true for left, false for right.
 		 */
 		public static function getAtomSide(line:TextLine, stageCoords:Point):Boolean
 		{
-			var atomIndex:int = line.getAtomIndexAtPoint(stageCoords.x, stageCoords.y);
+			var atomIndex:int = line.getAtomIndexAtPoint(stageCoords.x, 1);
 			
 			if(atomIndex < 0)
 				return true;
@@ -50,6 +59,11 @@ package org.tinytlf.util.fte
 		private static const defaultWordBoundaryPattern:RegExp = /\W+|\b[^\W﷯]*/;
 		private static const nonWordPattern:RegExp = /\W/;
 		
+		/**
+		 * Finds the next/prev word boundary specified by the direction and the
+		 * boundaryPattern. If no boundary pattern is specified, the default 
+		 * is used, which matches non-word characters or graphic characters.
+		 */
 		public static function getAtomWordBoundary(line:TextLine, atomIndex:int, 
 												   left:Boolean = true, boundaryPattern:RegExp = null):int
 		{
@@ -85,6 +99,10 @@ package org.tinytlf.util.fte
 			return Math.max(atomIndex, 0);
 		}
 		
+		/**
+		 * Recursively drills down into the ContentElement of the TextLine's 
+		 * TextBlock to return the exact element at the specified atomIndex.
+		 */
 		public static function getElementAtAtomIndex(line:TextLine, atomIndex:int):ContentElement
 		{
 			var block:TextBlock = line.textBlock;
@@ -98,6 +116,12 @@ package org.tinytlf.util.fte
 			return content;
 		}
 		
+		/**
+		 * Returns a Vector of ContentElements which are rendered in this 
+		 * TextLine. This can only return the elements that have specified
+		 * eventMirrors, so it's not guaranteed to be every ContentElement,
+		 * and the elements won't necessarily be in order.
+		 */
 		public static function getContentElements(line:TextLine):Vector.<ContentElement>
 		{
 			var dict:Dictionary = new Dictionary();
@@ -120,6 +144,22 @@ package org.tinytlf.util.fte
 			}
 			
 			return elements;
+		}
+		
+		private static const singletons:Object = {};
+		
+		/**
+		 * Central repository for storing/retrieving marker objects for text 
+		 * layout. The technique is useful for layout, where the userData
+		 * properties of the ContentElement can mark the element for special
+		 * layout provisions.
+		 */
+		public static function getSingletonMarker(name:String):Object
+		{
+			if(singletons.hasOwnProperty(name))
+				return singletons[name];
+			
+			return singletons[name] = {};
 		}
 	}
 }

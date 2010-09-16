@@ -1,7 +1,13 @@
 package org.tinytlf.util.fte
 {
+	import flash.display.Shape;
 	import flash.geom.Rectangle;
+	import flash.text.engine.BreakOpportunity;
 	import flash.text.engine.ContentElement;
+	import flash.text.engine.ElementFormat;
+	import flash.text.engine.GraphicElement;
+	import flash.text.engine.GroupElement;
+	import flash.text.engine.TextBaseline;
 	import flash.text.engine.TextBlock;
 	import flash.text.engine.TextLine;
 	import flash.text.engine.TextLineMirrorRegion;
@@ -88,6 +94,69 @@ package org.tinytlf.util.fte
 			}
 			
 			return bounds;
+		}
+		
+		/**
+		 * Creates a GroupElement with two children, a place-holder GraphicElement
+		 * and the input ContentElement. The GroupElement has an elementFormat
+		 * with breakOpportunity set to "all," which tells the FTE to break
+		 * the line between the GroupElement's children, i.e. between the 
+		 * placeholder GraphicElement and the input ContentElement.
+		 * 
+		 * <p>The optional marker parameter is set as the userData property of
+		 * the dummy GraphicElement. This allows you to mark/differentiate this
+		 * graphic during layout.</p>
+		 */
+		public static function lineBreakBefore(element:ContentElement, marker:Object = null):GroupElement
+		{
+			var graphic:GraphicElement = new GraphicElement(new Shape(), 0, 0, new ElementFormat());
+			graphic.userData = marker;
+			
+			var breakFormat:ElementFormat = new ElementFormat();
+			breakFormat.breakOpportunity = BreakOpportunity.ALL;
+			
+			return new GroupElement(new <ContentElement>[graphic, element], breakFormat);
+		}
+		
+		/**
+		 * Creates a GroupElement which has a line break after the input
+		 * ContentElement.
+		 */
+		public static function lineBreakAfter(element:ContentElement, marker:Object = null):GroupElement
+		{
+			var graphicFormat:ElementFormat = new ElementFormat();
+			graphicFormat.dominantBaseline = TextBaseline.IDEOGRAPHIC_TOP;
+			
+			var graphic:GraphicElement = new GraphicElement(new Shape(), 0, 0, graphicFormat);
+			graphic.userData = marker;
+			
+			var breakFormat:ElementFormat = new ElementFormat();
+			breakFormat.breakOpportunity = BreakOpportunity.ALL;
+			
+			return new GroupElement(new <ContentElement>[element, graphic], breakFormat);
+		}
+		
+		/**
+		 * Creates a GroupElement which has line breaks before and after the
+		 * input ContentElement.
+		 */
+		public static function lineBreakBeforeAndAfter(element:ContentElement, 
+													   markerLeft:Object = null, 
+													   markerRight:Object = null):GroupElement
+		{
+			var graphicFormat:ElementFormat = new ElementFormat();
+			graphicFormat.dominantBaseline = TextBaseline.IDEOGRAPHIC_TOP;
+			
+			var start:GraphicElement = new GraphicElement(new Shape(), 0, 0, graphicFormat);
+			start.userData = markerLeft;
+			
+			var end:GraphicElement = new GraphicElement(new Shape(), 0, 0, graphicFormat.clone());
+			end.userData = markerRight;
+			
+			var breakFormat:ElementFormat = new ElementFormat();
+			breakFormat.breakOpportunity = BreakOpportunity.ALL;
+			
+			return new GroupElement(new <ContentElement>[start, element, end], breakFormat);
 		}
 	}
 }
