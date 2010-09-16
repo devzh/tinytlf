@@ -6,6 +6,8 @@
  */
 package org.tinytlf.layout
 {
+	import flash.display.DisplayObject;
+	import flash.display.Shape;
 	import flash.display.Sprite;
 	import flash.text.engine.TextBlock;
 	import flash.text.engine.TextLine;
@@ -49,7 +51,7 @@ package org.tinytlf.layout
 			registerLine(line);
 			addLineToTarget(line, index);
 			
-			if (hasFocus)
+			if(hasFocus)
 				target.stage.focus = line;
 			
 			return line;
@@ -69,7 +71,7 @@ package org.tinytlf.layout
 		
 		public function set target(doc:Sprite):void
 		{
-			if (doc == _target)
+			if(doc == _target)
 				return;
 			
 			_target = doc;
@@ -87,7 +89,7 @@ package org.tinytlf.layout
 		
 		public function set engine(textEngine:ITextEngine):void
 		{
-			if (textEngine == _engine)
+			if(textEngine == _engine)
 				return;
 			
 			_engine = textEngine;
@@ -102,7 +104,7 @@ package org.tinytlf.layout
 		
 		public function set background(shapesContainer:Sprite):void
 		{
-			if (shapesContainer === bgShapes)
+			if(shapesContainer === bgShapes)
 				return;
 			
 			bgShapes = shapesContainer;
@@ -117,12 +119,12 @@ package org.tinytlf.layout
 		
 		public function set foreground(shapesContainer:Sprite):void
 		{
-			if (shapesContainer === fgShapes)
+			if(shapesContainer === fgShapes)
 				return;
 			
 			fgShapes = shapesContainer;
 			
-			if (fgShapes)
+			if(fgShapes)
 			{
 				// Don't let foreground shapes get in the way of interacting
 				// with the TextLines.
@@ -140,7 +142,7 @@ package org.tinytlf.layout
 		
 		public function set explicitHeight(value:Number):void
 		{
-			if (value === _explicitHeight)
+			if(value === _explicitHeight)
 				return;
 			
 			_explicitHeight = value;
@@ -156,7 +158,7 @@ package org.tinytlf.layout
 		
 		public function set explicitWidth(value:Number):void
 		{
-			if (value === _explicitWidth)
+			if(value === _explicitWidth)
 				return;
 			
 			_explicitWidth = value;
@@ -179,7 +181,7 @@ package org.tinytlf.layout
 		
 		public function clear():void
 		{
-			for (var line:* in lines)
+			for(var line:* in lines)
 			{
 				unregisterLine(line);
 				removeLineFromTarget(line);
@@ -190,16 +192,16 @@ package org.tinytlf.layout
 		{
 			var blockLines:Dictionary = new Dictionary(true);
 			var line:TextLine = from.firstLine;
-			while (line)
+			while(line)
 			{
 				blockLines[line] = true;
 				line = line.nextLine;
 			}
 			
-			for (var obj:* in lines)
+			for(var obj:* in lines)
 			{
 				line = TextLine(obj);
-				if (line.textBlock == from && !(line in blockLines))
+				if(line.textBlock == from && !(line in blockLines))
 				{
 					unregisterLine(line);
 					removeLineFromTarget(line);
@@ -221,16 +223,31 @@ package org.tinytlf.layout
 		public function resetShapes():void
 		{
 			if(foreground)
-			{
-				foreground.graphics.clear();
-				while (foreground.numChildren)
-					foreground.removeChildAt(0);
-			}
+				clearShapeContainer(foreground);
 			if(background)
+				clearShapeContainer(background);
+		}
+		
+		private function clearShapeContainer(container:Sprite):void
+		{
+			container.graphics.clear();
+			var n:int = container.numChildren;
+			var child:DisplayObject;
+			
+			for(var i:int = 0; i < n; ++i)
 			{
-				background.graphics.clear();
-				while (background.numChildren)
-					background.removeChildAt(0);
+				child = container.getChildAt(i);
+				if(child is Shape)
+				{
+					Shape(child).graphics.clear();
+				}
+				else if(child is Sprite)
+				{
+					Sprite(child).graphics.clear();
+					while(Sprite(child).numChildren)
+						Sprite(child).removeChildAt(0);
+				}
+				
 			}
 		}
 		
