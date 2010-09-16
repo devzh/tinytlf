@@ -37,10 +37,11 @@ package org.tinytlf.layout.model.factories
 			var blocks:Vector.<TextBlock> = new <TextBlock>[];
 			var block:TextBlock;
 			var element:ContentElement;
+			var style:IStyleAware;
 			
 			for each (var child:XML in xml.*)
 			{
-				var style:IStyleAware = new StyleAwareActor();
+				style = new StyleAwareActor();
 				if (child.nodeKind() == 'text')
 				{
 					element = getElementFactory(xml.localName()).execute.apply(null, [child.toString()].concat(ancestorList));
@@ -85,7 +86,8 @@ package org.tinytlf.layout.model.factories
 		//we still want to respect at least one white space.
 		private static function trim(input:String):String
 		{
-			return input.replace(/\n|\r|\t/g, '  ').replace(/>\s+</g, '><').replace(/(\s\s+)/g, ' ');
+//			return input;
+			return input.replace(/\n|\r|\t/g, '  ').replace(/>(\s\s+)</g, '><').replace(/(\s\s+)/g, ' ');
 		}
 		
 		private static function slurp(tags:String):String
