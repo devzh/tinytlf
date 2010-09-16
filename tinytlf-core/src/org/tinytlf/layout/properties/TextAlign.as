@@ -4,7 +4,7 @@
  * Permission is hereby granted to use, modify, and distribute this file
  * in accordance with the terms of the license agreement accompanying it.
  */
-package org.tinytlf.layout.descriptions
+package org.tinytlf.layout.properties
 {
     public class TextAlign
     {

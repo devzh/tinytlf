@@ -15,7 +15,7 @@ package org.tinytlf.interaction
     import org.tinytlf.interaction.gestures.IGesture;
     import org.tinytlf.interaction.gestures.keyboard.*;
     import org.tinytlf.interaction.gestures.mouse.*;
-    import org.tinytlf.layout.descriptions.TextAlign;
+    import org.tinytlf.layout.properties.TextAlign;
     import org.tinytlf.layout.properties.LayoutProperties;
 
     public class GestureInteractor extends TextInteractorBase implements IGestureInteractor

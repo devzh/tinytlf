@@ -8,10 +8,6 @@ package org.tinytlf.layout.properties
 {
     import flash.text.engine.TextBlock;
     
-    import org.tinytlf.layout.descriptions.TextAlign;
-    import org.tinytlf.layout.descriptions.TextDirection;
-    import org.tinytlf.layout.descriptions.TextFloat;
-    import org.tinytlf.layout.descriptions.TextTransform;
     import org.tinytlf.styles.StyleAwareActor;
     
     public class LayoutProperties extends StyleAwareActor

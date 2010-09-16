@@ -6,7 +6,7 @@ package org.tinytlf.layout.direction
 	
 	import org.tinytlf.layout.IFlowLayout;
 	import org.tinytlf.layout.IFlowLayoutElement;
-	import org.tinytlf.layout.descriptions.TextFloat;
+	import org.tinytlf.layout.properties.TextFloat;
 	import org.tinytlf.layout.properties.LayoutProperties;
 	import org.tinytlf.util.fte.TextLineUtil;
 	

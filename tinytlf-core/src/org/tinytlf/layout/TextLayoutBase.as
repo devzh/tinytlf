@@ -14,7 +14,7 @@ package org.tinytlf.layout
 	import flash.utils.Dictionary;
 	
 	import org.tinytlf.ITextEngine;
-	import org.tinytlf.layout.descriptions.TextAlign;
+	import org.tinytlf.layout.properties.TextAlign;
 	import org.tinytlf.layout.model.factories.AbstractLayoutFactoryMap;
 	import org.tinytlf.layout.model.factories.ILayoutFactoryMap;
 	import org.tinytlf.layout.properties.LayoutProperties;
