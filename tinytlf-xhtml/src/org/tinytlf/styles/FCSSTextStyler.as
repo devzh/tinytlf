@@ -15,36 +15,12 @@ package org.tinytlf.styles
 	
 	public class FCSSTextStyler extends TextStyler
 	{
+		[Embed(source="default.css", mimeType="application/octet-stream")]
+		private const defaultCSS:Class;
+		
 		public function FCSSTextStyler()
 		{
-			const L:String = '{';
-			const R:String = '}';
-			const baseStyles:XMLList =
-				<>
-					*{L}
-						fontLookup: {FontLookup.EMBEDDED_CFF};
-						fontName: _sans;
-						fontSize: 12;
-					{R}
-					h1{L}
-						fontSize: 30;
-					{R}
-					b{L}
-						fontWeight: bold;
-					{R}
-					i{L}
-						fontPosture: italic;
-					{R}
-					em{L}
-						fontPosture: italic;
-					{R}
-					ul{L}
-						paddingTop: 10;
-						paddingBottom: 10;
-						listStylePosition: inside;
-					{R}
-				</>;
-			style = baseStyles.toString();
+			style = new defaultCSS().toString();
 		}
 		
 		private var sheet:FStyleSheet;
@@ -273,6 +249,7 @@ internal class FDApplicator extends AbstractApplicator
 		
 		if('fontStyle' in style)
 			fd.fontPosture = style.fontStyle == FontPosture.ITALIC ? FontPosture.ITALIC : FontPosture.NORMAL;
+		
 		fd.fontPosture = style.fontPosture || fd.fontPosture;
 		
 		fd.fontWeight = style.fontWeight || FontWeight.NORMAL;
