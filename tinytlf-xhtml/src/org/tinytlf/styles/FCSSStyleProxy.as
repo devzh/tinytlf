@@ -26,7 +26,7 @@ package org.tinytlf.styles
 		{
 			if(property in specialSizeProperties)
 			{
-				this[property] = deriveFontSizeValue(source[property], this[property] || 12);
+				this[property] = deriveFontSizeValue(source[property], this[property]);
 			}
 			else
 			{
@@ -54,9 +54,12 @@ package org.tinytlf.styles
 			return new FCSSStyleProxy(this);
 		}
 		
-		protected function deriveFontSizeValue(sizeValue:Object, baseFontSize:Number = 12):Number
+		protected function deriveFontSizeValue(sizeValue:Object, baseFontSize:Number = NaN):Object
 		{
-			baseFontSize ||= 12;
+			//If no font size was passed in, just store the sizeValue for later.
+			if(baseFontSize != baseFontSize)
+				return sizeValue;
+			
 			var number:Number = baseFontSize;
 			
 			if(sizeValue is Number)
