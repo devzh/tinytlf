@@ -26,6 +26,8 @@ package org.tinytlf.layout.model.factories
 				XML.ignoreWhitespace = false;
 				try{
 					xml = new XML(trim(data.toString()));
+					if(xml.*.length() == 0)
+						xml = <body>{xml}</body>;
 				}
 				catch(e:Error){
 					xml = new XML('<body>' + slurp(data.toString()) + ' </body>');
