@@ -27,10 +27,10 @@ package org.tinytlf.interaction
 			if (TinytlfUtil.isBitSet(mouseState, DOWN))
 			{
 				//If there's an href, launch the URL. Otherwise, dispatch an event from this TextLine.
-				if (href)
+				if (href && /event:/i.test(href) == false)
 					navigateToURL(new URLRequest(href), link['target'] || '_blank');
 				else
-					info.line.dispatchEvent(new TextEvent(TextEvent.LINK, true, false, info.element.text));
+					info.line.dispatchEvent(new TextEvent(TextEvent.LINK, true, false, href.substr(6) || info.element.text));
 			}
 			
 			super.onMouseUp(event);
