@@ -6,8 +6,8 @@ package org.tinytlf.layout.direction
 	
 	import org.tinytlf.layout.IFlowLayout;
 	import org.tinytlf.layout.IFlowLayoutElement;
-	import org.tinytlf.layout.properties.TextFloat;
 	import org.tinytlf.layout.properties.LayoutProperties;
+	import org.tinytlf.layout.properties.TextFloat;
 	import org.tinytlf.util.fte.TextLineUtil;
 	
 	public class LTRHorizontalDirectionDelegate extends DirectionDelegateBase
@@ -24,6 +24,7 @@ package org.tinytlf.layout.direction
 			var props:LayoutProperties = getLayoutProperties(block);
 			
 			layoutPosition.x = 0;
+			layoutPosition.y = target.measuredHeight;
 			
 			if(block.firstLine == null)
 			{
@@ -43,16 +44,27 @@ package org.tinytlf.layout.direction
 			checkLayoutPositions(latestLine);
 		}
 		
-		override public function checkTargetConstraints():Boolean
+		override public function checkTargetConstraints(latestLine:TextLine):Boolean
 		{
 			// This checks for container termination, so respect that first.
-			if(super.checkTargetConstraints())
+			if(super.checkTargetConstraints(latestLine))
+			{
+				layoutPosition.x = layoutPosition.y = 0;
 				return true;
+			}
 			
 			if(layout.explicitHeight !== layout.explicitHeight)
+			{
 				return false;
+			}
 			
-			return layoutPosition.y > layout.explicitHeight;
+			if((layoutPosition.y + latestLine.textHeight) >= layout.explicitHeight)
+			{
+				layoutPosition.x = layoutPosition.y = 0;
+				return true;
+			}
+			
+			return false;
 		}
 		
 		override public function registerFlowElement(line:TextLine, atomIndex:int):Boolean
@@ -130,6 +142,14 @@ package org.tinytlf.layout.direction
 					size = totalSize;
 					i = 0;
 					layoutPosition.x = 0;
+					
+					//If we get here and there's no previous line,
+					//we're probably flowing in a super tight space and don't
+					//have room to create lines anyway. Returning 0 is all
+					//we can do :|
+					if(!previousLine)
+						return 0;
+					
 					layoutPosition.y += previousLine.height;
 				}
 			}
@@ -146,7 +166,7 @@ package org.tinytlf.layout.direction
 		override protected function layoutY(line:TextLine):void
 		{
 			var w:Number = getTotalSize(line.textBlock);
-			if(layoutPosition.x >= w)
+			if(layoutPosition.x >= (w - 10))
 			{
 				super.layoutY(line);
 			}
@@ -181,7 +201,7 @@ package org.tinytlf.layout.direction
 			//If the X layout position has proceeded past the width of the 
 			//TextBlock, reset him back to the left edge.
 			var w:Number = getTotalSize(line.textBlock);
-			if(layoutPosition.x >= w)
+			if(layoutPosition.x >= (w - 10))
 			{
 				layoutPosition.x = 0;
 			}

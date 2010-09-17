@@ -10,6 +10,8 @@ package org.tinytlf.styles
     import flash.utils.Proxy;
     import flash.utils.flash_proxy;
     
+    import org.tinytlf.util.XMLUtil;
+    
     use namespace flash_proxy;
     
     /**
@@ -146,6 +148,8 @@ package org.tinytlf.styles
 		
 		override flash_proxy function setProperty(name:*, value:*):void
 		{
+			name = XMLUtil.stripSeparators(name);
+			
 			if (!properties.hasOwnProperty(name))
 				propNames.push(name.toString());
 			

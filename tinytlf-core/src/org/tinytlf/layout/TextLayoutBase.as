@@ -7,17 +7,16 @@
 package org.tinytlf.layout
 {
 	import flash.text.engine.LineJustification;
-	import flash.text.engine.SpaceJustifier;
 	import flash.text.engine.TextBlock;
 	import flash.text.engine.TextJustifier;
 	import flash.text.engine.TextLine;
 	import flash.utils.Dictionary;
 	
 	import org.tinytlf.ITextEngine;
-	import org.tinytlf.layout.properties.TextAlign;
 	import org.tinytlf.layout.model.factories.AbstractLayoutFactoryMap;
 	import org.tinytlf.layout.model.factories.ILayoutFactoryMap;
 	import org.tinytlf.layout.properties.LayoutProperties;
+	import org.tinytlf.layout.properties.TextAlign;
 	
 	public class TextLayoutBase implements ITextLayout
 	{
@@ -205,6 +204,10 @@ package org.tinytlf.layout
 			var line:TextLine = container.layout(block, block.lastLine);
 			while (line)
 			{
+				// If we're here, we're about to switch containers. 
+				// Call postLayout() because we're done with this container.
+				container.postLayout();
+			
 				if(++containerIndex < containers.length)
 					container = containers[containerIndex];
 				else
@@ -213,6 +216,8 @@ package org.tinytlf.layout
 				line = container.layout(block, line);
 			}
 			
+			//Call postLayout here because the last container by definition
+			//returned a null line, which broke out of the loop.
 			container.postLayout();
 			
 			return container;
@@ -236,7 +241,7 @@ package org.tinytlf.layout
 					break;
 				
 				touchedContainers[container] = true;
-				container.recreateTextLine(line);
+				container.recreateTextLine(block, line);
 			}
 			
 			for (var tmp:* in touchedContainers)

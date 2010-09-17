@@ -9,8 +9,8 @@ package org.tinytlf.layout.direction
 	import org.tinytlf.layout.IFlowLayout;
 	import org.tinytlf.layout.IFlowLayoutElement;
 	import org.tinytlf.layout.ILayoutElementFactory;
-	import org.tinytlf.layout.properties.TextAlign;
 	import org.tinytlf.layout.properties.LayoutProperties;
+	import org.tinytlf.layout.properties.TextAlign;
 	import org.tinytlf.util.fte.TextLineUtil;
 	
 	public class DirectionDelegateBase implements IFlowDirectionDelegate
@@ -18,14 +18,13 @@ package org.tinytlf.layout.direction
 		public function DirectionDelegateBase(target:IFlowLayout)
 		{
 			this.target = target;
-			elementFactory = new LayoutElementFactory();
 		}
 		
 		/**
 		 * Checks to see if we've laid out lines within the boundaries of our
 		 * target container. Returns true if we're outside bounds, false if we aren't.
 		 */
-		public function checkTargetConstraints():Boolean
+		public function checkTargetConstraints(latestLine:TextLine):Boolean
 		{
 			var elements:Vector.<IFlowLayoutElement> = layout.elements;
 			
@@ -40,6 +39,11 @@ package org.tinytlf.layout.direction
 		
 		public function prepForTextBlock(block:TextBlock):void
 		{
+		}
+		
+		public function postLayout():void
+		{
+			layoutPosition.x = layoutPosition.y = 0;
 		}
 		
 		protected var layoutPosition:Point = new Point();
@@ -63,7 +67,6 @@ package org.tinytlf.layout.direction
 			layoutY(latestLine);
 		}
 		
-		
 		/**
 		 * Called when an element can potentially be added to the list of
 		 * IFlowLayoutElements. Override this to respect more types of layout
@@ -79,7 +82,7 @@ package org.tinytlf.layout.direction
 			}
 			else
 			{
-				element = elementFactory.getLayoutElement(line, atomIndex);
+				element = target.elementFactory.getLayoutElement(line, atomIndex);
 				element.textLine = line;
 				layout.elements.push(element);
 			}
@@ -100,21 +103,6 @@ package org.tinytlf.layout.direction
 		public function get target():IFlowLayout
 		{
 			return layout;
-		}
-		
-		private var _elementFactory:ILayoutElementFactory;
-		
-		public function set elementFactory(factory:ILayoutElementFactory):void
-		{
-			if(factory === _elementFactory)
-				return;
-			
-			_elementFactory = factory;
-		}
-		
-		public function get elementFactory():ILayoutElementFactory
-		{
-			return _elementFactory;
 		}
 		
 		protected function getLayoutProperties(element:*):LayoutProperties
@@ -199,23 +187,5 @@ package org.tinytlf.layout.direction
 			var elements:Vector.<IFlowLayoutElement> = layout.elements;
 			elements.splice(elements.indexOf(element), 1);
 		}
-	}
-}
-
-
-import flash.text.engine.ContentElement;
-import flash.text.engine.TextLine;
-
-import org.tinytlf.layout.FlowLayoutElement;
-import org.tinytlf.layout.IFlowLayoutElement;
-import org.tinytlf.layout.ILayoutElementFactory;
-import org.tinytlf.util.fte.TextLineUtil;
-
-internal class LayoutElementFactory implements ILayoutElementFactory
-{
-	public function getLayoutElement(line:TextLine, atomIndex:int):IFlowLayoutElement
-	{
-		var element:ContentElement = TextLineUtil.getElementAtAtomIndex(line, atomIndex);
-		return new FlowLayoutElement(element, line);
 	}
 }

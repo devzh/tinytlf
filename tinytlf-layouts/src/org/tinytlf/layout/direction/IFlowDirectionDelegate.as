@@ -12,7 +12,7 @@ package org.tinytlf.layout.direction
 		 * Returns true if layout has moved outside the constraints of the
 		 * target container, false if we're still within bounds.
 		 */
-		function checkTargetConstraints():Boolean;
+		function checkTargetConstraints(latestLine:TextLine):Boolean;
 		
 		/**
 		 * Calculates the width of the newest TextLine.
@@ -32,6 +32,11 @@ package org.tinytlf.layout.direction
 		function prepForTextBlock(block:TextBlock):void;
 		
 		/**
+		 * Called after a TextBlock has been rendered into the target IFlowLayout.
+		 */
+		function postLayout():void;
+		
+		/**
 		 * Called from the IFlowLayout when an IFlowLayoutElement has been
 		 * detected in a TextLine.
 		 * 
@@ -45,7 +50,5 @@ package org.tinytlf.layout.direction
 		 * The IFlowLayout this direction delegate belongs to/acts on.
 		 */
 		function set target(flowLayout:IFlowLayout):void;
-		
-		function set elementFactory(factory:ILayoutElementFactory):void;
 	}
 }

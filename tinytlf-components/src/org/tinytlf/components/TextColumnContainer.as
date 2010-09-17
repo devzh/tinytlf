@@ -7,6 +7,7 @@ package org.tinytlf.components
 	import org.tinytlf.ITextEngine;
 	import org.tinytlf.layout.IFlowLayout;
 	import org.tinytlf.layout.IFlowLayoutElement;
+	import org.tinytlf.layout.ILayoutElementFactory;
 	import org.tinytlf.layout.ITextContainer;
 	import org.tinytlf.layout.TextFlowContainer;
 	import org.tinytlf.layout.direction.IFlowDirectionDelegate;
@@ -38,8 +39,8 @@ package org.tinytlf.components
 			if(height === value)
 				return;
 			
-			_height = value;
-			container.explicitHeight = Math.max(value - 1, 0);
+			_height = Math.max(value, 1);
+			container.explicitHeight = value;
 		}
 		
 		private var _width:Number = 0;
@@ -53,8 +54,8 @@ package org.tinytlf.components
 			if(width === value)
 				return;
 			
-			_width = value;
-			container.explicitWidth = Math.max(value - 1, 0);
+			_width = Math.max(value, 1);
+			container.explicitWidth = _width;
 		}
 		
 		private var container:IFlowLayout;
@@ -154,9 +155,9 @@ package org.tinytlf.components
 			return container.layout(block, line);
 		}
 		
-		public function recreateTextLine(line:TextLine):TextLine
+		public function recreateTextLine(block:TextBlock, line:TextLine):TextLine
 		{
-			return container.recreateTextLine(line);
+			return container.recreateTextLine(block, line);
 		}
 		
 		public function hasLine(line:TextLine):Boolean
@@ -164,14 +165,19 @@ package org.tinytlf.components
 			return container.hasLine(line);
 		}
 		
-		public function get direction():IFlowDirectionDelegate
-		{
-			return container.direction;
-		}
-		
 		public function set direction(delegate:IFlowDirectionDelegate):void
 		{
 			container.direction = delegate;
+		}
+		
+		public function set elementFactory(factory:ILayoutElementFactory):void
+		{
+			container.elementFactory = factory;
+		}
+		
+		public function get elementFactory():ILayoutElementFactory
+		{
+			return container.elementFactory;
 		}
 		
 		public function get elements():Vector.<IFlowLayoutElement>

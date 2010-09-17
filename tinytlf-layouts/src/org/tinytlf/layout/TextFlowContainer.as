@@ -1,6 +1,8 @@
 package org.tinytlf.layout
 {
+	import flash.display.DisplayObject;
 	import flash.display.Sprite;
+	import flash.geom.Rectangle;
 	import flash.text.engine.TextBlock;
 	import flash.text.engine.TextLine;
 	
@@ -14,6 +16,7 @@ package org.tinytlf.layout
 			super(container, explicitWidth, explicitHeight);
 			
 			delegate = new LTRHorizontalDirectionDelegate(this);
+			elementFactory = new LayoutElementFactory();
 		}
 		
 		private var delegate:IFlowDirectionDelegate;
@@ -31,6 +34,21 @@ package org.tinytlf.layout
 			return delegate;
 		}
 		
+		private var _elementFactory:ILayoutElementFactory;
+		
+		public function set elementFactory(factory:ILayoutElementFactory):void
+		{
+			if(factory === _elementFactory)
+				return;
+			
+			_elementFactory = factory;
+		}
+		
+		public function get elementFactory():ILayoutElementFactory
+		{
+			return _elementFactory;
+		}
+		
 		private var _elements:Vector.<IFlowLayoutElement>;
 		public function get elements():Vector.<IFlowLayoutElement>
 		{
@@ -43,6 +61,13 @@ package org.tinytlf.layout
 				return;
 			
 			_elements = value;
+		}
+		
+		override public function clear():void
+		{
+			super.clear();
+			
+			elements = new <IFlowLayoutElement>[];
 		}
 		
 		override public function layout(block:TextBlock, previousLine:TextLine):TextLine
@@ -59,13 +84,34 @@ package org.tinytlf.layout
 				
 				delegate.layoutLine(line);
 				
-				if(delegate.checkTargetConstraints())
+				if(delegate.checkTargetConstraints(line))
 					return line;
 				
 				line = createTextLine(block, line);
 			}
 			
 			return null;
+		}
+		
+		override public function postLayout():void
+		{
+			var rect:Rectangle = target.getBounds(target);
+			width = rect.width;
+			if(target.numChildren > 2)
+			{
+				var lastChild:DisplayObject = target.getChildAt(target.numChildren - 2);
+				height = lastChild.y;
+				if(lastChild is TextLine)
+					height += TextLine(lastChild).textHeight - TextLine(lastChild).ascent;
+				else
+					height += lastChild.height;
+			}
+			else
+			{
+				height = 0;
+			}
+			
+			delegate.postLayout();
 		}
 		
 		override protected function createTextLine(block:TextBlock, previousLine:TextLine):TextLine
@@ -113,5 +159,22 @@ package org.tinytlf.layout
 			
 			elements = tmp;
 		}
+	}
+}
+
+import flash.text.engine.ContentElement;
+import flash.text.engine.TextLine;
+
+import org.tinytlf.layout.FlowLayoutElement;
+import org.tinytlf.layout.IFlowLayoutElement;
+import org.tinytlf.layout.ILayoutElementFactory;
+import org.tinytlf.util.fte.TextLineUtil;
+
+internal class LayoutElementFactory implements ILayoutElementFactory
+{
+	public function getLayoutElement(line:TextLine, atomIndex:int):IFlowLayoutElement
+	{
+		var element:ContentElement = TextLineUtil.getElementAtAtomIndex(line, atomIndex);
+		return new FlowLayoutElement(element, line);
 	}
 }

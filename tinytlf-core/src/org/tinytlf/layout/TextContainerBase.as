@@ -30,7 +30,7 @@ package org.tinytlf.layout
 			return null;
 		}
 		
-		public function recreateTextLine(line:TextLine):TextLine
+		public function recreateTextLine(block:TextBlock, line:TextLine):TextLine
 		{
 			var hasFocus:Boolean = line.stage.focus === line;
 			
@@ -40,8 +40,6 @@ package org.tinytlf.layout
 			
 			unregisterLine(line);
 			removeLineFromTarget(line);
-			
-			var block:TextBlock = line.textBlock;
 			
 			line = block.createTextLine(line.previousLine, line.specifiedWidth, 0.0, true);
 			
@@ -146,6 +144,7 @@ package org.tinytlf.layout
 				return;
 			
 			_explicitHeight = value;
+			engine.layout.clear();
 			engine.invalidate();
 		}
 		
@@ -162,6 +161,7 @@ package org.tinytlf.layout
 				return;
 			
 			_explicitWidth = value;
+			engine.layout.clear();
 			engine.invalidate();
 		}
 		
@@ -181,11 +181,25 @@ package org.tinytlf.layout
 		
 		public function clear():void
 		{
+			var blocks:Dictionary = new Dictionary();
 			for(var line:* in lines)
 			{
 				unregisterLine(line);
 				removeLineFromTarget(line);
+				if(line.textBlock)
+					blocks[line.textBlock] = true;
 			}
+			
+			var b:TextBlock;
+			for(var block:* in blocks)
+			{
+				b = TextBlock(block);
+				if(b.firstLine && b.lastLine)
+					b.releaseLines(b.firstLine, b.lastLine);
+			}
+			
+			width = 0;
+			height = 0;
 		}
 		
 		public function cleanupLines(from:TextBlock):void

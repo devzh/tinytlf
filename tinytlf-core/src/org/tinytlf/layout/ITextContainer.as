@@ -182,7 +182,7 @@ package org.tinytlf.layout
 		/**
 		 * Recreates an individual line in the TextContainer.
 		 */
-        function recreateTextLine(line:TextLine):TextLine;
+        function recreateTextLine(block:TextBlock, lineToRecreate:TextLine):TextLine;
     }
 }
 
