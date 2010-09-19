@@ -9,6 +9,7 @@ package org.tinytlf.util.fte
 	import flash.text.engine.GroupElement;
 	import flash.text.engine.TextBaseline;
 	import flash.text.engine.TextBlock;
+	import flash.text.engine.TextElement;
 	import flash.text.engine.TextLine;
 	import flash.text.engine.TextLineMirrorRegion;
 	import flash.text.engine.TextLineValidity;
@@ -157,6 +158,43 @@ package org.tinytlf.util.fte
 			breakFormat.breakOpportunity = BreakOpportunity.ALL;
 			
 			return new GroupElement(new <ContentElement>[start, element, end], breakFormat);
+		}
+		
+		
+		public static function dumpElement(e:ContentElement, depth:int = 0):String
+		{
+			var str:String = '';
+			var tabs:String = '';
+			var j:int = depth;
+			
+			while(j-- > 0)
+			{
+				tabs += '\t';
+			}
+			str += tabs;
+			
+			if(e is GroupElement)
+			{
+				++depth;
+				
+				str += 'GroupElement(\n';
+				var n:int = GroupElement(e).elementCount;
+				for(var i:int = 0; i < n; ++i)
+				{
+					str += dumpElement(GroupElement(e).getElementAt(i), depth);
+				}
+				str += tabs + ')';
+			}
+			else if(e is TextElement)
+			{
+				str += 'TextElement("' + TextElement(e).text + '")';
+			}
+			else if(e is GraphicElement)
+			{
+				str += 'GraphicElement()';
+			}
+			
+			return str + '\n';
 		}
 	}
 }
