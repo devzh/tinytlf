@@ -8,6 +8,8 @@ package org.tinytlf.layout.model.factories.adapters
 	import flash.text.engine.GroupElement;
 	import flash.text.engine.TextBaseline;
 	
+	import org.tinytlf.layout.model.factories.ILayoutFactoryMap;
+	import org.tinytlf.layout.model.factories.XMLDescription;
 	import org.tinytlf.util.fte.ContentElementUtil;
 	import org.tinytlf.util.fte.TextLineUtil;
 	
@@ -25,7 +27,7 @@ package org.tinytlf.layout.model.factories.adapters
 				
 				var graphicFormat:ElementFormat = new ElementFormat();
 				graphicFormat.dominantBaseline = TextBaseline.IDEOGRAPHIC_TOP;
-				var graphic:GraphicElement = new GraphicElement(outside ? new TallShape(marginLeft) : new Shape(), marginLeft, 0, graphicFormat);
+				var graphic:GraphicElement = new GraphicElement(outside ? new TallShape(marginLeft) : new Shape(), outside ? marginLeft : totalMargin(context), 0, graphicFormat);
 				
 				var end:GraphicElement = new GraphicElement(new Shape(), 0, 0, graphicFormat.clone());
 				
@@ -39,12 +41,32 @@ package org.tinytlf.layout.model.factories.adapters
 					return ContentElementUtil.lineBreakBeforeAndAfter(new GroupElement(new <ContentElement>[graphic, item, end]));
 				}
 				
-				return new GroupElement(new <ContentElement>[graphic, item, end]);
+				return ContentElementUtil.lineBreakAfter(new GroupElement(new <ContentElement>[graphic, item, end]));
 			}
 			else
 			{
 				return item;
 			}
+		}
+		
+		private function totalMargin(context:Array):Number
+		{
+			var margin:Number = 0;
+			var xml:XMLDescription;
+			var copy:Array = context.concat();
+			
+			var factory:ILayoutFactoryMap = engine.layout.textBlockFactory;
+			
+			while(copy.length)
+			{
+				xml = copy.pop();
+				if(factory.getElementFactory(xml.name) is HTMLListItemAdapter)
+				{
+					margin += xml.marginLeft || 25;
+				}
+			}
+			
+			return margin;
 		}
 	}
 }
