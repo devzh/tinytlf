@@ -6,6 +6,7 @@
  */
 package org.tinytlf.layout.model.factories.adapters
 {
+    import flash.events.EventDispatcher;
     import flash.net.URLRequest;
     import flash.text.engine.ContentElement;
     import flash.text.engine.ElementFormat;
@@ -22,29 +23,36 @@ package org.tinytlf.layout.model.factories.adapters
         override public function execute(data:Object, ...context:Array):ContentElement
         {
             var img:XMLDescription = context[context.length - 1];
-			var style:Object = engine.styler.describeElement(img);
-			var lp:LayoutProperties = new LayoutProperties(style);
+			var imageProperties:Object = engine.styler.describeElement(img);
 			
-			var format:ElementFormat = new ElementFormat();
+			var inheritedProperties:Object = engine.styler.describeElement(context);
+			
+			var lp:LayoutProperties = new LayoutProperties(imageProperties);
+			
+			var format:ElementFormat = getElementFormat(context);
 			format.dominantBaseline = TextBaseline.IDEOGRAPHIC_TOP;
 			
 			var element:ContentElement;
 			
-			if(style.float)
+			if(imageProperties.float)
 			{
-	            element = new GraphicElement(new ImageLoader(img.attributes.src, lp), 
-					lp.paddingLeft + lp.paddingRight, lp.paddingTop + lp.paddingBottom, format, getEventMirror(context));
+	            element = new GraphicElement(new ImageLoader(img.src, lp), 
+					lp.paddingLeft + lp.paddingRight, lp.paddingTop + lp.paddingBottom, format, getEventMirror(context) || new EventDispatcher());
 				
 	            element.userData = Vector.<XMLDescription>(context);
+				
+				engine.decor.decorate(element, inheritedProperties, inheritedProperties.layer, null, inheritedProperties.foreground);
 				
 				return ContentElementUtil.lineBreakBeforeAndAfter(element);
 			}
 			
-            element = new GraphicElement(new ImageLoader(img.attributes.src, lp), 
+            element = new GraphicElement(new ImageLoader(img.src, lp), 
 				lp.width + lp.paddingLeft + lp.paddingRight, lp.height + lp.paddingTop + lp.paddingBottom, 
-				format, getEventMirror(context));
+				format, getEventMirror(context) || new EventDispatcher());
 			
             element.userData = Vector.<XMLDescription>(context);
+			
+			engine.decor.decorate(element, inheritedProperties, inheritedProperties.layer, null, inheritedProperties.foreground);
 			
             return element;
         }
