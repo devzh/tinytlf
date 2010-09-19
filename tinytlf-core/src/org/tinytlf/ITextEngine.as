@@ -139,6 +139,16 @@ package org.tinytlf
         function invalidateData():void;
 		
 		/**
+		 * An optimization to invalidate the styles for the ContentElements that
+		 * represent the TextLines rendered inside this ITextEngine. When styles
+		 * change and text should be optionally re-rendered, this method marks
+		 * the ContentElements for iteration on the next render cycle. If the
+		 * styles cause re-rendering, this should be detected and the lines
+		 * invalidated.
+		 */
+		function invalidateStyles():void;
+		
+		/**
 		 * An optimization to invalidate only the lines for re-draw on the next 
 		 * screen refresh. This runs <code>ITextLayout</code>'s 
 		 * <code>render</code> routine, which should be optimized to only render

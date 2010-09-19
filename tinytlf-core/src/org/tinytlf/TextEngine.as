@@ -216,7 +216,8 @@ package org.tinytlf
 		private var selectionChanged:Boolean = false;
         public function select(startIndex:Number = NaN, endIndex:Number = NaN):void
         {
-            if(isNaN(startIndex) || isNaN(endIndex))
+			//super fast inline isNaN checks
+            if(startIndex != startIndex || endIndex != endIndex)
             {
                 selection.x = NaN;
                 selection.y = NaN;
@@ -227,8 +228,8 @@ package org.tinytlf
             var temp:Point = new Point(startIndex, endIndex);
             
             //  Normalize the inputs.
-            startIndex = Math.min(temp.x, temp.y);
-            endIndex = Math.max(temp.x, temp.y);
+            startIndex = Math.max(Math.min(temp.x, temp.y), 0);
+            endIndex = Math.max(Math.max(temp.x, temp.y), 0);
 			
 			if(startIndex == selection.x && endIndex == selection.y)
 				return;
@@ -286,6 +287,17 @@ package org.tinytlf
 			invalidateDataFlag = true;
             invalidateStage();
         }
+		
+		protected var invalidateStylesFlag:Boolean = false;
+		
+		public function invalidateStyles():void
+		{
+			if(invalidateStylesFlag)
+				return;
+			
+			invalidateStylesFlag = true;
+			invalidateStage();
+		}
         
         protected var invalidateLinesFlag:Boolean = false;
         
@@ -342,6 +354,10 @@ package org.tinytlf
 				renderData();
 			invalidateDataFlag = false;
 			
+			if(invalidateStylesFlag)
+				validateStyles();
+			invalidateStylesFlag = false;
+			
             if(invalidateLinesFlag)
                 renderLines();
             invalidateLinesFlag = false;
@@ -366,6 +382,51 @@ package org.tinytlf
 		protected function createTextBlocks():Vector.<TextBlock>
 		{
 			return layout.textBlockFactory.createBlocks();
+		}
+        
+        protected function validateStyles():void
+        {
+			if(!blocks)
+				return;
+			
+			var n:int = blocks.length;
+			for(var i:int = 0; i < n; ++i)
+			{
+				recurseElement(blocks[i].content);
+				if(blocks[i].firstInvalidLine)
+				{
+					invalidateLinesFlag = true;
+					invalidateDecorationsFlag = true;
+					layout.clear();
+				}
+			}
+        }
+		
+		private function recurseElement(element:ContentElement):void
+		{
+			if(!element)
+				return;
+			
+			if(element is GroupElement)
+			{
+				var n:int = GroupElement(element).elementCount;
+				for(var i:int = 0; i < n; ++i)
+				{
+					recurseElement(GroupElement(element).getElementAt(i));
+				}
+			}
+			else
+			{
+				var dec:Object = styler.describeElement(element.userData);
+				decor.decorate(element, 
+					dec, 
+					int(dec['layer']) || 2,
+					null, 
+					dec['foreground']
+				);
+			}
+			
+			element.elementFormat = styler.getElementFormat(element.userData);
 		}
         
         protected function renderLines():void
@@ -433,8 +494,7 @@ package org.tinytlf
 					
 					lineSize = line.textBlockBeginIndex + line.atomCount;
 					
-					rect = line.getAtomBounds(Math.min(startIndex - line.textBlockBeginIndex, 
-						line.atomCount - 1));
+					rect = line.getAtomBounds(Math.max(Math.min(startIndex - line.textBlockBeginIndex, line.atomCount - 1), 0));
 					
 					rect = (endIndex < lineSize) ?
 						rect.union(line.getAtomBounds(Math.max(endIndex - line.textBlockBeginIndex, 0))) :
