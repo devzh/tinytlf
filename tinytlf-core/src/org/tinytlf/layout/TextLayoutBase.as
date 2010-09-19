@@ -216,7 +216,7 @@ package org.tinytlf.layout
 				line = container.layout(block, line);
 			}
 			
-			//Call postLayout here because the last container by definition
+			//Call postLayout here because the last container
 			//returned a null line, which broke out of the loop.
 			container.postLayout();
 			

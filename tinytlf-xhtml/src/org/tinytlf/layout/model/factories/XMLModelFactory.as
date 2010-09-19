@@ -87,7 +87,7 @@ package org.tinytlf.layout.model.factories
 		private static function trim(input:String):String
 		{
 //			return input;
-			return input.replace(/\n|\r|\t/g, '  ').replace(/>(\s\s+)</g, '><').replace(/(\s\s+)/g, ' ');
+			return input.replace(/\n|\r|\t/g, ' ').replace(/>(\s\s+)</g, '><').replace(/(\s\s+)/g, ' ');
 		}
 		
 		private static function slurp(tags:String):String

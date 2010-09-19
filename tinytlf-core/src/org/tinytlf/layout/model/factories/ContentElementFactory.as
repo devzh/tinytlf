@@ -39,7 +39,9 @@ package org.tinytlf.layout.model.factories
                 //Do any decorations for this element
                 var dec:Object = engine.styler.describeElement(context.length ? context : null);
                 if(dec != null)
-                    engine.decor.decorate(element, dec, 'layer' in dec ? int(dec['layer']) : 2);
+				{
+                    engine.decor.decorate(element, dec, dec.layer, null, dec.foreground);
+				}
             }
 
             element.userData = context;
