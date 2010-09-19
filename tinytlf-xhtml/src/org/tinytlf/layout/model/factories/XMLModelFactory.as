@@ -52,9 +52,7 @@ package org.tinytlf.layout.model.factories
 				{
 					ancestorList.push(new XMLDescription(child));
 					element = getElementFactory(child.localName()).execute.apply(null, [child].concat(ancestorList));
-					ancestorList.pop();
-					
-					style.style = engine.styler.describeElement(new XMLDescription(child));
+					style.style = engine.styler.describeElement(ancestorList.pop());
 				}
 				
 				block = new TextBlock(element);

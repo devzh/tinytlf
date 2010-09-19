@@ -1,66 +1,57 @@
 package org.tinytlf.layout.model.factories
 {
-	public final class XMLDescription
+	import flash.utils.flash_proxy;
+	
+	import org.tinytlf.styles.StyleAwareActor;
+	import org.tinytlf.util.XMLUtil;
+	
+	use namespace flash_proxy;
+	
+	public dynamic final class XMLDescription extends StyleAwareActor
 	{
 		public function XMLDescription(node:XML)
 		{
 			name = node.localName();
-			attributes = new Attributes(node.attributes());
+			merge(XMLUtil.buildKeyValueAttributes(node.attributes()));
+			propNames.push('style');
 		}
 		
+		override public function set style(value:Object):void
+		{
+			inlineStyles = value.toString();
+		}
+		
+		override public function get style():Object
+		{
+			return inlineStyles;
+		}
+		
+		private var inlineStyles:String = '';
+		
 		public var name:String = '';
-		public var attributes:Object = new Attributes();
 		public var styleString:String = '';
 		
 		public function doneProcessing():void
 		{
-			attributes.doneProcessing();
+			shouldReprocess = false;
 		}
 		
 		public function reprocess():Boolean
 		{
-			return attributes.reprocess;
+			return shouldReprocess;
 		}
-	}
-}
-import com.flashartofwar.fcss.objects.AbstractOrderedObject;
-
-import org.tinytlf.util.XMLUtil;
-
-internal dynamic class Attributes extends AbstractOrderedObject
-{
-	public function Attributes(attributes:XMLList = null)
-	{
-		super(this);
 		
-		if(attributes)
-			merge(XMLUtil.buildKeyValueAttributes(attributes));
-	}
-	
-	override protected function registerClass():void
-	{
-	}
-	
-	override protected function $setProperty(name:*, value:*):void
-	{
-		super.$setProperty(name, value);
-		shouldReprocess = true;
-	}
-	
-	override protected function $deleteProperty(name:*):Boolean
-	{
-		shouldReprocess = true;
-		return super.$deleteProperty(name);
-	}
-	
-	private var shouldReprocess:Boolean = true;
-	public function get reprocess():Boolean
-	{
-		return shouldReprocess;
-	}
-	
-	public function doneProcessing():void
-	{
-		shouldReprocess = false;
+		private var shouldReprocess:Boolean = true;
+		
+		override flash_proxy function setProperty(name:*, value:*):void
+		{
+			super.setProperty(name, value);
+			shouldReprocess = true;
+		}
+		
+		override flash_proxy function deleteProperty(name:*):Boolean
+		{
+			return shouldReprocess = super.deleteProperty(name);
+		}
 	}
 }

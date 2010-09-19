@@ -21,8 +21,8 @@ package org.tinytlf.interaction
 			if (!tree || !tree.length)
 				return;
 			
-			var link:Object = tree.concat().pop().attributes;
-			var href:String = link['href'];
+			var link:Object = tree.concat().pop();
+			var href:String = link.href;
 			
 			if (TinytlfUtil.isBitSet(mouseState, DOWN))
 			{

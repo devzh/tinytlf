@@ -198,7 +198,7 @@ package org.tinytlf.interaction
 			for (var i:int = 0; i < n; ++i)
 			{
 				xml = chain[i];
-				xml.attributes.cssState = state;
+				xml.cssState = state;
 				a.push(xml);
 			}
 			

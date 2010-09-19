@@ -10,12 +10,12 @@ package org.tinytlf.layout.model.factories.adapters
 	{
 		override public function execute(data:Object, ...context):ContentElement
 		{
-			var format:ElementFormat = getElementFormat(context);
-			format.dominantBaseline = TextBaseline.IDEOGRAPHIC_TOP;
-			var graphic:GraphicElement = new GraphicElement(null, 1, format.fontSize, format, new EventDispatcher());
+			var graphic:GraphicElement = new GraphicElement(null, 0, 0, new ElementFormat(), new EventDispatcher());
 			engine.decor.decorate(graphic, {horizontalRule:true});
+//			return graphic;
 //			return ContentElementUtil.lineBreakBeforeAndAfter(graphic);
 			return ContentElementUtil.lineBreakBefore(graphic);
+//			return ContentElementUtil.lineBreakAfter(graphic);
 		}
 	}
 }

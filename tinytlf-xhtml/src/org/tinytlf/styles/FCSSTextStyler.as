@@ -75,9 +75,9 @@ package org.tinytlf.styles
 			if(element is Vector.<XMLDescription>)
 			{
 				var context:Vector.<XMLDescription> = Vector.<XMLDescription>(element);
-				var obj:Object = super.describeElement(context[context.length - 1].name) || {};
-				obj = new StyleAwareActor(obj);
-				IStyleAware(obj).style = computeStyles(context);
+				var obj:IStyleAware = new StyleAwareActor(super.describeElement(context[context.length - 1].name));
+				obj.style = computeStyles(context);
+				
 				return obj;
 			}
 			else
@@ -86,13 +86,13 @@ package org.tinytlf.styles
 			}
 		}
 		
+		/**
+		 * Constructs an array of styleNames to pass to F*CSS for style parsing.
+		 * Returns an F*CSS IStyle object.
+		 */
 		protected function computeStyles(context:Vector.<XMLDescription>):IStyle
 		{
-			//  Context is the currently processing XML node 
-			//  and its parents, with attributes.
-			
 			var node:XMLDescription;
-			var attributes:Object;
 			var attr:String;
 			
 			var i:int = 0;
@@ -101,7 +101,11 @@ package org.tinytlf.styles
 			var className:String;
 			var idName:String;
 			var uniqueNodeName:String;
+			
+			// initialize to 'a:a' so that F*CSS has something to parse if there
+			// aren't any inline styles.
 			var inlineStyle:String = 'a:a;';
+			//Start with *, because everything inherits from *.
 			var inheritanceStructure:Array = ['*'];
 			
 			var str:String = '';
@@ -112,29 +116,23 @@ package org.tinytlf.styles
 				
 				if(node.reprocess())
 				{
-					if(node.name)
-						str += node.name;
+					str += node.name;
 					
-					if(node.attributes)
+					//Math.random() times one trillion. Reasonably safe for unique identification... right? ;)
+					uniqueNodeName = ' ' + node.name + String(Math.round(Math.random() * 100000000000000));
+					
+					for(attr in node)
 					{
-						attributes = node.attributes;
-						
-						//Math.random() times one trillion. Reasonably safe for unique identification... right? ;)
-						uniqueNodeName = ' ' + node.name + String(Math.round(Math.random() * 100000000000000));
-						
-						for(attr in attributes)
-						{
-							if(attr == 'class')
-								className = attributes[attr];
-							else if(attr == 'id')
-								idName = attributes[attr];
-							else if(attr == 'style')
-								inlineStyle += attributes[attr];
-							else if(attr == 'cssState' && attributes[attr] != '')
-								str += ':' + attributes[attr];
-							else if(attr != 'unique')
-								inlineStyle += (attr + ': ' + attributes[attr] + ";");
-						}
+						if(attr == 'class')
+							className = node[attr];
+						else if(attr == 'id')
+							idName = node[attr];
+						else if(attr == 'style')
+							inlineStyle += node[attr];
+						else if(attr == 'cssState' && node[attr] != '')
+							str += ':' + node[attr];
+						else if(attr != 'unique')
+							inlineStyle += (attr + ': ' + node[attr] + ";");
 					}
 					
 					if(className)

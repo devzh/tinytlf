@@ -10,7 +10,9 @@ package org.tinytlf.styles
 	import com.flashartofwar.fcss.stylesheets.FStyleSheet;
 	
 	import flash.system.Capabilities;
+	import flash.utils.flash_proxy;
 	
+	use namespace flash_proxy;
 	
 	public class FCSSStyleProxy extends StyleAwareActor implements IStyle
 	{
@@ -99,6 +101,15 @@ package org.tinytlf.styles
 		
 		//Put this here so we're not querying Capabilities every time.
 		protected static const screenDPI:Number = Capabilities.screenDPI;
+		
+		override flash_proxy function setProperty(name:*, value:*):void
+		{
+			//Convert any #FFFFFF values to 0xFFFFFF
+			if(value is String && String(value).indexOf("#") == 0)
+				value = uint(String(value).replace("#", "0x"));
+			
+			super.setProperty(name, value);
+		}
 	}
 }
 
