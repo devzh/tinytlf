@@ -66,7 +66,7 @@ package org.tinytlf.components
 			_configuration = engineConfiguration;
 			
 			engine.configuration = _configuration;
-			engine.invalidate();
+			engine.invalidate(true);
 		}
 		
 		private var textColumns:Vector.<TextColumnContainer> = new <TextColumnContainer>[];
@@ -99,27 +99,6 @@ package org.tinytlf.components
 			resizeColumns();
 		}
         
-		private var _editable:Boolean = false;
-		public function get editable():Boolean
-		{
-			return _editable;
-		}
-		
-		public function set editable(value:Boolean):void
-		{
-			if(value === _editable)
-				return;
-			
-			_editable = value;
-			
-			if(value)
-			{
-				_selectable = true;
-			}
-			
-			configuration = new TextFieldEngineConfiguration(selectable, editable);
-		}
-		
         private var _engine:ITextEngine;
         
         public function get engine():ITextEngine
@@ -178,10 +157,15 @@ package org.tinytlf.components
 				return;
 			
 			_selectable = value;
-			configuration = new TextFieldEngineConfiguration(selectable, editable);
+			configuration = new TextFieldEngineConfiguration(selectable, false);
 		}
         
         private var _text:String = "";
+		public function get text():String
+		{
+			return _text;
+		}
+		
         public function set text(value:String):void
         {
             if(_text === value)
