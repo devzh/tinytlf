@@ -18,7 +18,7 @@ package org.tinytlf.styles
         {
             super(styleObject);
         }
-        
+		
         protected var _engine:ITextEngine;
         public function get engine():ITextEngine
         {

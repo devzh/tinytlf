@@ -39,12 +39,12 @@ package org.tinytlf.styles
 		/**
 		 * Applies this IStyleAware's styles to the specified to Object.
 		 */
-		function applyTo(object:Object):void;
+		function applyTo(target:Object):void;
 		
 		/**
 		 * Merges the specified object's properties into this IStyleAware object.
 		 */
-		function merge(object:Object):void;
+		function merge(withObj:Object):void;
     }
 }
 

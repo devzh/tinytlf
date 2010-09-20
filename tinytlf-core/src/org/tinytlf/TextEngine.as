@@ -340,7 +340,6 @@ package org.tinytlf
                 return;
             
             _stage.removeEventListener(Event.RENDER, onRender);
-            
             render();
         }
         
@@ -348,6 +347,9 @@ package org.tinytlf
         
         public function render():void
         {
+			if(_stage)
+	            _stage.removeEventListener(Event.RENDER, onRender);
+			
             rendering = true;
             
 			if(invalidateDataFlag)

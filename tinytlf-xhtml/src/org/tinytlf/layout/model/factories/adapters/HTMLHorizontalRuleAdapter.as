@@ -12,10 +12,7 @@ package org.tinytlf.layout.model.factories.adapters
 		{
 			var graphic:GraphicElement = new GraphicElement(null, 0, 0, new ElementFormat(), new EventDispatcher());
 			engine.decor.decorate(graphic, {horizontalRule:true});
-//			return graphic;
-//			return ContentElementUtil.lineBreakBeforeAndAfter(graphic);
 			return ContentElementUtil.lineBreakBefore(graphic);
-//			return ContentElementUtil.lineBreakAfter(graphic);
 		}
 	}
 }

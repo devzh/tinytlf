@@ -27,7 +27,6 @@ package org.tinytlf.components
 			container = new TextFlowContainer(this, 100);
 		}
 		
-		
 		private var _height:Number = 0;
 		override public function get height():Number
 		{
