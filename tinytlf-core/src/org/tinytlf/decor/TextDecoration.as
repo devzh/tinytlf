@@ -76,6 +76,8 @@ package org.tinytlf.decor
 			var arg:* = args[0];
 			var rect:Rectangle;
 			
+			var tl:TextLine;
+			
 			if (arg is ContentElement)
 			{
 				////
@@ -94,24 +96,43 @@ package org.tinytlf.decor
 				
 				var tlmrs:Vector.<TextLineMirrorRegion> = ContentElementUtil.getMirrorRegions(ContentElement(arg));
 				var tlmr:TextLineMirrorRegion;
-				var line:TextLine;
 				
 				var n:int = tlmrs.length;
 				for(var i:int = 0; i < n; ++i)
 				{
 					tlmr = tlmrs[i];
 					rect = tlmr.bounds.clone();
-					rect.offset(tlmr.textLine.x, tlmr.textLine.y);
+					tl = tlmr.textLine;
+					rect.offset(tl.x, tl.y);
 					rectToContainer[rect] = 
-						assureLayerExists(engine.layout.getContainerForLine(tlmr.textLine), layer)
+						assureLayerExists(engine.layout.getContainerForLine(tl), layer)
 					bounds.push(rect);
+				}
+			}
+			else if(arg is TextBlock)
+			{
+				var block:TextBlock = TextBlock(arg);
+				tl = block.firstLine;
+				rect = tl.getBounds(tl.parent);
+				var tc:ITextContainer = engine.layout.getContainerForLine(tl);
+				
+				while(tl)
+				{
+					if(tc != engine.layout.getContainerForLine(tl))
+					{
+						rectToContainer[rect] = assureLayerExists(container, layer);
+					}
+					
+					rect = rect.union(tl.getBounds(tl.parent));
+					tc = engine.layout.getContainerForLine(tl);
+					tl = tl.nextLine;
 				}
 			}
 			else 
 			{
 				if (arg is TextLine)
 				{
-					var tl:TextLine = arg as TextLine;
+					tl = TextLine(arg);
 					bounds.push(tl.getBounds(tl.parent));
 				}
 				else if (arg is Rectangle)
