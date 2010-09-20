@@ -74,10 +74,13 @@ package org.tinytlf.layout.direction
 			var contentElement:ContentElement = TextLineUtil.getElementAtAtomIndex(line, atomIndex);
 			if(contentElement.userData is Vector.<*>)
 			{
-				var element:IFlowLayoutElement = layout.elements.concat().pop();
-				var style:Object = layout.engine.styler.describeElement(contentElement.userData);
+				var elements:Vector.<IFlowLayoutElement> = layout.elements;
+				
+				var element:IFlowLayoutElement = elements[elements.length - 1];
+				var lp:LayoutProperties = new LayoutProperties(layout.engine.styler.describeElement(contentElement.userData));
 				var totalWidth:Number = getTotalSize(line.textBlock);
-				switch(style.float)
+				
+				switch(lp.float)
 				{
 					case TextFloat.LEFT:
 						element.x = line.x = layoutPosition.x = 0;

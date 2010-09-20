@@ -36,8 +36,7 @@ package org.tinytlf.layout.model.factories.adapters
 			
 			if(imageProperties.float)
 			{
-	            element = new GraphicElement(new ImageLoader(img.src, lp), 
-					lp.paddingLeft + lp.paddingRight, lp.paddingTop + lp.paddingBottom, format, getEventMirror(context) || new EventDispatcher());
+	            element = new GraphicElement(new ImageLoader(img.src, lp), lp.width, lp.height, format, getEventMirror(context) || new EventDispatcher());
 				
 	            element.userData = Vector.<XMLDescription>(context);
 				
@@ -80,7 +79,7 @@ internal class ImageLoader extends Sprite
 		this.lp = lp;
 		
 		graphics.beginFill(0x00, 0);
-		graphics.drawRect(lp.paddingLeft, lp.paddingTop, lp.width + lp.paddingRight, lp.height + lp.paddingBottom);
+		graphics.drawRect(0, 0, lp.width + lp.paddingRight + lp.paddingLeft, lp.height + lp.paddingTop + lp.paddingBottom);
 		
 		var loader:Loader = new Loader();
 		loader.load(new URLRequest(src));
@@ -106,7 +105,7 @@ internal class ImageLoader extends Sprite
 		m.scale(lp.width / child.width, lp.height / child.height);
 		m.translate(lp.paddingLeft, lp.paddingTop);
 		
-		var bmd:BitmapData = new BitmapData(lp.width, lp.height);
+		var bmd:BitmapData = new BitmapData(lp.width + lp.paddingRight + lp.paddingLeft, lp.height + lp.paddingTop + lp.paddingBottom);
 		bmd.draw(child, m);
 		
 		var bitmap:Bitmap = new Bitmap(bmd);

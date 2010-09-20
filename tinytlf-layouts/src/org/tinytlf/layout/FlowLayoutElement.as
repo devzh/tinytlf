@@ -1,7 +1,6 @@
 package org.tinytlf.layout
 {
 	import flash.display.DisplayObject;
-	import flash.display.DisplayObjectContainer;
 	import flash.geom.Rectangle;
 	import flash.text.engine.ContentElement;
 	import flash.text.engine.GraphicElement;
