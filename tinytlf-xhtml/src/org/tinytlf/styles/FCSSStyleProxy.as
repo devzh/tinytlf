@@ -7,7 +7,7 @@
 package org.tinytlf.styles
 {
 	import com.flashartofwar.fcss.styles.IStyle;
-	import com.flashartofwar.fcss.stylesheets.FStyleSheet;
+	import com.flashartofwar.fcss.utils.TypeHelperUtil;
 	
 	import flash.system.Capabilities;
 	import flash.utils.flash_proxy;
@@ -58,10 +58,6 @@ package org.tinytlf.styles
 		
 		protected function deriveFontSizeValue(sizeValue:Object, baseFontSize:Number = NaN):Object
 		{
-			//If no font size was passed in, just store the sizeValue for later.
-			if(baseFontSize != baseFontSize)
-				return sizeValue;
-			
 			var number:Number = baseFontSize;
 			
 			if(sizeValue is Number)
@@ -79,11 +75,19 @@ package org.tinytlf.styles
 				}
 				else if(/em/i.test(s))
 				{
+					//If no font size was passed in, just store the sizeValue for later.
+					if(baseFontSize != baseFontSize)
+						return sizeValue;
+					
 					s = s.substring(0, s.indexOf('em'));
 					number = baseFontSize * Number(s);
 				}
 				else if(/%/i.test(s))
 				{
+					//If no font size was passed in, just store the sizeValue for later.
+					if(baseFontSize != baseFontSize)
+						return sizeValue;
+					
 					s = s.substring(0, s.indexOf('%'));
 					number = baseFontSize * Number(s) * .01;
 				}
@@ -105,8 +109,8 @@ package org.tinytlf.styles
 		override flash_proxy function setProperty(name:*, value:*):void
 		{
 			//Convert any #FFFFFF values to 0xFFFFFF
-			if(value is String && String(value).indexOf("#") == 0)
-				value = uint(String(value).replace("#", "0x"));
+			if(value is String && String(value).indexOf("#") != -1)
+				value = TypeHelperUtil.stringToUint(value);
 			
 			super.setProperty(name, value);
 		}
