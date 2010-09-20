@@ -83,7 +83,7 @@ package org.tinytlf.layout.direction
 				switch(lp.float)
 				{
 					case TextFloat.LEFT:
-						element.x = line.x = layoutPosition.x = 0;
+						element.x = line.x = layoutPosition.x;// = 0;
 						break;
 					case TextFloat.CENTER:
 						layoutPosition.x = line.x = (totalWidth - element.width) * 0.5;

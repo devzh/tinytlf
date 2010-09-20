@@ -35,7 +35,7 @@ package org.tinytlf.layout.properties
         public var textAlign:String = TextAlign.LEFT;
         public var textDirection:String = TextDirection.LTR;
         public var textTransform:String = TextTransform.NONE;
-        public var float:String = TextFloat.LEFT;
+        public var float:String = '';
 		public var letterSpacing:Boolean = false;
 		public var locale:String = 'en';
     }
