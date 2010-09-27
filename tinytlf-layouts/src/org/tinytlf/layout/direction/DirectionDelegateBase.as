@@ -5,10 +5,8 @@ package org.tinytlf.layout.direction
 	import flash.text.engine.TextBlock;
 	import flash.text.engine.TextLine;
 	
-	import org.tinytlf.layout.FlowLayoutElement;
 	import org.tinytlf.layout.IFlowLayout;
 	import org.tinytlf.layout.IFlowLayoutElement;
-	import org.tinytlf.layout.ILayoutElementFactory;
 	import org.tinytlf.layout.properties.LayoutProperties;
 	import org.tinytlf.layout.properties.TextAlign;
 	import org.tinytlf.util.fte.TextLineUtil;

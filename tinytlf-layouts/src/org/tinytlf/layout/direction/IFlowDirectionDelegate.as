@@ -4,7 +4,6 @@ package org.tinytlf.layout.direction
 	import flash.text.engine.TextLine;
 	
 	import org.tinytlf.layout.IFlowLayout;
-	import org.tinytlf.layout.ILayoutElementFactory;
 
 	public interface IFlowDirectionDelegate
 	{
