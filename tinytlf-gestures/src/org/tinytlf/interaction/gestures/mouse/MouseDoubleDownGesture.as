@@ -17,10 +17,11 @@ package org.tinytlf.interaction.gestures.mouse
             super(target);
 
             hsm.appendChild(<down>
-                <up>
-                    <down2/>
-                </up>
-            </down>);
+				                <up>
+				                    <down2/>
+				                </up>
+				            </down>);
+			
             hsm.appendChild(<drag/>);
         }
 

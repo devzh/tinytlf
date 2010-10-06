@@ -5,13 +5,15 @@ package org.tinytlf.layout
 	import flash.geom.Rectangle;
 	import flash.text.engine.TextBlock;
 	import flash.text.engine.TextLine;
+	import flash.text.engine.TextLineCreationResult;
+	import flash.text.engine.TextLineValidity;
 	
 	import org.tinytlf.layout.direction.IFlowDirectionDelegate;
 	import org.tinytlf.layout.direction.LTRHorizontalDirectionDelegate;
 	
 	public class TextFlowContainer extends TextContainerBase implements IFlowLayout
 	{
-		public function TextFlowContainer(container:Sprite, explicitWidth:Number=NaN, explicitHeight:Number=NaN)
+		public function TextFlowContainer(container:Sprite, explicitWidth:Number = NaN, explicitHeight:Number = NaN)
 		{
 			super(container, explicitWidth, explicitHeight);
 			
@@ -19,7 +21,105 @@ package org.tinytlf.layout
 			elementFactory = new LayoutElementFactory();
 		}
 		
+		override public function preLayout():void
+		{
+			super.preLayout();
+			
+			height = 0;
+			width = 0;
+			elements.length = 0;
+			
+			removeOrphanedLines();
+			
+			delegate.preLayout();
+		}
+		
+		override public function layout(block:TextBlock, oldLine:TextLine):TextLine
+		{
+			delegate.prepForTextBlock(block, oldLine);
+			
+			var line:TextLine;
+			
+			// oldLine can be the previously successfully created line or the 
+			// first line in a TextBlock that has been invalidated.
+			if(oldLine && oldLine.validity == TextLineValidity.VALID && hasLine(oldLine))
+				line = oldLine;
+			else
+				line = createTextLine(block, oldLine);
+			
+			while(line)
+			{
+				addLineToTarget(line);
+				
+				registerLine(line);
+				
+				delegate.layoutLine(line);
+				
+				if(delegate.checkTargetConstraints(line))
+				{
+					removeOrphanedLines();
+					return line;
+				}
+				
+				line = createTextLine(block, line);
+			}
+			
+			removeOrphanedLines();
+			
+			return null;
+		}
+		
+		override protected function createTextLine(block:TextBlock, line:TextLine):TextLine
+		{
+			var size:Number = delegate.getLineSize(block, line);
+			
+			if(line)
+			{
+				//If this line is invalid, recreate him.
+				//This will be true if we're re-creating invalid lines,
+				//not rendering all new lines
+				if(line.validity === TextLineValidity.INVALID)
+				{
+//					trace('invalid');
+					size = delegate.getLineSize(block, line.previousLine);
+					return block.recreateTextLine(line, line.previousLine, size, 0.0, true);
+				}
+				// Otherwise, if the line is valid, it's acting as a marker for
+				// where to render the next line. If there's a valid nextLine, 
+				// return it. If the next line isn't valid, recreate it. 
+				// If there's no nextLine at all, attempt to continue creating
+				// lines.
+				else if(line.nextLine)
+				{
+					if(line.nextLine.validity === TextLineValidity.VALID)
+						return line.nextLine;
+					
+//					trace('next');
+					return block.recreateTextLine(line.nextLine, line, size, 0.0, true);
+				}
+				if(orphanedLines.length)
+				{
+					var orphan:TextLine = getFirstOrphan(line);
+					
+					while(orphan && orphan.validity == TextLineValidity.VALID)
+					{
+						orphan = getFirstOrphan(line);
+					}
+					
+					if(orphan)
+					{
+//						trace('orphan');
+						return block.recreateTextLine(orphan, line, size, 0.0, true);
+					}
+				}
+			}
+			
+//			trace('new');
+			return block.createTextLine(line, size, 0.0, true);
+		}
+		
 		private var delegate:IFlowDirectionDelegate;
+		
 		public function set direction(directionDelegate:IFlowDirectionDelegate):void
 		{
 			if(directionDelegate === delegate)
@@ -50,6 +150,7 @@ package org.tinytlf.layout
 		}
 		
 		private var _elements:Vector.<IFlowLayoutElement>;
+		
 		public function get elements():Vector.<IFlowLayoutElement>
 		{
 			return _elements ||= new Vector.<IFlowLayoutElement>;
@@ -61,63 +162,6 @@ package org.tinytlf.layout
 				return;
 			
 			_elements = value;
-		}
-		
-		override public function clear():void
-		{
-			super.clear();
-			
-			elements = new <IFlowLayoutElement>[];
-		}
-		
-		override public function layout(block:TextBlock, previousLine:TextLine):TextLine
-		{
-			delegate.prepForTextBlock(block);
-			
-			var line:TextLine = createTextLine(block, previousLine);
-			
-			while(line)
-			{
-				addLineToTarget(line);
-				
-				registerLine(line);
-				
-				delegate.layoutLine(line);
-				
-				if(delegate.checkTargetConstraints(line))
-					return line;
-				
-				line = createTextLine(block, line);
-			}
-			
-			return null;
-		}
-		
-		override public function postLayout():void
-		{
-			var rect:Rectangle = target.getBounds(target);
-			width = rect.width;
-			if(target.numChildren > 2)
-			{
-				var lastChild:DisplayObject = target.getChildAt(target.numChildren - 2);
-				height = lastChild.y;
-				if(lastChild is TextLine)
-					height += TextLine(lastChild).textHeight - TextLine(lastChild).ascent;
-				else
-					height += lastChild.height;
-			}
-			else
-			{
-				height = 0;
-			}
-			
-			delegate.postLayout();
-		}
-		
-		override protected function createTextLine(block:TextBlock, previousLine:TextLine):TextLine
-		{
-			var size:Number = delegate.getLineSize(block, previousLine);
-			return block.createTextLine(previousLine, size, 0.0, true);
 		}
 		
 		override protected function registerLine(line:TextLine):void
@@ -150,6 +194,9 @@ package org.tinytlf.layout
 		
 		protected function deAssociateLayoutElements(line:TextLine):void
 		{
+			if(!line.hasGraphicElement)
+				return;
+			
 			var n:int = elements.length;
 			var tmp:Vector.<IFlowLayoutElement> = elements.concat();
 			
@@ -158,6 +205,41 @@ package org.tinytlf.layout
 					tmp.splice(tmp.indexOf(elements[i]), 1);
 			
 			elements = tmp;
+		}
+		
+		protected function removeOrphanedLines():void
+		{
+			var line:TextLine;
+			var n:int = lines.length;
+			
+			for(var i:int = 0; i < n; ++i)
+			{
+				line = lines[i];
+				
+				if(line.validity === TextLineValidity.VALID)
+					continue;
+				
+				removeLineFromTarget(line);
+				unregisterLine(line);
+				orphanedLines.push(line);
+				n = lines.length;
+			}
+		}
+		
+		private static const orphanedLines:Vector.<TextLine> = new <TextLine>[];
+		
+		private static function getFirstOrphan(thatIsNotThisGuy:TextLine):TextLine
+		{
+			if(orphanedLines.length == 0)
+				return null;
+			
+			var orphan:TextLine = orphanedLines.pop();
+			
+			if(thatIsNotThisGuy != null)
+				while(orphan == thatIsNotThisGuy)
+					orphan = orphanedLines.pop();
+			
+			return orphan;
 		}
 	}
 }

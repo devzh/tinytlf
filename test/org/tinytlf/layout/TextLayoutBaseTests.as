@@ -103,17 +103,6 @@ package org.tinytlf.layout
         }
         
         [Test]
-        public function clear_calls_clear_on_containers():void
-        {
-            var container:ITextContainer = stubBasicTextContainer();
-            
-            layout.addContainer(container);
-            layout.clear();
-            
-            verify(container).method("clear").once();
-        }
-        
-        [Test]
         public function reset_shapes_calls_reset_shapes_on_container():void
         {
             var container:ITextContainer = stubBasicTextContainer();

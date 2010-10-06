@@ -18,33 +18,13 @@ package org.tinytlf.layout.direction
 			this.target = target;
 		}
 		
-		/**
-		 * Checks to see if we've laid out lines within the boundaries of our
-		 * target container. Returns true if we're outside bounds, false if we aren't.
-		 */
-		public function checkTargetConstraints(latestLine:TextLine):Boolean
-		{
-			var elements:Vector.<IFlowLayoutElement> = layout.elements;
-			
-			if(!elements.length)
-				return false;
-			
-			// Return true if the last IFlowLayoutElement is a 
-			// ContainerTerminator, which causes tinytlf to stop laying out in 
-			// this container and move on to the next one.
-			return (elements[elements.length - 1].element.userData === TextLineUtil.getSingletonMarker('containerTerminator'));
-		}
-		
-		public function prepForTextBlock(block:TextBlock):void
+		public function preLayout():void
 		{
 		}
 		
-		public function postLayout():void
+		public function prepForTextBlock(block:TextBlock, line:TextLine):void
 		{
-			layoutPosition.x = layoutPosition.y = 0;
 		}
-		
-		protected var layoutPosition:Point = new Point();
 		
 		public function getLineSize(block:TextBlock, previousLine:TextLine):Number
 		{
@@ -66,6 +46,23 @@ package org.tinytlf.layout.direction
 		}
 		
 		/**
+		 * Checks to see if we've laid out lines within the boundaries of our
+		 * target container. Returns true if we're outside bounds, false if we aren't.
+		 */
+		public function checkTargetConstraints(latestLine:TextLine):Boolean
+		{
+			var elements:Vector.<IFlowLayoutElement> = layout.elements;
+			
+			if(!elements.length)
+				return false;
+			
+			// Return true if the last IFlowLayoutElement is a 
+			// ContainerTerminator, which causes tinytlf to stop laying out in 
+			// this container and move on to the next one.
+			return (elements[elements.length - 1].element.userData === TextLineUtil.getSingletonMarker('containerTerminator'));
+		}
+		
+		/**
 		 * Called when an element can potentially be added to the list of
 		 * IFlowLayoutElements. Override this to respect more types of layout
 		 * elements.
@@ -74,6 +71,7 @@ package org.tinytlf.layout.direction
 		{
 			var element:IFlowLayoutElement;
 			var contentElement:ContentElement = TextLineUtil.getElementAtAtomIndex(line, atomIndex);
+			
 			if(contentElement.userData === TextLineUtil.getSingletonMarker('listItemTerminator'))
 			{
 				handleListItemTermination();
@@ -149,16 +147,10 @@ package org.tinytlf.layout.direction
 			}
 			
 			line.x = x;
-			layoutPosition.x = x;
 		}
 		
 		protected function layoutY(line:TextLine):void
 		{
-			var props:LayoutProperties = getLayoutProperties(line.textBlock);
-			
-			layoutPosition.y += line.ascent;
-			line.y = layoutPosition.y;
-			layoutPosition.y += line.descent + props.leading;
 		}
 		
 		

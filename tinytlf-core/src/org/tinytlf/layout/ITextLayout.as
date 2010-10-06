@@ -83,12 +83,6 @@ package org.tinytlf.layout
 		function getContainerForLine(line:TextLine):ITextContainer;
 		
 		/**
-		 * Clears the lines and shapes out of all ITextContainers managed by
-		 * this layout.
-		 */
-		function clear():void;
-		
-		/**
 		 * Clears the graphics context and removes all children of each shapes
 		 * sprite on each ITextContainer.
 		 * 

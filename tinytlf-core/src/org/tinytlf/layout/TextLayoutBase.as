@@ -29,7 +29,7 @@ package org.tinytlf.layout
 		
 		public function set engine(textEngine:ITextEngine):void
 		{
-			if (textEngine == _engine)
+			if(textEngine == _engine)
 				return;
 			
 			_engine = textEngine;
@@ -39,7 +39,7 @@ package org.tinytlf.layout
 		
 		public function get textBlockFactory():ILayoutFactoryMap
 		{
-			if (!_textBlockFactory)
+			if(!_textBlockFactory)
 				textBlockFactory = new AbstractLayoutFactoryMap();
 			
 			return _textBlockFactory;
@@ -47,7 +47,7 @@ package org.tinytlf.layout
 		
 		public function set textBlockFactory(value:ILayoutFactoryMap):void
 		{
-			if (value === _textBlockFactory)
+			if(value === _textBlockFactory)
 				return;
 			
 			_textBlockFactory = value;
@@ -56,22 +56,11 @@ package org.tinytlf.layout
 		}
 		
 		/**
-		 * Clears all the TextLines from this Layout's ITextContainers.
-		 */
-		public function clear():void
-		{
-			for (var i:int = 0; i < containers.length; i++)
-			{
-				containers[i].clear();
-			}
-		}
-		
-		/**
 		 * Clears the shapes out of this Layout's ITextContainers.
 		 */
 		public function resetShapes():void
 		{
-			for (var i:int = 0; i < containers.length; i++)
+			for(var i:int = 0; i < containers.length; i++)
 			{
 				containers[i].resetShapes();
 			}
@@ -86,7 +75,7 @@ package org.tinytlf.layout
 		
 		public function addContainer(container:ITextContainer):void
 		{
-			if (containers.indexOf(container) != -1)
+			if(containers.indexOf(container) != -1)
 				return;
 			
 			_containers.push(container);
@@ -96,7 +85,7 @@ package org.tinytlf.layout
 		public function removeContainer(container:ITextContainer):void
 		{
 			var i:int = containers.indexOf(container);
-			if (i == -1)
+			if(i == -1)
 				return;
 			
 			_containers.splice(i, 1);
@@ -107,9 +96,9 @@ package org.tinytlf.layout
 		{
 			var n:int = containers.length;
 			
-			for (var i:int = 0; i < n; i++)
+			for(var i:int = 0; i < n; i++)
 			{
-				if (containers[i].hasLine(line))
+				if(containers[i].hasLine(line))
 				{
 					return containers[i];
 				}
@@ -136,27 +125,23 @@ package org.tinytlf.layout
 		 */
 		public function render(blocks:Vector.<TextBlock>):void
 		{
-			if (!containers || !containers.length || !blocks || !blocks.length)
+			if(!containers || !containers.length || !blocks || !blocks.length)
 				return;
+			
+			containers.forEach(function(c:ITextContainer, ... args):void{
+				c.preLayout();
+			});
 			
 			var block:TextBlock = blocks[0];
 			var i:int = 0;
 			var container:ITextContainer = containers[0];
 			
-			while (block && container)
+			
+			while(block && container)
 			{
 				setupBlockJustifier(block);
 				
-				//Do we need to re-render the invalid TextLines?
-				if (block.firstInvalidLine)
-				{
-					recreateTextLines(block);
-				}
-				//Otherwise, do we need to do the full layout pass?
-				else if (!block.firstLine)
-				{
-					container = renderBlockAcrossContainers(block, container);
-				}
+				container = renderBlockAcrossContainers(block, container);
 				
 				block = ++i < blocks.length ? blocks[i] : null;
 			}
@@ -171,12 +156,14 @@ package org.tinytlf.layout
 			var justification:String = LineJustification.UNJUSTIFIED;
 			var justifier:TextJustifier = TextJustifier.getJustifierForLocale(props.locale);
 			
-			if (props.textAlign == TextAlign.JUSTIFY)
+			if(props.textAlign == TextAlign.JUSTIFY)
 				justification = LineJustification.ALL_BUT_LAST;
 			
 			justifier.lineJustification = justification;
 			
-			if (!block.textJustifier || block.textJustifier.lineJustification != justification || block.textJustifier.locale != props.locale)
+			if(	!block.textJustifier || 
+				block.textJustifier.lineJustification != justification || 
+				block.textJustifier.locale != props.locale)
 			{
 				props.applyTo(justifier);
 				
@@ -195,19 +182,15 @@ package org.tinytlf.layout
 		 */
 		protected function renderBlockAcrossContainers(block:TextBlock, startContainer:ITextContainer):ITextContainer
 		{
-			if (!containers || !containers.length)
+			if(!containers || !containers.length)
 				return startContainer;
 			
 			var container:ITextContainer = startContainer;
 			var containerIndex:int = containers.indexOf(container);
 			
-			var line:TextLine = container.layout(block, block.lastLine);
-			while (line)
+			var line:TextLine = container.layout(block, block.firstLine);
+			while(line)
 			{
-				// If we're here, we're about to switch containers. 
-				// Call postLayout() because we're done with this container.
-				container.postLayout();
-			
 				if(++containerIndex < containers.length)
 					container = containers[containerIndex];
 				else
@@ -216,38 +199,7 @@ package org.tinytlf.layout
 				line = container.layout(block, line);
 			}
 			
-			//Call postLayout here because the last container
-			//returned a null line, which broke out of the loop.
-			container.postLayout();
-			
 			return container;
-		}
-		
-		/**
-		 * Recreates each of the TextBlock's invalid TextLines.
-		 */
-		protected function recreateTextLines(block:TextBlock):void
-		{
-			var touchedContainers:Dictionary = new Dictionary(true);
-			var line:TextLine;
-			var container:ITextContainer;
-			
-			while (block.firstInvalidLine)
-			{
-				line = block.firstInvalidLine;
-				container = getContainerForLine(line);
-				
-				if (!container)
-					break;
-				
-				touchedContainers[container] = true;
-				container.recreateTextLine(block, line);
-			}
-			
-			for (var tmp:* in touchedContainers)
-			{
-				ITextContainer(tmp).cleanupLines(block);
-			}
 		}
 	}
 }

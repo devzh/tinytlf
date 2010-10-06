@@ -127,14 +127,6 @@ package org.tinytlf.layout
 		 * </p>
 		 */
         function get measuredHeight():Number;
-        
-		/**
-		 * <p>
-		 * Clears all lines from the <code>ITextContainer</code> and resets the
-		 * measuredWidth/measuredHeight.
-		 * </p>
-		 */
-        function clear():void;
 		
 		/**
 		 * <p>
@@ -145,15 +137,9 @@ package org.tinytlf.layout
         function resetShapes():void;
         
 		/**
-		 * Called after layout inside this container is finished.
+		 * Called before layout inside this container begins.
 		 */
-        function postLayout():void;
-		
-		/**
-		 * Called after the layout algorithm for re-rendering invalid TextLines,
-		 * which can cause the TextBlock to orphan TextLines on the display list.
-		 */
-        function cleanupLines(from:TextBlock):void;
+        function preLayout():void;
         
 		/**
 		 * Renders as many <code>TextLines</code> from the specified
@@ -178,11 +164,6 @@ package org.tinytlf.layout
 		 * Checks whether this ITextContainer has a particular TextLine.
 		 */
         function hasLine(line:TextLine):Boolean;
-		
-		/**
-		 * Recreates an individual line in the TextContainer.
-		 */
-        function recreateTextLine(block:TextBlock, lineToRecreate:TextLine):TextLine;
     }
 }
 

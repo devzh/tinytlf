@@ -5,14 +5,16 @@ package org.tinytlf.util
 	import flash.text.engine.GroupElement;
 	import flash.text.engine.TextBlock;
 	import flash.text.engine.TextLine;
+	import flash.utils.Dictionary;
 	
 	import org.tinytlf.ITextEngine;
-
+	
 	public class TinytlfUtil
 	{
 		private static var mac:Boolean = (/mac/i).test(Capabilities.os);
+		
 		/**
-		 * Useful checker to determine what system you're on. Native Mac 
+		 * Useful checker to determine what system you're on. Native Mac
 		 * applications respond to different keys than their Windows or Linux
 		 * counterparts, and every interaction in tinytlf should be the same as
 		 * the native system functions.
@@ -75,7 +77,7 @@ package org.tinytlf.util
 			return blockPosition + line.textBlockBeginIndex + index;
 		}
 		
-		public static function globalIndexToContentElementIndex(engine:ITextEngine, index:int, 
+		public static function globalIndexToContentElementIndex(engine:ITextEngine, index:int,
 																element:ContentElement):int
 		{
 			var block:TextBlock = element.textBlock;
@@ -191,6 +193,72 @@ package org.tinytlf.util
 				flags &= ~flagMask;
 			}
 			return flags;
+		}
+		
+		/**
+		 * Like compare, except only primitive types matter.  
+		 * If objectA has a child object with no values and objectB doesn't have
+		 * that object, they still compare as true because no primitive types
+		 * had to be evaluated.
+		 *
+		 * @return True if the two Object's values are the same, False if 
+		 * they're different.
+		 * 
+		 * Original author Nicholas Bilyk, http://nbilyk.com/
+		 * Lifted from:
+		 * http://code.google.com/p/nbflexlib/source/browse/trunk/flex3/src/com/nbilyk/utils/ObjectUtils.as
+		 */
+		public static function compareObjectValues(objectA:Object, objectB:Object):Boolean
+		{
+			if(!!objectA != !!objectB)
+				return false;
+			
+			if(!recursiveCompare(objectA, [], objectB))
+				return false;
+			if(!recursiveCompare(objectB, [], objectA))
+				return false;
+			
+			return true;
+		}
+		
+		private static function recursiveCompare(nestedObject:Object, nestedNames:Array, objectB:Object, recursionDict:Dictionary = null):Boolean
+		{
+			if(!recursionDict)
+				recursionDict = new Dictionary(true);
+			
+			if(recursionDict[nestedObject])
+				return true;
+			
+			recursionDict[nestedObject] = true;
+			for(var all:String in nestedObject)
+			{
+				if(!all || nestedObject[all] == null)
+					continue;
+				switch(typeof(nestedObject[all]))
+				{
+					case ("object"):
+						if(!recursiveCompare(nestedObject[all], nestedNames.concat(all), objectB, recursionDict))
+							return false;
+						break;
+					case ("boolean"):
+					case ("string"):
+					case ("number"):
+						var obj:Object = objectB;
+						for each(var prop:String in nestedNames)
+						{
+							obj = obj[prop];
+							if(!obj)
+								return false;
+						}
+						var comparison2:Boolean = nestedObject[all] == obj[all];
+						if(nestedObject[all] !== obj[all])
+							return false;
+						
+						break;
+				}
+			}
+			
+			return true;
 		}
 	}
 }

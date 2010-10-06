@@ -11,6 +11,7 @@ package org.tinytlf.layout
 	import flash.display.Sprite;
 	import flash.text.engine.TextBlock;
 	import flash.text.engine.TextLine;
+	import flash.text.engine.TextLineValidity;
 	import flash.utils.Dictionary;
 	
 	import org.tinytlf.ITextEngine;
@@ -28,31 +29,6 @@ package org.tinytlf.layout
 		public function layout(block:TextBlock, line:TextLine):TextLine
 		{
 			return null;
-		}
-		
-		public function recreateTextLine(block:TextBlock, line:TextLine):TextLine
-		{
-			var hasFocus:Boolean = line.stage.focus === line;
-			
-			var x:Number = line.x;
-			var y:Number = line.y;
-			var index:int = getLineIndexFromTarget(line);
-			
-			unregisterLine(line);
-			removeLineFromTarget(line);
-			
-			line = block.createTextLine(line.previousLine, line.specifiedWidth, 0.0, true);
-			
-			line.x = x;
-			line.y = y;
-			
-			registerLine(line);
-			addLineToTarget(line, index);
-			
-			if(hasFocus)
-				target.stage.focus = line;
-			
-			return line;
 		}
 		
 		protected function createTextLine(block:TextBlock, previousLine:TextLine):TextLine
@@ -144,7 +120,7 @@ package org.tinytlf.layout
 				return;
 			
 			_explicitHeight = value;
-			engine.layout.clear();
+			invalidateLines();
 			engine.invalidate();
 		}
 		
@@ -161,7 +137,7 @@ package org.tinytlf.layout
 				return;
 			
 			_explicitWidth = value;
-			engine.layout.clear();
+			invalidateLines();
 			engine.invalidate();
 		}
 		
@@ -179,71 +155,28 @@ package org.tinytlf.layout
 			return height;
 		}
 		
-		public function clear():void
-		{
-			var blocks:Dictionary = new Dictionary();
-			for(var line:* in lines)
-			{
-				unregisterLine(line);
-				removeLineFromTarget(line);
-				if(line.textBlock)
-					blocks[line.textBlock] = true;
-			}
-			
-			var b:TextBlock;
-			for(var block:* in blocks)
-			{
-				b = TextBlock(block);
-				if(b.firstLine && b.lastLine)
-					b.releaseLines(b.firstLine, b.lastLine);
-			}
-			
-			width = 0;
-			height = 0;
-		}
-		
-		public function cleanupLines(from:TextBlock):void
-		{
-			var blockLines:Dictionary = new Dictionary(true);
-			var line:TextLine = from.firstLine;
-			while(line)
-			{
-				blockLines[line] = true;
-				line = line.nextLine;
-			}
-			
-			for(var obj:* in lines)
-			{
-				line = TextLine(obj);
-				if(line.textBlock == from && !(line in blockLines))
-				{
-					unregisterLine(line);
-					removeLineFromTarget(line);
-				}
-			}
-		}
-		
-		protected var lines:Dictionary = new Dictionary(false);
+		protected var lines:Vector.<TextLine> = new <TextLine>[];
 		
 		public function hasLine(line:TextLine):Boolean
 		{
-			return (line in lines)
+			return lines.indexOf(line) != -1;
 		}
 		
-		public function postLayout():void
+		public function preLayout():void
 		{
 		}
 		
 		public function resetShapes():void
 		{
-			if(foreground)
-				clearShapeContainer(foreground);
-			if(background)
-				clearShapeContainer(background);
+			clearShapeContainer(foreground);
+			clearShapeContainer(background);
 		}
 		
 		private function clearShapeContainer(container:Sprite):void
 		{
+			if(!container)
+				return;
+			
 			container.graphics.clear();
 			var n:int = container.numChildren;
 			var child:DisplayObject;
@@ -267,7 +200,9 @@ package org.tinytlf.layout
 		
 		protected function registerLine(line:TextLine):void
 		{
-			lines[line] = true;
+			if(!hasLine(line))
+				lines.push(line);
+			
 			line.userData = engine;
 			line.doubleClickEnabled = true;
 			engine.interactor.getMirror(line);
@@ -277,23 +212,44 @@ package org.tinytlf.layout
 		{
 			line.userData = null;
 			
-			delete lines[line];
+			var i:int = lines.indexOf(line);
+			if(i != -1)
+				lines.splice(i, 1);
 		}
 		
 		protected function addLineToTarget(line:TextLine, index:int = 0):TextLine
 		{
+			if(target.contains(line))
+				return line;
+			
 			index ||= target.numChildren > 1 ? target.numChildren - 1 : 1;
 			return TextLine(target.addChildAt(line, index));
 		}
 		
 		protected function removeLineFromTarget(line:TextLine):TextLine
 		{
+			if(!target.contains(line))
+				return line;
+			
 			return TextLine(target.removeChild(line));
 		}
 		
 		protected function getLineIndexFromTarget(line:TextLine):int
 		{
+			if(!target.contains(line))
+				return -1;
+			
 			return target.getChildIndex(line);
+		}
+		
+		protected function invalidateLines():void
+		{
+			var n:int = lines.length;
+			
+			for(var i:int = 0; i < n; ++i)
+			{
+				lines[i].validity = TextLineValidity.INVALID;
+			}
 		}
 	}
 }

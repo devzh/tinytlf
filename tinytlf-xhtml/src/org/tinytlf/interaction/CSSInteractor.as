@@ -2,6 +2,7 @@ package org.tinytlf.interaction
 {
 	import flash.events.MouseEvent;
 	import flash.text.engine.ContentElement;
+	import flash.text.engine.ElementFormat;
 	import flash.ui.Mouse;
 	import flash.ui.MouseCursor;
 	import flash.utils.Dictionary;
@@ -25,7 +26,7 @@ package org.tinytlf.interaction
 			super.onClick(event);
 			
 			var info:EventLineInfo = EventLineInfo.getInfo(event, this);
-			if (!info)
+			if(!info)
 				return;
 			
 			applyCSSFormatting(info, VISITED);
@@ -35,13 +36,13 @@ package org.tinytlf.interaction
 		
 		override protected function onRollOver(event:MouseEvent):void
 		{
-			if (TinytlfUtil.isBitSet(mouseState, OVER))
+			if(TinytlfUtil.isBitSet(mouseState, OVER))
 				return;
 			
 			super.onRollOver(event);
 			
 			var info:EventLineInfo = EventLineInfo.getInfo(event, this);
-			if (!info)
+			if(!info)
 				return;
 			
 			cssState = cssState == VISITED ? VISITED : HOVER;
@@ -56,7 +57,7 @@ package org.tinytlf.interaction
 			super.onRollOut(event);
 			
 			var info:EventLineInfo = EventLineInfo.getInfo(event, this);
-			if (!info)
+			if(!info)
 				return;
 			
 			repealCSSDecorations(info, cssState);
@@ -70,13 +71,13 @@ package org.tinytlf.interaction
 		
 		override protected function onMouseMove(event:MouseEvent):void
 		{
-			if (!TinytlfUtil.isBitSet(mouseState, OVER))
+			if(!TinytlfUtil.isBitSet(mouseState, OVER))
 				return;
 			
 			super.onMouseMove(event);
 			
 			var info:EventLineInfo = EventLineInfo.getInfo(event, this);
-			if (!info)
+			if(!info)
 				return;
 			
 			cssState = cssState == VISITED ? VISITED : cssState == ACTIVE ? ACTIVE : HOVER;
@@ -89,7 +90,7 @@ package org.tinytlf.interaction
 			super.onMouseUp(event);
 			
 			var info:EventLineInfo = EventLineInfo.getInfo(event, this);
-			if (!info)
+			if(!info)
 				return;
 			
 			if(TinytlfUtil.isBitSet(mouseState, DOWN))
@@ -105,7 +106,7 @@ package org.tinytlf.interaction
 			super.onMouseDown(event);
 			
 			var info:EventLineInfo = EventLineInfo.getInfo(event, this);
-			if (!info)
+			if(!info)
 				return;
 			
 			cssState = ACTIVE;
@@ -120,7 +121,7 @@ package org.tinytlf.interaction
 			var attr:Object = resolveCSSAttributes(info, state);
 			var engine:ITextEngine = info.engine;
 			
-			if (attr)
+			if(attr)
 				engine.decor.decorate(info.element, attr);
 		}
 		
@@ -131,7 +132,7 @@ package org.tinytlf.interaction
 			
 			var attr:Object = resolveCSSAttributes(info, state);
 			
-			for (var prop:String in attr)
+			for(var prop:String in attr)
 				decor.undecorate(element, prop);
 		}
 		
@@ -139,51 +140,60 @@ package org.tinytlf.interaction
 		{
 			var element:ContentElement = info.element;
 			var tree:Vector.<XMLDescription> = (element.userData as Vector.<XMLDescription>);
-			if (!tree)
+			if(!tree)
 				return;
 			
 			var styler:ITextStyler = info.engine.styler;
 			var a:Vector.<XMLDescription> = applyStateToAncestorChain(tree, state);
-			element.elementFormat = styler.getElementFormat(a).clone();
-			info.engine.invalidateLines();
+			var format:ElementFormat = styler.getElementFormat(a);
+			
+//			if(TinytlfUtil.compareObjectValues(element.elementFormat, format) == false)
+//			{
+				element.elementFormat = format;
+				info.engine.invalidateLines();
+//			}
 		}
 		
 		protected function repealCSSFormatting(info:EventLineInfo):void
 		{
 			var element:ContentElement = info.element;
 			var tree:Vector.<XMLDescription> = (element.userData as Vector.<XMLDescription>);
-			if (!tree)
+			if(!tree)
 				return;
 			
 			var styler:ITextStyler = info.engine.styler;
-			element.elementFormat = styler.getElementFormat(tree).clone();
-			info.engine.invalidateLines();
+			var format:ElementFormat = styler.getElementFormat(tree);
+			
+//			if(TinytlfUtil.compareObjectValues(element.elementFormat, format) == false)
+//			{
+				element.elementFormat = format;
+				info.engine.invalidateLines();
+//			}
 		}
 		
 		protected function applyCursor(info:EventLineInfo, state:String = ''):void
 		{
 			var attr:Object = resolveCSSAttributes(info, state);
-			if ('cursor' in attr)
+			
+			if('cursor' in attr)
 				Mouse.cursor = attr['cursor'];
-			else
-				Mouse.cursor = MouseCursor.IBEAM;
 		}
 		
 		protected var stateCache:Dictionary = new Dictionary(true);
 		
 		protected function resolveCSSAttributes(info:EventLineInfo, state:String):Object
 		{
-			if (state && state in stateCache)
+			if(state && state in stateCache)
 				return stateCache[state];
 			
 			var tree:Vector.<XMLDescription> = (info.element.userData as Vector.<XMLDescription>);
 			
-			if (!tree)
+			if(!tree)
 				return {};
 			
 			var style:Object = info.engine.styler.describeElement(applyStateToAncestorChain(tree, state));
 			
-			if (state && style)
+			if(state && style)
 				stateCache[state] = style
 			
 			return style;
@@ -195,7 +205,7 @@ package org.tinytlf.interaction
 			var n:int = chain.length;
 			var xml:XMLDescription;
 			
-			for (var i:int = 0; i < n; ++i)
+			for(var i:int = 0; i < n; ++i)
 			{
 				xml = chain[i];
 				xml.cssState = state;

@@ -1,8 +1,10 @@
 package org.tinytlf.layout.direction
 {
+	import flash.geom.Point;
 	import flash.text.engine.ContentElement;
 	import flash.text.engine.TextBlock;
 	import flash.text.engine.TextLine;
+	import flash.text.engine.TextLineValidity;
 	
 	import org.tinytlf.layout.IFlowLayout;
 	import org.tinytlf.layout.IFlowLayoutElement;
@@ -17,31 +19,43 @@ package org.tinytlf.layout.direction
 			super(target);
 		}
 		
-		override public function prepForTextBlock(block:TextBlock):void
+		override public function preLayout():void
 		{
-			super.prepForTextBlock(block);
+			super.preLayout();
+			
+			layoutPosition.x = 0;
+			layoutPosition.y = 0;
+		}
+		
+		override public function prepForTextBlock(block:TextBlock, line:TextLine):void
+		{
+			super.prepForTextBlock(block, line);
 			
 			var props:LayoutProperties = getLayoutProperties(block);
 			
-			layoutPosition.x = 0;
-			layoutPosition.y = target.measuredHeight;
+			if(line)
+			{
+				if(line == block.firstLine)
+				{
+					layoutPosition.x = props.textIndent;
+					layoutPosition.y += props.paddingTop;
+				}
+				
+				return;
+			}
 			
-			if(block.firstLine == null)
+			if(!block.firstLine)
 			{
 				layoutPosition.x = props.textIndent;
 				layoutPosition.y += props.paddingTop;
 			}
 		}
 		
+		protected var layoutPosition:Point = new Point();
+		
 		override public function getLineSize(block:TextBlock, previousLine:TextLine):Number
 		{
-			return flow(super.getLineSize(block, previousLine), previousLine);
-		}
-		
-		override public function layoutLine(latestLine:TextLine):void
-		{
-			super.layoutLine(latestLine);
-			checkLayoutPositions(latestLine);
+			return fitSizeWithinFloats(super.getLineSize(block, previousLine), previousLine);
 		}
 		
 		override public function checkTargetConstraints(latestLine:TextLine):Boolean
@@ -97,117 +111,123 @@ package org.tinytlf.layout.direction
 			return retVal;
 		}
 		
-		/**
-		 * @private
-		 * Calculates a suitable width for the next TextLine based on the total
-		 * size of the container and the previous TextLine. Modifies the
-		 * layoutPosition.x and returns the proper size of the TextLine.
-		 */
-		protected function flow(totalSize:Number, previousLine:TextLine):Number
-		{
-			var elements:Vector.<IFlowLayoutElement> = layout.elements;
-			var element:IFlowLayoutElement;
-			var line:TextLine;
-			
-			var size:Number = totalSize;
-			var n:int = elements.length;
-			var i:int = 0;
-			
-			for(i = 0; i < n; ++i)
-			{
-				element = elements[i];
-				line = element.textLine;
-				
-				if(line.y >= layoutPosition.y && line.x < layoutPosition.x)
-					continue;
-				
-				if(element.containsY(layoutPosition.y))
-				{
-					if(layoutPosition.x < element.x)
-					{
-						size = element.x - layoutPosition.x;
-						break;
-					}
-					else if(layoutPosition.x >= (element.x + element.width))
-					{
-						size -= element.x;
-					}
-					else
-					{
-						size = totalSize - element.x - element.width;
-						layoutPosition.x = element.x + element.width;
-					}
-				}
-				
-				//If the size ever drops to 0, reset it all and update the y.
-				if(size <= 0)
-				{
-					size = totalSize;
-					i = 0;
-					layoutPosition.x = 0;
-					
-					//If we get here and there's no previous line,
-					//we're probably flowing in a super tight space and don't
-					//have room to create lines anyway. Returning 0 is all
-					//we can do :|
-					if(!previousLine)
-						return 0;
-					
-					layoutPosition.y += previousLine.height;
-				}
-			}
-			
-			return size;
-		}
-		
 		override protected function layoutX(line:TextLine):void
 		{
-			line.x = layoutPosition.x;
-			layoutPosition.x += line.specifiedWidth;
+			super.layoutX(line);
+			
+			var pt:Point = layoutPosition.clone();
+			
+			var elements:Vector.<IFlowLayoutElement> = layout.elements;
+			var element:IFlowLayoutElement;
+			
+			var n:int = elements.length;
+			
+			for(var i:int = 0; i < n; ++i)
+			{
+				element = elements[i];
+				
+				if(element.textLine == line)
+					continue;
+				
+				if(element.containsY(pt.y) && element.containsX(pt.x))
+					pt.x = element.x + element.width;
+			}
+			
+			line.x = layoutPosition.x = pt.x;
 		}
 		
 		override protected function layoutY(line:TextLine):void
 		{
 			var w:Number = getTotalSize(line.textBlock);
-			if(layoutPosition.x >= (w - 10))
+			
+			if(layoutPosition.x + line.specifiedWidth >= w)
 			{
-				super.layoutY(line);
+				layoutPosition.y += line.ascent;
+				line.y = layoutPosition.y;
+				layoutPosition.y += line.descent;
+				
+				layoutPosition.x = 0;
 			}
 			else
 			{
+				var pt:Point = layoutPosition.clone();
 				var elements:Vector.<IFlowLayoutElement> = layout.elements;
 				var element:IFlowLayoutElement;
-				
 				var n:int = elements.length;
 				
 				for(var i:int = 0; i < n; ++i)
 				{
 					element = elements[i];
 					
-					if(element.containsY(layoutPosition.y))
+					if(element.textLine === line)
+						continue;
+					
+					if(element.containsY(pt.y))
 					{
-						if(layoutPosition.x == element.x)
+						if(pt.x <= element.x)
 						{
 							line.y = line.ascent + layoutPosition.y;
+							layoutPosition.y += line.textHeight;
 							break;
 						}
 					}
-					
-					if(i == n)
-						line.y = layoutPosition.y;
+				}
+				
+				if(i == n)
+				{
+					line.y = line.ascent + layoutPosition.y;
+					layoutPosition.y += line.textHeight;
 				}
 			}
 		}
 		
-		protected function checkLayoutPositions(line:TextLine):void
+		protected function fitSizeWithinFloats(totalSize:Number, line:TextLine):Number
 		{
-			//If the X layout position has proceeded past the width of the 
-			//TextBlock, reset him back to the left edge.
-			var w:Number = getTotalSize(line.textBlock);
-			if(layoutPosition.x >= (w - 10))
+			var size:Number = totalSize;
+			
+			var pt:Point = layoutPosition.clone();
+			pt.x = 0;
+			
+			var elements:Vector.<IFlowLayoutElement> = layout.elements;
+			var n:int = elements.length;
+			var element:IFlowLayoutElement;
+			
+			for(var i:int = 0; i < n; ++i)
 			{
-				layoutPosition.x = 0;
+				element = elements[i];
+				
+				if(element.containsY(pt.y))
+				{
+					if(element.containsX(pt.x))
+					{
+						size -= /*totalSize - */(element.x + element.width);
+						pt.x = element.x - element.width + 1;
+					}
+					else if(pt.x < element.x)
+					{
+						size -= element.width;
+					}
+				}
+				
+				if(size < 0)
+				{
+					if(line)
+					{
+						size = totalSize;
+						pt = layoutPosition.clone();
+						pt.y += line.height;
+						pt.x = 0;
+						i = 0;
+						line = null;
+					}
+					else
+					{
+						return 0;
+					}
+				}
 			}
+			
+			return size;
 		}
 	}
 }

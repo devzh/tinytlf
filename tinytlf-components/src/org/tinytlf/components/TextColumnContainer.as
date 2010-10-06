@@ -40,6 +40,10 @@ package org.tinytlf.components
 			
 			_height = Math.max(value, 1);
 			container.explicitHeight = value;
+			
+			graphics.clear();
+			graphics.lineStyle(1, 0xFF0000);
+			graphics.drawRect(0, 0, width, height);
 		}
 		
 		private var _width:Number = 0;
@@ -55,6 +59,10 @@ package org.tinytlf.components
 			
 			_width = Math.max(value, 1);
 			container.explicitWidth = _width;
+			
+			graphics.clear();
+			graphics.lineStyle(1, 0xFF0000);
+			graphics.drawRect(0, 0, width, height);
 		}
 		
 		private var container:IFlowLayout;
@@ -129,34 +137,19 @@ package org.tinytlf.components
 			return container.measuredHeight;
 		}
 		
-		public function clear():void
-		{
-			container.clear();
-		}
-		
 		public function resetShapes():void
 		{
 			container.resetShapes();
 		}
 		
-		public function postLayout():void
+		public function preLayout():void
 		{
-			container.postLayout();
-		}
-		
-		public function cleanupLines(fromBlock:TextBlock):void
-		{
-			container.cleanupLines(fromBlock);
+			container.preLayout();
 		}
 		
 		public function layout(block:TextBlock, line:TextLine):TextLine
 		{
 			return container.layout(block, line);
-		}
-		
-		public function recreateTextLine(block:TextBlock, line:TextLine):TextLine
-		{
-			return container.recreateTextLine(block, line);
 		}
 		
 		public function hasLine(line:TextLine):Boolean

@@ -5,7 +5,6 @@ package org.tinytlf.interaction.gestures.mouse
     
     import org.tinytlf.interaction.gestures.Gesture;
 
-    [Event("mouseOut")]
     [Event("rollOut")]
 
     public class MouseOutGesture extends Gesture
@@ -19,8 +18,7 @@ package org.tinytlf.interaction.gestures.mouse
 
         public function out(event:MouseEvent):Boolean
         {
-            return event.type == MouseEvent.MOUSE_OUT ||
-                    event.type == MouseEvent.ROLL_OUT;
+            return event.type == MouseEvent.ROLL_OUT;
         }
     }
 }

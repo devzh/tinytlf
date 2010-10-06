@@ -1,5 +1,6 @@
 package org.tinytlf.layout.direction
 {
+	import flash.geom.Point;
 	import flash.text.engine.TextBlock;
 	import flash.text.engine.TextLine;
 	
@@ -8,10 +9,16 @@ package org.tinytlf.layout.direction
 	public interface IFlowDirectionDelegate
 	{
 		/**
-		 * Returns true if layout has moved outside the constraints of the
-		 * target container, false if we're still within bounds.
+		 * Called just before layout begins in the target container.
 		 */
-		function checkTargetConstraints(latestLine:TextLine):Boolean;
+		function preLayout():void;
+		
+		/**
+		 * Called by the IFlowLayout just before layout on this TextBlock begins.
+		 * Allows the IFlowDirectionDelegate to adjust before rendering the next
+		 * paragraph.
+		 */
+		function prepForTextBlock(block:TextBlock, line:TextLine):void;
 		
 		/**
 		 * Calculates the width of the newest TextLine.
@@ -24,16 +31,10 @@ package org.tinytlf.layout.direction
 		function layoutLine(latestLine:TextLine):void;
 		
 		/**
-		 * Called by the IFlowLayout just before layout on this TextBlock begins.
-		 * Allows the IFlowDirectionDelegate to adjust before rendering the next
-		 * paragraph.
+		 * Returns true if layout has moved outside the constraints of the
+		 * target container, false if we're still within bounds.
 		 */
-		function prepForTextBlock(block:TextBlock):void;
-		
-		/**
-		 * Called after a TextBlock has been rendered into the target IFlowLayout.
-		 */
-		function postLayout():void;
+		function checkTargetConstraints(latestLine:TextLine):Boolean;
 		
 		/**
 		 * Called from the IFlowLayout when an IFlowLayoutElement has been

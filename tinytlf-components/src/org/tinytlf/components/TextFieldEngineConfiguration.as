@@ -153,6 +153,9 @@ package org.tinytlf.components
 			if (!factory.hasElementFactory('br'))
 				factory.mapElementFactory('br', HTMLLineBreakAdapter);
 			
+			if (!factory.hasElementFactory('colbr'))
+				factory.mapElementFactory('colbr', HTMLColumnBreakAdapter);
+			
 			if (!factory.hasElementFactory('img'))
 				factory.mapElementFactory('img', HTMLImageAdapter);
 			
