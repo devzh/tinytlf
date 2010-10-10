@@ -22,9 +22,9 @@ package org.tinytlf.layout.model.factories
         public function execute(data:Object, ... context:Array):ContentElement
         {
             var element:ContentElement;
-            
+			
             //If the data is an empty string, insert a placeholder GraphicElement.
-            if(data is String && data === "")
+            if(data && data.toString() === "")
                 element = new GraphicElement(new Shape(), 1, 1, getElementFormat(context), getEventMirror(context));
             else if(data is String)
                 element = new TextElement(String(data), getElementFormat(context), getEventMirror(context));
