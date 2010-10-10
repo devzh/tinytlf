@@ -71,7 +71,7 @@ package org.tinytlf.styles
 				{
 					s = s.substring(0, s.indexOf('pt'));
 					//a point is 1/72nd of an inch.
-					number = (screenDPI / 72) * Number(s);
+					number = (Number(s) / 72) * screenDPI;
 				}
 				else if(/em/i.test(s))
 				{
