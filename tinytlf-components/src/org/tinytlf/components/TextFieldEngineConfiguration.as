@@ -23,8 +23,8 @@ package org.tinytlf.components
 		public function TextFieldEngineConfiguration(selectable:Boolean = true, editable:Boolean = false)
 		{
 			this.selectable = selectable;
-//			this.editable = editable;
-			this.editable = true;
+			this.editable = editable;
+//			this.editable = true;
 		}
 		
 		public var selectable:Boolean = true;
