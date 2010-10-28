@@ -2,17 +2,7 @@ package org.tinytlf.util.fte
 {
 	import flash.display.Shape;
 	import flash.geom.Rectangle;
-	import flash.text.engine.BreakOpportunity;
-	import flash.text.engine.ContentElement;
-	import flash.text.engine.ElementFormat;
-	import flash.text.engine.GraphicElement;
-	import flash.text.engine.GroupElement;
-	import flash.text.engine.TextBaseline;
-	import flash.text.engine.TextBlock;
-	import flash.text.engine.TextElement;
-	import flash.text.engine.TextLine;
-	import flash.text.engine.TextLineMirrorRegion;
-	import flash.text.engine.TextLineValidity;
+	import flash.text.engine.*;
 	
 	public class ContentElementUtil
 	{

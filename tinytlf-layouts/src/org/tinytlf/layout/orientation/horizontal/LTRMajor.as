@@ -112,7 +112,16 @@ package org.tinytlf.layout.orientation.horizontal
 			if(constraints.length == 0)
 				return retVal;
 			
-			var constraint:ITextConstraint = constraints[constraints.length - 1];
+			var constraint:ITextConstraint;
+			for(var i:int = 0; i < constraints.length; i += 1)
+			{
+				constraint = constraints[i];
+				if(constraint.content === contentElement)
+					break;
+			}
+			
+			if(!constraint)
+				return retVal;
 			
 			if(constraint.float)
 			{
@@ -170,8 +179,8 @@ package org.tinytlf.layout.orientation.horizontal
 						size = Math.min(size, el.majorValue - xPos);
 					}
 					
-					// if xPos is to the right, we don't care about this constraint,
-					// so we don't have anything to update.
+						// if xPos is to the right, we don't care about this constraint,
+						// so we don't have anything to update.
 				}
 				// Otherwise, the xPos intersected with the bounds of the 
 				// constraint. Update xPos/size.
