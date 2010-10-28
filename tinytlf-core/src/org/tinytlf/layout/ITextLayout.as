@@ -117,7 +117,7 @@ package org.tinytlf.layout
 		 * 
 		 * @see org.tinytlf.layout.ITextContainer#layout()
 		 */
-		function render(blocks:Vector.<TextBlock>):void;
+		function render():void;
 	}
 }
 

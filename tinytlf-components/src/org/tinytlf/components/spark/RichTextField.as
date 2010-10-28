@@ -34,7 +34,7 @@ package org.tinytlf.components.spark
 			_configuration = engineConfiguration;
 			
 			engine.configuration = _configuration;
-			engine.invalidate(true);
+			engine.invalidate();
 		}
 		
 		private var textColumns:Vector.<TextColumnContainer> = new <TextColumnContainer>[];
@@ -141,7 +141,7 @@ package org.tinytlf.components.spark
 			
 			_text = value;
 			engine.layout.textBlockFactory.data = _text;
-			engine.invalidate(true);
+			engine.invalidate();
 		}
 		
 		private function onAddedToStage(event:Event):void

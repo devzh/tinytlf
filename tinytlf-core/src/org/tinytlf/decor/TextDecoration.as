@@ -104,8 +104,7 @@ package org.tinytlf.decor
 					rect = tlmr.bounds.clone();
 					tl = tlmr.textLine;
 					rect.offset(tl.x, tl.y);
-					rectToContainer[rect] = 
-						assureLayerExists(engine.layout.getContainerForLine(tl), layer)
+					rectToContainer[rect] = assureLayerExists(engine.layout.getContainerForLine(tl), layer)
 					bounds.push(rect);
 				}
 			}
@@ -156,6 +155,8 @@ package org.tinytlf.decor
 		
 		public function draw(bounds:Vector.<Rectangle>):void
 		{
+			if(!container)
+				return;
 		}
 		
 		public function destroy():void
@@ -167,6 +168,9 @@ package org.tinytlf.decor
 		
 		protected function assureLayerExists(container:ITextContainer, layer:int):Sprite
 		{
+			if(container == null)
+				return null;
+			
 			var shapes:Sprite = foreground ? container.foreground : container.background;
 			while(shapes.numChildren < (layer + 1))
 			{
@@ -178,7 +182,7 @@ package org.tinytlf.decor
 		
 		protected function rectToLayer(rect:Rectangle):Sprite
 		{
-			return rectToContainer[rect] || container.foreground;
+			return rectToContainer[rect] || (container ? container.foreground : null);
 		}
     }
 }

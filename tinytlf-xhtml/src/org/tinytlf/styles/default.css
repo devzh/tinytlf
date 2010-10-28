@@ -42,3 +42,7 @@ ul{
 	margin-top: 0;
 	margin-bottom: 0;
 }
+sup{
+	font-size: .6em;
+	alignment-baseline: ideographicCenter;
+}

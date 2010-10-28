@@ -6,7 +6,7 @@
  */
 package org.tinytlf.layout.properties
 {
-    public class TextTransform
+    public final class TextTransform
     {
         public static const CAPITALIZE:String = 'capitalize';
         public static const UPPERCASE:String = 'uppercase';

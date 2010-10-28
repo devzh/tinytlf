@@ -6,7 +6,6 @@ package org.tinytlf.layout.model.factories.adapters
 	import flash.text.engine.ElementFormat;
 	import flash.text.engine.GraphicElement;
 	import flash.text.engine.GroupElement;
-	import flash.text.engine.TextBaseline;
 	
 	import org.tinytlf.layout.model.factories.ILayoutFactoryMap;
 	import org.tinytlf.layout.model.factories.XMLDescription;
@@ -25,11 +24,11 @@ package org.tinytlf.layout.model.factories.adapters
 				var outside:Boolean = styles.listStylePosition == 'outside'
 				var marginLeft:Number = styles.marginLeft || 25;
 				
-				var graphicFormat:ElementFormat = new ElementFormat();
-				graphicFormat.dominantBaseline = TextBaseline.IDEOGRAPHIC_TOP;
-				var graphic:GraphicElement = new GraphicElement(outside ? new TallShape(marginLeft) : new Shape(), outside ? marginLeft : totalMargin(context), 0, graphicFormat);
+				var graphic:GraphicElement = 
+					new GraphicElement(new Shape(), 
+						outside ? marginLeft : totalMargin(context), 0, new ElementFormat());
 				
-				var end:GraphicElement = new GraphicElement(new Shape(), 0, 0, graphicFormat.clone());
+				var end:GraphicElement = new GraphicElement(new Shape(), 0, 0, new ElementFormat());
 				
 				var box:Rectangle = item.elementFormat.getFontMetrics().emBox;
 				engine.decor.decorate(graphic, {bullet: true, diameter: box.height * .25});
@@ -38,10 +37,12 @@ package org.tinytlf.layout.model.factories.adapters
 				{
 					graphic.userData = TextLineUtil.getSingletonMarker('listItem');
 					end.userData = TextLineUtil.getSingletonMarker('listItemTerminator');
-					return ContentElementUtil.lineBreakBeforeAndAfter(new GroupElement(new <ContentElement>[graphic, item, end]));
+					return ContentElementUtil.lineBreakBeforeAndAfter(
+						new GroupElement(new <ContentElement>[graphic, item, end]));
 				}
 				
-				return ContentElementUtil.lineBreakAfter(new GroupElement(new <ContentElement>[graphic, item, end]));
+				return ContentElementUtil.lineBreakAfter(
+					new GroupElement(new <ContentElement>[graphic, item, end]));
 			}
 			else
 			{
@@ -68,15 +69,5 @@ package org.tinytlf.layout.model.factories.adapters
 			
 			return margin;
 		}
-	}
-}
-import flash.display.Shape;
-
-internal class TallShape extends Shape
-{
-	public function TallShape(width:Number)
-	{
-		graphics.beginFill(0x00, 0);
-		graphics.drawRect(0, 0, width, 100000);
 	}
 }

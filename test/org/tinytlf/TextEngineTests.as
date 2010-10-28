@@ -132,7 +132,6 @@ package org.tinytlf
             stub(decor).setter("engine");
             
             engine.decor = decor;
-			engine.invalidateData();
 			engine.render();
             
             verify(decor).method("removeAll").once();
@@ -145,7 +144,6 @@ package org.tinytlf
             stub(blockFactory).method("createBlocks").returns(new <TextBlock>[new TextBlock(new TextElement("mockolate-d"))]);
             
             engine.layout.textBlockFactory = blockFactory;
-			engine.invalidateData();
             engine.render();
             
             verify(blockFactory).method("createBlocks").once();
@@ -263,7 +261,7 @@ package org.tinytlf
             var target:Sprite = new Sprite();
             engine.layout.addContainer(new TextContainerBase(target, 100));
             engine.layout.textBlockFactory.data = "Let's test this shit.";
-            engine.invalidate(true);
+            engine.invalidate();
             engine.render();
         }
         

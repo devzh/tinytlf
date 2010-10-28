@@ -1,16 +1,17 @@
 package org.tinytlf.components
 {
+	import com.bit101.components.VScrollBar;
+	
 	import flash.display.Sprite;
-	import flash.text.engine.TextBlock;
-	import flash.text.engine.TextLine;
+	import flash.events.Event;
+	import flash.geom.Rectangle;
+	import flash.text.engine.*;
+	import flash.utils.setTimeout;
 	
 	import org.tinytlf.ITextEngine;
-	import org.tinytlf.layout.IFlowLayout;
-	import org.tinytlf.layout.IFlowLayoutElement;
-	import org.tinytlf.layout.ILayoutElementFactory;
-	import org.tinytlf.layout.ITextContainer;
-	import org.tinytlf.layout.TextFlowContainer;
-	import org.tinytlf.layout.direction.IFlowDirectionDelegate;
+	import org.tinytlf.layout.*;
+	import org.tinytlf.layout.constraints.*;
+	import org.tinytlf.layout.orientation.*;
 	
 	/**
 	 * TextColumnContainer is a Sprite which conveniently implements 
@@ -19,13 +20,16 @@ package org.tinytlf.components
 	 * layouts without also having to manage and update an external 
 	 * ITextContainer.
 	 */
-	public class TextColumnContainer extends Sprite implements ITextContainer, IFlowLayout
+	public class TextColumnContainer extends Sprite implements IConstraintTextContainer
 	{
 		public function TextColumnContainer()
 		{
 			super();
-			container = new TextFlowContainer(this, 100);
+			
+			container = new ConstraintTextContainer(Sprite(addChild(child = new Sprite())), 100);
 		}
+		
+		private var child:Sprite;
 		
 		private var _height:Number = 0;
 		override public function get height():Number
@@ -40,10 +44,6 @@ package org.tinytlf.components
 			
 			_height = Math.max(value, 1);
 			container.explicitHeight = value;
-			
-			graphics.clear();
-			graphics.lineStyle(1, 0xFF0000);
-			graphics.drawRect(0, 0, width, height);
 		}
 		
 		private var _width:Number = 0;
@@ -59,13 +59,9 @@ package org.tinytlf.components
 			
 			_width = Math.max(value, 1);
 			container.explicitWidth = _width;
-			
-			graphics.clear();
-			graphics.lineStyle(1, 0xFF0000);
-			graphics.drawRect(0, 0, width, height);
 		}
 		
-		private var container:IFlowLayout;
+		private var container:IConstraintTextContainer;
 		
 		public function get engine():ITextEngine
 		{
@@ -132,9 +128,29 @@ package org.tinytlf.components
 			return container.measuredWidth;
 		}
 		
+		public function set measuredWidth(value:Number):void
+		{
+			container.measuredWidth = value;
+		}
+		
 		public function get measuredHeight():Number
 		{
 			return container.measuredHeight;
+		}
+		
+		public function set measuredHeight(value:Number):void
+		{
+			container.measuredHeight = value;
+		}
+		
+		public function get scrollable():Boolean
+		{
+			return container.scrollable;
+		}
+		
+		public function set scrollable(value:Boolean):void
+		{
+			container.scrollable = value;
 		}
 		
 		public function resetShapes():void
@@ -149,7 +165,14 @@ package org.tinytlf.components
 		
 		public function layout(block:TextBlock, line:TextLine):TextLine
 		{
-			return container.layout(block, line);
+			var line:TextLine = container.layout(block, line);
+			
+			if(scrollable && measuredHeight > explicitHeight)
+			{
+				addEventListener(Event.ENTER_FRAME, createScrollerCallback);
+			}
+			
+			return line;
 		}
 		
 		public function hasLine(line:TextLine):Boolean
@@ -157,24 +180,83 @@ package org.tinytlf.components
 			return container.hasLine(line);
 		}
 		
-		public function set direction(delegate:IFlowDirectionDelegate):void
+		public function get majorDirection():IMajorOrientation
 		{
-			container.direction = delegate;
+			return container.majorDirection;
 		}
 		
-		public function set elementFactory(factory:ILayoutElementFactory):void
+		public function set majorDirection(delegate:IMajorOrientation):void
 		{
-			container.elementFactory = factory;
+			container.majorDirection = delegate;
 		}
 		
-		public function get elementFactory():ILayoutElementFactory
+		public function get minorDirection():IMinorOrientation
 		{
-			return container.elementFactory;
+			return container.minorDirection;
 		}
 		
-		public function get elements():Vector.<IFlowLayoutElement>
+		public function set minorDirection(delegate:IMinorOrientation):void
 		{
-			return container.elements;
+			container.minorDirection = delegate;
+		}
+		
+		public function set constraintFactory(factory:IConstraintFactory):void
+		{
+			container.constraintFactory = factory;
+		}
+		
+		public function get constraintFactory():IConstraintFactory
+		{
+			return container.constraintFactory;
+		}
+		
+		public function get constraints():Vector.<ITextConstraint>
+		{
+			return container.constraints;
+		}
+		
+		public function addConstraint(constraint:ITextConstraint):void
+		{
+			container.addConstraint(constraint);
+		}
+		
+		public function removeConstraint(constraint:ITextConstraint):void
+		{
+			container.removeConstraint(constraint);
+		}
+		
+		private function createScrollerCallback(event:Event):void
+		{
+			removeEventListener(Event.ENTER_FRAME, createScrollerCallback);
+			initScrollBar();
+		}
+		
+		private var scrollBar:VScrollBar;
+		protected function initScrollBar():void
+		{
+			if(scrollBar)
+				return;
+			
+			scrollBar = new VScrollBar(this, 0, 0, onScrollChange);
+			addChild(scrollBar);
+			scrollBar.lineSize = 5;
+			scrollBar.pageSize = 15;
+			scrollBar.height = explicitHeight;
+			scrollBar.y = 0;
+			
+			explicitWidth -= (scrollBar.width * 2);
+			engine.layout.textBlockFactory.clearCaches();
+			
+			scrollBar.x = width - scrollBar.width;
+			scrollBar.minimum = 0;
+			scrollBar.maximum = measuredHeight - (height/2);
+			scrollBar.setThumbPercent(height/measuredHeight);
+		}
+		
+		private function onScrollChange(event:Event):void
+		{
+			engine.scrollPosition = scrollBar.value;
+			child.scrollRect = new Rectangle(0, scrollBar.value, width, height);
 		}
 	}
 }

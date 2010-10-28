@@ -54,15 +54,32 @@ package org.tinytlf.layout.model.factories
 		function set engine(textEngine:ITextEngine):void;
 		
 		/**
-		 * Returns a read-only reference to the Vector of generated TextBlocks.
+		 * Returns a read-only reference to the Vector of currently visible
+		 * TextBlocks.
 		 */
 		function get blocks():Vector.<TextBlock>;
 		
+		function beginRender():void;
+		function endRender():void;
+		
 		/**
-		 * Creates and returns a Vector of TextBlocks for the data on this
-		 * <code>ILayoutFactoryMap</code>.
+		 * Returns a reference to the next visible TextBlock. This method should
+		 * generate the TextBlock on the fly, as keeping references to every
+		 * TextBlock in the TextField is potentially expensive.
 		 */
-		function createBlocks(... args):Vector.<TextBlock>;
+		function get nextBlock():TextBlock;
+		
+		/**
+		 * Instructs the LayoutFactoryMap to cache the TextBlock for quick
+		 * retrieval on subsequent render cycles.
+		 */
+		function cacheVisibleBlock(block:TextBlock):void;
+		
+		/**
+		 * Instructs the LayoutFactoryMap to clear the internal textBlock and
+		 * layout property caches.
+		 */
+		function clearCaches():void;
 		
 		/**
 		 * Checks to see if an <code>IContentElementFactory</code> class has 

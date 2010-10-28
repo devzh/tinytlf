@@ -6,17 +6,15 @@
  */
 package org.tinytlf.interaction
 {
-	import flash.display.Sprite;
+	import flash.display.*;
 	import flash.events.*;
-	import flash.text.engine.TextBlock;
-	import flash.text.engine.TextLine;
+	import flash.text.engine.*;
 	
 	import org.tinytlf.interaction.behaviors.*;
 	import org.tinytlf.interaction.gestures.IGesture;
 	import org.tinytlf.interaction.gestures.keyboard.*;
 	import org.tinytlf.interaction.gestures.mouse.*;
-	import org.tinytlf.layout.properties.LayoutProperties;
-	import org.tinytlf.layout.properties.TextAlign;
+	import org.tinytlf.layout.properties.*;
 	
 	public class GestureInteractor extends TextInteractorBase implements IGestureInteractor
 	{
@@ -24,6 +22,9 @@ package org.tinytlf.interaction
 		{
 			if(element is TextLine)
 			{
+				TextLine(element).doubleClickEnabled = true;
+				//TODO: This is a hack... fix this please.
+				//ps. don't screw it up.
 				if(TextLine(element).getChildByName('lineCatcher') == null)
 				{
 					createBackground(TextLine(element));
@@ -83,9 +84,12 @@ package org.tinytlf.interaction
 		
 		public function get gestures():Vector.<IGesture>
 		{
-			// Defensive copy. This is the only way to configure behaviors after 
+			return _gestures.concat(); // Defensive copy.
+			// This is the only way to configure behaviors after 
 			// a gesture has been mapped. Don't allow access to the real list.
-			return _gestures.concat();
+			// Provided so it can be searched, behaviors should be added to the
+			// gesture itself, or by calling addGesture with an existing gesture
+			// instance, passing in the new behaviors to be added.
 		}
 		
 		override protected function onRollOver(event:MouseEvent):void

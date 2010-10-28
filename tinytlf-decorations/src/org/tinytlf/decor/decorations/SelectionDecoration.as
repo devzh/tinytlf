@@ -7,6 +7,7 @@
 package org.tinytlf.decor.decorations
 {
 	import flash.display.Graphics;
+	import flash.display.Sprite;
 	import flash.geom.Rectangle;
 	
 	import org.tinytlf.decor.TextDecoration;
@@ -27,17 +28,24 @@ package org.tinytlf.decor.decorations
 			var g:Graphics;
 			var color:uint;
 			var alpha:Number;
+			var layer:Sprite;
 			
 			while (copy.length > 0)
 			{
 				rect = copy.pop();
-				g = rectToLayer(rect).graphics;
+				
+				layer = rectToLayer(rect);
+				if(!layer)
+					continue;
+				
+				g = layer.graphics;
 				
 				color = uint(getStyle("selectionColor"));
 				alpha = Number(getStyle("selectionAlpha"));
 				
 				g.beginFill(color || 0x000000, isNaN(alpha) ? 1 : alpha);
 				g.drawRect(rect.x, rect.y, rect.width, rect.height);
+				g.endFill();
 			}
 		}
 	}

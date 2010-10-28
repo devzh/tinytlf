@@ -79,7 +79,7 @@ internal class ImageLoader extends Sprite
 		this.lp = lp;
 		
 		graphics.beginFill(0x00, 0);
-		graphics.drawRect(0, 0, lp.width + lp.paddingRight + lp.paddingLeft, lp.height + lp.paddingTop + lp.paddingBottom);
+		graphics.drawRect(0, 0, lp.width, lp.height);
 		
 		var loader:Loader = new Loader();
 		loader.load(new URLRequest(src));
@@ -103,9 +103,7 @@ internal class ImageLoader extends Sprite
 		
 		var m:Matrix = new Matrix();
 		m.scale(lp.width / child.width, lp.height / child.height);
-		m.translate(lp.paddingLeft, lp.paddingTop);
-		
-		var bmd:BitmapData = new BitmapData(lp.width + lp.paddingRight + lp.paddingLeft, lp.height + lp.paddingTop + lp.paddingBottom);
+		var bmd:BitmapData = new BitmapData(lp.width, lp.height);
 		bmd.draw(child, m);
 		
 		var bitmap:Bitmap = new Bitmap(bmd);

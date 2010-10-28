@@ -1,6 +1,7 @@
 package org.tinytlf.decor.decorations
 {
 	import flash.display.Graphics;
+	import flash.display.Sprite;
 	import flash.geom.Rectangle;
 	
 	import org.tinytlf.decor.TextDecoration;
@@ -18,11 +19,17 @@ package org.tinytlf.decor.decorations
 			var rect:Rectangle;
 			var g:Graphics;
 			var diameter:Number = getStyle('diameter') || 4;
+			var layer:Sprite;
 			
 			while(copy.length)
 			{
 				rect = copy.pop();
-				g = rectToLayer(rect).graphics;
+				
+				layer = rectToLayer(rect);
+				if(!layer)
+					continue;
+				
+				g = layer.graphics;
 				
 				g.beginFill(getStyle('bulletColor') || getStyle('fontColor') || 0x00,
 					getStyle('bulletAlpha') || getStyle('fontAlpha') || 1);

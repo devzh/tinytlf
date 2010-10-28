@@ -147,11 +147,11 @@ package org.tinytlf.interaction
 			var a:Vector.<XMLDescription> = applyStateToAncestorChain(tree, state);
 			var format:ElementFormat = styler.getElementFormat(a);
 			
-//			if(TinytlfUtil.compareObjectValues(element.elementFormat, format) == false)
-//			{
+			if(TinytlfUtil.compareObjectValues(element.elementFormat, format, {locked:true}) == false)
+			{
 				element.elementFormat = format;
 				info.engine.invalidateLines();
-//			}
+			}
 		}
 		
 		protected function repealCSSFormatting(info:EventLineInfo):void
@@ -164,11 +164,11 @@ package org.tinytlf.interaction
 			var styler:ITextStyler = info.engine.styler;
 			var format:ElementFormat = styler.getElementFormat(tree);
 			
-//			if(TinytlfUtil.compareObjectValues(element.elementFormat, format) == false)
-//			{
+			if(TinytlfUtil.compareObjectValues(element.elementFormat, format, {locked:true}) == false)
+			{
 				element.elementFormat = format;
 				info.engine.invalidateLines();
-//			}
+			}
 		}
 		
 		protected function applyCursor(info:EventLineInfo, state:String = ''):void
@@ -177,6 +177,8 @@ package org.tinytlf.interaction
 			
 			if('cursor' in attr)
 				Mouse.cursor = attr['cursor'];
+			else
+				Mouse.cursor = MouseCursor.AUTO;
 		}
 		
 		protected var stateCache:Dictionary = new Dictionary(true);
@@ -208,7 +210,12 @@ package org.tinytlf.interaction
 			for(var i:int = 0; i < n; ++i)
 			{
 				xml = chain[i];
-				xml.cssState = state;
+				// only anchor tags can have css pseudo-classes, 
+				// but we might be nested inside multiple anchors, so apply to
+				// the ancestor chain here.
+				if(xml.name == 'a')
+					xml.cssState = state;
+				
 				a.push(xml);
 			}
 			

@@ -8,14 +8,15 @@ package org.tinytlf.components
 {
     import flash.display.*;
     import flash.events.*;
-    import flash.geom.Rectangle;
     
     import org.tinytlf.*;
     import org.tinytlf.decor.decorations.*;
     import org.tinytlf.layout.*;
+    import org.tinytlf.layout.constraints.HTMLConstraintFactory;
+    import org.tinytlf.layout.constraints.IConstraintFactory;
     import org.tinytlf.styles.IStyleAware;
 
-    public class TextField extends Sprite implements IStyleAware
+    public class TextField extends ComponentBase implements IStyleAware
     {
         public function TextField()
         {
@@ -26,25 +27,13 @@ package org.tinytlf.components
 			columnCount = 1;
         }
 		
-        private var _height:Number = 0;
-        override public function get height():Number
-        {
-            return _height;
-        }
-        
         override public function set height(value:Number):void
         {
             if(height === value)
                 return;
             
-            _height = value;
+            super.height = value;
 			resizeColumns();
-        }
-        
-        private var _width:Number = 0;
-        override public function get width():Number
-        {
-            return _width;
         }
         
         override public function set width(value:Number):void
@@ -52,7 +41,7 @@ package org.tinytlf.components
             if(width === value)
                 return;
             
-            _width = value;
+            super.width = value;
 			resizeColumns();
         }
 		
@@ -66,7 +55,7 @@ package org.tinytlf.components
 			_configuration = engineConfiguration;
 			
 			engine.configuration = _configuration;
-			engine.invalidate(true);
+			engine.invalidate();
 		}
 		
 		private var textColumns:Vector.<TextColumnContainer> = new <TextColumnContainer>[];
@@ -88,6 +77,7 @@ package org.tinytlf.components
 				column = new TextColumnContainer();
 				engine.layout.addContainer(column);
 				textColumns.push(addChild(column));
+				column.constraintFactory = layoutConstraintFactory;
 			}
 			
 			while(value < textColumns.length)
@@ -173,8 +163,30 @@ package org.tinytlf.components
             
             _text = value;
             engine.layout.textBlockFactory.data = _text;
-            engine.invalidate(true);
+            engine.invalidate();
         }
+		
+		private var constraintFactory:IConstraintFactory = new HTMLConstraintFactory();
+		
+		public function get layoutConstraintFactory():IConstraintFactory
+		{
+			return constraintFactory;
+		}
+		
+		public function set layoutConstraintFactory(factory:IConstraintFactory):void
+		{
+			if(constraintFactory === factory)
+				return;
+			
+			constraintFactory = factory;
+			var n:int = textColumns.length;
+			for(var i:int = 0; i < n; i += 1)
+			{
+				textColumns[i].constraintFactory = constraintFactory;
+			}
+			
+			engine.invalidate();
+		}
         
         public function get style():Object
         {

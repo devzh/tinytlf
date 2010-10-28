@@ -111,7 +111,7 @@
 	</target>
 
 	<!-- Compile Release SWC -->
-	<target name="compile-swc" depends="asdoc">
+	<target name="compile-swc" depends="clean">
 		<echo>[compile] Compiling release SWC</echo>
 		<echo>[compile] Using Flex SDK at: ${FLEX_HOME}</echo>
 

@@ -1,13 +1,8 @@
 package org.tinytlf.util.fte
 {
-	import flash.geom.Point;
-	import flash.geom.Rectangle;
-	import flash.text.engine.ContentElement;
-	import flash.text.engine.GroupElement;
-	import flash.text.engine.TextBlock;
-	import flash.text.engine.TextElement;
-	import flash.text.engine.TextLine;
-	import flash.text.engine.TextLineMirrorRegion;
+	import flash.display.DisplayObject;
+	import flash.geom.*;
+	import flash.text.engine.*;
 	import flash.utils.Dictionary;
 	
 	public class TextLineUtil
@@ -105,12 +100,27 @@ package org.tinytlf.util.fte
 		 */
 		public static function getElementAtAtomIndex(line:TextLine, atomIndex:int):ContentElement
 		{
+			if(atomIndex < 0)
+				return null;
+			
 			var block:TextBlock = line.textBlock;
 			var blockBeginIndex:int = line.textBlockBeginIndex;
 			var content:ContentElement = block.content;
-			while(content is GroupElement)
+			var charIndex:int = blockBeginIndex - content.textBlockBeginIndex + atomIndex;
+			
+			// If you recycle TextBlocks, funky things will happen.
+			// For example, the blockBeginIndex here will report a value of 
+			// 0xFFFFFFFF, obviously erroneous. We have a second check here to 
+			// stop this from throwing RTEs, but honestly, it's likely you'll
+			// just get an RTE somewhere else, because the returned 
+			// contentElement will be a GroupElement here instead of a 
+			// TextElement or GraphicElement like you were expecting.
+			// .poop.
+			
+			while(content is GroupElement && charIndex < block.content.rawText.length)
 			{
-				content = GroupElement(content).getElementAtCharIndex(blockBeginIndex - content.textBlockBeginIndex + atomIndex);
+				content = GroupElement(content).getElementAtCharIndex(charIndex);
+				charIndex = blockBeginIndex - content.textBlockBeginIndex + atomIndex;
 			}
 			
 			return content;
@@ -144,6 +154,22 @@ package org.tinytlf.util.fte
 			}
 			
 			return elements;
+		}
+		
+		public static function hasLineBreak(line:TextLine):Boolean
+		{
+			if(line.atomCount <= 1)
+				return false;
+			
+			//Check to see if we have a line break graphic at the end of the TextLine
+			var graphicIndex:int = line.atomCount - 1;
+			var dObj:DisplayObject = line.getAtomGraphic(graphicIndex);
+			if(!dObj)
+				return false;
+			
+			//We have some kind of graphic at the end, is it a line break?
+			var g:GraphicElement = GraphicElement(getElementAtAtomIndex(line, graphicIndex));
+			return g.userData === TextLineUtil.getSingletonMarker('lineBreak');
 		}
 		
 		private static const singletons:Object = {};

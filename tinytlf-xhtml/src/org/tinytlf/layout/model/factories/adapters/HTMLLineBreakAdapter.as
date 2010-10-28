@@ -9,12 +9,16 @@ package org.tinytlf.layout.model.factories.adapters
 	
 	import org.tinytlf.layout.model.factories.ContentElementFactory;
 	import org.tinytlf.util.fte.ContentElementUtil;
+	import org.tinytlf.util.fte.TextLineUtil;
 	
 	public class HTMLLineBreakAdapter extends ContentElementFactory
 	{
 		override public function execute(data:Object, ...parameters):ContentElement
 		{
-			return ContentElementUtil.lineBreakBefore(new GraphicElement(new Shape(), 0, 0, new ElementFormat()));
+			return ContentElementUtil.lineBreakBefore(
+				new GraphicElement(new Shape(), 0, 0, new ElementFormat()),
+				TextLineUtil.getSingletonMarker('lineBreak')
+			);
 		}
 	}
 }

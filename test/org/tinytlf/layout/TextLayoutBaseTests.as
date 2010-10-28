@@ -130,7 +130,7 @@ package org.tinytlf.layout
             
             blocks.push(block);
             
-            layout.render(blocks);
+            layout.render();
             
             verify(container).method("layout").once();
         }
@@ -153,7 +153,7 @@ package org.tinytlf.layout
             layout.addContainer(container);
             layout.addContainer(container2);
             
-            layout.render(blocks);
+            layout.render();
             
             verify(container2).method("layout").once();
         }
@@ -173,8 +173,7 @@ package org.tinytlf.layout
             
             layout.addContainer(container);
             
-            layout.render(blocks);
-            1
+            layout.render();
             
             verify(container).method("layout").args(block, null).once();
             verify(container).method("layout").args(block2, null).once();
@@ -200,7 +199,7 @@ package org.tinytlf.layout
             layout.addContainer(container);
             layout.addContainer(container2);
             
-            layout.render(blocks);
+            layout.render();
             
             verify(container).method("layout").args(block, line).once();
             

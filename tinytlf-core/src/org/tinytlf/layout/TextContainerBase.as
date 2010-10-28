@@ -15,6 +15,7 @@ package org.tinytlf.layout
 	import flash.utils.Dictionary;
 	
 	import org.tinytlf.ITextEngine;
+	import org.tinytlf.layout.model.factories.ILayoutFactoryMap;
 	
 	public class TextContainerBase implements ITextContainer
 	{
@@ -148,6 +149,14 @@ package org.tinytlf.layout
 			return width;
 		}
 		
+		public function set measuredWidth(value:Number):void
+		{
+			if(value === width)
+				return;
+			
+			width = value;
+		}
+		
 		protected var height:Number = 0;
 		
 		public function get measuredHeight():Number
@@ -155,15 +164,48 @@ package org.tinytlf.layout
 			return height;
 		}
 		
+		public function set measuredHeight(value:Number):void
+		{
+			if(value === height)
+				return;
+			
+			height = value;
+		}
+		
+		private var _scrollable:Boolean = true;
+		public function get scrollable():Boolean
+		{
+			return _scrollable;
+		}
+		
+		public function set scrollable(value:Boolean):void
+		{
+			if(value == _scrollable)
+				return;
+			
+			_scrollable = value;
+			if(engine)
+				engine.invalidate();
+		}
+		
 		protected var lines:Vector.<TextLine> = new <TextLine>[];
+		
+		protected var orphanLines:Vector.<TextLine> = new <TextLine>[];
+		protected var visibleLines:Vector.<TextLine> = new <TextLine>[];
 		
 		public function hasLine(line:TextLine):Boolean
 		{
-			return lines.indexOf(line) != -1;
+			return visibleLines.indexOf(line) != -1;
 		}
 		
 		public function preLayout():void
 		{
+			orphanLines = visibleLines.concat();
+			orphanLines.forEach(function(l:TextLine, ... args):void{
+				unregisterLine(l);
+				removeLineFromTarget(l);
+			});
+			visibleLines.length = 0;
 		}
 		
 		public function resetShapes():void
@@ -201,10 +243,9 @@ package org.tinytlf.layout
 		protected function registerLine(line:TextLine):void
 		{
 			if(!hasLine(line))
-				lines.push(line);
+				visibleLines.push(line);
 			
 			line.userData = engine;
-			line.doubleClickEnabled = true;
 			engine.interactor.getMirror(line);
 		}
 		
@@ -212,9 +253,9 @@ package org.tinytlf.layout
 		{
 			line.userData = null;
 			
-			var i:int = lines.indexOf(line);
+			var i:int = visibleLines.indexOf(line);
 			if(i != -1)
-				lines.splice(i, 1);
+				visibleLines.splice(i, 1);
 		}
 		
 		protected function addLineToTarget(line:TextLine, index:int = 0):TextLine
@@ -248,8 +289,17 @@ package org.tinytlf.layout
 			
 			for(var i:int = 0; i < n; ++i)
 			{
-				lines[i].validity = TextLineValidity.INVALID;
+				visibleLines[i].validity = TextLineValidity.INVALID;
 			}
+		}
+		
+		protected function getRecycledLine(previousLine:TextLine):TextLine
+		{
+			var line:TextLine = orphanLines.pop();
+			while(line === previousLine)
+				line = orphanLines.pop();
+			
+			return line;
 		}
 	}
 }

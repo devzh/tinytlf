@@ -7,6 +7,7 @@
 package org.tinytlf.decor.decorations
 {
     import flash.display.Graphics;
+    import flash.display.Sprite;
     import flash.geom.Point;
     import flash.geom.Rectangle;
     
@@ -27,11 +28,17 @@ package org.tinytlf.decor.decorations
             var end:Point;
             var rect:Rectangle;
             var g:Graphics;
+            var layer:Sprite;
             
             while(bounds.length > 0)
             {
                 rect = bounds.pop();
-                g = rectToLayer(rect).graphics;
+				
+				layer = rectToLayer(rect);
+				if(!layer)
+					continue;
+				
+				g = layer.graphics;
                 
                 start = new Point(rect.x, rect.y + (rect.height * 0.5));
                 end = new Point(rect.x + rect.width, rect.y + (rect.height * 0.5));

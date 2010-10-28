@@ -205,6 +205,22 @@ package org.tinytlf
 			invalidateDecorations();
 		}
 		
+		private var _scrollPosition:Number = 0;
+		
+		public function get scrollPosition():Number
+		{
+			return _scrollPosition;
+		}
+		
+		public function set scrollPosition(value:Number):void
+		{
+			if(value === _scrollPosition)
+				return;
+			
+			_scrollPosition = value;
+			invalidate();
+		}
+		
 		private var _selection:Point = new Point(NaN, NaN);
 		
 		public function get selection():Point
@@ -264,37 +280,10 @@ package org.tinytlf
 			return null;
 		}
 		
-		public function invalidate(preRender:Boolean = false):void
+		public function invalidate():void
 		{
-			if(preRender)
-			{
-				invalidateData();
-			}
-			
 			invalidateLines();
 			invalidateDecorations();
-		}
-		
-		protected var invalidateDataFlag:Boolean = false;
-		
-		public function invalidateData():void
-		{
-			if(invalidateDataFlag)
-				return;
-			
-			invalidateDataFlag = true;
-			invalidateStage();
-		}
-		
-		protected var invalidateStylesFlag:Boolean = false;
-		
-		public function invalidateStyles():void
-		{
-			if(invalidateStylesFlag)
-				return;
-			
-			invalidateStylesFlag = true;
-			invalidateStage();
 		}
 		
 		protected var invalidateLinesFlag:Boolean = false;
@@ -350,14 +339,6 @@ package org.tinytlf
 			
 			rendering = true;
 			
-			if(invalidateDataFlag)
-				renderData();
-			invalidateDataFlag = false;
-			
-			if(invalidateStylesFlag)
-				validateStyles();
-			invalidateStylesFlag = false;
-			
 			if(invalidateLinesFlag)
 				renderLines();
 			invalidateLinesFlag = false;
@@ -371,57 +352,6 @@ package org.tinytlf
 		
 		protected var blocks:Vector.<TextBlock>;
 		
-		protected function renderData():void
-		{
-			decor.removeAll();
-			
-			blocks = createTextBlocks();
-		}
-		
-		protected function createTextBlocks():Vector.<TextBlock>
-		{
-			return layout.textBlockFactory.createBlocks();
-		}
-		
-		protected function validateStyles():void
-		{
-			if(!blocks)
-				return;
-			
-			var n:int = blocks.length;
-			for(var i:int = 0; i < n; ++i)
-			{
-				recurseElement(blocks[i].content);
-				if(blocks[i].firstInvalidLine)
-				{
-					invalidateLinesFlag = true;
-					invalidateDecorationsFlag = true;
-				}
-			}
-		}
-		
-		private function recurseElement(element:ContentElement):void
-		{
-			if(!element)
-				return;
-			
-			if(element is GroupElement)
-			{
-				var n:int = GroupElement(element).elementCount;
-				for(var i:int = 0; i < n; ++i)
-				{
-					recurseElement(GroupElement(element).getElementAt(i));
-				}
-			}
-			else
-			{
-				var dec:Object = styler.describeElement(element.userData);
-				decor.decorate(element, dec, int(dec['layer']) || 2, null, dec['foreground']);
-			}
-			
-			element.elementFormat = styler.getElementFormat(element.userData);
-		}
-		
 		protected function renderLines():void
 		{
 			if(selection.x == selection.x && selection.y == selection.y)
@@ -432,7 +362,8 @@ package org.tinytlf
 				caretIndexChanged = true;
 			}
 			
-			layout.render(blocks);
+			layout.render();
+			blocks = layout.textBlockFactory.blocks;
 		}
 		
 		protected function renderDecorations():void

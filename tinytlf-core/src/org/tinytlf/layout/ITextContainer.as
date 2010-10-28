@@ -6,10 +6,8 @@
  */
 package org.tinytlf.layout
 {
-    import flash.display.DisplayObjectContainer;
-    import flash.display.Sprite;
-    import flash.text.engine.TextBlock;
-    import flash.text.engine.TextLine;
+    import flash.display.*;
+    import flash.text.engine.*;
     
     import org.tinytlf.ITextEngine;
     
@@ -41,10 +39,8 @@ package org.tinytlf.layout
     public interface ITextContainer
     {
 		/**
-		 * <p>
 		 * Reference to the central <code>ITextEngine</code> facade for this
 		 * <code>container</code>.
-		 * </p>
 		 * 
 		 * @see org.tinytlf.ITextEngine
 		 */
@@ -52,11 +48,9 @@ package org.tinytlf.layout
         function set engine(textEngine:ITextEngine):void;
         
 		/**
-		 * <p>
 		 * The target <code>DisplayObjectContainer</code> for this 
-		 * <code>ITextContainer</code>. <code>TextLine</code>s are added to and 
+		 * <code>ITextContainer</code>. <code>TextLines</code> are added to and 
 		 * removed from the target during layout.
-		 * </p>
 		 * 
 		 * @see org.tinytlf.layout.ITextLayout
 		 */
@@ -64,10 +58,8 @@ package org.tinytlf.layout
         function set target(textContainer:Sprite):void;
         
 		/**
-		 * <p>
 		 * The Sprite which background decorations are rendered into. Background
 		 * decorations exist behind the TextLines.
-		 * </p>
 		 * 
 		 * @see org.tinytlf.decor.ITextDecor
 		 * @see org.tinytlf.decor.ITextDecoration
@@ -76,10 +68,8 @@ package org.tinytlf.layout
         function set background(shapesContainer:Sprite):void;
         
 		/**
-		 * <p>
 		 * The Sprite which foreground decorations are rendered into. Foreground
 		 * decorations exist in front of the TextLines.
-		 * </p>
 		 * 
 		 * @see org.tinytlf.decor.ITextDecor
 		 * @see org.tinytlf.decor.ITextDecoration
@@ -88,58 +78,64 @@ package org.tinytlf.layout
         function set foreground(shapesContainer:Sprite):void;
         
 		/**
-		 * <p>
 		 * The height within which to render and lay out TextLines. If this
 		 * value is not set, the <code>ITextContainer</code> will render lines
 		 * into this container indefinitely, never signaling that the container
 		 * is full.
-		 * </p>
+		 * 
+		 * @see scrollable
 		 */
         function get explicitHeight():Number;
         function set explicitHeight(value:Number):void;
         
 		/**
-		 * <p>
-		 * The defined width to render TextLines during layout. If this value is
-		 * not set, lines are created with <code>TextBlock</code>'s default size
-		 * for <code>TextLine</code>s, 1000000.
-		 * </p>
+		 * The defined width to render <code>TextLines</code> during layout. 
+		 * If this value is not set, lines are created with 
+		 * <code>TextLine.MAX_LINE_WIDTH</code>, 1000000.
+		 * 
 		 */
         function get explicitWidth():Number;
         function set explicitWidth(value:Number):void;
         
 		/**
-		 * <p>
 		 * The width of the widest <code>TextLine</code> in this
 		 * <code>ITextContainer</code>. If the lines aren't justified, the Flash
 		 * Text Engine will attempt to render lines into a certain width. If the
 		 * FTE determines an atom or word won't fit, it will defer the atom or 
 		 * word to the next TextLine. The result is that the actual width of the
-		 * rendered TextLine is less than the specifiedWidth.
-		 * </p>
+		 * rendered TextLine is less than the specifiedWidth. In turn, the
+		 * <code>measuredWidth</code> of this TextContainer won't necessarily be
+		 * the same as the <code>explicitWidth</code>.
+		 * 
 		 */
         function get measuredWidth():Number;
+        function set measuredWidth(value:Number):void;
 		
 		/**
-		 * <p>
 		 * The measured height of all the TextLines, including lineHeight and 
 		 * paddingTop/paddingBottom.
-		 * </p>
+		 * 
 		 */
         function get measuredHeight():Number;
+        function set measuredHeight(value:Number):void;
 		
 		/**
-		 * <p>
-		 * Clears the graphics and removes all children from the 
-		 * <code>shapes</code> Sprite.
-		 * </p>
+		 * Whether the TextContainer is scrollable or not. The TextContainer must
+		 * have an <code>explicitHeight<code> (or <code>explicitWidth</code> if
+		 * a vertical layout is applied) defined which binds TextLines within
+		 * the content area.
+		 * 
+		 * @see explicitHeight
 		 */
-        function resetShapes():void;
-        
+		function get scrollable():Boolean;
+		function set scrollable(value:Boolean):void;
+		
 		/**
-		 * Called before layout inside this container begins.
+		 * Checks whether this ITextContainer has a particular TextLine.
+		 * 
+		 * @returns true if the line is in this TextContainer, false otherwise.
 		 */
-        function preLayout():void;
+        function hasLine(line:TextLine):Boolean;
         
 		/**
 		 * Renders as many <code>TextLines</code> from the specified
@@ -159,11 +155,19 @@ package org.tinytlf.layout
 		 * @see org.tinytlf.layout.ITextLayout#render
 		 */
         function layout(block:TextBlock, line:TextLine):TextLine;
+        
+		/**
+		 * Called before layout inside this container begins.
+		 * 
+		 */
+        function preLayout():void;
 		
 		/**
-		 * Checks whether this ITextContainer has a particular TextLine.
+		 * Clears the graphics and removes all children from the 
+		 * <code>shapes</code> Sprite.
+		 * 
 		 */
-        function hasLine(line:TextLine):Boolean;
+        function resetShapes():void;
     }
 }
 

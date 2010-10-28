@@ -6,10 +6,12 @@
  */
 package org.tinytlf.layout.model.factories
 {
-    import flash.text.engine.TextBlock;
+    import flash.text.engine.*;
     import flash.utils.Dictionary;
     
     import org.tinytlf.ITextEngine;
+    import org.tinytlf.layout.properties.*;
+    import org.tinytlf.util.TinytlfUtil;
 
     public class AbstractLayoutFactoryMap implements ILayoutFactoryMap
     {
@@ -28,7 +30,7 @@ package org.tinytlf.layout.model.factories
             _data = value;
 			
 			if(engine)
-				engine.invalidate(true);
+				engine.invalidate();
         }
 
         private var _engine:ITextEngine;
@@ -45,37 +47,35 @@ package org.tinytlf.layout.model.factories
 
             _engine = textEngine;
         }
-
-        protected var _blocks:Vector.<TextBlock> = new Vector.<TextBlock>();
+		
+		protected var visibleBlocks:Vector.<TextBlock> = new <TextBlock>[];
 
         public function get blocks():Vector.<TextBlock>
         {
-            return _blocks ? _blocks.concat() : new Vector.<TextBlock>;
+            return visibleBlocks ? visibleBlocks.concat() : new Vector.<TextBlock>;
         }
-
-        public function createBlocks(... args):Vector.<TextBlock>
-        {
-            if(_blocks && _blocks.length)
-            {
-                var block:TextBlock;
-                while (_blocks.length > 0)
-                {
-                    block = _blocks.pop();
-                    if (block.firstLine)
-                        block.releaseLines(block.firstLine, block.lastLine);
-                }
-            }
-
-            _blocks = generateTextBlocks();
-
-            return _blocks;
-        }
-
-        protected function generateTextBlocks():Vector.<TextBlock>
-        {
-            return new <TextBlock>[];
-        }
-
+		
+		public function beginRender():void
+		{
+		}
+		
+		public function endRender():void
+		{
+		}
+		
+		public function get nextBlock():TextBlock
+		{
+			return null;
+		}
+		
+		public function cacheVisibleBlock(block:TextBlock):void
+		{
+		}
+		
+		public function clearCaches():void
+		{
+		}
+		
         protected var elementAdapterMap:Dictionary = new Dictionary(false);
 
         public function hasElementFactory(element:*):Boolean
@@ -118,5 +118,31 @@ package org.tinytlf.layout.model.factories
 
             return delete elementAdapterMap[element];
         }
+		
+		
+		/**
+		 * Utility method which applies justification properties to the 
+		 * TextBlock before it's rendered.
+		 */
+		protected function setupBlockJustifier(block:TextBlock):void
+		{
+			var props:LayoutProperties = TinytlfUtil.getLP(block);
+			var justification:String = LineJustification.UNJUSTIFIED;
+			var justifier:TextJustifier = TextJustifier.getJustifierForLocale(props.locale);
+			
+			if(props.textAlign == TextAlign.JUSTIFY)
+				justification = LineJustification.ALL_BUT_LAST;
+			
+			justifier.lineJustification = justification;
+			
+			if(	!block.textJustifier || 
+				block.textJustifier.lineJustification != justification || 
+				block.textJustifier.locale != props.locale)
+			{
+				props.applyTo(justifier);
+				
+				block.textJustifier = justifier;
+			}
+		}
     }
 }

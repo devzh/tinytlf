@@ -7,6 +7,7 @@
 package org.tinytlf.decor.decorations
 {
     import flash.display.Graphics;
+    import flash.display.Sprite;
     import flash.geom.Point;
     import flash.geom.Rectangle;
     import flash.text.engine.ContentElement;
@@ -46,11 +47,17 @@ package org.tinytlf.decor.decorations
             var g:Graphics;
             var copy:Vector.<Rectangle> = bounds.concat();
 			var thickness:Number = getStyle("underlineThickness") || 2;
+			var layer:Sprite;
             
             while(copy.length > 0)
             {
                 rect = copy.pop();
-                g = rectToLayer(rect).graphics;
+				
+				layer = rectToLayer(rect);
+				if(!layer)
+					continue;
+				
+				g = layer.graphics;
                 start = new Point(rect.left, rect.bottom - thickness);
                 end = new Point(rect.right, rect.bottom - thickness);
                 

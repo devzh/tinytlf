@@ -8,6 +8,7 @@ package org.tinytlf.decor.decorations
 {
     import flash.display.Graphics;
     import flash.display.Shape;
+    import flash.display.Sprite;
     import flash.events.TimerEvent;
     import flash.geom.Rectangle;
     import flash.utils.Timer;
@@ -40,8 +41,12 @@ package org.tinytlf.decor.decorations
                 return;
             
             rect = bounds[0];
-            
-            g = Shape(rectToLayer(rect).addChild(new Shape())).graphics;
+			
+			var layer:Sprite = rectToLayer(rect);
+			if(!layer)
+				return;
+			
+            g = Shape(layer.addChild(new Shape())).graphics;
             
             if(!timer.hasEventListener(TimerEvent.TIMER))
                 timer.addEventListener(TimerEvent.TIMER, toggle);

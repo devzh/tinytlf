@@ -6,17 +6,13 @@
  */
 package org.tinytlf.layout
 {
-	import flash.text.engine.LineJustification;
-	import flash.text.engine.TextBlock;
-	import flash.text.engine.TextJustifier;
-	import flash.text.engine.TextLine;
+	import flash.text.engine.*;
 	import flash.utils.Dictionary;
 	
 	import org.tinytlf.ITextEngine;
-	import org.tinytlf.layout.model.factories.AbstractLayoutFactoryMap;
-	import org.tinytlf.layout.model.factories.ILayoutFactoryMap;
-	import org.tinytlf.layout.properties.LayoutProperties;
-	import org.tinytlf.layout.properties.TextAlign;
+	import org.tinytlf.layout.model.factories.*;
+	import org.tinytlf.layout.properties.*;
+	import org.tinytlf.util.TinytlfUtil;
 	
 	public class TextLayoutBase implements ITextLayout
 	{
@@ -78,8 +74,13 @@ package org.tinytlf.layout
 			if(containers.indexOf(container) != -1)
 				return;
 			
+			_containers.forEach(function(c:ITextContainer, ...args):void{
+				c.scrollable = false;
+			});
+			
 			_containers.push(container);
 			container.engine = engine;
+			container.scrollable = true;
 		}
 		
 		public function removeContainer(container:ITextContainer):void
@@ -123,52 +124,35 @@ package org.tinytlf.layout
 		 * TextBlock if we encounter the third case.
 		 * </p>
 		 */
-		public function render(blocks:Vector.<TextBlock>):void
+		public function render():void
 		{
-			if(!containers || !containers.length || !blocks || !blocks.length)
+			if(!containers || !containers.length)
 				return;
 			
 			containers.forEach(function(c:ITextContainer, ... args):void{
 				c.preLayout();
 			});
 			
-			var block:TextBlock = blocks[0];
-			var i:int = 0;
-			var container:ITextContainer = containers[0];
+			textBlockFactory.beginRender();
 			
+			var block:TextBlock = textBlockFactory.nextBlock;
+			var container:ITextContainer = containers[0];
 			
 			while(block && container)
 			{
-				setupBlockJustifier(block);
-				
 				container = renderBlockAcrossContainers(block, container);
 				
-				block = ++i < blocks.length ? blocks[i] : null;
-			}
-		}
-		
-		/**
-		 * Applies the justification properties to the TextBlock before it's rendered.
-		 */
-		protected function setupBlockJustifier(block:TextBlock):void
-		{
-			var props:LayoutProperties = (block.userData as LayoutProperties) || new LayoutProperties();
-			var justification:String = LineJustification.UNJUSTIFIED;
-			var justifier:TextJustifier = TextJustifier.getJustifierForLocale(props.locale);
-			
-			if(props.textAlign == TextAlign.JUSTIFY)
-				justification = LineJustification.ALL_BUT_LAST;
-			
-			justifier.lineJustification = justification;
-			
-			if(	!block.textJustifier || 
-				block.textJustifier.lineJustification != justification || 
-				block.textJustifier.locale != props.locale)
-			{
-				props.applyTo(justifier);
+				textBlockFactory.cacheVisibleBlock(block);
+				block.releaseLineCreationData();
 				
-				block.textJustifier = justifier;
+				// Only call nextBlock if there's a container.
+				// Don't want to cause unnecessary processing if there's no
+				// place to render the lines.
+				if(container)
+					block = textBlockFactory.nextBlock;
 			}
+			
+			textBlockFactory.endRender();
 		}
 		
 		/**
@@ -178,9 +162,11 @@ package org.tinytlf.layout
 		 * This method should render every line from the TextBlock into the
 		 * ITextContainers.
 		 *
-		 * @returns The last ITextContainer rendered into.
+		 * @returns The last ITextContainer rendered into, including null if
+		 * there are no containers left.
 		 */
-		protected function renderBlockAcrossContainers(block:TextBlock, startContainer:ITextContainer):ITextContainer
+		protected function renderBlockAcrossContainers(block:TextBlock, 
+													   startContainer:ITextContainer):ITextContainer
 		{
 			if(!containers || !containers.length)
 				return startContainer;
@@ -188,7 +174,8 @@ package org.tinytlf.layout
 			var container:ITextContainer = startContainer;
 			var containerIndex:int = containers.indexOf(container);
 			
-			var line:TextLine = container.layout(block, block.firstLine);
+			var line:TextLine = container.layout(block, null);
+			
 			while(line)
 			{
 				if(++containerIndex < containers.length)

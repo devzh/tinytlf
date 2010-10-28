@@ -11,22 +11,10 @@ package org.tinytlf.util
             for (var i:int = 0; i < n; ++i)
             {
                 attr = attributes[i];
-                obj[stripSeparators(attr.localName())] = attr.toString();
+                obj[TinytlfUtil.stripSeparators(attr.localName())] = attr.toString();
             }
 
             return obj;
-		}
-		
-		/**
-		 * Converts a string from underscore or dash separators to no separators.
-		 */
-		public static function stripSeparators(str:String):String
-		{
-			var s:String = str.replace(/(-|_)(\w)/g, function(...args):String{
-				return String(args[2]).toUpperCase();
-			});
-			
-			return s.replace(/(-|_)/g, '');
 		}
         
         public static function arrayToString(array:Array):String
@@ -36,9 +24,9 @@ package org.tinytlf.util
             for(var i:int = 0; i < n; ++i)
             {
                 if(array[i] is XML || array[i] is XMLList)
-                    s += stripSeparators(array[i].toXMLString());
+                    s += TinytlfUtil.stripSeparators(array[i].toXMLString());
                 else
-                    s += stripSeparators(array[i].toString());
+                    s += TinytlfUtil.stripSeparators(array[i].toString());
             }
             
             return s;

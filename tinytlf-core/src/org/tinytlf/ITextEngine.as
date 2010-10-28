@@ -80,6 +80,20 @@ package org.tinytlf
         function set layout(textlayout:ITextLayout):void;
         
 		/**
+		 * The scroll position of the engine. This value is in pixels. Defined
+		 * centrally here, but usually only needed during layout.
+		 */
+        function get scrollPosition():Number;
+        function set scrollPosition(value:Number):void;
+        
+		/**
+		 * A point whose <code>x</code> property represents the engine's 
+		 * selection startIndex and <code>y</code> property represents 
+		 * the engine's selection endIndex.
+		 */
+        function get selection():Point;
+        
+		/**
 		 * ITextEngine invalidates by calling <code>invalidate()</code> 
 		 * on Flash's Stage singleton, then validates when the <code>Event.RENDER</code>
 		 * event is dispatched.
@@ -96,13 +110,6 @@ package org.tinytlf
         
         function getBlockPosition(block:TextBlock):int;
         function getBlockSize(block:TextBlock):int;
-        
-		/**
-		 * A point whose <code>x</code> property represents the engine's 
-		 * selection startIndex and <code>y</code> property represents 
-		 * the engine's selection endIndex.
-		 */
-        function get selection():Point;
 		
         /**
         * Draws a selection decoration around text.
@@ -117,36 +124,7 @@ package org.tinytlf
 		 * @see org.tinytlf.decor.ITextDecoration
 		 * @see org.tinytlf.layout.model.ILayoutModelFactory
 		 */
-        function invalidate(preRender:Boolean = false):void;
-		
-		/**
-		 * An optimization to invalidate this engine's data for rendering. 
-		 * When this validates, the engine tells <code>ITextLayout</code>'s 
-		 * <code>ITextBlockFactory</code> to parse through the data and generate
-		 * FTE <code>ContentElements</code> and <code>TextBlock</code>s for the
-		 * data. This has the potential to be an expensive operation and should
-		 * only be called when the backing data for the engine changes. Changes
-		 * to the <code>ContentElement</code>s that represent this data don't 
-		 * require a call to <code>invalidateData</code> for committal, instead 
-		 * the FTE watches them and marks <code>TextLine</code>s in the relevant
-		 * <code>TextBlock</code>s as invalid. To commit changes to 
-		 * <code>ContentElement</code>s, call <code>ITextEngine</code>'s 
-		 * <code>invalidateLines</code> method.
-		 * 
-		 * @see org.tinytlf.layout.ITextLayout
-		 * @see org.tinytlf.layout.model.factories.ITextLayoutModelFactory
-		 */
-        function invalidateData():void;
-		
-		/**
-		 * An optimization to invalidate the styles for the ContentElements that
-		 * represent the TextLines rendered inside this ITextEngine. When styles
-		 * change and text should be optionally re-rendered, this method marks
-		 * the ContentElements for iteration on the next render cycle. If the
-		 * styles cause re-rendering, this should be detected and the lines
-		 * invalidated.
-		 */
-		function invalidateStyles():void;
+        function invalidate():void;
 		
 		/**
 		 * An optimization to invalidate only the lines for re-draw on the next 

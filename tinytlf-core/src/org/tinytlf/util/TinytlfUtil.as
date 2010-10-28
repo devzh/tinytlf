@@ -1,15 +1,14 @@
 package org.tinytlf.util
 {
 	import flash.system.Capabilities;
-	import flash.text.engine.ContentElement;
-	import flash.text.engine.GroupElement;
-	import flash.text.engine.TextBlock;
-	import flash.text.engine.TextLine;
+	import flash.text.engine.*;
 	import flash.utils.Dictionary;
+	import flash.utils.describeType;
 	
 	import org.tinytlf.ITextEngine;
+	import org.tinytlf.layout.properties.LayoutProperties;
 	
-	public class TinytlfUtil
+	public final class TinytlfUtil
 	{
 		private static var mac:Boolean = (/mac/i).test(Capabilities.os);
 		
@@ -196,6 +195,34 @@ package org.tinytlf.util
 		}
 		
 		/**
+		 * Retrieves the LayoutProperties object from the argument passed in.
+		 * If no LayoutProperties could be determined, a new instance is 
+		 * returned.
+		 * 
+		 */
+		public static function getLP(from:Object = null):LayoutProperties
+		{
+			if(from is LayoutProperties)
+				return LayoutProperties(from);
+			
+			var block:TextBlock;
+			if(from is TextLine)
+				block = TextLine(from).textBlock;
+			else if(from is TextBlock)
+				block = TextBlock(from);
+			
+			if(block)
+			{
+				if(block.userData is LayoutProperties)
+					return LayoutProperties(block.userData);
+				else
+					block.userData = new LayoutProperties();
+			}
+			
+			return new LayoutProperties(from);
+		}
+		
+		/**
 		 * Like compare, except only primitive types matter.  
 		 * If objectA has a child object with no values and objectB doesn't have
 		 * that object, they still compare as true because no primitive types
@@ -203,62 +230,100 @@ package org.tinytlf.util
 		 *
 		 * @return True if the two Object's values are the same, False if 
 		 * they're different.
-		 * 
-		 * Original author Nicholas Bilyk, http://nbilyk.com/
-		 * Lifted from:
-		 * http://code.google.com/p/nbflexlib/source/browse/trunk/flex3/src/com/nbilyk/utils/ObjectUtils.as
 		 */
-		public static function compareObjectValues(objectA:Object, objectB:Object):Boolean
+		public static function compareObjectValues(objectA:Object, 
+												   objectB:Object, 
+												   exceptions:Object = null):Boolean
 		{
 			if(!!objectA != !!objectB)
 				return false;
 			
-			if(!recursiveCompare(objectA, [], objectB))
+			if(!recursiveCompare(objectA, objectB, exceptions))
 				return false;
-			if(!recursiveCompare(objectB, [], objectA))
+			if(!recursiveCompare(objectB, objectA, exceptions))
 				return false;
 			
 			return true;
 		}
 		
-		private static function recursiveCompare(nestedObject:Object, nestedNames:Array, objectB:Object, recursionDict:Dictionary = null):Boolean
+		private static const types:Dictionary = new Dictionary();
+		
+		private static function recursiveCompare(source:Object, 
+												 dest:Object, 
+												 exceptions:Object = null):Boolean
 		{
-			if(!recursionDict)
-				recursionDict = new Dictionary(true);
-			
-			if(recursionDict[nestedObject])
-				return true;
-			
-			recursionDict[nestedObject] = true;
-			for(var all:String in nestedObject)
+			if(source is Array)
 			{
-				if(!all || nestedObject[all] == null)
-					continue;
-				switch(typeof(nestedObject[all]))
+				if(source.length != dest.length)
+					return false;
+				
+				for(var i:int = 0; i < source.length; i += 1)
 				{
-					case ("object"):
-						if(!recursiveCompare(nestedObject[all], nestedNames.concat(all), objectB, recursionDict))
+					if(source[i] !== dest[i])
+					{
+						return false;
+					}
+				}
+				
+				return true;
+			}
+			if(source is XML || source is XMLList)
+			{
+				if(source.length() != dest.length())
+					return false;
+				
+				return source === dest;
+			}
+			
+			var accessors:XMLList;
+			if(source.constructor in types)
+			{
+				accessors = types[source.constructor];
+			}
+			else
+			{
+				var xml:XML = describeType(source);
+				types[source.constructor] = accessors = xml..accessor.(@access == 'readwrite');
+			}
+			
+			var n:String;
+			for each(var x:XML in accessors)
+			{
+				n = x.@name;
+				
+				if(exceptions && n in exceptions)
+					continue;
+				
+				switch(typeof source[n])
+				{
+					case 'object':
+					case 'xml':
+						if(!recursiveCompare(source[n], dest[n]))
 							return false;
 						break;
-					case ("boolean"):
-					case ("string"):
-					case ("number"):
-						var obj:Object = objectB;
-						for each(var prop:String in nestedNames)
-						{
-							obj = obj[prop];
-							if(!obj)
-								return false;
-						}
-						var comparison2:Boolean = nestedObject[all] == obj[all];
-						if(nestedObject[all] !== obj[all])
+					case 'boolean':
+					case 'number':
+					case 'string':
+						if(source[n] !== dest[n])
 							return false;
-						
 						break;
 				}
 			}
 			
 			return true;
+		}
+		
+		
+		/**
+		 * Converts a string from underscore or dash separators to no separators.
+		 */
+		public static function stripSeparators(str:String):String
+		{
+			var s:String = str.replace(/(-|_)(\w)/g, function(...args):String{
+				return String(args[2]).toUpperCase();
+			});
+			
+			return s.replace(/(-|_)/g, '');
 		}
 	}
 }
