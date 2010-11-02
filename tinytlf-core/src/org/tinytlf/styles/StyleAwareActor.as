@@ -82,9 +82,7 @@ package org.tinytlf.styles
 		public function merge(object:Object):void
 		{
 			for (var prop:String in object)
-			{
 				mergeProperty(prop, object);
-			}
 		}
 		
 		protected function mergeProperty(property:String, source:Object):void
@@ -95,8 +93,13 @@ package org.tinytlf.styles
 		public function applyTo(object:Object):void
 		{
 			for(var prop:String in properties)
-				if(prop in object && !(object[prop] is Function))
-					object[prop] = properties[prop];
+				applyProperty(prop, object);
+		}
+		
+		protected function applyProperty(property:String, destination:Object):void
+		{
+			if(property in destination && !(destination[property] is Function))
+				destination[property] = this[property];
 		}
 		
 		public function toString():String

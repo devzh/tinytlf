@@ -4,19 +4,20 @@
  * Permission is hereby granted to use, modify, and distribute this file
  * in accordance with the terms of the license agreement accompanying it.
  */
-package org.tinytlf.layout.model.factories.adapters
+package org.tinytlf.layout.factories
 {
+    import flash.display.Shape;
     import flash.events.EventDispatcher;
     import flash.net.URLRequest;
     import flash.text.engine.ContentElement;
     import flash.text.engine.ElementFormat;
     import flash.text.engine.GraphicElement;
+    import flash.text.engine.GroupElement;
     import flash.text.engine.TextBaseline;
     
-    import org.tinytlf.layout.model.factories.ContentElementFactory;
-    import org.tinytlf.layout.model.factories.XMLDescription;
     import org.tinytlf.layout.properties.LayoutProperties;
     import org.tinytlf.util.fte.ContentElementUtil;
+    import org.tinytlf.util.fte.TextLineUtil;
 
     public class HTMLImageAdapter extends ContentElementFactory
     {
@@ -24,7 +25,6 @@ package org.tinytlf.layout.model.factories.adapters
         {
             var img:XMLDescription = context[context.length - 1];
 			var imageProperties:Object = engine.styler.describeElement(img);
-			
 			var inheritedProperties:Object = engine.styler.describeElement(context);
 			
 			var lp:LayoutProperties = new LayoutProperties(imageProperties);
@@ -36,22 +36,45 @@ package org.tinytlf.layout.model.factories.adapters
 			
 			if(imageProperties.float)
 			{
-	            element = new GraphicElement(new ImageLoader(img.src, lp), lp.width, lp.height, format, getEventMirror(context) || new EventDispatcher());
+	            element = new GraphicElement(
+					new ImageLoader(img.src, lp), 
+					lp.width, 
+					lp.height, 
+					format, 
+					getEventMirror(context) || new EventDispatcher());
 				
 	            element.userData = Vector.<XMLDescription>(context);
 				
-				engine.decor.decorate(element, inheritedProperties, inheritedProperties.layer, null, inheritedProperties.foreground);
+				//Decorate this element?
+				engine.decor.decorate(
+					element, 
+					inheritedProperties, 
+					inheritedProperties.layer, 
+					null, 
+					inheritedProperties.foreground);
 				
-				return ContentElementUtil.lineBreakBeforeAndAfter(element);
+				var lBreakMarker:Object = TextLineUtil.getSingletonMarker('lineBreak');
+				var lBreakGraphic:GraphicElement = new GraphicElement(new Shape(),0, 0, new ElementFormat());
+				lBreakGraphic.userData = lBreakMarker;
+				
+				return ContentElementUtil.lineBreakBeforeAndAfter(
+					new GroupElement(new <ContentElement>[element, lBreakGraphic]));
 			}
 			
-            element = new GraphicElement(new ImageLoader(img.src, lp), 
-				lp.width + lp.paddingLeft + lp.paddingRight, lp.height + lp.paddingTop + lp.paddingBottom, 
+            element = new GraphicElement(
+				new ImageLoader(img.src, lp), 
+				lp.width + lp.paddingLeft + lp.paddingRight, 
+				lp.height + lp.paddingTop + lp.paddingBottom, 
 				format, getEventMirror(context) || new EventDispatcher());
 			
             element.userData = Vector.<XMLDescription>(context);
 			
-			engine.decor.decorate(element, inheritedProperties, inheritedProperties.layer, null, inheritedProperties.foreground);
+			engine.decor.decorate(
+				element, 
+				inheritedProperties, 
+				inheritedProperties.layer, 
+				null, 
+				inheritedProperties.foreground);
 			
             return element;
         }

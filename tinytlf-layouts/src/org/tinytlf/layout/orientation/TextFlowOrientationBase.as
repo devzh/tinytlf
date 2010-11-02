@@ -33,7 +33,15 @@ package org.tinytlf.layout.orientation
 		{
 		}
 		
+		public function postLayout():void
+		{
+		}
+		
 		public function prepForTextBlock(block:TextBlock, line:TextLine):void
+		{
+		}
+		
+		public function postTextBlock(block:TextBlock):void
 		{
 		}
 		
@@ -48,7 +56,8 @@ package org.tinytlf.layout.orientation
 		
 		/**
 		 * Checks to see if we've laid out lines within the boundaries of our
-		 * target container. Returns true if we're outside bounds, false if we aren't.
+		 * target container. Returns true if we're outside bounds, false if we 
+		 * aren't.
 		 */
 		public function checkTargetBounds(latestLine:TextLine):Boolean
 		{
@@ -73,19 +82,14 @@ package org.tinytlf.layout.orientation
 		 */
 		public function registerConstraint(line:TextLine, atomIndex:int):Boolean
 		{
-			var contentElement:ContentElement = TextLineUtil.getElementAtAtomIndex(line, atomIndex);
-			var data:* = contentElement.userData;
+			var constraint:ITextConstraint = createConstraint(line, atomIndex);
 			
-			if(data === TextLineUtil.getSingletonMarker('listItemTerminator'))
-			{
-				handleListItemTermination();
-			}
-			else if(data)
-			{
-				layout.addConstraint(target.constraintFactory.getConstraint(line, atomIndex));
-			}
+			if(!constraint)
+				return false;
 			
-			return data === TextLineUtil.getSingletonMarker('containerTerminator');
+			handleConstraint(line, constraint);
+			
+			return finalizeConstraint(line, constraint);
 		}
 		
 		public function get value():Number
@@ -93,9 +97,39 @@ package org.tinytlf.layout.orientation
 			return 0;
 		}
 		
-		protected function getTotalSize(from:Object):Number
+		protected function getTotalSize(from:Object = null):Number
 		{
 			return 0;
+		}
+		
+		protected function createConstraint(line:TextLine, atomIndex:int):ITextConstraint
+		{
+			var cElement:ContentElement = TextLineUtil.getElementAtAtomIndex(line, atomIndex);
+			var constraint:ITextConstraint = target.getConstraint(cElement);
+			
+			if(!constraint)
+			{
+				constraint = target.constraintFactory.getConstraint(line, atomIndex);
+				if(constraint)
+				{
+					target.addConstraint(constraint);
+				}
+			}
+			
+			return constraint;
+		}
+		
+		protected function handleConstraint(line:TextLine, constraint:ITextConstraint):void
+		{
+			if(constraint.constraintMarker === TextLineUtil.getSingletonMarker('listItemTerminator'))
+			{
+				handleListItemTermination();
+			}
+		}
+		
+		protected function finalizeConstraint(line:TextLine, constraint:ITextConstraint):Boolean
+		{
+			return constraint.constraintMarker === TextLineUtil.getSingletonMarker('containerTerminator');
 		}
 		
 		/**
@@ -112,7 +146,8 @@ package org.tinytlf.layout.orientation
 			{
 				el = constraints[i];
 				
-				if(el.constraintMarker === TextLineUtil.getSingletonMarker('listItem'))
+				if(	el.constraintMarker === TextLineUtil.getSingletonMarker('listItemOutside') || 
+					el.constraintMarker === TextLineUtil.getSingletonMarker('listItemInside'))
 				{
 					target.removeConstraint(el);
 					break;

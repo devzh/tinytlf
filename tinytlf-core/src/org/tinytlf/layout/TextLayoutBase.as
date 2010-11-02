@@ -10,9 +10,10 @@ package org.tinytlf.layout
 	import flash.utils.Dictionary;
 	
 	import org.tinytlf.ITextEngine;
-	import org.tinytlf.layout.model.factories.*;
+	import org.tinytlf.layout.factories.*;
 	import org.tinytlf.layout.properties.*;
 	import org.tinytlf.util.TinytlfUtil;
+	import org.tinytlf.util.fte.TextBlockUtil;
 	
 	public class TextLayoutBase implements ITextLayout
 	{
@@ -31,17 +32,17 @@ package org.tinytlf.layout
 			_engine = textEngine;
 		}
 		
-		protected var _textBlockFactory:ILayoutFactoryMap;
+		protected var _textBlockFactory:ITextBlockFactory;
 		
-		public function get textBlockFactory():ILayoutFactoryMap
+		public function get textBlockFactory():ITextBlockFactory
 		{
 			if(!_textBlockFactory)
-				textBlockFactory = new AbstractLayoutFactoryMap();
+				textBlockFactory = new TextBlockFactoryBase();
 			
 			return _textBlockFactory;
 		}
 		
-		public function set textBlockFactory(value:ILayoutFactoryMap):void
+		public function set textBlockFactory(value:ITextBlockFactory):void
 		{
 			if(value === _textBlockFactory)
 				return;
@@ -111,18 +112,6 @@ package org.tinytlf.layout
 		/**
 		 * Renders all the TextLines from the list of TextBlocks into this
 		 * layout's ITextContainers.
-		 *
-		 * <p>
-		 * Each TextBlock can be in one of three states:
-		 * <ul>
-		 * <li>TextBlock has rendered no TextLines, and needs the entire layout pass,</li>
-		 * <li>The TextBlock has previously rendered TextLines, but needs to re-render certain invalid TextLines,</li>
-		 * <li>The TextBlock has rendered all the TextLines and has no invalid TextLines.</li>
-		 * </ul>
-		 *
-		 * This method handles the first two cases, and skips to the next
-		 * TextBlock if we encounter the third case.
-		 * </p>
 		 */
 		public function render():void
 		{
@@ -143,16 +132,23 @@ package org.tinytlf.layout
 				container = renderBlockAcrossContainers(block, container);
 				
 				textBlockFactory.cacheVisibleBlock(block);
+				
 				block.releaseLineCreationData();
 				
 				// Only call nextBlock if there's a container.
 				// Don't want to cause unnecessary processing if there's no
 				// place to render the lines.
 				if(container)
+				{
 					block = textBlockFactory.nextBlock;
+				}
 			}
 			
 			textBlockFactory.endRender();
+			
+			containers.forEach(function(c:ITextContainer, ... args):void{
+				c.postLayout();
+			});
 		}
 		
 		/**
@@ -162,8 +158,8 @@ package org.tinytlf.layout
 		 * This method should render every line from the TextBlock into the
 		 * ITextContainers.
 		 *
-		 * @returns The last ITextContainer rendered into, including null if
-		 * there are no containers left.
+		 * @returns The last ITextContainer rendered into, or null if there are
+		 * no containers left.
 		 */
 		protected function renderBlockAcrossContainers(block:TextBlock, 
 													   startContainer:ITextContainer):ITextContainer
@@ -174,7 +170,27 @@ package org.tinytlf.layout
 			var container:ITextContainer = startContainer;
 			var containerIndex:int = containers.indexOf(container);
 			
-			var line:TextLine = container.layout(block, null);
+//			var line:TextLine = container.layout(block, null);
+			var line:TextLine;
+			if(TextBlockUtil.isInvalid(block))
+			{
+				if(block.firstLine && !block.firstInvalidLine)
+				{
+					line = container.layout(block, block.lastLine);
+				}
+				else
+				{
+					line = container.layout(
+						block, 
+						block.firstInvalidLine ? 
+						block.firstInvalidLine.previousLine : 
+						null);
+				}
+			}
+			else
+			{
+				line = container.layout(block, null);
+			}
 			
 			while(line)
 			{

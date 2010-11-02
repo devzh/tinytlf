@@ -1,6 +1,5 @@
 package org.tinytlf.layout.orientation.horizontal
 {
-	import flash.display.DisplayObject;
 	import flash.text.engine.*;
 	
 	import org.tinytlf.layout.*;
@@ -8,7 +7,6 @@ package org.tinytlf.layout.orientation.horizontal
 	import org.tinytlf.layout.constraints.horizontal.HConstraintFactory;
 	import org.tinytlf.layout.properties.*;
 	import org.tinytlf.util.TinytlfUtil;
-	import org.tinytlf.util.fte.TextLineUtil;
 	
 	/**
 	 * The IMajorOrientation implementation for left-to-right languages.
@@ -23,6 +21,8 @@ package org.tinytlf.layout.orientation.horizontal
 		}
 		
 		private var x:Number = 0;
+		private var leftConstraint:Number = 0;
+		private var rightConstraint:Number = 0;
 		
 		override public function get value():Number
 		{
@@ -34,213 +34,176 @@ package org.tinytlf.layout.orientation.horizontal
 			super.preLayout();
 			
 			x = 0;
+			leftConstraint = 0;
+			rightConstraint = getTotalSize();
 		}
 		
 		override public function prepForTextBlock(block:TextBlock, line:TextLine):void
 		{
-			var lp:LayoutProperties = TinytlfUtil.getLP(block);
+			super.prepForTextBlock(block, line);
 			
-			if(line)
+			var constraints:Vector.<ITextConstraint> = target.constraints;
+			var n:int = constraints.length;
+			var c:ITextConstraint;
+			var elem:ContentElement;
+			
+			var lineBlockBeginIndex:int = line ? line.textBlockBeginIndex : -1;
+			
+			for(var i:int = 0; i < n; i += 1)
 			{
-				if(target.hasLine(line))
+				c = constraints[i];
+				if(c.content is ContentElement)
 				{
-					var totalWidth:Number = getTotalSize(block);
-					
-					switch(lp.textAlign)
-					{
-						case TextAlign.LEFT:
-						case TextAlign.JUSTIFY:
-							x = 0;
-							break;
-						case TextAlign.RIGHT:
-							x = totalWidth;
-							break;
-					}
+					elem = ContentElement(c.content);
+					if(elem.textBlock === block)
+						if(elem.textBlockBeginIndex > lineBlockBeginIndex)
+							target.removeConstraint(c);
 				}
-				
-				return;
 			}
 			
-			x = lp.textIndent;
+			evaluateConstraints(block);
 		}
 		
 		override public function getLineSize(block:TextBlock, previousLine:TextLine):Number
 		{
-			var totalSize:Number = super.getLineSize(block, previousLine);
-			var lp:LayoutProperties = TinytlfUtil.getLP(block);
-			switch(lp.textAlign)
-			{
-				case TextAlign.LEFT:
-				case TextAlign.JUSTIFY:
-					return sizeFromLeft(totalSize, previousLine);
-					break;
-				case TextAlign.RIGHT:
-					return sizeFromRight(totalSize, previousLine);
-					break;
-			}
+			evaluateConstraints(block);
 			
-			return totalSize;
+			return rightConstraint - leftConstraint;
 		}
 		
 		override public function position(line:TextLine):void
 		{
-			//position here, don't rely on the sizing method to set the position.
+			evaluateConstraints(line);
+			
 			var lp:LayoutProperties = TinytlfUtil.getLP(line);
+			
 			switch(lp.textAlign)
 			{
 				case TextAlign.LEFT:
 				case TextAlign.JUSTIFY:
-					positionFromLeft(line);
+					positionLeft(line);
+					break;
+				case TextAlign.CENTER:
+					positionCenter(line);
 					break;
 				case TextAlign.RIGHT:
-					positionFromRight(line);
+					positionRight(line);
 					break;
 			}
 		}
 		
-		override public function registerConstraint(line:TextLine, atomIndex:int):Boolean
+		override protected function handleConstraint(line:TextLine, constraint:ITextConstraint):void
 		{
-			var retVal:Boolean = super.registerConstraint(line, atomIndex);
+			super.handleConstraint(line, constraint);
 			
-			var contentElement:ContentElement = TextLineUtil.getElementAtAtomIndex(line, atomIndex);
-			var data:* = contentElement.userData;
-			
-			if(!data)
-				return retVal;
-			
-			var constraints:Vector.<ITextConstraint> = target.constraints;
-			if(constraints.length == 0)
-				return retVal;
-			
-			var constraint:ITextConstraint;
-			for(var i:int = 0; i < constraints.length; i += 1)
-			{
-				constraint = constraints[i];
-				if(constraint.content === contentElement)
-					break;
-			}
-			
-			if(!constraint)
-				return retVal;
+			if(!constraint.constraintMarker)
+				return;
 			
 			if(constraint.float)
 			{
 				switch(constraint.float)
 				{
 					case TextFloat.LEFT:
-						line.x = 0;
+						constraint.majorValue = leftConstraint;
 						break;
 					case TextFloat.RIGHT:
-						line.x = getTotalSize(line) - constraint.majorSize;
+						constraint.majorValue = rightConstraint - constraint.majorSize;
 						break;
 				}
 				
-				target.removeConstraint(constraint);
-				target.addConstraint(target.constraintFactory.getConstraint(line, atomIndex));
+				line.x = constraint.majorValue;
 			}
 			
-			return retVal;
+			evaluateConstraints(line);
 		}
 		
-		private function sizeFromLeft(total:Number, previousLine:TextLine):Number
+		private function evaluateConstraints(around:Object):void
 		{
-			if(x >= total)
-				x = 0;
-			
+			var c:ITextConstraint;
 			var constraints:Vector.<ITextConstraint> = target.constraints;
-			var el:ITextConstraint;
-			
-			var size:Number = total;
-			var xPos:Number = x;
 			var n:int = constraints.length;
 			
-			var elX:Number = 0;
-			var y:Number = target.minorDirection.value;
+			var minorValue:Number = target.minorDirection.value;
+			var l:Number = 0;
+			var totalWidth:Number = getTotalSize(around);
+			var r:Number = totalWidth;
+			var majorValue:Number = -1;
 			
 			for(var i:int = 0; i < n; i += 1)
 			{
-				el = constraints[i];
+				c = constraints[i];
 				
-				elX = el.getMajorValue(y, xPos);
+				majorValue = c.getMajorValue(minorValue, l);
 				
-				// If there's no major direction value for this constraint, it
-				// musn't exist within this minor direction. Skip it.
-				if(elX == -1)
+				if(majorValue == -1)
 					continue;
 				
-				// Current xPos doesn't intersect with the constraint.
-				// it can be either on the left or right.
-				if(elX == xPos)
+				if(c.float)
 				{
-					// If xPos is to the left of the majorValue, optionally 
-					// update the size.
-					if(xPos < el.majorValue)
+					if(c.float == TextFloat.LEFT)
 					{
-						size = Math.min(size, el.majorValue - xPos);
+						if((c.majorValue + c.majorSize) >= l){
+							l = c.majorValue + c.majorSize;
+						}
 					}
-					
-						// if xPos is to the right, we don't care about this constraint,
-						// so we don't have anything to update.
+					else if(c.float == TextFloat.RIGHT)
+					{
+						if(c.majorValue < r){
+							r = c.majorValue;
+						}
+					}
 				}
-				// Otherwise, the xPos intersected with the bounds of the 
-				// constraint. Update xPos/size.
 				else
 				{
-					xPos = elX;
-					size -= el.majorSize;
+					if(c.majorValue <= l)
+						l = majorValue;
+					if(c.majorValue >= r)
+						r = c.majorValue;
 				}
 			}
 			
-			x = xPos;
+			leftConstraint = l;
+			rightConstraint = r;
 			
-			return size;
+			var lp:LayoutProperties = TinytlfUtil.getLP(around);
+			switch(lp.textAlign)
+			{
+				case TextAlign.LEFT:
+				case TextAlign.JUSTIFY:
+					x = leftConstraint;
+					break;
+				case TextAlign.CENTER:
+					x = (totalWidth * .5) + (l * .5) - (r * .5);
+					break;
+				case TextAlign.RIGHT:
+					x = rightConstraint;
+					break;
+			}
 		}
 		
-		private function positionFromLeft(line:TextLine):void
+		private function positionLeft(line:TextLine):void
+		{
+			line.x = leftConstraint;
+			x = leftConstraint + line.specifiedWidth;
+			if(x >= rightConstraint)
+				x = getTotalSize(line);
+		}
+		
+		private function positionCenter(line:TextLine):void
 		{
 			line.x = x;
 			x += line.specifiedWidth;
 			
-			//If there's a line break at the end of this line, reset the X to 0
-			// and skip everything else (we don't care anymore)
-			if(TextLineUtil.hasLineBreak(line))
-			{
+			if(x > rightConstraint)
+				x = getTotalSize(line);
+		}
+		
+		private function positionRight(line:TextLine):void
+		{
+			line.x = rightConstraint - line.specifiedWidth;
+			x = line.x;
+			if(x <= leftConstraint)
 				x = 0;
-				return;
-			}
-			
-			var el:ITextConstraint;
-			var constraints:Vector.<ITextConstraint> = target.constraints;
-			var n:int = constraints.length;
-			var elX:Number = 0;
-			
-			var y:Number = target.minorDirection.value;
-			
-			for(var i:int = 0; i < n; i += 1)
-			{
-				el = constraints[i];
-				elX = el.getMajorValue(y, x);
-				
-				if(elX == -1)
-					continue;
-				
-				x = elX;
-			}
-		}
-		
-		private function sizeFromRight(total:Number, previousLine:TextLine):Number
-		{
-			//TODO: implement
-			var xPos:Number = total;
-			
-			return total;
-		}
-		
-		private function positionFromRight(line:TextLine):void
-		{
-			//TODO: implement
-			line.x = x;
-			x -= line.specifiedWidth;
 		}
 	}
 }

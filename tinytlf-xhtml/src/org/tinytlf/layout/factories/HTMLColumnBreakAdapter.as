@@ -1,11 +1,10 @@
-package org.tinytlf.layout.model.factories.adapters
+package org.tinytlf.layout.factories
 {
 	import flash.display.Shape;
 	import flash.text.engine.ContentElement;
 	import flash.text.engine.ElementFormat;
 	import flash.text.engine.GraphicElement;
 	
-	import org.tinytlf.layout.model.factories.ContentElementFactory;
 	import org.tinytlf.util.fte.ContentElementUtil;
 	import org.tinytlf.util.fte.TextLineUtil;
 	

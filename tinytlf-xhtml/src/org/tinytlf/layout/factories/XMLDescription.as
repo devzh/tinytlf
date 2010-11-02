@@ -1,4 +1,4 @@
-package org.tinytlf.layout.model.factories
+package org.tinytlf.layout.factories
 {
 	import flash.utils.flash_proxy;
 	

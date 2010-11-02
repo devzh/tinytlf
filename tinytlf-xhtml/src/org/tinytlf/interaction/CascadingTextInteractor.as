@@ -2,7 +2,7 @@ package org.tinytlf.interaction
 {
 	import flash.events.EventDispatcher;
 	
-	import org.tinytlf.layout.model.factories.XMLDescription;
+	import org.tinytlf.layout.factories.XMLDescription;
 	
 	public class CascadingTextInteractor extends GestureInteractor
 	{

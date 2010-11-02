@@ -20,9 +20,19 @@ package org.tinytlf.layout.constraints.vertical
 			return lp.y;
 		}
 		
+		override public function set majorValue(value:Number):void
+		{
+			lp.y = value;
+		}
+		
 		override public function get majorSize():Number
 		{
 			return totalHeight;
+		}
+		
+		override public function set majorSize(value:Number):void
+		{
+			lp.height = value;
 		}
 		
 		override public function getMajorValue(atMinor:Number, fromMajor:Number):Number

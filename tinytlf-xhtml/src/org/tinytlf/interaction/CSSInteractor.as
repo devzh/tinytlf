@@ -9,7 +9,7 @@ package org.tinytlf.interaction
 	
 	import org.tinytlf.ITextEngine;
 	import org.tinytlf.decor.ITextDecor;
-	import org.tinytlf.layout.model.factories.XMLDescription;
+	import org.tinytlf.layout.factories.XMLDescription;
 	import org.tinytlf.styles.ITextStyler;
 	import org.tinytlf.util.TinytlfUtil;
 	
@@ -40,6 +40,9 @@ package org.tinytlf.interaction
 				return;
 			
 			super.onRollOver(event);
+			
+			if(cssState === HOVER)
+				return;
 			
 			var info:EventLineInfo = EventLineInfo.getInfo(event, this);
 			if(!info)
@@ -72,6 +75,9 @@ package org.tinytlf.interaction
 		override protected function onMouseMove(event:MouseEvent):void
 		{
 			if(!TinytlfUtil.isBitSet(mouseState, OVER))
+				return;
+			
+			if(cssState === HOVER)
 				return;
 			
 			super.onMouseMove(event);

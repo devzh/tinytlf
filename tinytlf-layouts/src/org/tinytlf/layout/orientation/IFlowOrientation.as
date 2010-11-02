@@ -9,9 +9,14 @@ package org.tinytlf.layout.orientation
 	public interface IFlowOrientation
 	{
 		/**
-		 * Called just before layout begins in the target container.
+		 * Called on every ITextContainer just before layout begins.
 		 */
 		function preLayout():void;
+		
+		/**
+		 * Called on every ITextContainer after the entire layout pass ends.
+		 */
+		function postLayout():void;
 		
 		/**
 		 * Called by the IFlowLayout just before layout on this TextBlock begins.
@@ -19,6 +24,13 @@ package org.tinytlf.layout.orientation
 		 * paragraph.
 		 */
 		function prepForTextBlock(block:TextBlock, line:TextLine):void;
+		
+		/**
+		 * Called by the IFlowLayout just before layout on this TextBlock begins.
+		 * Allows the IFlowDirectionDelegate to adjust before rendering the next
+		 * paragraph.
+		 */
+		function postTextBlock(block:TextBlock):void;
 		
 		/**
 		 * Sets the x and y positions of the TextLine.

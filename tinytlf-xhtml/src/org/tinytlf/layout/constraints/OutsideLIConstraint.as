@@ -1,14 +1,18 @@
 package org.tinytlf.layout.constraints
 {
-	import flash.text.engine.ContentElement;
-	
 	import org.tinytlf.layout.constraints.horizontal.HConstraint;
+	import org.tinytlf.layout.properties.TextFloat;
 	
-	public class ListItemConstraint extends HConstraint
+	public class OutsideLIConstraint extends HConstraint
 	{
-		public function ListItemConstraint(constraintElement:ContentElement = null)
+		public function OutsideLIConstraint(constraintElement:* = null)
 		{
 			super(constraintElement);
+		}
+		
+		override public function get float():String
+		{
+			return TextFloat.LEFT;
 		}
 		
 		override public function getMajorValue(atMinor:Number, fromMajor:Number):Number

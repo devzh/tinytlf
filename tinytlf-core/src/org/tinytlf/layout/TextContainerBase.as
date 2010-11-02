@@ -6,16 +6,12 @@
  */
 package org.tinytlf.layout
 {
-	import flash.display.DisplayObject;
-	import flash.display.Shape;
-	import flash.display.Sprite;
-	import flash.text.engine.TextBlock;
-	import flash.text.engine.TextLine;
-	import flash.text.engine.TextLineValidity;
+	import flash.display.*;
+	import flash.text.engine.*;
 	import flash.utils.Dictionary;
 	
 	import org.tinytlf.ITextEngine;
-	import org.tinytlf.layout.model.factories.ILayoutFactoryMap;
+	import org.tinytlf.layout.factories.ITextBlockFactory;
 	
 	public class TextContainerBase implements ITextContainer
 	{
@@ -142,6 +138,21 @@ package org.tinytlf.layout
 			engine.invalidate();
 		}
 		
+		protected var height:Number = 0;
+		
+		public function get measuredHeight():Number
+		{
+			return height;
+		}
+		
+		public function set measuredHeight(value:Number):void
+		{
+			if(value === height)
+				return;
+			
+			height = value;
+		}
+		
 		protected var width:Number = 0;
 		
 		public function get measuredWidth():Number
@@ -157,19 +168,34 @@ package org.tinytlf.layout
 			width = value;
 		}
 		
-		protected var height:Number = 0;
+		protected var tHeight:Number = 0;
 		
-		public function get measuredHeight():Number
+		public function get totalHeight():Number
 		{
-			return height;
+			return tHeight;
 		}
 		
-		public function set measuredHeight(value:Number):void
+		public function set totalHeight(value:Number):void
 		{
-			if(value === height)
+			if(value === tHeight)
 				return;
 			
-			height = value;
+			tHeight = value;
+		}
+		
+		protected var tWidth:Number = 0;
+		
+		public function get totalWidth():Number
+		{
+			return tWidth;
+		}
+		
+		public function set totalWidth(value:Number):void
+		{
+			if(value === tWidth)
+				return;
+			
+			tWidth = value;
 		}
 		
 		private var _scrollable:Boolean = true;
@@ -188,8 +214,6 @@ package org.tinytlf.layout
 				engine.invalidate();
 		}
 		
-		protected var lines:Vector.<TextLine> = new <TextLine>[];
-		
 		protected var orphanLines:Vector.<TextLine> = new <TextLine>[];
 		protected var visibleLines:Vector.<TextLine> = new <TextLine>[];
 		
@@ -200,12 +224,55 @@ package org.tinytlf.layout
 		
 		public function preLayout():void
 		{
-			orphanLines = visibleLines.concat();
-			orphanLines.forEach(function(l:TextLine, ... args):void{
-				unregisterLine(l);
+			var lines:Vector.<TextLine> = visibleLines.concat();
+			var n:int = lines.length;
+			var l:TextLine;
+			
+			// Parse through and look for invalid lines. Add every line from
+			// their TextBlock to the list of orphans, because we'll re-render
+			// the entire paragraph.
+			for(var i:int = 0; i < n; i += 1)
+			{
+				l = lines[i];
+				
+				if(l.validity === TextLineValidity.VALID)
+					continue;
+				
+				orphanLines.unshift(l);
 				removeLineFromTarget(l);
-			});
-			visibleLines.length = 0;
+			}
+		}
+		
+		public function postLayout():void
+		{
+			var blocks:Vector.<TextBlock> = engine.layout.textBlockFactory.blocks;
+			var n:int = blocks.length;
+			var visibleBlocks:Dictionary = new Dictionary(true);
+			
+			for(var i:int = 0; i < n; i += 1)
+			{
+				visibleBlocks[blocks[i]] = true;
+			}
+			
+			n = visibleLines.length;
+			var line:TextLine;
+			
+			for(i = 0; i < n; i += 1)
+			{
+				line = visibleLines[i];
+				if(line.textBlock in visibleBlocks)
+					continue;
+				
+				orphanLines.push(line);
+			}
+			
+			n = orphanLines.length;
+			for(i = 0; i < n; i += 1)
+			{
+				line = orphanLines[i];
+				unregisterLine(line);
+				removeLineFromTarget(line);
+			}
 		}
 		
 		public function resetShapes():void
@@ -264,6 +331,7 @@ package org.tinytlf.layout
 				return line;
 			
 			index ||= target.numChildren > 1 ? target.numChildren - 1 : 1;
+			
 			return TextLine(target.addChildAt(line, index));
 		}
 		
@@ -285,12 +353,15 @@ package org.tinytlf.layout
 		
 		protected function invalidateLines():void
 		{
-			var n:int = lines.length;
-			
+			var n:int = visibleLines.length;
 			for(var i:int = 0; i < n; ++i)
 			{
 				visibleLines[i].validity = TextLineValidity.INVALID;
 			}
+			
+			totalHeight = 0;
+			totalWidth = 0;
+//			engine.layout.textBlockFactory.clearCaches();
 		}
 		
 		protected function getRecycledLine(previousLine:TextLine):TextLine

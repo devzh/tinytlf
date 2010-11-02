@@ -6,6 +6,11 @@ package org.tinytlf.layout.orientation
 	public interface IMajorOrientation extends IFlowOrientation
 	{
 		/**
+		 * Calculates the width of the newest TextLine.
+		 */
+		function getLineSize(block:TextBlock, previousLine:TextLine):Number;
+		
+		/**
 		 * Called from the IFlowLayout when an IFlowLayoutElement has been
 		 * detected in a TextLine.
 		 * 
@@ -14,10 +19,5 @@ package org.tinytlf.layout.orientation
 		 * if it should continue.
 		 */
 		function registerConstraint(line:TextLine, atomIndex:int):Boolean;
-		
-		/**
-		 * Calculates the width of the newest TextLine.
-		 */
-		function getLineSize(block:TextBlock, previousLine:TextLine):Number;
 	}
 }

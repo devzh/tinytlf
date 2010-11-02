@@ -6,7 +6,9 @@
  */
 package org.tinytlf.layout.properties
 {
+    import flash.text.engine.LineJustification;
     import flash.text.engine.TextBlock;
+    import flash.text.engine.TextJustifier;
     
     import org.tinytlf.styles.StyleAwareActor;
     
@@ -16,12 +18,12 @@ package org.tinytlf.layout.properties
 	 * 
 	 * This is associated via the TextBlock's <code>userData</code> value, and 
 	 * is the only valid value for the <code>userData</code> of a TextBlock in
-	 * tinytlf layout.
+	 * tinytlf.
 	 * 
-	 * LP is dynamic and extends from the tinytlf styling framework, so he's not
-	 * without extension points. However, most of the inline and block level 
-	 * layout values are already defined as public members. Feel free to tack on
-	 * properties as you please.
+	 * LayoutProperties is dynamic and extends from the tinytlf styling 
+	 * framework, so he's not without extension points. Most of the inline and 
+	 * block level layout values are defined as public members, but feel free to
+	 * tack on properties as you need.
 	 */
     public dynamic class LayoutProperties extends StyleAwareActor
     {
@@ -49,6 +51,41 @@ package org.tinytlf.layout.properties
 		public var display:String = TextDisplay.INLINE;
 		public var letterSpacing:Boolean = false;
 		public var locale:String = 'en';
+		
+		override protected function applyProperty(property:String, destination:Object):void
+		{
+			if(property === "textAlign" && destination is TextBlock)
+			{
+				setupBlockJustifier(TextBlock(destination));
+				return;
+			}
+			
+			super.applyProperty(property, destination);
+		}
+		
+		
+		/**
+		 * Utility method which applies justification properties to the 
+		 * TextBlock before it's rendered.
+		 */
+		protected function setupBlockJustifier(block:TextBlock):void
+		{
+			var justification:String = LineJustification.UNJUSTIFIED;
+			var justifier:TextJustifier = TextJustifier.getJustifierForLocale(locale);
+			
+			if(textAlign == TextAlign.JUSTIFY)
+				justification = LineJustification.ALL_BUT_LAST;
+			
+			justifier.lineJustification = justification;
+			
+			if(	!block.textJustifier || 
+				block.textJustifier.lineJustification != justification || 
+				block.textJustifier.locale != locale)
+			{
+				applyTo(justifier);
+				block.textJustifier = justifier;
+			}
+		}
     }
 }
 

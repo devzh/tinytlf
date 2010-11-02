@@ -1,9 +1,8 @@
-package org.tinytlf.layout.model.factories.adapters
+package org.tinytlf.layout.factories
 {
 	import flash.events.EventDispatcher;
 	import flash.text.engine.*;
 	
-	import org.tinytlf.layout.model.factories.ContentElementFactory;
 	import org.tinytlf.util.fte.ContentElementUtil;
 	
 	public class HTMLHorizontalRuleAdapter extends ContentElementFactory

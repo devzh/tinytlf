@@ -1,7 +1,7 @@
 package org.tinytlf.layout.constraints
 {
-	import flash.text.engine.ContentElement;
-	
+	import flash.text.engine.TextLine;
+
 	/**
 	 * A text constraint is an element in a TextField which can't have any 
 	 * overlap with other constraints.
@@ -15,13 +15,17 @@ package org.tinytlf.layout.constraints
 		 * any object detected within the TextLine, including the TextLine
 		 * itself.
 		 */
-		function initialize(element:ContentElement):void;
+		function initialize(element:*):void;
 		
-		function get content():ContentElement;
+		function get content():*;
 		function get constraintMarker():Object;
 		function get float():String;
+		
 		function get majorValue():Number;
+		function set majorValue(value:Number):void;
+		
 		function get majorSize():Number;
+		function set majorSize(value:Number):void;
 		
 		function getMajorValue(atMinor:Number, fromMajor:Number):Number;
 	}

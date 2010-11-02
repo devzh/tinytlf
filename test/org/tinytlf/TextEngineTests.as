@@ -4,38 +4,23 @@ package org.tinytlf
     import flash.display.Stage;
     import flash.events.Event;
     import flash.events.TimerEvent;
-    import flash.geom.Point;
-    import flash.geom.Rectangle;
     import flash.text.engine.TextBlock;
     import flash.text.engine.TextElement;
-    import flash.text.engine.TextLine;
-    import flash.text.engine.TextLineMirrorRegion;
     import flash.utils.Timer;
     
     import flexunit.framework.Assert;
     
-    import mockolate.nice;
-    import mockolate.prepare;
-    import mockolate.strict;
-    import mockolate.stub;
-    import mockolate.verify;
+    import mockolate.*;
     
     import mx.core.UIComponent;
     
     import org.flexunit.async.Async;
     import org.fluint.uiImpersonation.UIImpersonator;
-    import org.tinytlf.decor.ITextDecor;
-    import org.tinytlf.decor.TextDecor;
-    import org.tinytlf.interaction.ITextInteractor;
-    import org.tinytlf.interaction.TextInteractorBase;
-    import org.tinytlf.layout.ITextContainer;
-    import org.tinytlf.layout.ITextLayout;
-    import org.tinytlf.layout.TextContainerBase;
-    import org.tinytlf.layout.TextLayoutBase;
-    import org.tinytlf.layout.model.factories.AbstractLayoutFactoryMap;
-    import org.tinytlf.layout.model.factories.ILayoutFactoryMap;
-    import org.tinytlf.styles.ITextStyler;
-    import org.tinytlf.styles.TextStyler;
+    import org.tinytlf.decor.*;
+    import org.tinytlf.interaction.*;
+    import org.tinytlf.layout.*;
+    import org.tinytlf.layout.factories.*;
+    import org.tinytlf.styles.*;
     
     public class TextEngineTests
     {
@@ -50,7 +35,7 @@ package org.tinytlf
             engine = new TextEngine(engineStage);
             delayTimer = new Timer(1000, 1);
             Async.proceedOnEvent(this,
-                                 prepare(ITextDecor, ILayoutFactoryMap, ITextLayout),
+                                 prepare(ITextDecor, ITextBlockFactory, ITextLayout),
                                  Event.COMPLETE);
         }
         
@@ -85,9 +70,9 @@ package org.tinytlf
         [Test]
         public function engine_has_default_block_factory():void
         {
-            var factory:ILayoutFactoryMap = engine.layout.textBlockFactory;
+            var factory:ITextBlockFactory = engine.layout.textBlockFactory;
             
-            Assert.assertTrue(factory is AbstractLayoutFactoryMap);
+            Assert.assertTrue(factory is TextBlockFactoryBase);
         }
         
         [Test]
@@ -140,7 +125,7 @@ package org.tinytlf
         [Test]
         public function prerender_calls_block_factory_create_blocks():void
         {
-            var blockFactory:ILayoutFactoryMap = nice(ILayoutFactoryMap);
+            var blockFactory:ITextBlockFactory = nice(ITextBlockFactory);
             stub(blockFactory).method("createBlocks").returns(new <TextBlock>[new TextBlock(new TextElement("mockolate-d"))]);
             
             engine.layout.textBlockFactory = blockFactory;

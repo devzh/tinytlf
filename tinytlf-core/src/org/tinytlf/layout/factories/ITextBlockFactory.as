@@ -4,7 +4,7 @@
  * Permission is hereby granted to use, modify, and distribute this file
  * in accordance with the terms of the license agreement accompanying it.
  */
-package org.tinytlf.layout.model.factories
+package org.tinytlf.layout.factories
 {
 	import flash.text.engine.TextBlock;
 	
@@ -33,7 +33,7 @@ package org.tinytlf.layout.model.factories
 	 * <code>ContentElements</code>.
 	 * </p>
 	 */
-	public interface ILayoutFactoryMap
+	public interface ITextBlockFactory
 	{
 		/**
 		 * The arbitrary data object that backs tinytlf's text. This actor is

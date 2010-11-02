@@ -4,7 +4,7 @@
  * Permission is hereby granted to use, modify, and distribute this file
  * in accordance with the terms of the license agreement accompanying it.
  */
-package org.tinytlf.layout.model.factories
+package org.tinytlf.layout.factories
 {
     import flash.text.engine.*;
     import flash.utils.Dictionary;
@@ -12,8 +12,9 @@ package org.tinytlf.layout.model.factories
     import org.tinytlf.ITextEngine;
     import org.tinytlf.layout.properties.*;
     import org.tinytlf.util.TinytlfUtil;
+    import org.tinytlf.util.fte.TextBlockUtil;
 
-    public class AbstractLayoutFactoryMap implements ILayoutFactoryMap
+    public class TextBlockFactoryBase implements ITextBlockFactory
     {
         private var _data:Object;
 
@@ -55,8 +56,38 @@ package org.tinytlf.layout.model.factories
             return visibleBlocks ? visibleBlocks.concat() : new Vector.<TextBlock>;
         }
 		
+		// This is a sparsely populated Hashmap of TextBlocks, 
+		// so we can't use a Vector here.
+		protected var cachedBlocks:Array = [];
+		
+		//A sparse array of TextBlock positions to their index in the data.
+		protected var blockPositions:SparseArray = new SparseArray();
+		
+		protected var listIndex:int = 0;
+		
 		public function beginRender():void
 		{
+			// Update the listIndex to the index of the
+			// TextBlock at the current scrollPosition.
+			listIndex = blockPositions.indexOf(engine.scrollPosition);
+			if(listIndex >= 0)
+				--listIndex;
+			
+			var j:int = -1;
+			//Uncache the TextBlocks that exist before the updated listIndex.
+			for(var i:int = 0; i < listIndex; i += 1)
+			{
+				if(i in cachedBlocks)
+				{
+					j = visibleBlocks.indexOf(cachedBlocks[i]);
+					if(j != -1)
+						visibleBlocks.splice(j, 1);
+					
+					TextBlockUtil.cleanBlock(TextBlock(cachedBlocks[i]));
+					
+					delete cachedBlocks[i];
+				}
+			}
 		}
 		
 		public function endRender():void
@@ -65,15 +96,48 @@ package org.tinytlf.layout.model.factories
 		
 		public function get nextBlock():TextBlock
 		{
-			return null;
+			return generateTextBlock(++listIndex);
 		}
 		
 		public function cacheVisibleBlock(block:TextBlock):void
 		{
+			if(visibleBlocks.indexOf(block) == -1)
+				visibleBlocks.push(block);
+			
+			var lp:LayoutProperties = TinytlfUtil.getLP(block);
+			var blockY:Number = lp.y;
+			var blockIndex:int = listIndex;
+			var blockSize:Number = (lp.paddingTop + lp.height + lp.paddingBottom) || 1;
+			
+			if(listIndex >= blockPositions.length)
+			{
+				blockIndex = blockPositions.length;
+				blockPositions.insert(blockIndex);
+			}
+			else
+			{
+				blockIndex = blockPositions.indexOf(blockY);
+			}
+			
+			if(blockIndex > -1)
+				blockPositions.setItemSize(blockIndex, blockSize);
+			
+			cachedBlocks[listIndex] = block;
 		}
 		
 		public function clearCaches():void
 		{
+			visibleBlocks.length = 0;
+			cachedBlocks = [];
+			blockPositions.clear();
+		}
+		
+		protected function generateTextBlock(index:int):TextBlock
+		{
+			if(cachedBlocks[index])
+				return cachedBlocks[index];
+			
+			return null;
 		}
 		
         protected var elementAdapterMap:Dictionary = new Dictionary(false);
@@ -118,31 +182,5 @@ package org.tinytlf.layout.model.factories
 
             return delete elementAdapterMap[element];
         }
-		
-		
-		/**
-		 * Utility method which applies justification properties to the 
-		 * TextBlock before it's rendered.
-		 */
-		protected function setupBlockJustifier(block:TextBlock):void
-		{
-			var props:LayoutProperties = TinytlfUtil.getLP(block);
-			var justification:String = LineJustification.UNJUSTIFIED;
-			var justifier:TextJustifier = TextJustifier.getJustifierForLocale(props.locale);
-			
-			if(props.textAlign == TextAlign.JUSTIFY)
-				justification = LineJustification.ALL_BUT_LAST;
-			
-			justifier.lineJustification = justification;
-			
-			if(	!block.textJustifier || 
-				block.textJustifier.lineJustification != justification || 
-				block.textJustifier.locale != props.locale)
-			{
-				props.applyTo(justifier);
-				
-				block.textJustifier = justifier;
-			}
-		}
     }
 }

@@ -316,7 +316,7 @@ package org.tinytlf
 			_stage.addEventListener(Event.RENDER, onRender);
 			
 			if(rendering)
-				setTimeout(_stage.invalidate, 0);
+				setTimeout(_stage.invalidate, 10);
 			else
 				_stage.invalidate();
 		}

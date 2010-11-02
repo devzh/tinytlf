@@ -3,7 +3,7 @@
 // framework. The dependencies on Flex 4 have been removed, and it has been 
 // modified for general use. In tinytlf, I use it to enqueue TextBlocks
 // for efficient scrolling. Enjoy.
-package org.tinytlf
+package org.tinytlf.layout.factories
 {
 	/**
 	 * A sparse array of sizes that represent items in a dimension.
@@ -263,6 +263,7 @@ package org.tinytlf
 			var oldValue:Number = sizes[sizesIndex];
 			if(oldValue == value)
 				return;
+			
 			if(isNaN(oldValue))
 			{
 				block.defaultCount -= 1;
@@ -275,7 +276,8 @@ package org.tinytlf
 			}
 			else
 				block.sizesSum += value - oldValue;
-			block.sizes[sizesIndex] = value;
+			
+			sizes[sizesIndex] = value;
 		}
 		
 		/**

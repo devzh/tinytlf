@@ -131,6 +131,26 @@ package org.tinytlf.layout
 		function set scrollable(value:Boolean):void;
 		
 		/**
+		 * The total height of the measured lines in the content area. This is
+		 * irrespective of scrolling, and is the height that should be used as 
+		 * the total height to calculate a scrollbar.
+		 * 
+		 * @see measuredHeight
+		 */
+		function get totalHeight():Number;
+		function set totalHeight(value:Number):void;
+		
+		/**
+		 * The total width of the measured lines in the content area. This is
+		 * irrespective of scrolling, and is the width that should be used as 
+		 * the total width to calculate a scrollbar.
+		 * 
+		 * @see measuredWidth
+		 */
+		function get totalWidth():Number;
+		function set totalWidth(value:Number):void;
+		
+		/**
 		 * Checks whether this ITextContainer has a particular TextLine.
 		 * 
 		 * @returns true if the line is in this TextContainer, false otherwise.
@@ -157,10 +177,14 @@ package org.tinytlf.layout
         function layout(block:TextBlock, line:TextLine):TextLine;
         
 		/**
-		 * Called before layout inside this container begins.
-		 * 
+		 * Called on every ITextContainer before layout begins.
 		 */
         function preLayout():void;
+		
+		/**
+		 * Called on every ITextContainer after the entire layout pass ends.
+		 */
+		function postLayout():void;
 		
 		/**
 		 * Clears the graphics and removes all children from the 

@@ -4,17 +4,11 @@
  * Permission is hereby granted to use, modify, and distribute this file
  * in accordance with the terms of the license agreement accompanying it.
  */
-package org.tinytlf.layout.model.factories.adapters
+package org.tinytlf.layout.factories
 {
-	import flash.text.engine.ContentElement;
-	import flash.text.engine.GroupElement;
+	import flash.text.engine.*;
 	
-	import org.tinytlf.layout.model.factories.ContentElementFactory;
-	import org.tinytlf.layout.model.factories.IContentElementFactory;
-	import org.tinytlf.layout.model.factories.ILayoutFactoryMap;
-	import org.tinytlf.layout.model.factories.XMLDescription;
-	
-	public class XMLElementAdapter extends ContentElementFactory
+	public class XMLElementFactory extends ContentElementFactory
 	{
 		override public function execute(data:Object, ... context:Array):ContentElement
 		{
@@ -59,7 +53,7 @@ package org.tinytlf.layout.model.factories.adapters
 			return element;
 		}
 		
-		protected function get blockFactory():ILayoutFactoryMap
+		protected function get blockFactory():ITextBlockFactory
 		{
 			return engine.layout.textBlockFactory;
 		}

@@ -4,7 +4,7 @@
  * Permission is hereby granted to use, modify, and distribute this file
  * in accordance with the terms of the license agreement accompanying it.
  */
-package org.tinytlf.layout.model.factories
+package org.tinytlf.layout.factories
 {
     import flash.display.DisplayObject;
     import flash.display.Shape;

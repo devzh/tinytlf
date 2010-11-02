@@ -5,18 +5,15 @@ package org.tinytlf.components
 	import org.tinytlf.decor.decorations.*;
 	import org.tinytlf.interaction.*;
 	import org.tinytlf.interaction.behaviors.*;
-	import org.tinytlf.interaction.behaviors.keyboard.CharacterBackspaceBehavior;
-	import org.tinytlf.interaction.behaviors.keyboard.CopyBehavior;
+	import org.tinytlf.interaction.behaviors.keyboard.*;
 	import org.tinytlf.interaction.behaviors.keyboard.selection.*;
 	import org.tinytlf.interaction.behaviors.mouse.*;
 	import org.tinytlf.interaction.behaviors.mouse.selection.*;
 	import org.tinytlf.interaction.gestures.keyboard.*;
 	import org.tinytlf.interaction.gestures.keyboard.arrows.*;
 	import org.tinytlf.interaction.gestures.mouse.*;
-	import org.tinytlf.layout.model.factories.*;
-	import org.tinytlf.layout.model.factories.adapters.*;
-	import org.tinytlf.styles.FCSSTextStyler;
-	import org.tinytlf.styles.ITextStyler;
+	import org.tinytlf.layout.factories.*;
+	import org.tinytlf.styles.*;
 	
 	public class TextFieldEngineConfiguration implements ITextEngineConfiguration
 	{
@@ -34,7 +31,7 @@ package org.tinytlf.components
 		{
 			engine.interactor = new CascadingTextInteractor();
 			engine.styler = new FCSSTextStyler();
-			engine.layout.textBlockFactory = new XMLModelFactory();
+			engine.layout.textBlockFactory = new XMLTextBlockFactory();
 			
 			mapDecorations(engine);
 			mapEventMirrors(engine);
@@ -143,7 +140,7 @@ package org.tinytlf.components
 		
 		protected function mapElementAdapters(engine:ITextEngine):void
 		{
-			var factory:ILayoutFactoryMap = engine.layout.textBlockFactory;
+			var factory:ITextBlockFactory = engine.layout.textBlockFactory;
 			
 			if (!factory.hasElementFactory('ul'))
 				factory.mapElementFactory('ul', HTMLListAdapter);

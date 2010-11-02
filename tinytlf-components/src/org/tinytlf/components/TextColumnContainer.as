@@ -143,6 +143,26 @@ package org.tinytlf.components
 			container.measuredHeight = value;
 		}
 		
+		public function get totalWidth():Number
+		{
+			return container.totalWidth;
+		}
+		
+		public function set totalWidth(value:Number):void
+		{
+			container.totalWidth = value;
+		}
+		
+		public function get totalHeight():Number
+		{
+			return container.totalHeight;
+		}
+		
+		public function set totalHeight(value:Number):void
+		{
+			container.totalHeight = value;
+		}
+		
 		public function get scrollable():Boolean
 		{
 			return container.scrollable;
@@ -163,16 +183,19 @@ package org.tinytlf.components
 			container.preLayout();
 		}
 		
-		public function layout(block:TextBlock, line:TextLine):TextLine
+		public function postLayout():void
 		{
-			var line:TextLine = container.layout(block, line);
+			container.postLayout();
 			
 			if(scrollable && measuredHeight > explicitHeight)
 			{
-				addEventListener(Event.ENTER_FRAME, createScrollerCallback);
+				initScrollBar();
 			}
-			
-			return line;
+		}
+		
+		public function layout(block:TextBlock, line:TextLine):TextLine
+		{
+			return container.layout(block, line);
 		}
 		
 		public function hasLine(line:TextLine):Boolean
@@ -220,37 +243,36 @@ package org.tinytlf.components
 			container.addConstraint(constraint);
 		}
 		
+		public function getConstraint(element:*):ITextConstraint
+		{
+			return container.getConstraint(element);
+		}
+		
 		public function removeConstraint(constraint:ITextConstraint):void
 		{
 			container.removeConstraint(constraint);
 		}
 		
-		private function createScrollerCallback(event:Event):void
-		{
-			removeEventListener(Event.ENTER_FRAME, createScrollerCallback);
-			initScrollBar();
-		}
-		
 		private var scrollBar:VScrollBar;
 		protected function initScrollBar():void
 		{
-			if(scrollBar)
-				return;
-			
-			scrollBar = new VScrollBar(this, 0, 0, onScrollChange);
-			addChild(scrollBar);
-			scrollBar.lineSize = 5;
-			scrollBar.pageSize = 15;
-			scrollBar.height = explicitHeight;
-			scrollBar.y = 0;
-			
-			explicitWidth -= (scrollBar.width * 2);
-			engine.layout.textBlockFactory.clearCaches();
+			if(!scrollBar)
+			{
+				scrollBar = new VScrollBar(this, 0, 0, onScrollChange);
+				addChild(scrollBar);
+				scrollBar.lineSize = 5;
+				scrollBar.pageSize = 15;
+				scrollBar.height = explicitHeight;
+				scrollBar.y = 0;
+				
+				explicitWidth -= (scrollBar.width * 2);
+				setTimeout(engine.invalidate, 10);
+			}
 			
 			scrollBar.x = width - scrollBar.width;
 			scrollBar.minimum = 0;
-			scrollBar.maximum = measuredHeight - (height/2);
-			scrollBar.setThumbPercent(height/measuredHeight);
+			scrollBar.maximum = totalHeight/* - height*/;
+			scrollBar.setThumbPercent(height/totalHeight);
 		}
 		
 		private function onScrollChange(event:Event):void

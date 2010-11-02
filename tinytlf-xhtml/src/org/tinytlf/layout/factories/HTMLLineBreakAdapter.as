@@ -1,4 +1,4 @@
-package org.tinytlf.layout.model.factories.adapters
+package org.tinytlf.layout.factories
 {
 	import flash.display.Shape;
 	import flash.events.EventDispatcher;
@@ -7,7 +7,6 @@ package org.tinytlf.layout.model.factories.adapters
 	import flash.text.engine.GraphicElement;
 	import flash.text.engine.TextElement;
 	
-	import org.tinytlf.layout.model.factories.ContentElementFactory;
 	import org.tinytlf.util.fte.ContentElementUtil;
 	import org.tinytlf.util.fte.TextLineUtil;
 	

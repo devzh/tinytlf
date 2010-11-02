@@ -46,3 +46,9 @@ sup{
 	font-size: .6em;
 	alignment-baseline: ideographicCenter;
 }
+hr{
+	padding-top: 5;
+	padding-bottom: 5;
+	weight: 2;
+	height: 2;
+}

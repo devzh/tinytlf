@@ -7,6 +7,7 @@ package org.tinytlf.layout.orientation.horizontal
 	import org.tinytlf.layout.properties.LayoutProperties;
 	import org.tinytlf.layout.properties.TextAlign;
 	import org.tinytlf.util.TinytlfUtil;
+	import org.tinytlf.util.fte.TextBlockUtil;
 	import org.tinytlf.util.fte.TextLineUtil;
 	
 	/**
@@ -31,22 +32,31 @@ package org.tinytlf.layout.orientation.horizontal
 		
 		override public function prepForTextBlock(block:TextBlock, line:TextLine):void
 		{
+			var lp:LayoutProperties = TinytlfUtil.getLP(block);
+			
 			if(line)
 			{
 				if(target.hasLine(line))
 				{
-					y = line.y + line.textHeight;
+					y = line.y + line.descent;
 				}
-				return;
 			}
-			
+			else
+			{
+				if(TextBlockUtil.isInvalid(block))
+				{
+					if(lp.y)
+						y = lp.y;
+				}
+				
+				y += lp.paddingTop;
+			}
+		}
+		
+		override public function postTextBlock(block:TextBlock):void
+		{
 			var lp:LayoutProperties = TinytlfUtil.getLP(block);
-//			lp.height = 0;
-			
-			if(lp.y)
-				y = lp.y;
-			
-			y += lp.paddingTop;
+			y += lp.paddingBottom;
 		}
 		
 		override public function position(line:TextLine):void
@@ -95,21 +105,28 @@ package org.tinytlf.layout.orientation.horizontal
 			var lp:LayoutProperties = TinytlfUtil.getLP(line);
 			var block:TextBlock = line.textBlock;
 			
-			if(line === block.firstLine && !lp.y)
-			{
-				lp.y = y;
-			}
+			if(line === block.firstLine)
+				lp.y = y - lp.paddingTop;
 			
 			y += line.ascent;
-			
 			line.y = y;
 			y += line.descent + lp.leading;
-			lp.height += line.textHeight + lp.leading;
+			
 			target.measuredHeight = Math.max(target.measuredHeight, 
 				target.measuredHeight + ((line.textHeight || 1) + lp.leading));
+			
+			if(line == block.lastLine)
+			{
+				lp.height = 0;
+				line = block.firstLine;
+				
+				while(line)
+				{
+					lp.height += line.textHeight + lp.leading;
+					line = line.nextLine;
+				}
+			}
 		}
-		
-		private var scrollHeight:Number = 0;
 		
 		override public function checkTargetBounds(line:TextLine):Boolean
 		{
@@ -119,11 +136,12 @@ package org.tinytlf.layout.orientation.horizontal
 				return true;
 			}
 			
-			if(target.scrollable)
+			if(target.totalHeight < target.measuredHeight)
 			{
-				if(scrollHeight < target.measuredHeight)
+				target.totalHeight = target.measuredHeight;
+				
+				if(target.scrollable)
 				{
-					scrollHeight = target.measuredHeight;
 					return false;
 				}
 			}
@@ -133,7 +151,10 @@ package org.tinytlf.layout.orientation.horizontal
 			if(eHeight != eHeight)
 				return false;
 			
-			return ((y + line.textHeight) >= (eHeight + engine.scrollPosition));
+			if(line)
+				return ((line.y + line.textHeight) >= (eHeight + engine.scrollPosition));
+			
+			return (y >= (eHeight + engine.scrollPosition));
 		}
 		
 		override public function get value():Number

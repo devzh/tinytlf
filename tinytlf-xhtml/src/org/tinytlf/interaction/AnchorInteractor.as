@@ -5,7 +5,7 @@ package org.tinytlf.interaction
 	import flash.net.URLRequest;
 	import flash.net.navigateToURL;
 	
-	import org.tinytlf.layout.model.factories.XMLDescription;
+	import org.tinytlf.layout.factories.XMLDescription;
 	import org.tinytlf.util.TinytlfUtil;
 	import org.tinytlf.util.XMLUtil;
 	

@@ -3,6 +3,7 @@ package org.tinytlf.layout.constraints.horizontal
 	import flash.text.engine.ContentElement;
 	
 	import org.tinytlf.layout.constraints.TextConstraintBase;
+	import org.tinytlf.layout.properties.TextFloat;
 	
 	/**
 	 * The base class for a constraint that exists within a horizontal ltr or
@@ -20,9 +21,19 @@ package org.tinytlf.layout.constraints.horizontal
 			return lp.x;
 		}
 		
+		override public function set majorValue(value:Number):void
+		{
+			lp.x = value;
+		}
+		
 		override public function get majorSize():Number
 		{
 			return totalWidth;
+		}
+		
+		override public function set majorSize(value:Number):void
+		{
+			lp.width = value;
 		}
 		
 		override public function getMajorValue(atMinor:Number, fromMajor:Number):Number

@@ -135,6 +135,23 @@ package org.tinytlf.components
 			resizeColumns();
 		}
 		
+		private var _scrollable:Boolean = true;
+		public function get scrollable():Boolean
+		{
+			return _scrollable;
+		}
+		
+		public function set scrollable(value:Boolean):void
+		{
+			if(value === _scrollable)
+				return;
+			
+			_scrollable = value;
+			textColumns.forEach(function(c:ITextContainer, ...args):void{
+				c.scrollable = _scrollable;
+			});
+		}
+		
 		private var _selectable:Boolean = true;
 		public function get selectable():Boolean
 		{

@@ -1,10 +1,10 @@
-package org.tinytlf.layout.model.factories.adapters
+package org.tinytlf.layout.factories
 {
     import flash.text.engine.ContentElement;
     
     import org.tinytlf.util.fte.ContentElementUtil;
     
-    public class HTMLListAdapter extends XMLElementAdapter
+    public class HTMLListAdapter extends XMLElementFactory
     {
         override public function execute(data:Object, ...context:Array):ContentElement
         {

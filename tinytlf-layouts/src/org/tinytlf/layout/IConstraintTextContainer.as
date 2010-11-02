@@ -42,6 +42,7 @@ package org.tinytlf.layout
 		function get constraints():Vector.<ITextConstraint>;
 		
 		function addConstraint(constraint:ITextConstraint):void;
+		function getConstraint(element:*):ITextConstraint;
 		function removeConstraint(constraint:ITextConstraint):void;
 	}
 }

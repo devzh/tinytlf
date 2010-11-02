@@ -11,7 +11,7 @@ package org.tinytlf.styles
 	
 	import flash.text.engine.*;
 	
-	import org.tinytlf.layout.model.factories.XMLDescription;
+	import org.tinytlf.layout.factories.XMLDescription;
 	
 	public class FCSSTextStyler extends TextStyler
 	{

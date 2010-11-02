@@ -53,7 +53,7 @@ package org.tinytlf.layout.orientation.vertical
 			line.y = y;
 		}
 		
-		override protected function getTotalSize(from:Object):Number
+		override protected function getTotalSize(from:Object = null):Number
 		{
 			var lp:LayoutProperties = TinytlfUtil.getLP(from);
 			
