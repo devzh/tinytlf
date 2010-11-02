@@ -14,10 +14,10 @@ package org.tinytlf.components
 	import org.tinytlf.layout.orientation.*;
 	
 	/**
-	 * TextColumnContainer is a Sprite which conveniently implements 
-	 * ITextContainer, and composites in a TextContainerBase for the 
+	 * TextColumnContainer is a Sprite which conveniently implements
+	 * ITextContainer, and composites in a TextContainerBase for the
 	 * implementation. Since it's a Sprite, it's easy to use in component style
-	 * layouts without also having to manage and update an external 
+	 * layouts without also having to manage and update an external
 	 * ITextContainer.
 	 */
 	public class TextColumnContainer extends Sprite implements IConstraintTextContainer
@@ -32,6 +32,7 @@ package org.tinytlf.components
 		private var child:Sprite;
 		
 		private var _height:Number = 0;
+		
 		override public function get height():Number
 		{
 			return _height;
@@ -43,10 +44,11 @@ package org.tinytlf.components
 				return;
 			
 			_height = Math.max(value, 1);
-			container.explicitHeight = value;
+			explicitHeight = value;
 		}
 		
 		private var _width:Number = 0;
+		
 		override public function get width():Number
 		{
 			return _width;
@@ -58,7 +60,7 @@ package org.tinytlf.components
 				return;
 			
 			_width = Math.max(value, 1);
-			container.explicitWidth = _width;
+			explicitWidth = _width;
 		}
 		
 		private var container:IConstraintTextContainer;
@@ -110,7 +112,15 @@ package org.tinytlf.components
 		
 		public function set explicitWidth(value:Number):void
 		{
+			if(scrollBar)
+			{
+				engine.scrollPosition = 0;
+				scrollBar.value = 0;
+				value = Math.max(value - scrollBar.width * 2, scrollBar.width * 2);
+			}
+			
 			container.explicitWidth = value;
+			onScrollChange();
 		}
 		
 		public function get explicitHeight():Number
@@ -121,6 +131,7 @@ package org.tinytlf.components
 		public function set explicitHeight(value:Number):void
 		{
 			container.explicitHeight = value;
+			onScrollChange();
 		}
 		
 		public function get measuredWidth():Number
@@ -254,6 +265,7 @@ package org.tinytlf.components
 		}
 		
 		private var scrollBar:VScrollBar;
+		
 		protected function initScrollBar():void
 		{
 			if(!scrollBar)
@@ -265,18 +277,24 @@ package org.tinytlf.components
 				scrollBar.height = explicitHeight;
 				scrollBar.y = 0;
 				
-				explicitWidth -= (scrollBar.width * 2);
+				explicitWidth = explicitWidth;
 				setTimeout(engine.invalidate, 10);
 			}
 			
 			scrollBar.x = width - scrollBar.width;
 			scrollBar.minimum = 0;
-			scrollBar.maximum = totalHeight/* - height*/;
-			scrollBar.setThumbPercent(height/totalHeight);
+			scrollBar.maximum = totalHeight - (height * .5);
+			scrollBar.setThumbPercent(height / totalHeight);
 		}
 		
-		private function onScrollChange(event:Event):void
+		private function onScrollChange(event:Event = null):void
 		{
+			if(!scrollBar)
+			{
+				child.scrollRect = new Rectangle(0, 0, width, height);
+				return;
+			}
+			
 			engine.scrollPosition = scrollBar.value;
 			child.scrollRect = new Rectangle(0, scrollBar.value, width, height);
 		}
