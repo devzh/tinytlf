@@ -290,10 +290,7 @@ package org.tinytlf.components
 		private function onScrollChange(event:Event = null):void
 		{
 			if(!scrollBar)
-			{
-				child.scrollRect = new Rectangle(0, 0, width, height);
 				return;
-			}
 			
 			engine.scrollPosition = scrollBar.value;
 			child.scrollRect = new Rectangle(0, scrollBar.value, width, height);
