@@ -49,6 +49,7 @@ package org.tinytlf.layout.orientation.horizontal
 						y = lp.y;
 				}
 				
+				target.measuredHeight += lp.paddingTop;
 				y += lp.paddingTop;
 			}
 		}
@@ -56,6 +57,7 @@ package org.tinytlf.layout.orientation.horizontal
 		override public function postTextBlock(block:TextBlock):void
 		{
 			var lp:LayoutProperties = TinytlfUtil.getLP(block);
+			target.measuredHeight += lp.paddingBottom;
 			y += lp.paddingBottom;
 		}
 		
@@ -112,8 +114,7 @@ package org.tinytlf.layout.orientation.horizontal
 			line.y = y;
 			y += line.descent + lp.leading;
 			
-			target.measuredHeight = Math.max(target.measuredHeight, 
-				target.measuredHeight + ((line.textHeight || 1) + lp.leading));
+			target.measuredHeight += (line.textHeight || 1) + lp.leading;
 			
 			if(line == block.lastLine)
 			{

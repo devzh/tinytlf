@@ -276,14 +276,13 @@ package org.tinytlf.components
 				scrollBar.pageSize = 15;
 				scrollBar.height = explicitHeight;
 				scrollBar.y = 0;
-				
+				scrollBar.minimum = 0;
 				explicitWidth = explicitWidth;
 				setTimeout(engine.invalidate, 10);
 			}
 			
 			scrollBar.x = width - scrollBar.width;
-			scrollBar.minimum = 0;
-			scrollBar.maximum = totalHeight - (height * .5);
+			scrollBar.maximum = totalHeight - height;
 			scrollBar.setThumbPercent(height / totalHeight);
 		}
 		
