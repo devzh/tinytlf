@@ -2,12 +2,9 @@ package org.tinytlf.layout.factories
 {
 	import flash.external.ExternalInterface;
 	import flash.text.engine.*;
-	import flash.utils.Dictionary;
 	
-	import org.tinytlf.SparseArray;
 	import org.tinytlf.layout.properties.LayoutProperties;
 	import org.tinytlf.styles.*;
-	import org.tinytlf.util.TinytlfUtil;
 	import org.tinytlf.util.fte.*;
 	
 	public class XMLTextBlockFactory extends TextBlockFactoryBase

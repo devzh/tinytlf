@@ -4,7 +4,6 @@ package org.tinytlf.layout.orientation.horizontal
 	import flash.text.engine.TextLine;
 	
 	import org.tinytlf.layout.IConstraintTextContainer;
-	import org.tinytlf.layout.constraints.horizontal.HConstraintFactory;
 	import org.tinytlf.layout.orientation.TextFlowOrientationBase;
 	import org.tinytlf.layout.properties.*;
 	import org.tinytlf.util.TinytlfUtil;
