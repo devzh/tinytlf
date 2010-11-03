@@ -1,8 +1,6 @@
 Thumbs.db
 bin-*
 bin
-build
-build/*
 html-template
 *.swf
 docs
