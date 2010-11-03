@@ -227,9 +227,9 @@ package org.tinytlf.layout
 			return block.createTextLine(previousLine, size, 0.0, true);
 		}
 		
-		override protected function invalidateLines():void
+		override protected function invalidateVisibleLines():void
 		{
-			super.invalidateLines();
+			super.invalidateVisibleLines();
 			
 			_constraints.length = 0;
 		}
