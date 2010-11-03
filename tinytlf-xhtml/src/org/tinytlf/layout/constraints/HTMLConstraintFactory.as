@@ -12,18 +12,18 @@ package org.tinytlf.layout.constraints
 		{
 			var el:ContentElement = TextLineUtil.getElementAtAtomIndex(line, atomIndex);
 			
-			if(el.userData == null)
-				return null;
-			
-			if(el.userData === TextLineUtil.getSingletonMarker('lineBreak'))
-				return null;
-			
-			if(el.userData === TextLineUtil.getSingletonMarker('listItemOutside'))
-				return new OutsideLIConstraint(el);
-			if(el.userData === TextLineUtil.getSingletonMarker('listItemInside'))
-				return new InsideLIConstraint(el);
-			
-			return super.getConstraint(line, atomIndex);
+			switch(el.userData)
+			{
+				case null:
+				case TextLineUtil.getSingletonMarker('lineBreak'):
+					return null;
+				case TextLineUtil.getSingletonMarker('listItemOutside'):
+					return new OutsideLIConstraint(el);
+				case TextLineUtil.getSingletonMarker('listItemInside'):
+					return new InsideLIConstraint(el);
+				default:
+					return super.getConstraint(line, atomIndex);
+			}
 		}
 	}
 }

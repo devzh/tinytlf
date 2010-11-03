@@ -42,6 +42,14 @@ package org.tinytlf.layout.orientation.horizontal
 		{
 			super.prepForTextBlock(block, line);
 			
+			// Search through the list of constraints, removing any that exist
+			// after the line we're starting from. If line is null, we know
+			// we're re-rendering starting from the first line, so this will
+			// remove all constraints for this textBlock.
+			// 
+			// We have to do this because we'll recreate the constraint when
+			// we re-render the line that the constraint exists in.
+			
 			var constraints:Vector.<ITextConstraint> = target.constraints;
 			var n:int = constraints.length;
 			var c:ITextConstraint;
@@ -142,8 +150,8 @@ package org.tinytlf.layout.orientation.horizontal
 				{
 					if(c.float == TextFloat.LEFT)
 					{
-						if((c.majorValue + c.majorSize) >= l){
-							l = c.majorValue + c.majorSize;
+						if(majorValue >= l){
+							l = majorValue;
 						}
 					}
 					else if(c.float == TextFloat.RIGHT)

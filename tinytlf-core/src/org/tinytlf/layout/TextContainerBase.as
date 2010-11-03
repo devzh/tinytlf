@@ -117,7 +117,7 @@ package org.tinytlf.layout
 				return;
 			
 			_explicitHeight = value;
-			invalidateLines();
+			invalidateVisibleLines();
 			engine.invalidate();
 		}
 		
@@ -134,7 +134,7 @@ package org.tinytlf.layout
 				return;
 			
 			_explicitWidth = value;
-			invalidateLines();
+			invalidateVisibleLines();
 			engine.invalidate();
 		}
 		
@@ -351,7 +351,7 @@ package org.tinytlf.layout
 			return target.getChildIndex(line);
 		}
 		
-		protected function invalidateLines():void
+		protected function invalidateVisibleLines():void
 		{
 			var n:int = visibleLines.length;
 			for(var i:int = 0; i < n; ++i)
@@ -361,7 +361,6 @@ package org.tinytlf.layout
 			
 			totalHeight = 0;
 			totalWidth = 0;
-//			engine.layout.textBlockFactory.clearCaches();
 		}
 		
 		protected function getRecycledLine(previousLine:TextLine):TextLine
