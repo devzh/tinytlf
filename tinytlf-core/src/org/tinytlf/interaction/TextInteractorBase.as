@@ -10,9 +10,8 @@ package org.tinytlf.interaction
     import flash.utils.Dictionary;
     
     import org.tinytlf.ITextEngine;
-    import org.tinytlf.interaction.TextDispatcherBase;
     
-    public class TextInteractorBase extends TextDispatcherBase implements ITextInteractor
+    public class TextInteractorBase extends EventDispatcher implements ITextInteractor
     {
         protected var _engine:ITextEngine;
         public function get engine():ITextEngine

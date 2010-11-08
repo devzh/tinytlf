@@ -36,12 +36,8 @@ package org.tinytlf.interaction
 			return super.getMirror(element);
 		}
 		
-		override public function addListeners(target:IEventDispatcher):void
+		public function removeListeners(target:IEventDispatcher):void
 		{
-			super.addListeners(target);
-			
-			target.removeEventListener(MouseEvent.MOUSE_OVER, onRollOver);
-			target.removeEventListener(MouseEvent.MOUSE_OUT, onRollOut);
 		}
 		
 		public function addGesture(gesture:IGesture, ... behaviors):IGesture
@@ -90,85 +86,6 @@ package org.tinytlf.interaction
 			// Provided so it can be searched, behaviors should be added to the
 			// gesture itself, or by calling addGesture with an existing gesture
 			// instance, passing in the new behaviors to be added.
-		}
-		
-		override protected function onRollOver(event:MouseEvent):void
-		{
-			dispatchToGestures(event);
-		}
-		
-		override protected function onRollOut(event:MouseEvent):void
-		{
-			dispatchToGestures(event);
-		}
-		
-		override protected function onMouseMove(event:MouseEvent):void
-		{
-			dispatchToGestures(event);
-		}
-		
-		override protected function onMouseDown(event:MouseEvent):void
-		{
-			dispatchToGestures(event);
-		}
-		
-		override protected function onMouseUp(event:MouseEvent):void
-		{
-			dispatchToGestures(event);
-		}
-		
-		override protected function onClick(event:MouseEvent):void
-		{
-			dispatchToGestures(event);
-		}
-		
-		override protected function onDoubleClick(event:MouseEvent):void
-		{
-			dispatchToGestures(event);
-		}
-		
-		override protected function onKeyDown(event:KeyboardEvent):void
-		{
-			dispatchToGestures(event);
-		}
-		
-		override protected function onKeyUp(event:KeyboardEvent):void
-		{
-			dispatchToGestures(event);
-		}
-		
-		override protected function onCopy(event:Event):void
-		{
-			dispatchToGestures(event);
-		}
-		
-		override protected function onPaste(event:Event):void
-		{
-			dispatchToGestures(event);
-		}
-		
-		override protected function onCut(event:Event):void
-		{
-			dispatchToGestures(event);
-		}
-		
-		override protected function onSelectAll(event:Event):void
-		{
-			dispatchToGestures(event);
-		}
-		
-		private function dispatchToGestures(event:Event):void
-		{
-			if(event.eventPhase == EventPhase.CAPTURING_PHASE)
-				return;
-			
-			for each(var gesture:IGesture in gestures)
-			{
-				if(gesture.hasEventListener(event.type))
-				{
-					gesture.execute(event);
-				}
-			}
 		}
 		
 		/**
