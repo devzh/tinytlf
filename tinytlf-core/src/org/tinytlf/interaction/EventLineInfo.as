@@ -6,14 +6,9 @@
  */
 package org.tinytlf.interaction
 {
-    import flash.events.Event;
-    import flash.events.EventDispatcher;
-    import flash.events.MouseEvent;
+    import flash.events.*;
     import flash.geom.Point;
-    import flash.text.engine.ContentElement;
-    import flash.text.engine.TextLine;
-    import flash.text.engine.TextLineMirrorRegion;
-    import flash.text.engine.TextLineValidity;
+    import flash.text.engine.*;
     
     import org.tinytlf.ITextEngine;
     import org.tinytlf.layout.ITextContainer;
@@ -55,13 +50,12 @@ package org.tinytlf.interaction
                 line, 
                 engine, 
                 mirrorRegion, 
-                mirrorRegion == null ? element : mirrorRegion.element,
-                event
+                mirrorRegion == null ? element : mirrorRegion.element
             );
         }
         
         public function EventLineInfo(line:TextLine, engine:ITextEngine, 
-									  mirrorRegion:TextLineMirrorRegion, element:ContentElement, event:Event)
+									  mirrorRegion:TextLineMirrorRegion, element:ContentElement)
         {
             _engine = engine;
             _element = element;
