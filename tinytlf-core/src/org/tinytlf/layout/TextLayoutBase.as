@@ -118,6 +118,8 @@ package org.tinytlf.layout
 			if(!containers || !containers.length)
 				return;
 			
+			totalBlockHeight = 0;
+			
 			containers.forEach(function(c:ITextContainer, ... args):void{
 				c.preLayout();
 			});
@@ -149,8 +151,11 @@ package org.tinytlf.layout
 			containers.forEach(function(c:ITextContainer, ... args):void{
 				c.postLayout();
 			});
+			
+			totalBlockHeight = 0;
 		}
 		
+		protected var totalBlockHeight:Number = 0;
 		/**
 		 * Renders all the lines from the input TextBlock into the containers,
 		 * starting from the container specified by <code>startContainer</code>.
@@ -170,21 +175,28 @@ package org.tinytlf.layout
 			var container:ITextContainer = startContainer;
 			var containerIndex:int = containers.indexOf(container);
 			
-//			var line:TextLine = container.layout(block, null);
 			var line:TextLine;
+			
 			if(TextBlockUtil.isInvalid(block))
 			{
 				if(block.firstLine && !block.firstInvalidLine)
 				{
+					// Check if there's any lines we need to render at the end
+					// of the TextBlock.
 					line = container.layout(block, block.lastLine);
 				}
 				else
 				{
-					line = container.layout(
-						block, 
-						block.firstInvalidLine ? 
-						block.firstInvalidLine.previousLine : 
-						null);
+					// Otherwise re-render the invalid lines.
+					if(block.firstInvalidLine)
+					{
+						line = container.layout(block, block.firstInvalidLine.previousLine);
+					}
+					else
+					{
+						//re-render ALL the lines.
+						line = container.layout(block, null);
+					}
 				}
 			}
 			else
@@ -192,15 +204,25 @@ package org.tinytlf.layout
 				line = container.layout(block, null);
 			}
 			
+			var lp:LayoutProperties = TinytlfUtil.getLP(block);
+			
 			while(line)
 			{
 				if(++containerIndex < containers.length)
+				{
+					lp.y = Math.max(lp.y - totalBlockHeight, 0);
 					container = containers[containerIndex];
+				}
 				else
-					return null;
+				{
+					container = null;
+					break;
+				}
 				
 				line = container.layout(block, line);
 			}
+			
+			totalBlockHeight += (lp.paddingTop + lp.height + lp.paddingBottom) || 1;
 			
 			return container;
 		}

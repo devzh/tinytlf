@@ -38,7 +38,7 @@ package org.tinytlf.layout.orientation.horizontal
 			{
 				if(target.hasLine(line))
 				{
-					y = line.y + line.descent;
+					y = line.y + line.descent + lp.leading;
 				}
 			}
 			else
@@ -106,9 +106,6 @@ package org.tinytlf.layout.orientation.horizontal
 		{
 			var lp:LayoutProperties = TinytlfUtil.getLP(line);
 			var block:TextBlock = line.textBlock;
-			
-			if(line === block.firstLine)
-				lp.y = y - lp.paddingTop;
 			
 			y += line.ascent;
 			line.y = y;

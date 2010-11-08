@@ -168,6 +168,7 @@ package org.tinytlf.layout
 				}
 			}
 			
+			minor.postTextBlock(block);
 			return line;
 		}
 		

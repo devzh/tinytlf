@@ -133,7 +133,7 @@ package org.tinytlf.layout.orientation.horizontal
 			
 			var minorValue:Number = target.minorDirection.value;
 			var l:Number = 0;
-			var totalWidth:Number = getTotalSize(around);
+			var totalWidth:Number = getTotalSize();
 			var r:Number = totalWidth;
 			var majorValue:Number = -1;
 			
@@ -150,7 +150,9 @@ package org.tinytlf.layout.orientation.horizontal
 				{
 					if(c.float == TextFloat.LEFT)
 					{
+//						if((c.majorValue + c.majorValue) >= l){
 						if(majorValue >= l){
+//							l = c.majorValue + majorValue;
 							l = majorValue;
 						}
 					}
@@ -158,6 +160,7 @@ package org.tinytlf.layout.orientation.horizontal
 					{
 						if(c.majorValue < r){
 							r = c.majorValue;
+//							r = c.majorValue - majorValue;
 						}
 					}
 				}
@@ -170,8 +173,8 @@ package org.tinytlf.layout.orientation.horizontal
 				}
 			}
 			
-			leftConstraint = l;
-			rightConstraint = r;
+			leftConstraint = Math.min(l, totalWidth);
+			rightConstraint = Math.max(r, 0);
 			
 			var lp:LayoutProperties = TinytlfUtil.getLP(around);
 			switch(lp.textAlign)

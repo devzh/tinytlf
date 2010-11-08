@@ -41,7 +41,7 @@ package org.tinytlf.layout.constraints.horizontal
 			if(atMinor < lp.y)
 				return -1;
 			
-			if(atMinor > (lp.y + totalHeight))
+			if(atMinor >= (lp.y + totalHeight))
 				return -1;
 			
 			if(fromMajor < lp.x)
