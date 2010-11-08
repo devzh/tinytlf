@@ -13,6 +13,7 @@ package org.tinytlf.layout.factories
     import org.tinytlf.layout.properties.*;
     import org.tinytlf.util.TinytlfUtil;
     import org.tinytlf.util.fte.TextBlockUtil;
+    import org.tinytlf.structures.SparseArray;
 
     public class TextBlockFactoryBase implements ITextBlockFactory
     {
@@ -105,7 +106,6 @@ package org.tinytlf.layout.factories
 				visibleBlocks.push(block);
 			
 			var lp:LayoutProperties = TinytlfUtil.getLP(block);
-			var blockY:Number = lp.y;
 			var blockIndex:int = listIndex;
 			var blockSize:Number = (lp.paddingTop + lp.height + lp.paddingBottom) || 1;
 			
@@ -116,7 +116,7 @@ package org.tinytlf.layout.factories
 			}
 			else
 			{
-				blockIndex = blockPositions.indexOf(blockY);
+				blockIndex = blockPositions.indexOf(lp.y);
 			}
 			
 			if(blockIndex > -1)
