@@ -13,7 +13,8 @@ package org.tinytlf.components.spark
 	
 	import spark.components.supportClasses.GroupBase;
 
-	public class RichTextField extends GroupBase/* implements IStyleAware */ //can't do this because Flex's clearStyle is retarded.
+	public class RichTextField extends GroupBase
+		/* implements IStyleAware */ //can't do this because Flex's clearStyle is retarded.
 	{
 		public function RichTextField()
 		{
