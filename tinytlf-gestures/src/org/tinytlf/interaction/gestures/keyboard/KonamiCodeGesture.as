@@ -1,6 +1,5 @@
 package org.tinytlf.interaction.gestures.keyboard
 {
-	import flash.events.IEventDispatcher;
 	import flash.events.KeyboardEvent;
 	import flash.ui.Keyboard;
 	
@@ -9,12 +8,33 @@ package org.tinytlf.interaction.gestures.keyboard
 	[Event("keyUp")]
 	public class KonamiCodeGesture extends Gesture
 	{
-		public function KonamiCodeGesture(target:IEventDispatcher = null)
+		public function KonamiCodeGesture()
 		{
-			super(target);
+			super();
 			
-			hsm.appendChild(<up><up2><down><down2><left><right><left2><right2><b><a><enter/>
-													</a></b></right2></left2></right></left></down2></down></up2></up>);
+			hsm.appendChild(
+				<up>
+					<up2>
+						<down>
+							<down2>
+								<left>
+									<right>
+										<left2>
+											<right2>
+												<b>
+													<a>
+														<enter/>
+													</a>
+												</b>
+											</right2>
+										</left2>
+									</right>
+								</left>
+							</down2>
+						</down>
+					</up2>
+				</up>
+				);
 		}
 		
 		public function up(e:KeyboardEvent):Boolean

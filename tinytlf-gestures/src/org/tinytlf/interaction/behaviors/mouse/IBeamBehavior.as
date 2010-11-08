@@ -10,23 +10,25 @@ package org.tinytlf.interaction.behaviors.mouse
 	import flash.ui.Mouse;
 	import flash.ui.MouseCursor;
 	
-	import org.tinytlf.interaction.behaviors.Behavior;
+	import org.tinytlf.interaction.behaviors.MultiGestureBehavior;
 	
-	public class IBeamBehavior extends Behavior
+	public class IBeamBehavior extends MultiGestureBehavior
 	{
-		override protected function onRollOver(event:MouseEvent):void
+		[Event("rollOver")]
+		[Event("mouseOver")]
+		[Event("mouseMove")]
+		public function setIBeam():void
 		{
+			if(info.mirrorRegion)
+				return;
+			
 			Mouse.cursor = MouseCursor.IBEAM;
 		}
 		
-		override protected function onMouseMove(event:MouseEvent):void
+		[Event("rollOut")]
+		public function setAuto():void
 		{
-			Mouse.cursor = MouseCursor.IBEAM;
-		}
-		
-		override protected function onRollOut(event:MouseEvent):void
-		{
-			Mouse.cursor = MouseCursor.ARROW;
+			Mouse.cursor = MouseCursor.AUTO;
 		}
 	}
 }

@@ -1,6 +1,5 @@
 package org.tinytlf.interaction.gestures.keyboard.arrows
 {
-	import flash.events.IEventDispatcher;
 	import flash.events.KeyboardEvent;
 	import flash.ui.Keyboard;
 	
@@ -10,9 +9,10 @@ package org.tinytlf.interaction.gestures.keyboard.arrows
 	
 	public class DownArrowGesture extends Gesture
 	{
-		public function DownArrowGesture(target:IEventDispatcher=null)
+		public function DownArrowGesture()
 		{
-			super(target);
+			super();
+			
 			hsm.appendChild(<down/>);
 		}
 		

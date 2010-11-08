@@ -38,6 +38,18 @@ package org.tinytlf.interaction
 		
 		public function removeListeners(target:IEventDispatcher):void
 		{
+			for each(var gesture:IGesture in gestures)
+			{
+				gesture.spurn(target);
+			}
+		}
+		
+		public function addListeners(target:IEventDispatcher):void
+		{
+			for each(var gesture:IGesture in gestures)
+			{
+				gesture.hearken(target);
+			}
 		}
 		
 		public function addGesture(gesture:IGesture, ... behaviors):IGesture
@@ -45,12 +57,10 @@ package org.tinytlf.interaction
 			if(_gestures.indexOf(gesture) == -1)
 				_gestures.push(gesture);
 			
-			for each(var behavior:IEventDispatcher in behaviors)
+			for each(var behavior:IBehavior in behaviors)
 			{
 				gesture.addBehavior(behavior);
 			}
-			
-			gesture.target = this;
 			
 			return gesture;
 		}
@@ -61,18 +71,11 @@ package org.tinytlf.interaction
 			if(i != -1)
 				_gestures.splice(i, 1);
 			
-			gesture.target = null;
-			
 			return gesture;
 		}
 		
 		public function removeAllGestures():void
 		{
-			for each(var gesture:IGesture in gestures)
-			{
-				gesture.target = null;
-			}
-			
 			_gestures.length = 0;
 		}
 		
@@ -122,7 +125,7 @@ package org.tinytlf.interaction
 			sprite.name = 'lineCatcher';
 			sprite.graphics.beginFill(0x00, 0);
 			sprite.graphics.drawRect(x, -line.ascent, w, line.height);
-			line.addChild(sprite);
+			line.addChildAt(sprite, 0);
 		}
 	}
 }

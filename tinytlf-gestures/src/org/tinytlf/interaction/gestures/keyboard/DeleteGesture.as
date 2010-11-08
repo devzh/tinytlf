@@ -1,6 +1,5 @@
 package org.tinytlf.interaction.gestures.keyboard
 {
-    import flash.events.IEventDispatcher;
     import flash.events.KeyboardEvent;
     import flash.ui.Keyboard;
     
@@ -10,10 +9,10 @@ package org.tinytlf.interaction.gestures.keyboard
 
     public class DeleteGesture extends Gesture
     {
-        public function DeleteGesture(target:IEventDispatcher = null)
+        public function DeleteGesture()
         {
-            super(target);
-
+			super();
+			
             hsm.appendChild(<deleteKey/>);
         }
 

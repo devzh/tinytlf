@@ -1,7 +1,6 @@
 package org.tinytlf.interaction.gestures.keyboard
 {
 	import flash.events.Event;
-	import flash.events.IEventDispatcher;
 	
 	import org.tinytlf.interaction.gestures.Gesture;
 	
@@ -9,9 +8,9 @@ package org.tinytlf.interaction.gestures.keyboard
 	
 	public class CopyGesture extends Gesture
 	{
-		public function CopyGesture(target:IEventDispatcher=null)
+		public function CopyGesture()
 		{
-			super(target);
+			super();
 			
 			hsm.appendChild(<copy/>);
 		}

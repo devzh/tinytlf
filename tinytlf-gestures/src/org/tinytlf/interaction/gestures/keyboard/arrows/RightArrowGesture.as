@@ -1,6 +1,5 @@
 package org.tinytlf.interaction.gestures.keyboard.arrows
 {
-	import flash.events.IEventDispatcher;
 	import flash.events.KeyboardEvent;
 	import flash.ui.Keyboard;
 	
@@ -10,9 +9,10 @@ package org.tinytlf.interaction.gestures.keyboard.arrows
 	
 	public class RightArrowGesture extends Gesture
 	{
-		public function RightArrowGesture(target:IEventDispatcher=null)
+		public function RightArrowGesture()
 		{
-			super(target);
+			super();
+			
 			hsm.appendChild(<right/>);
 		}
 		

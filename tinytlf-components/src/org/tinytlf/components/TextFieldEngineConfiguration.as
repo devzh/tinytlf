@@ -5,10 +5,10 @@ package org.tinytlf.components
 	import org.tinytlf.decor.decorations.*;
 	import org.tinytlf.interaction.*;
 	import org.tinytlf.interaction.behaviors.*;
-	import org.tinytlf.interaction.behaviors.keyboard.*;
-	import org.tinytlf.interaction.behaviors.keyboard.selection.*;
+	import org.tinytlf.interaction.behaviors.focus.FocusBehavior;
 	import org.tinytlf.interaction.behaviors.mouse.*;
-	import org.tinytlf.interaction.behaviors.mouse.selection.*;
+	import org.tinytlf.interaction.behaviors.selection.*;
+	import org.tinytlf.interaction.behaviors.selection.mouse.*;
 	import org.tinytlf.interaction.gestures.keyboard.*;
 	import org.tinytlf.interaction.gestures.keyboard.arrows.*;
 	import org.tinytlf.interaction.gestures.mouse.*;
@@ -21,7 +21,6 @@ package org.tinytlf.components
 		{
 			this.selectable = selectable;
 			this.editable = editable;
-//			this.editable = true;
 		}
 		
 		public var selectable:Boolean = true;
@@ -75,7 +74,7 @@ package org.tinytlf.components
 		protected function mapEventMirrors(engine:ITextEngine):void
 		{
 			if (!engine.interactor.hasMirror("a"))
-				engine.interactor.mapMirror("a", AnchorInteractor);
+				engine.interactor.mapMirror("a", AnchorMirror);
 		}
 		
 		protected function mapGestures(engine:ITextEngine):void
@@ -90,50 +89,51 @@ package org.tinytlf.components
 			
 			if (selectable)
 			{
+				var iBeam:IBeamBehavior = new IBeamBehavior();
+				var mouseCharSelect:CharacterSelectionBehavior = new CharacterSelectionBehavior();
+				var mouseWordSelect:WordSelectionBehavior = new WordSelectionBehavior();
+				var paragraphSelect:ParagraphSelectionBehavior = new ParagraphSelectionBehavior();
+				
+				mouseClick.addBehavior(mouseCharSelect);
+				
 				var mouseOver:MouseOverGesture = new MouseOverGesture();
 				var mouseOut:MouseOutGesture = new MouseOutGesture();
 				var mouseDoubleDown:MouseDoubleDownGesture = new MouseDoubleDownGesture();
 				var mouseTripleDown:MouseTripleDownGesture = new MouseTripleDownGesture();
-				var leftArrow:LeftArrowGesture = new LeftArrowGesture();
-				var leftCtrlArrow:LeftArrowCtrlGesture = new LeftArrowCtrlGesture();
-				var rightArrow:RightArrowGesture = new RightArrowGesture();
-				var rightCtrlArrow:RightArrowCtrlGesture = new RightArrowCtrlGesture();
+//				var leftArrow:LeftArrowGesture = new LeftArrowGesture();
+//				var leftCtrlArrow:LeftArrowCtrlGesture = new LeftArrowCtrlGesture();
+//				var rightArrow:RightArrowGesture = new RightArrowGesture();
+//				var rightCtrlArrow:RightArrowCtrlGesture = new RightArrowCtrlGesture();
 				
-				var iBeam:IBeamBehavior = new IBeamBehavior();
-				var mouseCharSelect:CharacterSelectionBehavior = new CharacterSelectionBehavior();
-				var mouseWordSelect:WordSelectionBehavior = new WordSelectionBehavior();
-				var mouseLineSelect:LineSelectionBehavior = new LineSelectionBehavior();
-				var paragraphSelect:ParagraphSelectionBehavior = new ParagraphSelectionBehavior();
-				var arrowCharSelect:CharacterLeftRightBehavior = new CharacterLeftRightBehavior();
-				var arrowWordSelect:WordLeftRightBehavior = new WordLeftRightBehavior();
-				var copyBehavior:CopyBehavior = new CopyBehavior();
-				var selectAllBehavior:SelectAllBehavior = new SelectAllBehavior();
+//				var arrowCharSelect:CharacterLeftRightBehavior = new CharacterLeftRightBehavior();
+//				var arrowWordSelect:WordLeftRightBehavior = new WordLeftRightBehavior();
+//				var copyBehavior:CopyBehavior = new CopyBehavior();
+//				var selectAllBehavior:SelectAllBehavior = new SelectAllBehavior();
 				
-				mouseClick.addBehavior(mouseCharSelect);
 				
 				interactor.addGesture(mouseOver, iBeam);
 				interactor.addGesture(mouseOut, iBeam);
 				interactor.addGesture(mouseDoubleDown, mouseWordSelect);
 				interactor.addGesture(mouseTripleDown, paragraphSelect);
 				
-				interactor.addGesture(leftArrow, arrowCharSelect);
-				interactor.addGesture(rightArrow, arrowCharSelect);
+//				interactor.addGesture(leftArrow, arrowCharSelect);
+//				interactor.addGesture(rightArrow, arrowCharSelect);
 				
-				interactor.addGesture(leftCtrlArrow, arrowWordSelect);
-				interactor.addGesture(rightCtrlArrow, arrowWordSelect);
+//				interactor.addGesture(leftCtrlArrow, arrowWordSelect);
+//				interactor.addGesture(rightCtrlArrow, arrowWordSelect);
 				
-				interactor.addGesture(new CopyGesture(), copyBehavior);
-				interactor.addGesture(new SelectAllGesture(), selectAllBehavior);
+//				interactor.addGesture(new CopyGesture(), copyBehavior);
+//				interactor.addGesture(new SelectAllGesture(), selectAllBehavior);
 				
 				if (editable)
 				{
 					mouseTripleDown.removeBehavior(paragraphSelect);
-					mouseTripleDown.addBehavior(mouseLineSelect);
+//					mouseTripleDown.addBehavior(new LineSelectionBehavior());
 					
 					//Experimental
-					var charBack:CharacterBackspaceBehavior = new CharacterBackspaceBehavior();
-					var backspace:BackspaceGesture = new BackspaceGesture();
-					interactor.addGesture(backspace, charBack);
+//					var charBack:CharacterBackspaceBehavior = new CharacterBackspaceBehavior();
+//					var backspace:BackspaceGesture = new BackspaceGesture();
+//					interactor.addGesture(backspace, charBack);
 				}
 			}
 		}

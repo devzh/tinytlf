@@ -1,20 +1,19 @@
 package org.tinytlf.interaction.gestures
 {
-    import flash.events.Event;
-    import flash.events.IEventDispatcher;
-
-    public interface IGesture
-    {
-        function get target():IEventDispatcher;
-
-        function set target(value:IEventDispatcher):void;
-
-        function addBehavior(behavior:IEventDispatcher):void;
-
-        function removeBehavior(behavior:IEventDispatcher):void;
-
-        function hasEventListener(type:String):Boolean;
-
-        function execute(event:Event):void;
-    }
+	import flash.events.IEventDispatcher;
+	
+	import org.tinytlf.interaction.behaviors.IBehavior;
+	
+	public interface IGesture
+	{
+		////
+		// Nobody's going to read these method names anyway.
+		// Might as well make it interesting.
+		////
+		function hearken(target:IEventDispatcher):void;
+		function spurn(target:IEventDispatcher):void;
+		
+		function addBehavior(behavior:IBehavior):void;
+		function removeBehavior(behavior:IBehavior):void;
+	}
 }
