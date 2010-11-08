@@ -2,8 +2,7 @@ package org.tinytlf.util
 {
 	import flash.system.Capabilities;
 	import flash.text.engine.*;
-	import flash.utils.Dictionary;
-	import flash.utils.describeType;
+	import flash.utils.*;
 	
 	import org.tinytlf.ITextEngine;
 	import org.tinytlf.layout.properties.LayoutProperties;
@@ -313,7 +312,6 @@ package org.tinytlf.util
 			return true;
 		}
 		
-		
 		/**
 		 * Converts a string from underscore or dash separators to no separators.
 		 */
@@ -324,6 +322,28 @@ package org.tinytlf.util
 			});
 			
 			return s.replace(/(-|_)/g, '');
+		}
+		
+		private static var typeCache:Dictionary = new Dictionary(false);
+		
+		public static function describeType(value:Object, refreshCache:Boolean = false):XML
+		{
+			if(!(value is Class))
+			{
+				if(value is Proxy)
+					value = getDefinitionByName(getQualifiedClassName(value)) as Class;
+				else if(value is Number)
+					value = Number;
+				else
+					value = value.constructor as Class;
+			}
+			
+			if(refreshCache || typeCache[value] == null)
+			{
+				typeCache[value] = flash.utils.describeType(value);
+			}
+			
+			return typeCache[value];
 		}
 	}
 }
