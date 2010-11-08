@@ -45,6 +45,11 @@ package org.tinytlf.styles
 		 * Merges the specified object's properties into this IStyleAware object.
 		 */
 		function merge(withObj:Object):void;
+		
+		/**
+		 * toString of course. duh.
+		 */
+		function toString():String;
     }
 }
 
