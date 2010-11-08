@@ -82,8 +82,8 @@ package org.tinytlf.decor
 			{
 				////
 				//  When you decorate a ContentElement, there's no way to 
-				//  associate it with the ITextContainer[s] that it renders in. 
-				//  Here we grab every container that holds TextLines for the 
+				//  associate it with the ITextContainer(s) that it renders in. 
+				//  Here, grab every container that holds TextLines for the 
 				//  element.
 				//  
 				//  @TODO
@@ -104,7 +104,7 @@ package org.tinytlf.decor
 					rect = tlmr.bounds.clone();
 					tl = tlmr.textLine;
 					rect.offset(tl.x, tl.y);
-					rectToContainer[rect] = assureLayerExists(engine.layout.getContainerForLine(tl), layer)
+					rectToContainer[rect] = ensureLayerExists(engine.layout.getContainerForLine(tl), layer)
 					bounds.push(rect);
 				}
 			}
@@ -119,7 +119,7 @@ package org.tinytlf.decor
 				{
 					if(tc != engine.layout.getContainerForLine(tl))
 					{
-						rectToContainer[rect] = assureLayerExists(container, layer);
+						rectToContainer[rect] = ensureLayerExists(container, layer);
 					}
 					
 					rect = rect.union(tl.getBounds(tl.parent));
@@ -142,8 +142,12 @@ package org.tinytlf.decor
 				{
 					bounds = bounds.concat(arg);
 				}
+				else if(arg is Point)
+				{
+					bounds.push(new Rectangle(arg.x, arg.y));
+				}
 				
-				var sprite:Sprite = assureLayerExists(container, layer);
+				var sprite:Sprite = ensureLayerExists(container, layer);
 				for each(rect in bounds)
 				{
 					rectToContainer[rect] = sprite;
@@ -166,7 +170,7 @@ package org.tinytlf.decor
 			rectToContainer = null;
 		}
 		
-		protected function assureLayerExists(container:ITextContainer, layer:int):Sprite
+		protected function ensureLayerExists(container:ITextContainer, layer:int):Sprite
 		{
 			if(container == null)
 				return null;
@@ -174,7 +178,7 @@ package org.tinytlf.decor
 			var shapes:Sprite = foreground ? container.foreground : container.background;
 			while(shapes.numChildren < (layer + 1))
 			{
-				shapes.addChild(new Sprite());
+				shapes.addChild(new MouseDisabledSprite());
 			}
 			
 			return Sprite(shapes.getChildAt(shapes.numChildren - layer - 1));
@@ -186,4 +190,13 @@ package org.tinytlf.decor
 		}
     }
 }
+import flash.display.Sprite;
 
+internal class MouseDisabledSprite extends Sprite
+{
+	public function MouseDisabledSprite()
+	{
+		mouseEnabled = false;
+		mouseChildren = true;
+	}
+}

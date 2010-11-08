@@ -100,7 +100,8 @@ package org.tinytlf.layout
 				// Don't let foreground shapes get in the way of interacting
 				// with the TextLines.
 				fgShapes.mouseEnabled = false;
-				fgShapes.mouseChildren = false;
+				//But maybe we do want children to receive mouse events?
+				//fgShapes.mouseChildren = false;
 			}
 		}
 		
