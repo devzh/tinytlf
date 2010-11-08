@@ -12,7 +12,7 @@ package org.tinytlf.layout
     import org.tinytlf.ITextEngine;
     
 	/**
-	 * ITextContainer</code> is the layout controller for a 
+	 * <code>ITextContainer</code> is the layout controller for a 
 	 * DisplayObjectContainer used in text layout. Tinytlf renders TextLines
 	 * across multiple DisplayObjectContainers, and it delegates control 
 	 * over layout and line creation to ITextContainers.
