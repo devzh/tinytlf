@@ -30,7 +30,7 @@ package org.tinytlf.decor.decorations
 				
 				rect.width = line.specifiedWidth;
 				
-				rectToContainer[rect] = assureLayerExists(engine.layout.getContainerForLine(line), layer);
+				rectToContainer[rect] = ensureLayerExists(engine.layout.getContainerForLine(line), layer);
 				
 				return new <Rectangle>[rect];
 			}

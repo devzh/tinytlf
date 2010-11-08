@@ -37,7 +37,7 @@ package org.tinytlf.decor.decorations
 			{
 				tlmr = tlmrs[i];
 				rect = processTLMR(tlmr);
-				rectToContainer[rect] = assureLayerExists(engine.layout.getContainerForLine(tlmr.textLine), layer);
+				rectToContainer[rect] = ensureLayerExists(engine.layout.getContainerForLine(tlmr.textLine), layer);
 				bounds.push(rect);
 			}
 			
