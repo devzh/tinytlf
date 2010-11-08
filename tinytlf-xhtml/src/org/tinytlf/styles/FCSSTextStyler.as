@@ -24,6 +24,7 @@ package org.tinytlf.styles
 		}
 		
 		private var sheet:FStyleSheet;
+		private var stylesheet:String;
 		
 		override public function set style(value:Object):void
 		{
@@ -32,9 +33,20 @@ package org.tinytlf.styles
 				if(!sheet)
 					sheet = new TinytlfStyleSheet();
 				
-				sheet.parseCSS(String(value));
+				stylesheet = String(value);
+				sheet.parseCSS(stylesheet);
+				
 				//Add the global styles onto this ITextStyler dude.
-				value = new FCSSStyleProxy(sheet.getStyle("*"));
+				
+				if(super.style is FCSSStyleProxy)
+				{
+					merge(new FCSSStyleProxy(sheet.getStyle("*")));
+					value = super.style;
+				}
+				else
+				{
+					value = new FCSSStyleProxy(sheet.getStyle("*"));
+				}
 			}
 			
 			super.style = value;
@@ -79,6 +91,14 @@ package org.tinytlf.styles
 			{
 				return super.describeElement(element);
 			}
+		}
+		
+		override public function toString():String
+		{
+			if(stylesheet)
+				return stylesheet;
+			
+			return super.toString();
 		}
 		
 		/**
