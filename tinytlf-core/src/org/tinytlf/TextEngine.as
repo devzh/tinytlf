@@ -217,6 +217,9 @@ package org.tinytlf
 			if(value === _scrollPosition)
 				return;
 			
+			if(rendering)
+				return;
+			
 			_scrollPosition = value;
 			invalidate();
 		}
@@ -313,12 +316,9 @@ package org.tinytlf
 			if(!_stage)
 				return;
 			
+			_stage.addEventListener(Event.ENTER_FRAME, onRender);
 			_stage.addEventListener(Event.RENDER, onRender);
-			
-			if(rendering)
-				setTimeout(_stage.invalidate, 10);
-			else
-				_stage.invalidate();
+			_stage.invalidate();
 		}
 		
 		protected function onRender(event:Event):void
@@ -326,6 +326,7 @@ package org.tinytlf
 			if(!_stage)
 				return;
 			
+			_stage.removeEventListener(Event.ENTER_FRAME, onRender);
 			_stage.removeEventListener(Event.RENDER, onRender);
 			render();
 		}
@@ -335,7 +336,10 @@ package org.tinytlf
 		public function render():void
 		{
 			if(_stage)
+			{
+				_stage.removeEventListener(Event.ENTER_FRAME, onRender);
 				_stage.removeEventListener(Event.RENDER, onRender);
+			}
 			
 			rendering = true;
 			
