@@ -2,7 +2,7 @@ package org.tinytlf.interaction
 {
 	import flash.events.EventDispatcher;
 	
-	import org.tinytlf.layout.factories.XMLDescription;
+	import org.tinytlf.layout.factories.XMLModel;
 	
 	public class CascadingTextInteractor extends GestureInteractor
 	{
@@ -16,7 +16,7 @@ package org.tinytlf.interaction
 			if (element is Array)
 			{
 				var mirror:EventDispatcher;
-				var copy:Vector.<XMLDescription> = Vector.<XMLDescription>(element);
+				var copy:Vector.<XMLModel> = Vector.<XMLModel>(element);
 				for(var i:int = copy.length - 1; i > -1; --i)
 				{
 					mirror = super.getMirror(copy[i].name);

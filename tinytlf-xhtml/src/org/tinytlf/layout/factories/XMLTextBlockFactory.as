@@ -3,6 +3,9 @@ package org.tinytlf.layout.factories
 	import flash.external.ExternalInterface;
 	import flash.text.engine.*;
 	
+	import org.tinytlf.layout.IConstraintTextContainer;
+	import org.tinytlf.layout.ITextContainer;
+	import org.tinytlf.layout.constraints.ITextConstraint;
 	import org.tinytlf.layout.properties.LayoutProperties;
 	import org.tinytlf.styles.*;
 	import org.tinytlf.util.fte.*;
@@ -11,7 +14,7 @@ package org.tinytlf.layout.factories
 	{
 		override public function get nextBlock():TextBlock
 		{
-			if(++listIndex < list.length())
+			if(++listIndex < root.*.length())
 				return generateTextBlock(listIndex);
 			
 			return null;
@@ -23,7 +26,7 @@ package org.tinytlf.layout.factories
 			
 			//De-cache any blocks after the end index.
 			var j:int = -1;
-			var n:int = list.length();
+			var n:int = root.*.length();
 			for(var i:int = listIndex + 1; i < n; i += 1)
 			{
 				if(i in cachedBlocks)
@@ -43,6 +46,10 @@ package org.tinytlf.layout.factories
 		{
 			super.clearCaches();
 			
+			for each(var cElement:ContentElement in cachedElements)
+				clearConstraints(cElement);
+			
+			cachedElements.length = 0;
 			cachedLayouts.length = 0;
 		}
 		
@@ -66,7 +73,7 @@ package org.tinytlf.layout.factories
 				// anything extra.
 				if(value is XMLList)
 				{
-					list = XMLList(value);
+					root = <body>{XMLList(value)}</body>;
 				}
 				// Otherwise, if the value is a String, try to convert it to an
 				// XML object. Once it's a XML, we extract its children below.
@@ -92,18 +99,17 @@ package org.tinytlf.layout.factories
 				// Note the lack of an "else if" statement here.
 				if(value is XML)
 				{
-					list = XML(value).children();
+					root = XML(value);
 				}
 				
 				// If we're setting new data, clear the caches.
 				clearCaches();
-				cachedElements.length = 0;
 			}
 			
 			super.data = value;
 		}
 		
-		private var list:XMLList = new XMLList();
+		private var root:XML = new XML();
 		private var cachedElements:Vector.<ContentElement> = new <ContentElement>[];
 		private var cachedLayouts:Vector.<LayoutProperties> = new <LayoutProperties>[];
 		
@@ -122,7 +128,10 @@ package org.tinytlf.layout.factories
 			
 			var element:ContentElement;
 			var style:IStyleAware = new StyleAwareActor();
-			var xml:XML = list[index];
+			var xml:XML = root.*[index];
+			
+			if(!xml)
+				return null;
 			
 			// If the TextBlock isn't cached, check to see if this item has been
 			// parsed before. If so, regenerate its styles (they may have 
@@ -132,7 +141,7 @@ package org.tinytlf.layout.factories
 				element = cachedElements[index];
 				
 				if(xml.nodeKind() !== 'text')
-					style.style = new StyleAwareActor(engine.styler.describeElement(new XMLDescription(xml)));
+					style.style = new StyleAwareActor(engine.styler.describeElement(new XMLModel(xml)));
 				
 				if(index in cachedLayouts)
 					lp = cachedLayouts[index];
@@ -145,23 +154,25 @@ package org.tinytlf.layout.factories
 			// the XML parsing routine.
 			else
 			{
+				var rootModel:XMLModel = new XMLModel(root);
+				
 				// The top-level node may only be text. If this is the case, use
 				// pass the XML tag as the data for the 
 				// IContentElementFactory.execute method.
 				if(xml.nodeKind() == 'text')
 				{
-					element = getElementFactory(xml.localName()).execute.apply(null, [xml.toString()]);
+					element = getElementFactory(xml.localName()).execute.apply(null, [xml.toString(), rootModel]);
 				}
 				// If the top-level node isn't strictly a text node, pass the
-				// XML object as the data, and an XMLDescription in the ...rest
+				// XML object as the data, and an XMLModel in the ...rest
 				// arguments for IContentElementFactory.execute.
 				// This call should be recursive, with more calls to the
 				// getElementFactory down the line.
 				else
 				{
-					var parent:XMLDescription = new XMLDescription(xml);
-					element = getElementFactory(xml.localName()).execute.apply(null, [xml, parent]);
-					style.style = new StyleAwareActor(engine.styler.describeElement(parent));
+					var parent:XMLModel = new XMLModel(xml);
+					element = getElementFactory(xml.localName()).execute.apply(null, [xml, rootModel, parent]);
+					style.style = new StyleAwareActor(engine.styler.describeElement([rootModel, parent]));
 				}
 				
 				// Cache the results of these (rather expensive) operations.
@@ -180,6 +191,42 @@ package org.tinytlf.layout.factories
 			block.userData = lp;
 			
 			return block;
+		}
+		
+		private function clearConstraints(cElement:ContentElement):void
+		{
+			var containers:Vector.<ITextContainer> = engine.layout.containers;
+			var i:int, n:int;
+			
+			if(cElement is GroupElement)
+			{
+				var g:GroupElement = GroupElement(cElement);
+				n = g.elementCount;
+				for(i = 0; i < n; i += 1)
+				{
+					clearConstraints(g.getElementAt(i));
+				}
+			}
+			else
+			{
+				n = containers.length;
+				var tc:IConstraintTextContainer;
+				var con:ITextConstraint;
+				
+				for(i = 0; i < n; i += 1)
+				{
+					tc = containers[i] as IConstraintTextContainer;
+					if(!tc)
+						continue;
+					
+					con = tc.getConstraint(cElement);
+					if(con)
+					{
+						tc.removeConstraint(con);
+						return;
+					}
+				}
+			}
 		}
 		
 		/**

@@ -23,7 +23,7 @@ package org.tinytlf.layout.factories
     {
         override public function execute(data:Object, ...context:Array):ContentElement
         {
-            var img:XMLDescription = context[context.length - 1];
+            var img:XMLModel = context[context.length - 1];
 			var imageProperties:Object = engine.styler.describeElement(img);
 			var inheritedProperties:Object = engine.styler.describeElement(context);
 			
@@ -43,7 +43,7 @@ package org.tinytlf.layout.factories
 					format, 
 					getEventMirror(context) || new EventDispatcher());
 				
-	            element.userData = Vector.<XMLDescription>(context);
+	            element.userData = Vector.<XMLModel>(context);
 				
 				//Decorate this element?
 				engine.decor.decorate(
@@ -67,7 +67,7 @@ package org.tinytlf.layout.factories
 				lp.height + lp.paddingTop + lp.paddingBottom, 
 				format, getEventMirror(context) || new EventDispatcher());
 			
-            element.userData = Vector.<XMLDescription>(context);
+            element.userData = Vector.<XMLModel>(context);
 			
 			engine.decor.decorate(
 				element, 

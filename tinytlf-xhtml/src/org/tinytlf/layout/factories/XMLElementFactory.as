@@ -40,15 +40,15 @@ package org.tinytlf.layout.factories
 						if(child.nodeKind() == "text")
 							elements.push(super.execute.apply(null, [child.toString()].concat(context)));
 						else
-							elements.push(adapter.execute.apply(null, [child].concat(context, new XMLDescription(child))));
+							elements.push(adapter.execute.apply(null, [child].concat(context, new XMLModel(child))));
 					}
 					
-					return new GroupElement(elements, getElementFormat(Vector.<XMLDescription>(context)));
+					return new GroupElement(elements, getElementFormat(Vector.<XMLModel>(context)));
 				}
 			}
 			
 			var element:ContentElement = super.execute.apply(null, [data].concat(context));
-			element.userData = Vector.<XMLDescription>(context);
+			element.userData = Vector.<XMLModel>(context);
 			
 			return element;
 		}

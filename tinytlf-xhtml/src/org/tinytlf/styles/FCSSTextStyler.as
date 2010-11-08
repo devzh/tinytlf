@@ -11,7 +11,7 @@ package org.tinytlf.styles
 	
 	import flash.text.engine.*;
 	
-	import org.tinytlf.layout.factories.XMLDescription;
+	import org.tinytlf.layout.factories.XMLModel;
 	
 	public class FCSSTextStyler extends TextStyler
 	{
@@ -46,15 +46,15 @@ package org.tinytlf.styles
 			var description:FontDescription = new FontDescription();
 			
 			if(element is Array)
+				element = Vector.<XMLModel>(element);
+			if(element is XMLModel)
+				element = new <XMLModel>[XMLModel(element)];
+			if(element is Vector.<XMLModel>)
+				element = computeStyles(element);
+			if(element)
 			{
-				element = Vector.<XMLDescription>(element);
-			}
-			
-			if(element is Vector.<XMLDescription>)
-			{
-				var fStyle:IStyle = computeStyles(Vector.<XMLDescription>(element));
-				new EFApplicator().applyStyle(format, fStyle);
-				new FDApplicator().applyStyle(description, fStyle);
+				new EFApplicator().applyStyle(format, element);
+				new FDApplicator().applyStyle(description, element);
 				format.fontDescription = description;
 			}
 			
@@ -64,17 +64,12 @@ package org.tinytlf.styles
 		override public function describeElement(element:*):Object
 		{
 			if(element is Array)
+				element = Vector.<XMLModel>(element);
+			if(element is XMLModel)
+				element = new <XMLModel>[XMLModel(element)];
+			if(element is Vector.<XMLModel>)
 			{
-				element = Vector.<XMLDescription>(element);
-			}
-			if(element is XMLDescription)
-			{
-				element = new <XMLDescription>[XMLDescription(element)];
-			}
-			
-			if(element is Vector.<XMLDescription>)
-			{
-				var context:Vector.<XMLDescription> = Vector.<XMLDescription>(element);
+				var context:Vector.<XMLModel> = Vector.<XMLModel>(element);
 				var obj:IStyleAware = new StyleAwareActor(super.describeElement(context[context.length - 1].name));
 				obj.style = computeStyles(context);
 				
@@ -90,9 +85,9 @@ package org.tinytlf.styles
 		 * Constructs an array of styleNames to pass to F*CSS for style parsing.
 		 * Returns an F*CSS IStyle object.
 		 */
-		protected function computeStyles(context:Vector.<XMLDescription>):IStyle
+		protected function computeStyles(context:Vector.<XMLModel>):IStyle
 		{
-			var node:XMLDescription;
+			var node:XMLModel;
 			var attr:String;
 			
 			var i:int = 0;
@@ -114,7 +109,7 @@ package org.tinytlf.styles
 			{
 				node = context[i];
 				
-				if(node.reprocess())
+				if(node.stylesDirty)
 				{
 					str += node.name;
 					
@@ -146,7 +141,7 @@ package org.tinytlf.styles
 					}
 					
 					node.styleString = str;
-					node.doneProcessing();
+					node.stylesDirty = false;
 				}
 				else
 				{
@@ -172,21 +167,7 @@ import com.flashartofwar.fcss.styles.IStyle;
 import com.flashartofwar.fcss.stylesheets.FStyleSheet;
 import com.flashartofwar.fcss.utils.TypeHelperUtil;
 
-import flash.text.engine.BreakOpportunity;
-import flash.text.engine.CFFHinting;
-import flash.text.engine.DigitCase;
-import flash.text.engine.DigitWidth;
-import flash.text.engine.ElementFormat;
-import flash.text.engine.FontDescription;
-import flash.text.engine.FontLookup;
-import flash.text.engine.FontPosture;
-import flash.text.engine.FontWeight;
-import flash.text.engine.Kerning;
-import flash.text.engine.LigatureLevel;
-import flash.text.engine.RenderingMode;
-import flash.text.engine.TextBaseline;
-import flash.text.engine.TextRotation;
-import flash.text.engine.TypographicCase;
+import flash.text.engine.*;
 
 import org.tinytlf.styles.FCSSStyleProxy;
 
