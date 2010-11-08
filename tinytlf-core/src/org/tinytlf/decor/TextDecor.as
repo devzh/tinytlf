@@ -16,7 +16,7 @@ package org.tinytlf.decor
 	//  Shapes/Sprites per decoration (ick!).
 	//  
 	//  09/05/2010: did some testing tonight, seems this isn't as big a deal (yet)
-	//    as I thought it could be. Will keep my eye on the situation.
+	//  as I thought it could be. Will keep my eye on the situation.
 	////
 	
 	/**
@@ -119,6 +119,9 @@ package org.tinytlf.decor
 					}
 					else if (hasDecoration(styleProp))
 					{
+						if(el.getDecoration(decorationsMap[styleProp]))
+							continue;
+						
 						decoration = getDecoration(styleProp, container);
 						decoration.foreground = foreground;
 						decoration.style = styleObject;
@@ -151,7 +154,12 @@ package org.tinytlf.decor
 						return;
 					
 					dec = el.getDecoration(decorationsMap[decorationProp]);
-					el.removeDecoration(dec);
+					while(dec)
+					{
+						el.removeDecoration(dec);
+						dec.destroy();
+						dec = el.getDecoration(decorationsMap[decorationProp]);
+					}
 				}
 				else
 				{
@@ -160,7 +168,6 @@ package org.tinytlf.decor
 					{
 						el.removeDecoration(dec);
 						dec.destroy();
-						dec.decoration = null;
 					}
 				}
 				
@@ -181,8 +188,6 @@ package org.tinytlf.decor
 					{
 						el.removeDecoration(dec);
 						dec.destroy();
-						dec.decoration = null;
-						
 						cleanupElement(el);
 					}
 				}
@@ -316,6 +321,7 @@ internal class Decoration
 	public function destroy():void
 	{
 		decoration.destroy();
+		decoration = null;
 	}
 	
 	public function setup(... args):Vector.<Rectangle>
