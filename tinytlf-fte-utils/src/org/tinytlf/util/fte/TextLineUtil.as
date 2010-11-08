@@ -24,7 +24,8 @@ package org.tinytlf.util.fte
 				
 				if(stageCoords.y < bounds.y)
 					return 0;
-				if(stageCoords.y > bounds.y + bounds.height)
+				if(stageCoords.y > bounds.y && 
+					stageCoords.y < bounds.y + bounds.height)
 					return line.atomCount - 1;
 				
 				index = (stageCoords.x < center.x) ? 0 : line.atomCount - 1;
