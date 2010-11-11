@@ -4,17 +4,14 @@
  * Permission is hereby granted to use, modify, and distribute this file
  * in accordance with the terms of the license agreement accompanying it.
  */
-package org.tinytlf.decor.decorations
+package org.tinytlf.decor.selection
 {
-	import flash.display.Graphics;
-	import flash.display.Sprite;
+	import flash.display.*;
 	import flash.geom.Rectangle;
 	
-	import org.tinytlf.decor.TextDecoration;
-	
-	public class SelectionDecoration extends TextDecoration
+	public class StandardSelectionDecoration extends SelectionDecorationBase
 	{
-		public function SelectionDecoration(styleObject:Object = null)
+		public function StandardSelectionDecoration(styleObject:Object = null)
 		{
 			super(styleObject);
 		}
@@ -40,10 +37,10 @@ package org.tinytlf.decor.decorations
 				
 				g = layer.graphics;
 				
-				color = uint(getStyle("selectionColor"));
-				alpha = Number(getStyle("selectionAlpha"));
+				color = uint(getStyle("selectionColor")) || 0x0000CC;
+				alpha = Number(getStyle("selectionAlpha")) || 1;
 				
-				g.beginFill(color || 0x000000, isNaN(alpha) ? 1 : alpha);
+				g.beginFill(color, alpha);
 				g.drawRect(rect.x, rect.y, rect.width, rect.height);
 				g.endFill();
 			}

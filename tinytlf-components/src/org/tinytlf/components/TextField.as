@@ -10,11 +10,9 @@ package org.tinytlf.components
     import flash.events.*;
     
     import org.tinytlf.*;
-    import org.tinytlf.decor.decorations.*;
     import org.tinytlf.layout.*;
-    import org.tinytlf.layout.constraints.HTMLConstraintFactory;
-    import org.tinytlf.layout.constraints.IConstraintFactory;
-    import org.tinytlf.styles.IStyleAware;
+    import org.tinytlf.layout.constraints.*;
+    import org.tinytlf.styles.*;
 
     public class TextField extends ComponentBase implements IStyleAware
     {

@@ -11,8 +11,8 @@ package org.tinytlf.interaction
     import flash.text.engine.*;
     
     import org.tinytlf.ITextEngine;
+    import org.tinytlf.analytics.ITextEngineAnalytics;
     import org.tinytlf.layout.ITextContainer;
-    import org.tinytlf.util.TinytlfUtil;
     import org.tinytlf.util.fte.TextLineUtil;
 
     public class EventLineInfo
@@ -29,29 +29,42 @@ package org.tinytlf.interaction
             if(line.validity == TextLineValidity.INVALID)
                 return null;
             
+			var block:TextBlock = line.textBlock;
             var engine:ITextEngine = ITextEngine(line.userData);
-            var index:int = TinytlfUtil.blockIndexToGlobalIndex(engine, line.textBlock, line.textBlockBeginIndex);
+			var atomIndex:int = 0;
 			
             if(event is MouseEvent)
 			{
-                index = TinytlfUtil.atomIndexToGlobalIndex(engine, line, 
-					TextLineUtil.getAtomIndexAtPoint(line, new Point(event['stageX'], event['stageY'])));
+				var m:MouseEvent = event as MouseEvent;
+				atomIndex = TextLineUtil.getAtomIndexAtPoint(line, new Point(m.stageX, m.stageY));
 			}
-            
-            var element:ContentElement = TinytlfUtil.globalIndexToContentElement(engine, index);
-            var mirrorRegion:TextLineMirrorRegion;
+			else if(engine.caretIndex)
+			{
+				var analytics:ITextEngineAnalytics = engine.analytics;
+				atomIndex = engine.caretIndex - analytics.blockContentStart(block) - line.textBlockBeginIndex;
+			}
 			
+			var element:ContentElement = TextLineUtil.getElementAtAtomIndex(line, atomIndex);
+            var mirrorRegion:TextLineMirrorRegion;
 			if(line.mirrorRegions)
 			{
-				mirrorRegion = line.getMirrorRegion(eventMirror || element.eventMirror);
+				if(eventMirror)
+				{
+					mirrorRegion = line.getMirrorRegion(eventMirror);
+					element = mirrorRegion.element;
+				}
+				else
+				{
+					mirrorRegion = TextLineUtil.getMirrorRegionForElement(line, element);
+				}
 			}
-            
+			
             return new EventLineInfo(
                 line, 
                 engine, 
-                mirrorRegion, 
-                mirrorRegion == null ? element : mirrorRegion.element
-            );
+                mirrorRegion,
+				element
+			);
         }
         
         public function EventLineInfo(line:TextLine, engine:ITextEngine, 

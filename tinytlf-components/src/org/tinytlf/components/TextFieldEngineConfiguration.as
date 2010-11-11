@@ -53,7 +53,7 @@ package org.tinytlf.components
 				decor.mapDecoration("horizontalRule", HorizontalRuleDecoration);
 			
 			if (!decor.hasDecoration("selection"))
-				decor.mapDecoration("selection", SelectionDecoration);
+				decor.mapDecoration("selection", StandardSelectionDecoration);
 			
 			if (!decor.hasDecoration("underline"))
 				decor.mapDecoration("underline", UnderlineDecoration);

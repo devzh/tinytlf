@@ -10,6 +10,7 @@ package org.tinytlf
     import flash.geom.Point;
     import flash.text.engine.TextBlock;
     
+    import org.tinytlf.analytics.ITextEngineAnalytics;
     import org.tinytlf.decor.ITextDecor;
     import org.tinytlf.interaction.ITextInteractor;
     import org.tinytlf.layout.ITextLayout;
@@ -37,6 +38,14 @@ package org.tinytlf
 	 */
     public interface ITextEngine
     {
+		/**
+		 * The <code>ITextEngineAnalytics</code> instance for the engine.
+		 * 
+		 * @see org.tinytlf.analytics.ITextEngineAnalytics
+		 */
+        function get analytics():ITextEngineAnalytics;
+        function set analytics(textAnalytics:ITextEngineAnalytics):void;
+		
 		/**
 		 * The index of the selection caret for the engine.
 		 */
@@ -108,9 +117,6 @@ package org.tinytlf
         function get styler():ITextStyler;
         function set styler(textStyler:ITextStyler):void;
         
-        function getBlockPosition(block:TextBlock):int;
-        function getBlockSize(block:TextBlock):int;
-		
         /**
         * Draws a selection decoration around text.
         */

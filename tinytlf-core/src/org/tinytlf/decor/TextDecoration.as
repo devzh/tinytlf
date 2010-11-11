@@ -6,23 +6,23 @@
  */
 package org.tinytlf.decor
 {
-    import flash.display.*;
-    import flash.events.*;
-    import flash.geom.*;
-    import flash.text.engine.*;
-    import flash.utils.*;
-    
-    import org.tinytlf.ITextEngine;
-    import org.tinytlf.layout.ITextContainer;
-    import org.tinytlf.styles.StyleAwareActor;
-    import org.tinytlf.util.fte.ContentElementUtil;
-
-    public class TextDecoration extends StyleAwareActor implements ITextDecoration
-    {
-        public function TextDecoration(styleObject:Object = null)
-        {
-            super(styleObject);
-        }
+	import flash.display.*;
+	import flash.events.*;
+	import flash.geom.*;
+	import flash.text.engine.*;
+	import flash.utils.*;
+	
+	import org.tinytlf.ITextEngine;
+	import org.tinytlf.layout.ITextContainer;
+	import org.tinytlf.styles.StyleAwareActor;
+	import org.tinytlf.util.fte.ContentElementUtil;
+	
+	public class TextDecoration extends StyleAwareActor implements ITextDecoration
+	{
+		public function TextDecoration(styleObject:Object = null)
+		{
+			super(styleObject);
+		}
 		private var _container:ITextContainer;
 		
 		public function get container():ITextContainer
@@ -32,7 +32,7 @@ package org.tinytlf.decor
 		
 		public function set container(textContainer:ITextContainer):void
 		{
-			if (textContainer === _container)
+			if(textContainer === _container)
 				return;
 			
 			_container = textContainer;
@@ -47,13 +47,14 @@ package org.tinytlf.decor
 		
 		public function set engine(textEngine:ITextEngine):void
 		{
-			if (textEngine == _engine)
+			if(textEngine == _engine)
 				return;
 			
 			_engine = textEngine;
 		}
 		
 		private var _foreground:Boolean = false;
+		
 		public function set foreground(value:Boolean):void
 		{
 			_foreground = value;
@@ -70,7 +71,7 @@ package org.tinytlf.decor
 		{
 			var bounds:Vector.<Rectangle> = new <Rectangle>[];
 			
-			if (args.length <= 0)
+			if(args.length <= 0)
 				return bounds;
 			
 			var arg:* = args[0];
@@ -78,7 +79,7 @@ package org.tinytlf.decor
 			
 			var tl:TextLine;
 			
-			if (arg is ContentElement)
+			if(arg is ContentElement)
 			{
 				////
 				//  When you decorate a ContentElement, there's no way to 
@@ -119,26 +120,34 @@ package org.tinytlf.decor
 				{
 					if(tc != engine.layout.getContainerForLine(tl))
 					{
-						rectToContainer[rect] = ensureLayerExists(container, layer);
+						rectToContainer[rect] = ensureLayerExists(tc, layer);
+						bounds.push(rect);
+						rect = tl.getBounds(tl.parent)
 					}
 					
 					rect = rect.union(tl.getBounds(tl.parent));
 					tc = engine.layout.getContainerForLine(tl);
 					tl = tl.nextLine;
+					
+					if(!tl)
+					{
+						rectToContainer[rect] = ensureLayerExists(tc, layer);
+						bounds.push(rect);
+					}
 				}
 			}
-			else 
+			else
 			{
-				if (arg is TextLine)
+				if(arg is TextLine)
 				{
 					tl = TextLine(arg);
 					bounds.push(tl.getBounds(tl.parent));
 				}
-				else if (arg is Rectangle)
+				else if(arg is Rectangle)
 				{
 					bounds.push(arg);
 				}
-				else if (arg is Vector.<Rectangle>)
+				else if(arg is Vector.<Rectangle>)
 				{
 					bounds = bounds.concat(arg);
 				}
@@ -188,7 +197,7 @@ package org.tinytlf.decor
 		{
 			return rectToContainer[rect] || (container ? container.foreground : null);
 		}
-    }
+	}
 }
 import flash.display.Sprite;
 

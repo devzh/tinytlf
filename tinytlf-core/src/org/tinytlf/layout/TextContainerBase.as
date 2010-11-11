@@ -246,19 +246,11 @@ package org.tinytlf.layout
 		
 		public function postLayout():void
 		{
-			var blocks:Vector.<TextBlock> = engine.layout.textBlockFactory.blocks;
-			var n:int = blocks.length;
-			var visibleBlocks:Dictionary = new Dictionary(true);
-			
-			for(var i:int = 0; i < n; i += 1)
-			{
-				visibleBlocks[blocks[i]] = true;
-			}
-			
-			n = visibleLines.length;
+			var visibleBlocks:Dictionary = engine.analytics.cachedBlocks;
+			var n:int = visibleLines.length;
 			var line:TextLine;
 			
-			for(i = 0; i < n; i += 1)
+			for(var i:int = 0; i < n; i += 1)
 			{
 				line = visibleLines[i];
 				if(line.textBlock in visibleBlocks)

@@ -3,7 +3,7 @@
 // framework. The dependencies on Flex 4 have been removed, and it has been 
 // modified for general use. In tinytlf, I use it to enqueue TextBlocks
 // for efficient scrolling. Enjoy.
-package org.tinytlf.structures
+package org.tinytlf.analytics
 {
 	/**
 	 * A sparse array of sizes that represent items in a dimension.

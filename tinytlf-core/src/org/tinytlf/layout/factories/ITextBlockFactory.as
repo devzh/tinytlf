@@ -53,12 +53,6 @@ package org.tinytlf.layout.factories
 		function get engine():ITextEngine;
 		function set engine(textEngine:ITextEngine):void;
 		
-		/**
-		 * Returns a read-only reference to the Vector of currently visible
-		 * TextBlocks.
-		 */
-		function get blocks():Vector.<TextBlock>;
-		
 		function beginRender():void;
 		function endRender():void;
 		
@@ -74,12 +68,6 @@ package org.tinytlf.layout.factories
 		 * retrieval on subsequent render cycles.
 		 */
 		function cacheVisibleBlock(block:TextBlock):void;
-		
-		/**
-		 * Instructs the LayoutFactoryMap to clear the internal textBlock and
-		 * layout property caches.
-		 */
-		function clearCaches():void;
 		
 		/**
 		 * Checks to see if an <code>IContentElementFactory</code> class has 

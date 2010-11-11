@@ -29,22 +29,13 @@ package org.tinytlf.layout.factories
 			var n:int = root.*.length();
 			for(var i:int = listIndex + 1; i < n; i += 1)
 			{
-				if(i in cachedBlocks)
-				{
-					j = visibleBlocks.indexOf(cachedBlocks[i]);
-					if(j != -1)
-						visibleBlocks.splice(j, 1);
-					
-					TextBlockUtil.cleanBlock(TextBlock(cachedBlocks[i]));
-					
-					delete cachedBlocks[i];
-				}
+				analytics.uncacheBlock(i);
 			}
 		}
 		
-		override public function clearCaches():void
+		public function clearCaches():void
 		{
-			super.clearCaches();
+			analytics.clear();
 			
 			for each(var cElement:ContentElement in cachedElements)
 				clearConstraints(cElement);
@@ -122,7 +113,7 @@ package org.tinytlf.layout.factories
 			if(block)
 			{
 				lp = cachedLayouts[index];
-				lp.y = blockPositions.start(index);
+				lp.y = analytics.blockPixelStart(block);
 				return block;
 			}
 			
@@ -148,7 +139,7 @@ package org.tinytlf.layout.factories
 				else
 					cachedLayouts[index] = lp = new LayoutProperties(style);
 				
-				lp.y = blockPositions.start(index);
+				lp.y = analytics.indexPixelStart(index);
 			}
 			// Otherwise, this item hasn't been parsed before, so run it through
 			// the XML parsing routine.

@@ -9,11 +9,9 @@ package org.tinytlf.layout.factories
     import flash.text.engine.*;
     import flash.utils.Dictionary;
     
-    import org.tinytlf.ITextEngine;
+    import org.tinytlf.*;
+    import org.tinytlf.analytics.*;
     import org.tinytlf.layout.properties.*;
-    import org.tinytlf.util.TinytlfUtil;
-    import org.tinytlf.util.fte.TextBlockUtil;
-    import org.tinytlf.structures.SparseArray;
 
     public class TextBlockFactoryBase implements ITextBlockFactory
     {
@@ -50,19 +48,10 @@ package org.tinytlf.layout.factories
             _engine = textEngine;
         }
 		
-		protected var visibleBlocks:Vector.<TextBlock> = new <TextBlock>[];
-
-        public function get blocks():Vector.<TextBlock>
-        {
-            return visibleBlocks ? visibleBlocks.concat() : new Vector.<TextBlock>;
-        }
-		
-		// This is a sparsely populated Hashmap of TextBlocks, 
-		// so we can't use a Vector here.
-		protected var cachedBlocks:Array = [];
-		
-		//A sparse array of TextBlock positions to their index in the data.
-		protected var blockPositions:SparseArray = new SparseArray();
+		public function get analytics():ITextEngineAnalytics
+		{
+			return engine.analytics;
+		}
 		
 		protected var listIndex:int = 0;
 		
@@ -70,24 +59,14 @@ package org.tinytlf.layout.factories
 		{
 			// Update the listIndex to the index of the
 			// TextBlock at the current scrollPosition.
-			listIndex = blockPositions.indexOf(engine.scrollPosition);
+			listIndex = analytics.indexAtPixel(engine.scrollPosition);
 			if(listIndex >= 0)
 				--listIndex;
 			
-			var j:int = -1;
 			//Uncache the TextBlocks that exist before the updated listIndex.
 			for(var i:int = 0; i < listIndex; i += 1)
 			{
-				if(i in cachedBlocks)
-				{
-					j = visibleBlocks.indexOf(cachedBlocks[i]);
-					if(j != -1)
-						visibleBlocks.splice(j, 1);
-					
-					TextBlockUtil.cleanBlock(TextBlock(cachedBlocks[i]));
-					
-					delete cachedBlocks[i];
-				}
+				analytics.uncacheBlock(i);
 			}
 		}
 		
@@ -102,42 +81,12 @@ package org.tinytlf.layout.factories
 		
 		public function cacheVisibleBlock(block:TextBlock):void
 		{
-			if(visibleBlocks.indexOf(block) == -1)
-				visibleBlocks.push(block);
-			
-			var lp:LayoutProperties = TinytlfUtil.getLP(block);
-			var blockIndex:int = listIndex;
-			var blockSize:Number = (lp.paddingTop + lp.height + lp.paddingBottom) || 1;
-			
-			if(listIndex >= blockPositions.length)
-			{
-				blockIndex = blockPositions.length;
-				blockPositions.insert(blockIndex);
-			}
-			else
-			{
-				blockIndex = blockPositions.indexOf(lp.y);
-			}
-			
-			if(blockIndex > -1)
-				blockPositions.setItemSize(blockIndex, blockSize);
-			
-			cachedBlocks[listIndex] = block;
-		}
-		
-		public function clearCaches():void
-		{
-			visibleBlocks.length = 0;
-			cachedBlocks = [];
-			blockPositions.clear();
+			analytics.cacheBlock(block, listIndex);
 		}
 		
 		protected function generateTextBlock(index:int):TextBlock
 		{
-			if(cachedBlocks[index])
-				return cachedBlocks[index];
-			
-			return null;
+			return analytics.blockAtIndex(index);
 		}
 		
         protected var elementAdapterMap:Dictionary = new Dictionary(false);
