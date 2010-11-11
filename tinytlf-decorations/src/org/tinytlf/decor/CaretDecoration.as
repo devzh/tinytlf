@@ -4,7 +4,7 @@
  * Permission is hereby granted to use, modify, and distribute this file
  * in accordance with the terms of the license agreement accompanying it.
  */
-package org.tinytlf.decor.decorations
+package org.tinytlf.decor
 {
     import flash.display.Graphics;
     import flash.display.Shape;
@@ -13,7 +13,6 @@ package org.tinytlf.decor.decorations
     import flash.geom.Rectangle;
     import flash.utils.Timer;
     
-    import org.tinytlf.decor.TextDecoration;
     
     public class CaretDecoration extends TextDecoration
     {

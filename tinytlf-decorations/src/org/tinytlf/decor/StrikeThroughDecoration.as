@@ -4,14 +4,13 @@
  * Permission is hereby granted to use, modify, and distribute this file
  * in accordance with the terms of the license agreement accompanying it.
  */
-package org.tinytlf.decor.decorations
+package org.tinytlf.decor
 {
     import flash.display.Graphics;
     import flash.display.Sprite;
     import flash.geom.Point;
     import flash.geom.Rectangle;
     
-    import org.tinytlf.decor.TextDecoration;
     
     public class StrikeThroughDecoration extends TextDecoration
     {

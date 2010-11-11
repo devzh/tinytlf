@@ -1,10 +1,9 @@
-package org.tinytlf.decor.decorations
+package org.tinytlf.decor
 {
 	import flash.geom.Rectangle;
 	import flash.text.engine.ContentElement;
 	import flash.text.engine.TextLine;
 	
-	import org.tinytlf.decor.TextDecoration;
 	import org.tinytlf.layout.ITextContainer;
 	import org.tinytlf.util.fte.ContentElementUtil;
 	

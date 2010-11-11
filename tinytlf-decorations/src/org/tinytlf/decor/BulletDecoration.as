@@ -1,10 +1,9 @@
-package org.tinytlf.decor.decorations
+package org.tinytlf.decor
 {
 	import flash.display.Graphics;
 	import flash.display.Sprite;
 	import flash.geom.Rectangle;
 	
-	import org.tinytlf.decor.TextDecoration;
 	
 	public class BulletDecoration extends TextDecoration
 	{

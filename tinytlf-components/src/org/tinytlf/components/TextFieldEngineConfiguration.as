@@ -1,8 +1,8 @@
 package org.tinytlf.components
 {
 	import org.tinytlf.*;
-	import org.tinytlf.decor.ITextDecor;
-	import org.tinytlf.decor.decorations.*;
+	import org.tinytlf.decor.*;
+	import org.tinytlf.decor.selection.*;
 	import org.tinytlf.interaction.*;
 	import org.tinytlf.interaction.behaviors.*;
 	import org.tinytlf.interaction.behaviors.focus.FocusBehavior;
