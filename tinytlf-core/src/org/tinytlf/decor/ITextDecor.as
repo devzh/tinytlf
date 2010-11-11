@@ -76,7 +76,7 @@ package org.tinytlf.decor
 		 * 
 		 * @see org.tinytlf.decor.TextDecor
 		 */
-        function decorate(element:*, styleObject:Object, layer:int = 2, 
+        function decorate(element:*, styleObject:Object, layer:int = 3, 
 						  container:ITextContainer = null, foreground:Boolean = false):void;
 		
 		/**

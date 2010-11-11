@@ -26,8 +26,8 @@ package org.tinytlf.decor
 	 */
 	public class TextDecor implements ITextDecor
 	{
-		public static const CARET_LAYER:int = 0;
-		public static const SELECTION_LAYER:int = 1;
+		public static const CARET_LAYER:int = 1;
+		public static const SELECTION_LAYER:int = 2;
 		
 		protected var _engine:ITextEngine;
 		
