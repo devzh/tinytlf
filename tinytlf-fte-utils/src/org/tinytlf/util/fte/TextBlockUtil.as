@@ -14,12 +14,24 @@ package org.tinytlf.util.fte
 		
 		public static function cleanBlock(block:TextBlock):void
 		{
-			if(block.firstLine && block.lastLine)
+			if(block.firstLine)
 				block.releaseLines(block.firstLine, block.lastLine);
 			
 			block.releaseLineCreationData();
 			block.content = null;
 			block.userData = null;
+		}
+		
+		private static const blocks:Vector.<TextBlock> = new <TextBlock>[];
+		public static function checkIn(block:TextBlock):void
+		{
+			cleanBlock(block);
+			blocks.push(block);
+		}
+		
+		public static function checkOut():TextBlock
+		{
+			return blocks.pop() || new TextBlock();
 		}
 	}
 }

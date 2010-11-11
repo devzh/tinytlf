@@ -60,7 +60,7 @@ package org.tinytlf.analytics
 			if(index in indexCache)
 			{
 				var block:TextBlock = indexCache[index];
-				TextBlockUtil.cleanBlock(block);
+				TextBlockUtil.checkIn(block);
 				
 				delete blockCache[block];
 				delete indexCache[index];

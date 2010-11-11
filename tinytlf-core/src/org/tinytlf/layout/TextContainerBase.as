@@ -12,6 +12,7 @@ package org.tinytlf.layout
 	
 	import org.tinytlf.ITextEngine;
 	import org.tinytlf.layout.factories.ITextBlockFactory;
+	import org.tinytlf.util.fte.TextLineUtil;
 	
 	public class TextContainerBase implements ITextContainer
 	{
@@ -215,7 +216,6 @@ package org.tinytlf.layout
 				engine.invalidate();
 		}
 		
-		protected var orphanLines:Vector.<TextLine> = new <TextLine>[];
 		protected var visibleLines:Vector.<TextLine> = new <TextLine>[];
 		
 		public function hasLine(line:TextLine):Boolean
@@ -229,9 +229,7 @@ package org.tinytlf.layout
 			var n:int = lines.length;
 			var l:TextLine;
 			
-			// Parse through and look for invalid lines. Add every line from
-			// their TextBlock to the list of orphans, because we'll re-render
-			// the entire paragraph.
+			// Parse through and look for invalid lines.
 			for(var i:int = 0; i < n; i += 1)
 			{
 				l = lines[i];
@@ -239,7 +237,7 @@ package org.tinytlf.layout
 				if(l.validity === TextLineValidity.VALID)
 					continue;
 				
-				orphanLines.unshift(l);
+				TextLineUtil.checkIn(l);
 				removeLineFromTarget(l);
 			}
 		}
@@ -248,21 +246,25 @@ package org.tinytlf.layout
 		{
 			var visibleBlocks:Dictionary = engine.analytics.cachedBlocks;
 			var n:int = visibleLines.length;
+			var orphans:Vector.<TextLine> = new <TextLine>[];
 			var line:TextLine;
 			
 			for(var i:int = 0; i < n; i += 1)
 			{
 				line = visibleLines[i];
+				
 				if(line.textBlock in visibleBlocks)
 					continue;
 				
-				orphanLines.push(line);
+				orphans.push(line);
 			}
 			
-			n = orphanLines.length;
+			n = orphans.length;
 			for(i = 0; i < n; i += 1)
 			{
-				line = orphanLines[i];
+				line = orphans[i];
+				
+				TextLineUtil.checkIn(line);
 				unregisterLine(line);
 				removeLineFromTarget(line);
 			}
@@ -356,11 +358,12 @@ package org.tinytlf.layout
 			totalWidth = 0;
 		}
 		
-		protected function getRecycledLine(previousLine:TextLine):TextLine
+		protected function getRecycledLine(previousLine:TextLine = null):TextLine
 		{
-			var line:TextLine = orphanLines.pop();
-			while(line === previousLine)
-				line = orphanLines.pop();
+			var line:TextLine = TextLineUtil.checkOut();
+			if(previousLine)
+				while(line === previousLine)
+					line = TextLineUtil.checkOut();
 			
 			return line;
 		}

@@ -208,5 +208,22 @@ package org.tinytlf.util.fte
 			
 			return singletons[name] = {};
 		}
+		
+		public static function cleanLine(line:TextLine):void
+		{
+			line.userData = null;
+		}
+		
+		private static const lines:Vector.<TextLine> = new <TextLine>[];
+		public static function checkIn(line:TextLine):void
+		{
+			cleanLine(line);
+			lines.push(line);
+		}
+		
+		public static function checkOut():TextLine
+		{
+			return lines.pop();
+		}
 	}
 }

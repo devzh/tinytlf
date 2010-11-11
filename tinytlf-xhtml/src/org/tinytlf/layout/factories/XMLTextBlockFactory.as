@@ -171,11 +171,9 @@ package org.tinytlf.layout.factories
 				cachedLayouts[index] = lp = new LayoutProperties(style);
 			}
 			
-			// Generate a new TextBlock... I wish I could pool these, but I've
-			// run into super funky errors with the FTE when I do. Things like
-			// the textBlockBeginIndex of a TextLine being set to 0xFFFFFF.
-			// So yeah, not OK.
-			block = new TextBlock(element);
+			//Get a block from the pool.
+			block = TextBlockUtil.checkOut();
+			block.content = element;
 			// Apply the properties of this layout element to the TextBlock.
 			// This also sets up the TextBlock justifier.
 			lp.applyTo(block);
