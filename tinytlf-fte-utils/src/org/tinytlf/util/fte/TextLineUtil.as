@@ -158,6 +158,25 @@ package org.tinytlf.util.fte
 			return elements;
 		}
 		
+		public static function getMirrorRegionForElement(line:TextLine, element:ContentElement):TextLineMirrorRegion
+		{
+			if(!line.mirrorRegions)
+				return null;
+			
+			var regions:Vector.<TextLineMirrorRegion> = line.mirrorRegions;
+			var region:TextLineMirrorRegion;
+			var n:int = regions.length;
+			
+			for(var i:int = 0; i < n; i += 1)
+			{
+				region = regions[i];
+				if(region.element === element)
+					return region;
+			}
+			
+			return null;
+		}
+		
 		public static function hasLineBreak(line:TextLine):Boolean
 		{
 			if(line.atomCount <= 1)
