@@ -1,17 +1,15 @@
 package org.tinytlf.components
 {
-	import com.bit101.components.VScrollBar;
-	
-	import flash.display.Sprite;
-	import flash.events.Event;
-	import flash.geom.Rectangle;
+	import flash.display.*;
+	import flash.events.*;
 	import flash.text.engine.*;
-	import flash.utils.setTimeout;
 	
 	import org.tinytlf.ITextEngine;
 	import org.tinytlf.layout.*;
 	import org.tinytlf.layout.constraints.*;
 	import org.tinytlf.layout.orientation.*;
+	
+	[Event(name="initScrollBar", type="flash.events.Event")]
 	
 	/**
 	 * TextColumnContainer is a Sprite which conveniently implements
@@ -26,10 +24,8 @@ package org.tinytlf.components
 		{
 			super();
 			
-			container = new ConstraintTextContainer(Sprite(addChild(child = new Sprite())), 100);
+			container = new ConstraintTextContainer(this, 100);
 		}
-		
-		private var child:Sprite;
 		
 		private var _height:Number = 0;
 		
@@ -112,15 +108,7 @@ package org.tinytlf.components
 		
 		public function set explicitWidth(value:Number):void
 		{
-			if(scrollBar)
-			{
-				engine.scrollPosition = 0;
-				scrollBar.value = 0;
-				value = Math.max(value - scrollBar.width * 2, scrollBar.width * 2);
-			}
-			
 			container.explicitWidth = value;
-			onScrollChange();
 		}
 		
 		public function get explicitHeight():Number
@@ -131,7 +119,6 @@ package org.tinytlf.components
 		public function set explicitHeight(value:Number):void
 		{
 			container.explicitHeight = value;
-			onScrollChange();
 		}
 		
 		public function get measuredWidth():Number
@@ -200,7 +187,7 @@ package org.tinytlf.components
 			
 			if(scrollable && measuredHeight > explicitHeight)
 			{
-				initScrollBar();
+				dispatchEvent(new Event('initScrollBar', true, true));
 			}
 		}
 		
@@ -262,37 +249,6 @@ package org.tinytlf.components
 		public function removeConstraint(constraint:ITextConstraint):void
 		{
 			container.removeConstraint(constraint);
-		}
-		
-		private var scrollBar:VScrollBar;
-		
-		protected function initScrollBar():void
-		{
-			if(!scrollBar)
-			{
-				scrollBar = new VScrollBar(this, 0, 0, onScrollChange);
-				addChild(scrollBar);
-				scrollBar.lineSize = 5;
-				scrollBar.pageSize = 15;
-				scrollBar.height = explicitHeight;
-				scrollBar.y = 0;
-				scrollBar.minimum = 0;
-				explicitWidth = explicitWidth;
-				setTimeout(engine.invalidate, 10);
-			}
-			
-			scrollBar.x = width - scrollBar.width;
-			scrollBar.maximum = totalHeight - height;
-			scrollBar.setThumbPercent(height / totalHeight);
-		}
-		
-		private function onScrollChange(event:Event = null):void
-		{
-			if(!scrollBar)
-				return;
-			
-			engine.scrollPosition = scrollBar.value;
-			child.scrollRect = new Rectangle(0, scrollBar.value, width, height);
 		}
 	}
 }

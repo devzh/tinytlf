@@ -6,8 +6,12 @@
  */
 package org.tinytlf.components
 {
+    import com.bit101.components.VScrollBar;
+    
     import flash.display.*;
     import flash.events.*;
+    import flash.geom.*;
+    import flash.utils.*;
     
     import org.tinytlf.*;
     import org.tinytlf.layout.*;
@@ -20,10 +24,15 @@ package org.tinytlf.components
         {
             super();
             
+			engine.layout.addContainer(ITextContainer(addChild(container = new TextColumnContainer())));
+			container.addEventListener('initScrollBar', onInitScrollbar);
+			
             width = 100;
 			configuration = new TextFieldEngineConfiguration();
-			columnCount = 1;
+			layoutConstraintFactory = new HTMLConstraintFactory();
         }
+		
+		protected var container:TextColumnContainer;
 		
         override public function set height(value:Number):void
         {
@@ -31,7 +40,8 @@ package org.tinytlf.components
                 return;
             
             super.height = value;
-			resizeColumns();
+			container.height = value;
+			scrollPosition = scrollPosition;
         }
         
         override public function set width(value:Number):void
@@ -40,7 +50,16 @@ package org.tinytlf.components
                 return;
             
             super.width = value;
-			resizeColumns();
+			
+			if(scrollBar)
+			{
+				engine.scrollPosition = 0;
+				scrollBar.value = 0;
+				value = value - scrollBar.width - 5;
+			}
+			
+			container.width = value;
+			scrollPosition = scrollPosition;
         }
 		
 		protected var _configuration:ITextEngineConfiguration;
@@ -55,37 +74,6 @@ package org.tinytlf.components
 			engine.configuration = _configuration;
 			engine.invalidate();
 		}
-		
-		private var textColumns:Vector.<TextColumnContainer> = new <TextColumnContainer>[];
-		
-		public function get columnCount():int
-		{
-			return textColumns.length;
-		}
-		
-		public function set columnCount(value:int):void
-		{
-			if(value < 1)
-				value = 1;
-			
-			var column:TextColumnContainer;
-			
-			while(value > textColumns.length)
-			{
-				column = new TextColumnContainer();
-				engine.layout.addContainer(column);
-				textColumns.push(addChild(column));
-				column.constraintFactory = layoutConstraintFactory;
-			}
-			
-			while(value < textColumns.length)
-			{
-				column = TextColumnContainer(textColumns.splice(textColumns.length - 1, 1)[0]);
-				engine.layout.removeContainer(ITextContainer(removeChild(column)));
-			}
-			
-			resizeColumns();
-		}
         
         private var _engine:ITextEngine;
         
@@ -93,7 +81,7 @@ package org.tinytlf.components
         {
             if(!_engine)
             {
-                _engine = new TextEngine(stage);
+                _engine = new TextFieldEngine(this, stage);
                 
                 if(!stage)
 				{
@@ -118,36 +106,36 @@ package org.tinytlf.components
 			}
         }
 		
-		private var _gap:Number = 5;
-		public function get gap():Number
-		{
-			return _gap;
-		}
-		
-		public function set gap(value:Number):void
-		{
-			if(value === _gap)
-				return;
-			
-			_gap = value;
-			resizeColumns();
-		}
-		
-		private var _scrollable:Boolean = true;
 		public function get scrollable():Boolean
 		{
-			return _scrollable;
+			return container.scrollable;
 		}
 		
 		public function set scrollable(value:Boolean):void
 		{
-			if(value === _scrollable)
-				return;
+			container.scrollable = value;
+		}
+		
+		protected var scrollP:Number = 0;
+		
+		public function get scrollPosition():Number
+		{
+			return scrollP;
+		}
+		
+		public function set scrollPosition(value:Number):void
+		{
+			if(value != scrollP)
+			{
+				if(!scrollBar)
+					return;
+				scrollP = Math.min(Math.max(value, 0), scrollBar.maximum);
+				engine.scrollPosition = scrollP;
+				scrollBar.value = scrollP;
+			}
 			
-			_scrollable = value;
-			textColumns.forEach(function(c:ITextContainer, ...args):void{
-				c.scrollable = _scrollable;
-			});
+			if(width && height)
+				container.scrollRect = new Rectangle(-5, scrollP, width + 5, height);
 		}
 		
 		private var _selectable:Boolean = true;
@@ -181,25 +169,14 @@ package org.tinytlf.components
             engine.invalidate();
         }
 		
-		private var constraintFactory:IConstraintFactory = new HTMLConstraintFactory();
-		
 		public function get layoutConstraintFactory():IConstraintFactory
 		{
-			return constraintFactory;
+			return container.constraintFactory;
 		}
 		
 		public function set layoutConstraintFactory(factory:IConstraintFactory):void
 		{
-			if(constraintFactory === factory)
-				return;
-			
-			constraintFactory = factory;
-			var n:int = textColumns.length;
-			for(var i:int = 0; i < n; i += 1)
-			{
-				textColumns[i].constraintFactory = constraintFactory;
-			}
-			
+			container.constraintFactory = factory;
 			engine.invalidate();
 		}
         
@@ -245,34 +222,84 @@ package org.tinytlf.components
             
             removeEventListener(event.type, onAddedToStage);
             engine.stage = stage;
+			
+			initialize();
         }
 		
-		protected function resizeColumns():void
+		public function initialize():void
 		{
-			if(columnCount == 1)
+		}
+		
+		private function onInitScrollbar(event:Event):void
+		{
+			event.stopPropagation();
+			initScrollBar();
+		}
+		
+		private var scrollBar:VScrollBar;
+		
+		protected function initScrollBar():void
+		{
+			if(!scrollBar)
 			{
-				textColumns[0].width = width;
-				textColumns[0].height = height;
-			}
-			else
-			{
-				var column:TextColumnContainer;
-				var n:int = columnCount;
-				var xx:Number = 0;
-				var w:Number = Math.floor(width / n) - gap;
+				scrollBar = new VScrollBar(this, 0, 0, onScrollChange);
+				addChild(scrollBar);
+				scrollBar.lineSize = 5;
+				scrollBar.pageSize = 15;
+				scrollBar.height = height;
+				scrollBar.y = 0;
+				scrollBar.minimum = 0;
 				
-				for(var i:int = 0; i < n; ++i)
-				{
-					column = textColumns[i];
-					column.width = w;
-					column.height = height;
-					column.x = xx;
-					xx += w + gap;
-				}
+				container.width = width - scrollBar.width - 10;
+				container.scrollRect = new Rectangle(-5, 0, width + 5, height);
+				
+				setTimeout(engine.invalidate, 10);
 			}
 			
-			engine.invalidate();
+			var totalHeight:Number = container.totalHeight;
+			
+			scrollBar.x = width - scrollBar.width;
+			scrollBar.maximum = totalHeight - height;
+			scrollBar.setThumbPercent(height / totalHeight);
+		}
+		
+		protected function onScrollChange(event:Event = null):void
+		{
+			if(!scrollBar)
+				return;
+			
+			scrollPosition = scrollBar.value;
 		}
     }
 }
+import flash.display.Stage;
 
+import org.tinytlf.TextEngine;
+import org.tinytlf.components.TextField;
+
+internal class TextFieldEngine extends TextEngine
+{
+	public function TextFieldEngine(textField:TextField, stage:Stage)
+	{
+		tf = textField;
+		
+		super(stage);
+	}
+	private var tf:TextField;
+	
+	override public function get scrollPosition():Number
+	{
+		return tf.scrollPosition;
+	}
+	
+	override public function set scrollPosition(value:Number):void
+	{
+		if(value === tf.scrollPosition)
+		{
+			super.scrollPosition = value;
+			return;
+		}
+		
+		tf.scrollPosition = value;
+	}
+}
