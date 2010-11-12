@@ -222,7 +222,7 @@ package org.tinytlf.layout
 				line = container.layout(block, line);
 			}
 			
-			totalBlockHeight += (lp.paddingTop + lp.height + lp.paddingBottom) || 1;
+			totalBlockHeight = lp.y;
 			
 			return container;
 		}
