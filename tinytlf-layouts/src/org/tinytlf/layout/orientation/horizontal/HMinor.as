@@ -57,8 +57,19 @@ package org.tinytlf.layout.orientation.horizontal
 		override public function postTextBlock(block:TextBlock):void
 		{
 			var lp:LayoutProperties = TinytlfUtil.getLP(block);
+			
+			lp.height = 0;
+			var line:TextLine = block.firstLine;
+			
+			while(line)
+			{
+				lp.height += line.textHeight + lp.leading;
+				line = line.nextLine;
+			}
+			
 			target.measuredHeight += lp.paddingBottom;
 			y += lp.paddingBottom;
+			
 		}
 		
 		override public function position(line:TextLine):void
@@ -112,18 +123,6 @@ package org.tinytlf.layout.orientation.horizontal
 			y += line.descent + lp.leading;
 			
 			target.measuredHeight += (line.textHeight || 1) + lp.leading;
-			
-			if(line == block.lastLine)
-			{
-				lp.height = 0;
-				line = block.firstLine;
-				
-				while(line)
-				{
-					lp.height += line.textHeight + lp.leading;
-					line = line.nextLine;
-				}
-			}
 		}
 		
 		override public function checkTargetBounds(line:TextLine):Boolean
