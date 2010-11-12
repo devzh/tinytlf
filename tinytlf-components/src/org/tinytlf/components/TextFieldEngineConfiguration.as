@@ -1,5 +1,7 @@
 package org.tinytlf.components
 {
+	import flash.ui.Mouse;
+	
 	import org.tinytlf.*;
 	import org.tinytlf.decor.*;
 	import org.tinytlf.decor.selection.*;
@@ -64,6 +66,12 @@ package org.tinytlf.components
 			if (!decor.hasDecoration("caret"))
 				decor.mapDecoration("caret", CaretDecoration);
 			
+			if (!decor.hasDecoration("popup"))
+				decor.mapDecoration("popup", PopupDecoration);
+			
+			if (!decor.hasDecoration("border"))
+				decor.mapDecoration("border", BorderDecoration);
+			
 			if (!selectable)
 				decor.unMapDecoration("selection");
 			
@@ -90,50 +98,27 @@ package org.tinytlf.components
 			if (selectable)
 			{
 				var iBeam:IBeamBehavior = new IBeamBehavior();
+				var scroll:ScrollBehavior = new ScrollBehavior();
 				var mouseCharSelect:CharacterSelectionBehavior = new CharacterSelectionBehavior();
 				var mouseWordSelect:WordSelectionBehavior = new WordSelectionBehavior();
 				var paragraphSelect:ParagraphSelectionBehavior = new ParagraphSelectionBehavior();
-				
-				mouseClick.addBehavior(mouseCharSelect);
 				
 				var mouseOver:MouseOverGesture = new MouseOverGesture();
 				var mouseOut:MouseOutGesture = new MouseOutGesture();
 				var mouseDoubleDown:MouseDoubleDownGesture = new MouseDoubleDownGesture();
 				var mouseTripleDown:MouseTripleDownGesture = new MouseTripleDownGesture();
-//				var leftArrow:LeftArrowGesture = new LeftArrowGesture();
-//				var leftCtrlArrow:LeftArrowCtrlGesture = new LeftArrowCtrlGesture();
-//				var rightArrow:RightArrowGesture = new RightArrowGesture();
-//				var rightCtrlArrow:RightArrowCtrlGesture = new RightArrowCtrlGesture();
-				
-//				var arrowCharSelect:CharacterLeftRightBehavior = new CharacterLeftRightBehavior();
-//				var arrowWordSelect:WordLeftRightBehavior = new WordLeftRightBehavior();
-//				var copyBehavior:CopyBehavior = new CopyBehavior();
-//				var selectAllBehavior:SelectAllBehavior = new SelectAllBehavior();
-				
+				var mouseWheel:MouseWheelGesture = new MouseWheelGesture();
 				
 				interactor.addGesture(mouseOver, iBeam);
 				interactor.addGesture(mouseOut, iBeam);
-				interactor.addGesture(mouseDoubleDown, mouseWordSelect);
-				interactor.addGesture(mouseTripleDown, paragraphSelect);
-				
-//				interactor.addGesture(leftArrow, arrowCharSelect);
-//				interactor.addGesture(rightArrow, arrowCharSelect);
-				
-//				interactor.addGesture(leftCtrlArrow, arrowWordSelect);
-//				interactor.addGesture(rightCtrlArrow, arrowWordSelect);
-				
-//				interactor.addGesture(new CopyGesture(), copyBehavior);
-//				interactor.addGesture(new SelectAllGesture(), selectAllBehavior);
+				interactor.addGesture(mouseClick, mouseCharSelect, scroll);
+				interactor.addGesture(mouseDoubleDown, mouseWordSelect, scroll);
+				interactor.addGesture(mouseTripleDown, paragraphSelect, scroll);
+				interactor.addGesture(mouseWheel, scroll);
 				
 				if (editable)
 				{
 					mouseTripleDown.removeBehavior(paragraphSelect);
-//					mouseTripleDown.addBehavior(new LineSelectionBehavior());
-					
-					//Experimental
-//					var charBack:CharacterBackspaceBehavior = new CharacterBackspaceBehavior();
-//					var backspace:BackspaceGesture = new BackspaceGesture();
-//					interactor.addGesture(backspace, charBack);
 				}
 			}
 		}
