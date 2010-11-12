@@ -6,14 +6,9 @@
  */
 package org.tinytlf.layout.factories
 {
-    import flash.display.DisplayObject;
-    import flash.display.Shape;
+    import flash.display.*;
     import flash.events.EventDispatcher;
-    import flash.text.engine.ContentElement;
-    import flash.text.engine.ElementFormat;
-    import flash.text.engine.GraphicElement;
-    import flash.text.engine.GroupElement;
-    import flash.text.engine.TextElement;
+    import flash.text.engine.*;
     
     import org.tinytlf.ITextEngine;
     
@@ -25,11 +20,19 @@ package org.tinytlf.layout.factories
 			
             //If the data is an empty string, insert a placeholder GraphicElement.
             if(data && data.toString() === "")
+			{
                 element = new GraphicElement(new Shape(), 1, 1, getElementFormat(context), getEventMirror(context));
+			}
             else if(data is String)
+			{
                 element = new TextElement(String(data), getElementFormat(context), getEventMirror(context));
+	            element.userData = context;
+			}
             else if(data is Vector.<ContentElement>)
+			{
                 element = new GroupElement(Vector.<ContentElement>(data), getElementFormat(context));
+	            element.userData = context;
+			}
             
             if(!element)
                 return null;
@@ -43,8 +46,6 @@ package org.tinytlf.layout.factories
                     engine.decor.decorate(element, dec, dec.layer, null, dec.foreground);
 				}
             }
-
-            element.userData = context;
             
             return element;
         }
