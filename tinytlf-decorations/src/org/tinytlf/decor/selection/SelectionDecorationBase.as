@@ -35,6 +35,10 @@ package org.tinytlf.decor.selection
 			while(start < pt.y)
 			{
 				index = a.indexAtContent(start);
+				
+				if(index == -1)
+					break;
+				
 				block = a.blockAtIndex(index);
 				
 				if(block)
