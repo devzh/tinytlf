@@ -15,11 +15,11 @@ package org.tinytlf.layout.constraints
 			switch(el.userData)
 			{
 				case null:
-				case TextLineUtil.getSingletonMarker('lineBreak'):
+				case 'lineBreak':
 					return null;
-				case TextLineUtil.getSingletonMarker('listItemOutside'):
+				case 'listItemOutside':
 					return new OutsideLIConstraint(el);
-				case TextLineUtil.getSingletonMarker('listItemInside'):
+				case 'listItemInside':
 					return new InsideLIConstraint(el);
 				default:
 					return super.getConstraint(line, atomIndex);

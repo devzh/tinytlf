@@ -190,23 +190,7 @@ package org.tinytlf.util.fte
 			
 			//We have some kind of graphic at the end, is it a line break?
 			var g:GraphicElement = GraphicElement(getElementAtAtomIndex(line, graphicIndex));
-			return g.userData === TextLineUtil.getSingletonMarker('lineBreak');
-		}
-		
-		private static const singletons:Object = {};
-		
-		/**
-		 * Central repository for storing/retrieving marker objects for text 
-		 * layout. The technique is useful for layout, where the userData
-		 * properties of the ContentElement can mark the element for special
-		 * layout provisions.
-		 */
-		public static function getSingletonMarker(name:String):Object
-		{
-			if(singletons.hasOwnProperty(name))
-				return singletons[name];
-			
-			return singletons[name] = {};
+			return g.userData === 'lineBreak';
 		}
 		
 		public static function cleanLine(line:TextLine):void

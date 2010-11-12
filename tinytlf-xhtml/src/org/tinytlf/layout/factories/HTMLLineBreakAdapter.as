@@ -1,23 +1,16 @@
 package org.tinytlf.layout.factories
 {
 	import flash.display.Shape;
-	import flash.events.EventDispatcher;
-	import flash.text.engine.ContentElement;
-	import flash.text.engine.ElementFormat;
-	import flash.text.engine.GraphicElement;
-	import flash.text.engine.TextElement;
+	import flash.text.engine.*;
 	
 	import org.tinytlf.util.fte.ContentElementUtil;
-	import org.tinytlf.util.fte.TextLineUtil;
 	
 	public class HTMLLineBreakAdapter extends ContentElementFactory
 	{
 		override public function execute(data:Object, ...parameters):ContentElement
 		{
 			return ContentElementUtil.lineBreakBefore(
-				new GraphicElement(new Shape(), 0, 0, new ElementFormat()),
-				TextLineUtil.getSingletonMarker('lineBreak')
-			);
+				new GraphicElement(new Shape(), 0, 0, new ElementFormat()), 'lineBreak');
 		}
 	}
 }

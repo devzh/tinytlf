@@ -20,11 +20,11 @@ package org.tinytlf.layout.factories
 				
 				var graphic:GraphicElement = 
 					new GraphicElement(new Shape(), marginLeft, 0, new ElementFormat());
-				graphic.userData = 
-					TextLineUtil.getSingletonMarker(outside ? 'listItemOutside' : 'listItemInside');
+				
+				graphic.userData = outside ? 'listItemOutside' : 'listItemInside';
 				
 				var end:GraphicElement = new GraphicElement(new Shape(), 0, 0, new ElementFormat());
-				end.userData = TextLineUtil.getSingletonMarker('listItemTerminator');
+				end.userData = 'listItemTerminator';
 				
 				var box:Rectangle = item.elementFormat.getFontMetrics().emBox;
 				engine.decor.decorate(graphic, {bullet: true, diameter: box.height * .25});

@@ -72,7 +72,7 @@ package org.tinytlf.layout.orientation
 			// ContainerTerminator, which causes tinytlf to stop laying out in 
 			// this container and move on to the next one.
 			
-			return (e.constraintMarker === TextLineUtil.getSingletonMarker('containerTerminator'));
+			return (e.constraintMarker === 'containerTerminator');
 		}
 		
 		/**
@@ -121,7 +121,7 @@ package org.tinytlf.layout.orientation
 		
 		protected function handleConstraint(line:TextLine, constraint:ITextConstraint):void
 		{
-			if(constraint.constraintMarker === TextLineUtil.getSingletonMarker('listItemTerminator'))
+			if(constraint.constraintMarker === 'listItemTerminator')
 			{
 				handleListItemTermination();
 			}
@@ -129,7 +129,7 @@ package org.tinytlf.layout.orientation
 		
 		protected function finalizeConstraint(line:TextLine, constraint:ITextConstraint):Boolean
 		{
-			return constraint.constraintMarker === TextLineUtil.getSingletonMarker('containerTerminator');
+			return constraint.constraintMarker === 'containerTerminator';
 		}
 		
 		/**
@@ -146,8 +146,8 @@ package org.tinytlf.layout.orientation
 			{
 				el = constraints[i];
 				
-				if(	el.constraintMarker === TextLineUtil.getSingletonMarker('listItemOutside') || 
-					el.constraintMarker === TextLineUtil.getSingletonMarker('listItemInside'))
+				if(	el.constraintMarker === 'listItemOutside' || 
+					el.constraintMarker === 'listItemInside')
 				{
 					target.removeConstraint(el);
 					break;

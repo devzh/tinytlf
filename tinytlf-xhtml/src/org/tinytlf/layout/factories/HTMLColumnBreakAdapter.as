@@ -13,7 +13,7 @@ package org.tinytlf.layout.factories
 		override public function execute(data:Object, ...parameters):ContentElement
 		{
 			var graphic:GraphicElement = new GraphicElement(new Shape(), 0, 0, new ElementFormat());
-			graphic.userData = TextLineUtil.getSingletonMarker('containerTerminator');
+			graphic.userData = 'containerTerminator';
 			return ContentElementUtil.lineBreakBefore(graphic);
 		}
 	}

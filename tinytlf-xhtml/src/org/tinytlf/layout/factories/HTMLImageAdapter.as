@@ -9,15 +9,10 @@ package org.tinytlf.layout.factories
     import flash.display.Shape;
     import flash.events.EventDispatcher;
     import flash.net.URLRequest;
-    import flash.text.engine.ContentElement;
-    import flash.text.engine.ElementFormat;
-    import flash.text.engine.GraphicElement;
-    import flash.text.engine.GroupElement;
-    import flash.text.engine.TextBaseline;
+    import flash.text.engine.*;
     
     import org.tinytlf.layout.properties.LayoutProperties;
-    import org.tinytlf.util.fte.ContentElementUtil;
-    import org.tinytlf.util.fte.TextLineUtil;
+    import org.tinytlf.util.fte.*;
 
     public class HTMLImageAdapter extends ContentElementFactory
     {
@@ -53,9 +48,8 @@ package org.tinytlf.layout.factories
 					null, 
 					inheritedProperties.foreground);
 				
-				var lBreakMarker:Object = TextLineUtil.getSingletonMarker('lineBreak');
 				var lBreakGraphic:GraphicElement = new GraphicElement(new Shape(),0, 0, new ElementFormat());
-				lBreakGraphic.userData = lBreakMarker;
+				lBreakGraphic.userData = 'lineBreak';
 				
 				return ContentElementUtil.lineBreakBeforeAndAfter(
 					new GroupElement(new <ContentElement>[element, lBreakGraphic]));
@@ -81,13 +75,8 @@ package org.tinytlf.layout.factories
     }
 }
 
-import flash.display.Bitmap;
-import flash.display.BitmapData;
-import flash.display.Loader;
-import flash.display.LoaderInfo;
-import flash.display.Sprite;
-import flash.events.Event;
-import flash.events.IOErrorEvent;
+import flash.display.*;
+import flash.events.*;
 import flash.geom.Matrix;
 import flash.net.URLRequest;
 
