@@ -1,6 +1,7 @@
 package org.tinytlf.layout.constraints
 {
 	import flash.display.DisplayObject;
+	import flash.geom.Rectangle;
 	import flash.text.engine.*;
 	
 	import org.tinytlf.ITextEngine;
@@ -49,8 +50,12 @@ package org.tinytlf.layout.constraints
 				}
 				else
 				{
-					lp.width = dObj.width || g.elementWidth;
-					lp.height = dObj.height || g.elementHeight;
+					var bounds:Rectangle = dObj.getBounds(line);
+					
+					lp.x = bounds.x;
+					lp.y = line.y;
+					lp.width = bounds.width || g.elementWidth;
+					lp.height = bounds.height || g.elementHeight;
 				}
 			}
 		}
