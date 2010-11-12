@@ -15,9 +15,7 @@ package org.tinytlf.interaction.behaviors.selection
 		public function downAction():void
 		{
 			engine.select();
-			var pt:Point = getAnchor();
-			anchor.x = pt.x;
-			anchor.y = pt.y;
+			anchor = getAnchor();
 			engine.caretIndex = anchor.y;
 		}
 		
@@ -39,7 +37,7 @@ package org.tinytlf.interaction.behaviors.selection
 			anchor.y = 0;
 		}
 		
-		protected const anchor:Point = new Point();
+		protected var anchor:Point = new Point();
 		
 		protected function getAnchor():Point
 		{
