@@ -216,10 +216,13 @@ package org.tinytlf.layout
 				}
 			}
 			
-			orphan = getRecycledLine(previousLine);
-			if(orphan)
+			if(orphanLines.length)
 			{
-				return block.recreateTextLine(orphan, previousLine, size, 0.0, true);
+				orphan = getRecycledLine(previousLine);
+				if(orphan)
+				{
+					return block.recreateTextLine(orphan, previousLine, size, 0.0, true);
+				}
 			}
 			
 			return block.createTextLine(previousLine, size, 0.0, true);
