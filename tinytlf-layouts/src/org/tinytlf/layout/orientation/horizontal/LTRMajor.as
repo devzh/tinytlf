@@ -150,17 +150,14 @@ package org.tinytlf.layout.orientation.horizontal
 				{
 					if(c.float == TextFloat.LEFT)
 					{
-//						if((c.majorValue + c.majorValue) >= l){
 						if(majorValue >= l){
-//							l = c.majorValue + majorValue;
 							l = majorValue;
 						}
 					}
 					else if(c.float == TextFloat.RIGHT)
 					{
-						if(c.majorValue < r){
-							r = c.majorValue;
-//							r = c.majorValue - majorValue;
+						if(majorValue < r){
+							r = majorValue;
 						}
 					}
 				}

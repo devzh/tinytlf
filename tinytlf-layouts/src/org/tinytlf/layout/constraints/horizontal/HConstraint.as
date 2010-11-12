@@ -11,7 +11,7 @@ package org.tinytlf.layout.constraints.horizontal
 	 */
 	public class HConstraint extends TextConstraintBase
 	{
-		public function HConstraint(constraintElement:ContentElement = null)
+		public function HConstraint(constraintElement:* = null)
 		{
 			super(constraintElement);
 		}
@@ -44,11 +44,36 @@ package org.tinytlf.layout.constraints.horizontal
 			if(atMinor >= (lp.y + totalHeight))
 				return -1;
 			
+			if(float == TextFloat.LEFT)
+			{
+				return fromLeft(atMinor, fromMajor);
+			}
+			else if(float == TextFloat.RIGHT)
+			{
+				return fromRight(atMinor, fromMajor);
+			}
+			
+			return fromLeft(atMinor, fromMajor);
+		}
+		
+		private function fromLeft(atMinor:Number, fromMajor:Number):Number
+		{
 			if(fromMajor < lp.x)
 				return fromMajor;
 			
 			if(fromMajor >= lp.x && fromMajor < (lp.x + totalWidth))
 				return (lp.x + totalWidth);
+			
+			return fromMajor;
+		}
+		
+		private function fromRight(atMinor:Number, fromMajor:Number):Number
+		{
+			if(fromMajor < lp.x)
+				return lp.x;
+			
+			if(fromMajor >= lp.x && fromMajor < (lp.x + totalWidth))
+				return (lp.x - totalWidth);
 			
 			return fromMajor;
 		}
