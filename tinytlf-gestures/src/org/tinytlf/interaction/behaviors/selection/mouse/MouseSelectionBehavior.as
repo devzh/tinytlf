@@ -14,7 +14,7 @@ package org.tinytlf.interaction.behaviors.selection.mouse
 			super();
 		}
 		
-		private var triggeredHere:Boolean = false;
+		protected var triggeredHere:Boolean = false;
 		
 		[Event("mouseDown")]
 		override public function downAction():void
