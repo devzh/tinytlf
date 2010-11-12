@@ -8,6 +8,7 @@ package org.tinytlf.interaction
 {
 	import flash.display.*;
 	import flash.events.*;
+	import flash.geom.Rectangle;
 	import flash.text.engine.*;
 	
 	import org.tinytlf.interaction.behaviors.*;
@@ -105,12 +106,16 @@ package org.tinytlf.interaction
 			w += lp.paddingRight;
 			
 			var x:Number = 0;
+			var rect:Rectangle = new Rectangle(0, -line.ascent, 0, line.height);
 			
 			//Add in the indent if this is the first line in the TextBlock
 			if(!line.previousLine)
 			{
 				w += lp.textIndent;
 				x -= lp.textIndent;
+				
+				rect.y -= lp.paddingTop;
+				rect.height += lp.paddingTop;
 			}
 			
 			switch(lp.textAlign)
@@ -121,10 +126,13 @@ package org.tinytlf.interaction
 					break;
 			}
 			
+			rect.x = x;
+			rect.width = w;
+			
 			var sprite:Sprite = new Sprite();
 			sprite.name = 'lineCatcher';
 			sprite.graphics.beginFill(0x00, 0);
-			sprite.graphics.drawRect(x, -line.ascent, w, line.height);
+			sprite.graphics.drawRect(rect.x, rect.y, rect.width, rect.height);
 			line.addChildAt(sprite, 0);
 		}
 	}
