@@ -107,6 +107,7 @@ package org.tinytlf.decor
 			else
 			{
 				var decoration:ITextDecoration;
+				var dec:Decoration;
 				var styleValue:*;
 				
 				for (styleProp in styleObject)
@@ -119,8 +120,13 @@ package org.tinytlf.decor
 					}
 					else if (hasDecoration(styleProp))
 					{
-						if(el.getDecoration(decorationsMap[styleProp]))
+						dec = el.getDecoration(decorationsMap[styleProp]);
+						if(dec)
+						{
+							decoration = dec.decoration;
+							decoration.merge(styleObject);
 							continue;
+						}
 						
 						decoration = getDecoration(styleProp, container);
 						decoration.foreground = foreground;
