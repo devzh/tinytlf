@@ -8,7 +8,6 @@ package org.tinytlf
 {
     import flash.display.Stage;
     import flash.geom.Point;
-    import flash.text.engine.TextBlock;
     
     import org.tinytlf.analytics.ITextEngineAnalytics;
     import org.tinytlf.decor.ITextDecor;

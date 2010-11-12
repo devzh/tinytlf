@@ -7,7 +7,7 @@
 package org.tinytlf
 {
 	import flash.display.Stage;
-	import flash.events.Event;
+	import flash.events.*;
 	import flash.geom.*;
 	import flash.text.engine.*;
 	import flash.utils.*;
@@ -178,7 +178,7 @@ package org.tinytlf
 			if(rendering)
 				return;
 			
-			_scrollPosition = value;
+			_scrollPosition = Math.min(Math.max(value, 0), analytics.pixelLength);
 			invalidate();
 		}
 		
