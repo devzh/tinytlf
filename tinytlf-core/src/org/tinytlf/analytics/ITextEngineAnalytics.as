@@ -27,6 +27,7 @@ package org.tinytlf.analytics
 		
 		function get cachedBlocks():Dictionary;
 		function get contentLength():int;
+		function get pixelLength():int;
 		
 		function blockAtIndex(index:int):TextBlock;
 		function cacheBlock(block:TextBlock, index:int):void;

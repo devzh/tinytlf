@@ -43,6 +43,12 @@ package org.tinytlf.analytics
 			return contentVector.end(index);
 		}
 		
+		public function get pixelLength():int
+		{
+			var index:int = positionVector.length - 1;
+			return positionVector.end(index);
+		}
+		
 		private var indexCache:Array = [];
 		private var blockCache:Dictionary = new Dictionary(false);
 		
