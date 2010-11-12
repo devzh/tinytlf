@@ -1,5 +1,7 @@
 package org.tinytlf.util
 {
+	import flash.geom.Point;
+	import flash.geom.Rectangle;
 	import flash.system.Capabilities;
 	import flash.text.engine.*;
 	import flash.utils.*;
@@ -7,6 +9,7 @@ package org.tinytlf.util
 	import org.tinytlf.ITextEngine;
 	import org.tinytlf.analytics.ITextEngineAnalytics;
 	import org.tinytlf.layout.properties.LayoutProperties;
+	import org.tinytlf.util.fte.TextLineUtil;
 	
 	public final class TinytlfUtil
 	{
@@ -22,6 +25,52 @@ package org.tinytlf.util
 			var a:ITextEngineAnalytics = engine.analytics;
 			var blockStart:int = a.blockContentStart(line.textBlock);
 			return globalIndex - blockStart - line.textBlockBeginIndex;
+		}
+		
+		public static function globalIndexToAtomBounds(engine:ITextEngine, globalIndex:int):Rectangle
+		{
+			var a:ITextEngineAnalytics = engine.analytics;
+			var b:TextBlock = a.blockAtContent(globalIndex);
+			
+			if(!b)
+				return null;
+			
+			var blockIndex:int = globalIndex - a.blockContentStart(b);
+			var line:TextLine = b.getTextLineAtCharIndex(blockIndex);
+			var atomBounds:Rectangle = line.getAtomBounds(blockIndex - line.textBlockBeginIndex);
+			atomBounds.offset(line.x, line.y);
+			return atomBounds;
+		}
+		
+		public static function pointToGlobalIndex(engine:ITextEngine, point:Point):int
+		{
+			var a:ITextEngineAnalytics = engine.analytics;
+			var blocks:Dictionary = a.cachedBlocks;
+			var b:TextBlock;
+			var l:TextLine;
+			
+			for(var tmp:* in blocks)
+			{
+				b = TextBlock(tmp);
+				l = b.firstLine;
+				while(l)
+				{
+					if(l.hitTestPoint(point.x, point.y))
+						break;
+					
+					l = l.nextLine;
+				}
+				
+				if(l)
+					break;
+			}
+			
+			if(!l)
+				return -1;
+			
+			var atomIndex:int = TextLineUtil.getAtomIndexAtPoint(l, point);
+			
+			return a.blockContentStart(b) + l.textBlockBeginIndex + atomIndex;
 		}
 		
 		private static var mac:Boolean = (/mac/i).test(Capabilities.os);
