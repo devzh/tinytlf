@@ -49,65 +49,10 @@ package org.tinytlf.extensions.fcss
             engine = null;
             styler = null;
         }
-        
-        [Test]
-        public function uses_global_style():void
-        {
-            var format:ElementFormat = styler.getElementFormat([XML(<_/>)]);
-            
-            Assert.assertTrue(format.fontDescription.fontName == 'Times');
-            Assert.assertTrue(format.fontSize == 26);
-        }
-        
-        [Test]
-        public function uses_id_styles():void
-        {
-            var format:ElementFormat = styler.getElementFormat([<_/>,<node id="someID"/>]);
-            
-            Assert.assertTrue(format.fontDescription.fontName == 'SomeIdFont');
-        }
-        
-        [Test]
-        public function uses_class_styles():void
-        {
-            var format:ElementFormat = styler.getElementFormat([<_/>,<node class="someClass"/>]);
-            
-            Assert.assertTrue(format.fontDescription.fontName == 'SomeClassFont');
-        }
-        
-        [Test]
-        public function uses_inherited_tag_styles():void
-        {
-            var format:ElementFormat = styler.getElementFormat([<_/>,<b/>,<node id="redColor"/>]);
-            
-            Assert.assertTrue(format.fontDescription.fontWeight == 'bold');
-            Assert.assertTrue(format.color == 0xFF0000);
-        }
-        
-        [Test]
-        public function overrides_inherited_tag_styles():void
-        {
-            var format:ElementFormat = styler.getElementFormat([<_/>,<b/>,<node id="redColor" class="normal"/>]);
-            
-            Assert.assertTrue(format.fontDescription.fontWeight == 'normal');
-            Assert.assertTrue(format.color == 0xFF0000);
-        }
-        
-        [Test]
-        public function uses_inline_styles():void
-        {
-            var format:ElementFormat = styler.getElementFormat([<_/>,<node style="fontWeight:bold;"/>]);
-            
-            Assert.assertTrue(format.fontDescription.fontWeight == 'bold');
-        }
-        
-        [Test]
-        public function uses_inline_tag_styles_styles():void
-        {
-            var format:ElementFormat = styler.getElementFormat([<_/>,<node fontWeight='bold' color='#FF0000'/>]);
-            
-            Assert.assertTrue(format.fontDescription.fontWeight == 'bold');
-            Assert.assertTrue(format.color == 0xFF0000);
-        }
+		
+		[Test]
+		public function dummy():void
+		{
+		}
     }
 }

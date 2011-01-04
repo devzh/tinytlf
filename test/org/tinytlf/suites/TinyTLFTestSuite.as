@@ -4,6 +4,7 @@ package org.tinytlf.suites
     import org.tinytlf.extensions.fcss.FCSSTextStylerTest;
     import org.tinytlf.layout.TextContainerBaseTests;
     import org.tinytlf.layout.TextLayoutBaseTests;
+    import org.tinytlf.model.XMLModelTests;
 
     [Suite]
     [RunWith("org.flexunit.runners.Suite")]
@@ -13,5 +14,6 @@ package org.tinytlf.suites
         public var textLayoutBaseTests:TextLayoutBaseTests;
         public var textContainerBaseTests:TextContainerBaseTests;
         public var fcssStylerTests:FCSSTextStylerTest;
+        public var xmlModelTests:XMLModelTests;
     }
 }

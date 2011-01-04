@@ -68,9 +68,9 @@ package org.tinytlf.layout
         }
         
         [Test]
-        public function child_added_to_target_after_setting_targer():void
+        public function child_added_to_target_after_setting_target():void
         {
-            assertThat(target.numChildren, equalTo(1));
+            assertThat(target.numChildren, equalTo(2));
         }
         
 //        [Test]

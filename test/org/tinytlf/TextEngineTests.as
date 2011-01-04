@@ -106,35 +106,6 @@ package org.tinytlf
         //--------------------------------------------------------------------------
         
         //----------------------------------------------------
-        //  prerender
-        //----------------------------------------------------
-        
-        [Test]
-        public function test_prerender_calls_decor_remove_all():void
-        {
-            var decor:ITextDecor = strict(ITextDecor);
-            stub(decor).method("removeAll");
-            stub(decor).setter("engine");
-            
-            engine.decor = decor;
-			engine.render();
-            
-            verify(decor).method("removeAll").once();
-        }
-        
-        [Test]
-        public function prerender_calls_block_factory_create_blocks():void
-        {
-            var blockFactory:ITextBlockFactory = nice(ITextBlockFactory);
-            stub(blockFactory).method("createBlocks").returns(new <TextBlock>[new TextBlock(new TextElement("mockolate-d"))]);
-            
-            engine.layout.textBlockFactory = blockFactory;
-            engine.render();
-            
-            verify(blockFactory).method("createBlocks").once();
-        }
-        
-        //----------------------------------------------------
         //  invalidation triggers rendering
         //----------------------------------------------------
         
@@ -259,6 +230,7 @@ package org.tinytlf
             stub(decor).method("decorate");
             stub(decor).method("undecorate");
             stub(decor).setter("engine");
+			stub(decor).method("hasDecoration");
             
             engine.decor = decor;
             
