@@ -61,7 +61,7 @@ package org.tinytlf.layout.factories
 		 * generate the TextBlock on the fly, as keeping references to every
 		 * TextBlock in the TextField is potentially expensive.
 		 */
-		function get nextBlock():TextBlock;
+		function getTextBlock(index:int):TextBlock;
 		
 		/**
 		 * Instructs the LayoutFactoryMap to cache the TextBlock for quick
@@ -91,7 +91,7 @@ package org.tinytlf.layout.factories
 		 * 
 		 * @see org.tinytlf.layout.model.factories.IContentElementFactory
 		 */
-		function mapElementFactory(element:*, factoryClassOrFactory:Object):void;
+		function mapElementFactory(element:*, classOrFactory:Object):void;
 		
 		/**
 		 * Unmaps the given element.

@@ -74,9 +74,10 @@ package org.tinytlf.layout.factories
 		{
 		}
 		
-		public function get nextBlock():TextBlock
+		public function getTextBlock(index:int):TextBlock
 		{
-			return generateTextBlock(++listIndex);
+			listIndex = index;
+			return generateTextBlock(index);
 		}
 		
 		public function cacheVisibleBlock(block:TextBlock):void
@@ -119,9 +120,9 @@ package org.tinytlf.layout.factories
             return IContentElementFactory(adapter);
         }
 
-        public function mapElementFactory(element:*, adapterClassOrInstance:Object):void
+        public function mapElementFactory(element:*, classOrFactory:Object):void
         {
-            elementAdapterMap[element] = adapterClassOrInstance;
+            elementAdapterMap[element] = classOrFactory;
         }
 
         public function unMapElementFactory(element:*):Boolean
