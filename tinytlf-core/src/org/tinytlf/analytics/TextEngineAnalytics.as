@@ -4,6 +4,7 @@ package org.tinytlf.analytics
 	import flash.utils.Dictionary;
 	
 	import org.tinytlf.ITextEngine;
+	import org.tinytlf.layout.factories.ITextBlockFactory;
 	import org.tinytlf.layout.properties.LayoutProperties;
 	import org.tinytlf.util.TinytlfUtil;
 	import org.tinytlf.util.fte.TextBlockUtil;
@@ -97,7 +98,7 @@ package org.tinytlf.analytics
 			if(index == -1)
 				return null;
 			
-			return indexCache[index];
+			return blockAtIndex(index);
 		}
 		
 		public function blockAtPixel(distance:Number):TextBlock
@@ -106,7 +107,7 @@ package org.tinytlf.analytics
 			if(index == -1)
 				return null;
 			
-			return indexCache[index];
+			return blockAtIndex(index);
 		}
 		
 		public function indexAtContent(index:int):int
@@ -157,11 +158,23 @@ package org.tinytlf.analytics
 		
 		public function indexContentStart(atIndex:int):Number
 		{
+			if(atIndex == 0)
+				return 0;
+			
+			if(atIndex >= contentVector.length)
+				return contentLength;
+			
 			return contentVector.start(atIndex);
 		}
 		
 		public function indexPixelStart(atIndex:int):Number
 		{
+			if(atIndex == 0)
+				return 0;
+			
+			if(atIndex >= positionVector.length)
+				return pixelLength;
+			
 			return positionVector.start(atIndex);
 		}
 		

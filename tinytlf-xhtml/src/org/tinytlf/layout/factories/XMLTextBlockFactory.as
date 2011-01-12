@@ -8,14 +8,15 @@ package org.tinytlf.layout.factories
 	import org.tinytlf.layout.constraints.ITextConstraint;
 	import org.tinytlf.layout.properties.LayoutProperties;
 	import org.tinytlf.styles.*;
+	import org.tinytlf.util.TinytlfUtil;
 	import org.tinytlf.util.fte.*;
 	
 	public class XMLTextBlockFactory extends TextBlockFactoryBase
 	{
-		override public function get nextBlock():TextBlock
+		override public function getTextBlock(index:int):TextBlock
 		{
-			if(++listIndex < root.*.length())
-				return generateTextBlock(listIndex);
+			if(index < root.*.length())
+				return super.getTextBlock(index);
 			
 			return null;
 		}

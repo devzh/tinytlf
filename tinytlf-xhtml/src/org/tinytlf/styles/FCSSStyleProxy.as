@@ -114,6 +114,11 @@ package org.tinytlf.styles
 			
 			super.setProperty(name, value);
 		}
+		
+		public function merge(obj:Object):void
+		{
+			mergeWith(obj);
+		}
 	}
 }
 
