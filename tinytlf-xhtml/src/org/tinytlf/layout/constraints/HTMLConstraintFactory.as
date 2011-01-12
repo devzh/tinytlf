@@ -15,6 +15,7 @@ package org.tinytlf.layout.constraints
 			switch(el.userData)
 			{
 				case null:
+				case undefined:
 				case 'lineBreak':
 					return null;
 				case 'listItemOutside':

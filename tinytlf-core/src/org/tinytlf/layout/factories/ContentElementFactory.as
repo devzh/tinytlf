@@ -11,6 +11,7 @@ package org.tinytlf.layout.factories
     import flash.text.engine.*;
     
     import org.tinytlf.ITextEngine;
+    import org.tinytlf.util.fte.ContentElementUtil;
     
     public class ContentElementFactory implements IContentElementFactory
     {
@@ -21,7 +22,7 @@ package org.tinytlf.layout.factories
             //If the data is an empty string, insert a placeholder GraphicElement.
             if(data && data.toString() === "")
 			{
-                element = new GraphicElement(new Shape(), 1, 1, getElementFormat(context), getEventMirror(context));
+                element = new GraphicElement(new Shape(), 0, 0, getElementFormat(context), getEventMirror(context));
 			}
             else if(data is String)
 			{
@@ -81,6 +82,11 @@ package org.tinytlf.layout.factories
             
             return engine.interactor.getMirror(context);
         }
+		
+		protected function get ef():ElementFormat
+		{
+			return new ElementFormat();
+		}
     }
 }
 

@@ -1,5 +1,6 @@
 package org.tinytlf.layout.factories
 {
+	import flash.display.*;
 	import flash.events.EventDispatcher;
 	import flash.text.engine.*;
 	
@@ -9,9 +10,9 @@ package org.tinytlf.layout.factories
 	{
 		override public function execute(data:Object, ...context):ContentElement
 		{
-			var graphic:GraphicElement = new GraphicElement(null, 0, 0, new ElementFormat(), new EventDispatcher());
+			var graphic:GraphicElement = new GraphicElement(new Shape(), 0, 0, ef, new EventDispatcher());
 			engine.decor.decorate(graphic, {horizontalRule:true});
-			return ContentElementUtil.lineBreakBefore(graphic);
+			return ContentElementUtil.lineBreakBefore(graphic, 'lineBreak');
 		}
 	}
 }

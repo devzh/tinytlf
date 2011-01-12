@@ -5,7 +5,7 @@ package org.tinytlf.util.fte
 	import flash.text.engine.*;
 	import flash.utils.Dictionary;
 	
-	public class TextLineUtil
+	public final class TextLineUtil
 	{
 		/**
 		 * Returns the index of the atom at a particular point. If the point
@@ -98,7 +98,7 @@ package org.tinytlf.util.fte
 		
 		/**
 		 * Recursively drills down into the ContentElement of the TextLine's 
-		 * TextBlock to return the exact element at the specified atomIndex.
+		 * TextBlock to return the leaf element at the specified atomIndex.
 		 */
 		public static function getElementAtAtomIndex(line:TextLine, atomIndex:int):ContentElement
 		{

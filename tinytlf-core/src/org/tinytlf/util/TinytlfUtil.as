@@ -140,7 +140,7 @@ package org.tinytlf.util
 				if(block.userData is LayoutProperties)
 					return LayoutProperties(block.userData);
 				else
-					block.userData = new LayoutProperties();
+					return block.userData = new LayoutProperties();
 			}
 			
 			return new LayoutProperties(from);
@@ -162,20 +162,20 @@ package org.tinytlf.util
 			if(!!objectA != !!objectB)
 				return false;
 			
-			if(!recursiveCompare(objectA, objectB, exceptions))
-				return false;
-			if(!recursiveCompare(objectB, objectA, exceptions))
-				return false;
-			
-			return true;
+			return (
+				recursiveCompare(objectA, objectB, exceptions) &&
+				recursiveCompare(objectB, objectA, exceptions)
+				);
 		}
 		
-		private static const types:Dictionary = new Dictionary();
+		private static const compareTypes:Dictionary = new Dictionary();
 		
 		private static function recursiveCompare(source:Object, 
 												 dest:Object, 
 												 exceptions:Object = null):Boolean
 		{
+			exceptions ||= {};
+			
 			if(source is Array)
 			{
 				if(source.length != dest.length)
@@ -200,34 +200,33 @@ package org.tinytlf.util
 			}
 			
 			var accessors:XMLList;
-			if(source.constructor in types)
-			{
-				accessors = types[source.constructor];
-			}
-			else
+			if(!(source.constructor in compareTypes))
 			{
 				var xml:XML = describeType(source);
-				types[source.constructor] = accessors = xml..accessor.(@access == 'readwrite');
+				compareTypes[source.constructor] = xml..accessor.(@access == 'readwrite');
 			}
+			
+			accessors = compareTypes[source.constructor];
 			
 			var n:String;
 			for each(var x:XML in accessors)
 			{
 				n = x.@name;
 				
-				if(exceptions && n in exceptions)
+				if(n in exceptions)
 					continue;
 				
 				switch(typeof source[n])
 				{
 					case 'object':
 					case 'xml':
-						if(!recursiveCompare(source[n], dest[n]))
+						if(!recursiveCompare(source[n], dest[n], exceptions))
 							return false;
 						break;
 					case 'boolean':
 					case 'number':
 					case 'string':
+					case 'function':
 						if(source[n] !== dest[n])
 							return false;
 						break;

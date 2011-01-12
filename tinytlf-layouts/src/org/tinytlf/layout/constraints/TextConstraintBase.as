@@ -38,7 +38,7 @@ package org.tinytlf.layout.constraints
 				var line:TextLine = ContentElementUtil.getTextLines(g)[0];
 				engine = ITextEngine(line.userData);
 				
-				lp = new LayoutProperties(engine.styler.describeElement(g.userData));
+				lp = new LayoutProperties(g.userData);
 				
 				lp.x = line.x;
 				lp.y = line.y;

@@ -3,7 +3,7 @@ package org.tinytlf.util.fte
 	import flash.text.engine.TextBlock;
 	import flash.text.engine.TextLineCreationResult;
 
-	public class TextBlockUtil
+	public final class TextBlockUtil
 	{
 		public static function isInvalid(block:TextBlock):Boolean
 		{

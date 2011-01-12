@@ -1,14 +1,11 @@
 package org.tinytlf.layout.orientation.horizontal
 {
-	import flash.display.DisplayObject;
 	import flash.text.engine.*;
 	
 	import org.tinytlf.layout.IConstraintTextContainer;
-	import org.tinytlf.layout.properties.LayoutProperties;
-	import org.tinytlf.layout.properties.TextAlign;
+	import org.tinytlf.layout.properties.*;
 	import org.tinytlf.util.TinytlfUtil;
-	import org.tinytlf.util.fte.TextBlockUtil;
-	import org.tinytlf.util.fte.TextLineUtil;
+	import org.tinytlf.util.fte.*;
 	
 	/**
 	 * The IMinorOrientation implementation for left-to-right and right-to-left

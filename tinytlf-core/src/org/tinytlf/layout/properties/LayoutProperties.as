@@ -6,10 +6,8 @@
  */
 package org.tinytlf.layout.properties
 {
-    import flash.text.engine.LineJustification;
-    import flash.text.engine.TextBlock;
-    import flash.text.engine.TextJustifier;
-    
+    import flash.text.engine.*;
+	
     import org.tinytlf.styles.StyleAwareActor;
     
 	/**
