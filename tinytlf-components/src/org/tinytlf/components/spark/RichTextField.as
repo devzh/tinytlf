@@ -162,7 +162,7 @@ package org.tinytlf.components.spark
 		
 		public function merge(merge:Object):void
 		{
-			engine.styler.merge(merge);
+			engine.styler.mergeWith(merge);
 		}
 		
 		public function applyTo(object:Object):void

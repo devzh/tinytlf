@@ -205,14 +205,24 @@ package org.tinytlf.components
             engine.styler.setStyle(styleProp, newValue);
         }
 		
-		public function merge(merge:Object):void
+		public function mergeWith(object:Object):void
 		{
-			engine.styler.merge(merge);
+			engine.styler.mergeWith(object);
+		}
+		
+		public function unmergeWith(object:Object):void
+		{
+			engine.styler.unmergeWith(object);
 		}
 		
 		public function applyTo(object:Object):void
 		{
 			engine.styler.applyTo(object);
+		}
+		
+		public function unapplyTo(object:Object):void
+		{
+			engine.styler.unapplyTo(object);
 		}
 		
         private function onAddedToStage(event:Event):void

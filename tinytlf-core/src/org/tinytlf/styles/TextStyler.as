@@ -56,13 +56,11 @@ package org.tinytlf.styles
         
         public function describeElement(element:*):Object
         {
-            var obj:Object = {};
+            var obj:IStyleAware = new StyleAwareActor();
             
             if(element in styleMap)
             {
-                var mappedObj:Object = styleMap[element];
-                for(var styleProp:String in mappedObj)
-                    obj[styleProp] = mappedObj[styleProp];
+				obj.mergeWith(styleMap[element]);
             }
             
             return obj;
