@@ -24,11 +24,20 @@ package org.tinytlf.interaction.behaviors.selection
 			var end:Point = getSelection();
 			
 			if(anchor.x > end.x)
+			{
 				engine.select(end.x, anchor.y);
+				engine.caretIndex = end.x;
+			}
 			else if(anchor.x < end.x)
+			{
 				engine.select(anchor.x, end.y);
+				engine.caretIndex = end.y + 1;
+			}
 			else if(anchor.x == end.x)
+			{
 				engine.select(anchor.x, anchor.y);
+				engine.caretIndex = anchor.x;
+			}
 		}
 		
 		public function upAction():void

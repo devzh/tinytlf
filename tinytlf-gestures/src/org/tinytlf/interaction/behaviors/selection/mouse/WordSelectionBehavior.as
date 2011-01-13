@@ -13,6 +13,7 @@ package org.tinytlf.interaction.behaviors.selection.mouse
 		{
 			super.downAction();
 			
+			engine.caretIndex = anchor.y + 1;
 			engine.select(anchor.x, anchor.y);
 		}
 		
