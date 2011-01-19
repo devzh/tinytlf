@@ -31,7 +31,9 @@ package org.tinytlf.decor.selection
 		override public function setup(layer:int = 0, ... args):Vector.<Rectangle>
 		{
 			if(!timer)
-				timer = new Timer(400);
+				timer = new Timer(365);
+			else
+				timer.stop();
 			
 			var wrapper:Object = args[0];
 			var index:int = wrapper.caretIndex;
@@ -92,14 +94,12 @@ package org.tinytlf.decor.selection
 			
 			g.clear();
 			
-			showing = !showing;
-			
-			if(!showing)
+			if(showing = !showing)
 				return;
 			
 			var right:int = int(Boolean(getStyle('position') == 'right'));
 			
-			g.lineStyle(getStyle('caretWeight') || 2, getStyle('caretColor'));
+			g.lineStyle(getStyle('caretWeight') || 1, getStyle('caretColor'));
 			g.moveTo(rect.x + right * rect.width, rect.y);
 			g.lineTo(rect.x + right * rect.width, rect.y + rect.height);
 		}
