@@ -26,9 +26,9 @@ package org.tinytlf.util.fte
 					return 0;
 				if(stageCoords.y > bounds.y && 
 					stageCoords.y < bounds.y + bounds.height)
-					return line.atomCount - 1;
+					return line.atomCount;
 				
-				index = (stageCoords.x < center.x) ? 0 : line.atomCount - 1;
+				index = (stageCoords.x < center.x) ? 0 : line.atomCount;
 			}
 			
 			var atomIncrement:int = getAtomSide(line, stageCoords) ? 0 : 1;
@@ -42,7 +42,7 @@ package org.tinytlf.util.fte
 		 */
 		public static function getAtomSide(line:TextLine, stageCoords:Point):Boolean
 		{
-			var atomIndex:int = line.getAtomIndexAtPoint(stageCoords.x, 1);
+			var atomIndex:int = line.getAtomIndexAtPoint(stageCoords.x, stageCoords.y);
 			
 			if(atomIndex < 0)
 				return true;
