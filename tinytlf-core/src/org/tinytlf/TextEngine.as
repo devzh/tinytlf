@@ -144,6 +144,10 @@ package org.tinytlf
 		
 		private var _caretIndex:int = 0;
 		
+		// A unique identifier for the caret index during
+		// decoration, since ints are passed by value.
+		private const caretWrapper:Object = {caretIndex:0};
+		
 		public function get caretIndex():int
 		{
 			return _caretIndex;
@@ -154,11 +158,21 @@ package org.tinytlf
 			if(index === _caretIndex)
 				return;
 			
-			_caretIndex = Math.max(Math.min(index, analytics.contentLength - 1), 0);
+			_caretIndex = Math.max(Math.min(index, analytics.contentLength), 0);
 			
 			//Don't draw the caretIndex if we don't have a caret decoration.
 			if(!decor.hasDecoration('caret'))
 				return;
+			
+			caretWrapper.caretIndex = _caretIndex;
+			
+			decor.decorate(caretWrapper,
+				{
+					caret:true, 
+					selectionColor:styler.getStyle('caretColor'),
+					selectionAlpha:styler.getStyle('caretAlpha')
+				}, 
+				TextDecor.CARET_LAYER, null, true);
 			
 			invalidateDecorations();
 		}
