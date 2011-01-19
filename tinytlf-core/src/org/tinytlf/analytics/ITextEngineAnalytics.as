@@ -26,6 +26,7 @@ package org.tinytlf.analytics
 		function set engine(textEngine:ITextEngine):void;
 		
 		function get cachedBlocks():Dictionary;
+		function get numBlocks():int;
 		function get contentLength():int;
 		function get pixelLength():int;
 		

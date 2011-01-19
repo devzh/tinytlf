@@ -38,6 +38,11 @@ package org.tinytlf.analytics
 			return blockCache;
 		}
 		
+		public function get numBlocks():int
+		{
+			return blockCount;
+		}
+		
 		public function get contentLength():int
 		{
 			var index:int = contentVector.length - 1;
@@ -52,6 +57,7 @@ package org.tinytlf.analytics
 		
 		private var indexCache:Array = [];
 		private var blockCache:Dictionary = new Dictionary(false);
+		private var blockCount:int = 0;
 		
 		public function cacheBlock(block:TextBlock, index:int):void
 		{
@@ -68,6 +74,7 @@ package org.tinytlf.analytics
 			{
 				var block:TextBlock = indexCache[index];
 				TextBlockUtil.checkIn(block);
+				--blockCount;
 				
 				delete blockCache[block];
 				delete indexCache[index];
@@ -144,7 +151,10 @@ package org.tinytlf.analytics
 				return 0;
 			
 			var index:int = blockCache[block];
-			return contentVector.getItemSize(index);
+			var size:int = block.content.rawText.length;
+			contentVector.setItemSize(index, size);
+			
+			return size;
 		}
 		
 		public function blockPixelSize(block:TextBlock):Number
@@ -194,6 +204,7 @@ package org.tinytlf.analytics
 			positionVector.clear();
 			indexCache = [];
 			blockCache = new Dictionary(false);
+			blockCount = 0;
 		}
 		
 		private function enqueueContent(block:TextBlock, index:int = 0):void
@@ -202,7 +213,10 @@ package org.tinytlf.analytics
 			var blockIndex:int = index || contentVector.length;
 			
 			if(blockIndex == contentVector.length)
+			{
 				contentVector.insert(blockIndex);
+				++blockCount;
+			}
 			
 			contentVector.setItemSize(blockIndex, blockSize);
 		}
