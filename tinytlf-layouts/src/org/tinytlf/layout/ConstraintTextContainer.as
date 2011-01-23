@@ -155,6 +155,8 @@ package org.tinytlf.layout
 			{
 				if(hasLine(line))
 				{
+					minor.position(line);
+					
 					if(minor.checkTargetBounds(line))
 					{
 						break;
