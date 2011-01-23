@@ -40,7 +40,7 @@ package org.tinytlf.analytics
 		
 		public function get numBlocks():int
 		{
-			return blockCount;
+			return indexCache.length;
 		}
 		
 		public function get contentLength():int
@@ -57,41 +57,44 @@ package org.tinytlf.analytics
 		
 		private var indexCache:Array = [];
 		private var blockCache:Dictionary = new Dictionary(false);
-		private var blockCount:int = 0;
 		
-		public function cacheBlock(block:TextBlock, index:int):void
+		public function addBlockAt(block:TextBlock, index:int):void
 		{
+			if(!(block in blockCache))
+			{
+				indexCache.splice(index, 0, block);
+				
+				positionVector.insert(index);
+				contentVector.insert(index);
+			}
+			
+			blockCache[block] = true;
+			
 			enqueuePosition(block, index);
 			enqueueContent(block, index);
-			
-			indexCache[index] = block;
-			blockCache[block] = index;
 		}
 		
-		public function uncacheBlock(index:int):void
-		{
-			if(index in indexCache)
-			{
-				var block:TextBlock = indexCache[index];
-				TextBlockUtil.checkIn(block);
-				--blockCount;
-				
-				delete blockCache[block];
-				delete indexCache[index];
-			}
-		}
-		
-		public function clearBlock(index:int):void
+		public function removeBlockAt(index:int):void
 		{
 			if(!(index in indexCache))
 				return;
 			
 			positionVector.remove(index);
 			contentVector.remove(index);
-			uncacheBlock(index);
+			
+			var block:TextBlock = indexCache[index];
+			TextBlockUtil.checkIn(block);
+			
+			delete blockCache[block];
+			indexCache.splice(index, 1);
 		}
 		
-		public function blockAtIndex(index:int):TextBlock
+		public function getBlockIndex(block:TextBlock):int
+		{
+			return indexCache.indexOf(block);
+		}
+		
+		public function getBlockAt(index:int):TextBlock
 		{
 			return indexCache[index];
 		}
@@ -105,7 +108,7 @@ package org.tinytlf.analytics
 			if(index == -1)
 				return null;
 			
-			return blockAtIndex(index);
+			return getBlockAt(index);
 		}
 		
 		public function blockAtPixel(distance:Number):TextBlock
@@ -114,7 +117,7 @@ package org.tinytlf.analytics
 			if(index == -1)
 				return null;
 			
-			return blockAtIndex(index);
+			return getBlockAt(index);
 		}
 		
 		public function indexAtContent(index:int):int
@@ -132,7 +135,7 @@ package org.tinytlf.analytics
 			if(!(block in blockCache))
 				return -1;
 			
-			var index:int = blockCache[block];
+			var index:int = getBlockIndex(block);
 			return contentVector.start(index);
 		}
 		
@@ -141,7 +144,7 @@ package org.tinytlf.analytics
 			if(!(block in blockCache))
 				return -1;
 			
-			var index:int = blockCache[block];
+			var index:int = getBlockIndex(block);
 			return positionVector.start(index);
 		}
 		
@@ -150,7 +153,7 @@ package org.tinytlf.analytics
 			if(!(block in blockCache))
 				return 0;
 			
-			var index:int = blockCache[block];
+			var index:int = getBlockIndex(block);
 			var size:int = block.content.rawText.length;
 			contentVector.setItemSize(index, size);
 			
@@ -162,7 +165,7 @@ package org.tinytlf.analytics
 			if(!(block in blockCache))
 				return 0;
 			
-			var index:int = blockCache[block];
+			var index:int = getBlockIndex(block);
 			return positionVector.getItemSize(index);
 		}
 		
@@ -202,38 +205,29 @@ package org.tinytlf.analytics
 		{
 			contentVector.clear();
 			positionVector.clear();
-			indexCache = [];
+			indexCache.length = 0;
 			blockCache = new Dictionary(false);
-			blockCount = 0;
 		}
 		
-		private function enqueueContent(block:TextBlock, index:int = 0):void
+		private function enqueueContent(block:TextBlock, index:int):void
 		{
-			var blockSize:int = block.content.rawText.length;
-			var blockIndex:int = index || contentVector.length;
+			var blockSize:int = block.content ? block.content.rawText.length : 0;
 			
-			if(blockIndex == contentVector.length)
-			{
-				contentVector.insert(blockIndex);
-				++blockCount;
-			}
+			if(blockSize == 0)
+				return;
 			
-			contentVector.setItemSize(blockIndex, blockSize);
+			contentVector.setItemSize(index, blockSize);
 		}
 		
-		private function enqueuePosition(block:TextBlock, index:int = 0):void
+		private function enqueuePosition(block:TextBlock, index:int):void
 		{
 			var lp:LayoutProperties = TinytlfUtil.getLP(block);
-			
 			var blockSize:Number = lp.paddingTop + lp.height + lp.paddingBottom;
-			blockSize ||= 1;
 			
-			var blockIndex:int = index || positionVector.length;
+			if(blockSize == 0)
+				return;
 			
-			if(blockIndex == positionVector.length)
-				positionVector.insert(blockIndex);
-			
-			positionVector.setItemSize(blockIndex, blockSize);
+			positionVector.setItemSize(index, blockSize);
 		}
 	}
 }

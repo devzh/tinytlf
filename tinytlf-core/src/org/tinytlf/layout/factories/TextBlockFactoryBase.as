@@ -66,7 +66,7 @@ package org.tinytlf.layout.factories
 			//Uncache the TextBlocks that exist before the updated listIndex.
 			for(var i:int = 0; i < listIndex; i += 1)
 			{
-				analytics.uncacheBlock(i);
+				analytics.removeBlockAt(i);
 			}
 		}
 		
@@ -82,12 +82,12 @@ package org.tinytlf.layout.factories
 		
 		public function cacheVisibleBlock(block:TextBlock):void
 		{
-			analytics.cacheBlock(block, listIndex);
+			analytics.addBlockAt(block, listIndex);
 		}
 		
 		protected function generateTextBlock(index:int):TextBlock
 		{
-			return analytics.blockAtIndex(index);
+			return analytics.getBlockAt(index);
 		}
 		
         protected var elementAdapterMap:Dictionary = new Dictionary(false);
