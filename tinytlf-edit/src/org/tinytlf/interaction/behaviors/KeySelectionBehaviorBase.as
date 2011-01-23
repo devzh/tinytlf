@@ -2,8 +2,12 @@ package org.tinytlf.interaction.behaviors
 {
 	import flash.events.KeyboardEvent;
 	import flash.geom.Point;
+	import flash.text.engine.TextBlock;
+	import flash.text.engine.TextLine;
 	
+	import org.tinytlf.analytics.ITextEngineAnalytics;
 	import org.tinytlf.interaction.behaviors.*;
+	import org.tinytlf.util.TinytlfUtil;
 	
 	public class KeySelectionBehaviorBase extends SelectionBehaviorBase
 	{
@@ -12,37 +16,40 @@ package org.tinytlf.interaction.behaviors
 			super();
 		}
 		
+		[Event("keyDown")]
 		override public function downAction():void
 		{
-			anchor = getAnchor();
-			
-			var selection:Point = getSelection();
-			
-			engine.select(selection.x, selection.y);
-			
-			if(anchor.x > selection.x)
-				engine.caretIndex = selection.x;
-			else if(anchor.x < selection.y)
-				engine.caretIndex = selection.y + 1;
-			else if(anchor.x == selection.x)
-				engine.caretIndex = anchor.x;
+			var pt:Point = getSelection();
 			
 			var k:KeyboardEvent = KeyboardEvent(event);
-			if(!k.shiftKey)
-			{
-				originalCaret = null;
+			if(k.shiftKey)
+				engine.select(pt.x, pt.y);
+			else
 				engine.select();
-			}
+			
+			var anchor:Point = getAnchor();
+			engine.caretIndex = anchor.x;
+			
+			//assign focus to the proper line
+			assignFocus();
 		}
 		
-		protected var originalCaret:Point;
-		
-		override protected function getAnchor():Point
+		protected function assignFocus():void
 		{
-			if(originalCaret == null)
-				originalCaret = new Point(engine.caretIndex, engine.caretIndex);
+			var a:ITextEngineAnalytics = engine.analytics;
+			var caret:int = engine.caretIndex;
 			
-			return originalCaret;
+			if(caret < 0)
+				caret = 0;
+			if(caret >= a.contentLength)
+				caret = a.contentLength - 1;
+			
+			var block:TextBlock = a.blockAtContent(caret);
+			var blockStart:int = a.blockContentStart(block);
+			var newLine:TextLine = block.getTextLineAtCharIndex(caret - blockStart);
+			
+			if(newLine != line)
+				line.stage.focus = newLine;
 		}
 	}
 }

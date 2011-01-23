@@ -10,27 +10,27 @@ package org.tinytlf.interaction.behaviors
 			super();
 		}
 		
-		[Event("keyDown")]
-		override public function downAction():void
+		override protected function getSelection():Point
 		{
 			var pt:Point = engine.selection.clone();
 			var caret:int = engine.caretIndex;
+			
+			var nextCaret:Point = getAnchor();
 			
 			if(pt.x != pt.x || pt.y != pt.y)
 				pt = new Point(caret, caret);
 			
 			if(caret <= pt.x)
-				++pt.x;
+				pt.x = nextCaret.x;
 			else if(caret > pt.x)
-				++pt.y;
+				pt.y = nextCaret.x;
 			
-			var k:KeyboardEvent = KeyboardEvent(event);
-			if(k.shiftKey)
-				engine.select(pt.x, pt.y);
-			else
-				engine.select();
-			
-			++engine.caretIndex;
+			return pt;
+		}
+		
+		override protected function getAnchor():Point
+		{
+			return new Point(engine.caretIndex + 1, 0);
 		}
 	}
 }
