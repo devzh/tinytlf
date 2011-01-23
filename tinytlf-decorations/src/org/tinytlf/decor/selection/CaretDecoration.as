@@ -12,6 +12,7 @@ package org.tinytlf.decor.selection
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import flash.text.engine.TextLine;
 	import flash.utils.Timer;
 	
 	import org.tinytlf.decor.TextDecoration;
@@ -102,6 +103,12 @@ package org.tinytlf.decor.selection
 			g.lineStyle(getStyle('caretWeight') || 1, getStyle('caretColor'));
 			g.moveTo(rect.x + right * rect.width, rect.y);
 			g.lineTo(rect.x + right * rect.width, rect.y + rect.height);
+		}
+		
+		override protected function getLineRect(line:TextLine, selectionIndicies:Point):Rectangle
+		{
+			line.stage.focus = line;
+			return super.getLineRect(line, selectionIndicies);
 		}
 	}
 }

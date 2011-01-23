@@ -40,7 +40,7 @@ package org.tinytlf.decor.selection
 				if(index == -1)
 					break;
 				
-				block = a.blockAtIndex(index);
+				block = a.getBlockAt(index);
 				
 				if(block)
 				{
@@ -61,7 +61,7 @@ package org.tinytlf.decor.selection
 			return rects;
 		}
 		
-		private function getBlockSelectionIndicies(block:TextBlock, selection:Point):Point
+		protected function getBlockSelectionIndicies(block:TextBlock, selection:Point):Point
 		{
 			var a:ITextEngineAnalytics = engine.analytics;
 			var start:Number = a.blockContentStart(block);
@@ -91,7 +91,7 @@ package org.tinytlf.decor.selection
 			return p;
 		}
 		
-		private function getBlockRects(block:TextBlock, selectionIndicies:Point):Vector.<Rectangle>
+		protected function getBlockRects(block:TextBlock, selectionIndicies:Point):Vector.<Rectangle>
 		{
 			var a:ITextEngineAnalytics = engine.analytics;
 			var blockSize:Number = a.blockContentSize(block);
@@ -109,7 +109,9 @@ package org.tinytlf.decor.selection
 			while(line)
 			{
 				indicies = getLineSelectionIndicies(line, selectionIndicies);
-				if(indicies.x == indicies.x && indicies.y == indicies.y)
+				if(	indicies.x == indicies.x && 
+					indicies.y == indicies.y &&
+					indicies.y > indicies.x)
 				{
 					rects.push(getLineRect(line, indicies));
 					line = line.nextLine;
@@ -123,7 +125,7 @@ package org.tinytlf.decor.selection
 			return rects;
 		}
 		
-		private function getLineSelectionIndicies(line:TextLine, selection:Point):Point
+		protected function getLineSelectionIndicies(line:TextLine, selection:Point):Point
 		{
 			var p:Point = new Point();
 			var begin:int = line.textBlockBeginIndex;
@@ -149,7 +151,7 @@ package org.tinytlf.decor.selection
 			return p;
 		}
 		
-		private function getLineRect(line:TextLine, selectionIndicies:Point):Rectangle
+		protected function getLineRect(line:TextLine, selectionIndicies:Point):Rectangle
 		{
 			var startIndex:int = selectionIndicies.x;
 			var endIndex:int = selectionIndicies.y;
