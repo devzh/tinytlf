@@ -1,6 +1,7 @@
 package org.tinytlf.interaction.gestures
 {
 	import flash.events.KeyboardEvent;
+	import flash.ui.Keyboard;
 
 	[Event("keyDown")]
 	public class TextEntryGesture extends Gesture
@@ -15,7 +16,9 @@ package org.tinytlf.interaction.gestures
 		public function down(event:KeyboardEvent):Boolean
 		{
 			var char:String = String.fromCharCode(event.charCode);
-			return char != '' && event.charCode;
+			var result:Boolean = char != '' && event.charCode;
+			result &&= !(event.keyCode == Keyboard.ENTER && event.shiftKey);
+			return result;
 		}
 	}
 }
