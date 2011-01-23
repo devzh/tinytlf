@@ -1,6 +1,6 @@
 package org.tinytlf.layout.factories
 {
-	import flash.display.Shape;
+	import flash.display.*;
 	import flash.text.engine.*;
 	
 	import org.tinytlf.util.fte.ContentElementUtil;
@@ -9,8 +9,7 @@ package org.tinytlf.layout.factories
 	{
 		override public function execute(data:Object, ...parameters):ContentElement
 		{
-			return ContentElementUtil.lineBreakBefore(
-				new GraphicElement(new Shape(), 0, 0, new ElementFormat()), 'lineBreak');
+			return ContentElementUtil.lineBreakBefore(new GraphicElement(new Shape(), 0, 0, ef), 'lineBreak');
 		}
 	}
 }
