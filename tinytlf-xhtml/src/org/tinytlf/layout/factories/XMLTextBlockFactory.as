@@ -30,7 +30,7 @@ package org.tinytlf.layout.factories
 			var n:int = root.*.length();
 			for(var i:int = listIndex + 1; i < n; i += 1)
 			{
-				analytics.uncacheBlock(i);
+				analytics.removeBlockAt(i);
 			}
 		}
 		
@@ -38,11 +38,11 @@ package org.tinytlf.layout.factories
 		{
 			analytics.clear();
 			
-			for each(var cElement:ContentElement in cachedElements)
-				clearConstraints(cElement);
-			
-			cachedElements.length = 0;
-			cachedLayouts.length = 0;
+//			for each(var cElement:ContentElement in cachedElements)
+//				clearConstraints(cElement);
+//			
+//			cachedElements.length = 0;
+//			cachedLayouts.length = 0;
 		}
 		
 		override public function getElementFactory(element:*):IContentElementFactory
