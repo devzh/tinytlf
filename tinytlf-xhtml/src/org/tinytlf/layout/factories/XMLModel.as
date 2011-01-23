@@ -13,7 +13,7 @@ package org.tinytlf.layout.factories
 		public function XMLModel(node:XML)
 		{
 			name = node.localName();
-			merge(XMLUtil.buildKeyValueAttributes(node.attributes()));
+			mergeWith(XMLUtil.buildKeyValueAttributes(node.attributes()));
 			propNames.push('style');
 		}
 		

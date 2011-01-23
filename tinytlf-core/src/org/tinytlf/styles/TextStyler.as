@@ -59,9 +59,7 @@ package org.tinytlf.styles
             var obj:IStyleAware = new StyleAwareActor();
             
             if(element in styleMap)
-            {
 				obj.mergeWith(styleMap[element]);
-            }
             
             return obj;
         }

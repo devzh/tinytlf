@@ -83,7 +83,7 @@ package org.tinytlf.util.fte
 			{
 				var text:String = left ?
 					rawText.slice(0, adjustedIndex).split("").reverse().join("") :
-					rawText.slice(adjustedIndex + 1, rawText.length);
+					rawText.slice(adjustedIndex, rawText.length);
 				
 				var match:Array = boundaryPattern.exec(text);
 				if(match)
