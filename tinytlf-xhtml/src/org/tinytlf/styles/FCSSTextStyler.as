@@ -12,6 +12,7 @@ package org.tinytlf.styles
 	import flash.text.engine.*;
 	
 	import org.tinytlf.layout.factories.XMLModel;
+	import org.tinytlf.model.ITLFNode;
 	
 	public class FCSSTextStyler extends TextStyler
 	{
@@ -21,6 +22,14 @@ package org.tinytlf.styles
 		public function FCSSTextStyler()
 		{
 			style = new defaultCSS().toString();
+			// A list of non-inheriting styles. If a style isn't in this list,
+			// it's assumed to be an inheriting style.
+			setStyle('nonInheritingStyles', 
+				{
+					margin:null, marginLeft: null, marginRight:null, marginTop:null,
+					padding: null, paddingLeft: null, paddingRight:null, paddingTop:null,
+					width: null, height: null, 'class': null, id: null, style: null
+				});
 		}
 		
 		private var sheet:FStyleSheet;
@@ -37,10 +46,9 @@ package org.tinytlf.styles
 				sheet.parseCSS(stylesheet);
 				
 				//Add the global styles onto this ITextStyler dude.
-				
 				if(super.style is FCSSStyleProxy)
 				{
-					merge(new FCSSStyleProxy(sheet.getStyle("*")));
+					mergeWith(new FCSSStyleProxy(sheet.getStyle("*")));
 					value = super.style;
 				}
 				else
@@ -57,12 +65,6 @@ package org.tinytlf.styles
 			var format:ElementFormat = new ElementFormat();
 			var description:FontDescription = new FontDescription();
 			
-			if(element is Array)
-				element = Vector.<XMLModel>(element);
-			if(element is XMLModel)
-				element = new <XMLModel>[XMLModel(element)];
-			if(element is Vector.<XMLModel>)
-				element = computeStyles(element);
 			if(element)
 			{
 				new EFApplicator().applyStyle(format, element);
@@ -75,22 +77,12 @@ package org.tinytlf.styles
 		
 		override public function describeElement(element:*):Object
 		{
+			if(element is String)
+				element = String(element).split(' ');
 			if(element is Array)
-				element = Vector.<XMLModel>(element);
-			if(element is XMLModel)
-				element = new <XMLModel>[XMLModel(element)];
-			if(element is Vector.<XMLModel>)
-			{
-				var context:Vector.<XMLModel> = Vector.<XMLModel>(element);
-				var obj:IStyleAware = new StyleAwareActor(super.describeElement(context[context.length - 1].name));
-				obj.style = computeStyles(context);
-				
-				return obj;
-			}
-			else
-			{
-				return super.describeElement(element);
-			}
+				return sheet.getStyle.apply(null, element as Array);
+			
+			return super.describeElement(element);
 		}
 		
 		override public function toString():String
@@ -99,85 +91,6 @@ package org.tinytlf.styles
 				return stylesheet;
 			
 			return super.toString();
-		}
-		
-		/**
-		 * Constructs an array of styleNames to pass to F*CSS for style parsing.
-		 * Returns an F*CSS IStyle object.
-		 */
-		protected function computeStyles(context:Vector.<XMLModel>):IStyle
-		{
-			var node:XMLModel;
-			var attr:String;
-			
-			var i:int = 0;
-			var n:int = context.length;
-			
-			var className:String;
-			var idName:String;
-			var uniqueNodeName:String;
-			
-			// initialize to 'a:a' so that F*CSS has something to parse if there
-			// aren't any inline styles.
-			var inlineStyle:String = 'a:a;';
-			//Start with *, because everything inherits from *.
-			var inheritanceStructure:Array = ['*'];
-			
-			var str:String = '';
-			
-			for(i = 0; i < n; i++)
-			{
-				node = context[i];
-				
-				if(node.stylesDirty)
-				{
-					str += node.name;
-					
-					//Math.random() times one trillion. Reasonably safe for unique identification... right? ;)
-					uniqueNodeName = ' ' + node.name + String(Math.round(Math.random() * 100000000000000));
-					
-					for(attr in node)
-					{
-						if(attr == 'class')
-							className = node[attr];
-						else if(attr == 'id')
-							idName = node[attr];
-						else if(attr == 'style')
-							inlineStyle += node[attr];
-						else if(attr == 'cssState' && node[attr] != '')
-							str += ':' + node[attr];
-						else if(attr != 'unique')
-							inlineStyle += (attr + ': ' + node[attr] + ";");
-					}
-					
-					if(className)
-						str += " ." + className;
-					if(idName)
-						str += " #" + idName;
-					if(uniqueNodeName)
-					{
-						str += uniqueNodeName;
-						sheet.parseCSS(uniqueNodeName + '{' + inlineStyle + '}');
-					}
-					
-					node.styleString = str;
-					node.stylesDirty = false;
-				}
-				else
-				{
-					str = node.styleString;
-				}
-				
-				inheritanceStructure = inheritanceStructure.concat(str.split(' '));
-				
-				str = '';
-				className = '';
-				idName = '';
-				uniqueNodeName = '';
-				inlineStyle = 'a:a;';
-			}
-			
-			return sheet.getStyle.apply(null, inheritanceStructure);
 		}
 	}
 }
@@ -244,7 +157,7 @@ internal class FDApplicator extends AbstractApplicator
 		
 		fd.cffHinting = style.cffHinting || CFFHinting.HORIZONTAL_STEM;
 		fd.fontLookup = style.fontLookup || FontLookup.EMBEDDED_CFF;
-		fd.fontName = style.fontName || style.fontfamily || '_sans';
+		fd.fontName = style.fontName || style.fontFamily || '_sans';
 		
 		if('fontStyle' in style)
 			fd.fontPosture = style.fontStyle == FontPosture.ITALIC ? FontPosture.ITALIC : FontPosture.NORMAL;
