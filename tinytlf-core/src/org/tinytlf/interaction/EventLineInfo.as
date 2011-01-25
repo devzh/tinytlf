@@ -13,13 +13,25 @@ package org.tinytlf.interaction
     import org.tinytlf.ITextEngine;
     import org.tinytlf.analytics.ITextEngineAnalytics;
     import org.tinytlf.layout.ITextContainer;
+    import org.tinytlf.util.TinytlfUtil;
     import org.tinytlf.util.fte.TextLineUtil;
 
     public class EventLineInfo
     {
         public static function getInfo(event:Event, eventMirror:EventDispatcher = null):EventLineInfo
         {
-            var line:TextLine = (event.target as TextLine) || (event.currentTarget as TextLine);
+			var container:ITextContainer = event.target as ITextContainer || event.currentTarget as ITextContainer;
+            var line:TextLine;
+			
+			if(container)
+			{
+				var e:ITextEngine = container.engine;
+				
+				if(event is MouseEvent)
+					line = TinytlfUtil.yToTextLine(e, MouseEvent(event).localY);
+				else
+					line = TinytlfUtil.globalIndexToTextLine(e, e.caretIndex);
+			}
 			
             if(line == null)
                 return null;

@@ -13,7 +13,7 @@ package org.tinytlf.interaction
 		
 		override public function getMirror(element:* = null):EventDispatcher
 		{
-			if (element is Array)
+			if(element is Array)
 			{
 				var mirror:EventDispatcher;
 				var copy:Vector.<XMLModel> = Vector.<XMLModel>(element);

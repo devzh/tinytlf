@@ -13,8 +13,7 @@ package org.tinytlf.interaction
 	
 	import org.tinytlf.interaction.behaviors.*;
 	import org.tinytlf.interaction.gestures.IGesture;
-	import org.tinytlf.interaction.gestures.keyboard.*;
-	import org.tinytlf.interaction.gestures.mouse.*;
+	import org.tinytlf.layout.ITextContainer;
 	import org.tinytlf.layout.properties.*;
 	
 	public class GestureInteractor extends TextInteractorBase implements IGestureInteractor
@@ -23,15 +22,23 @@ package org.tinytlf.interaction
 		{
 			if(element is TextLine)
 			{
-				TextLine(element).doubleClickEnabled = true;
+				var line:TextLine = element as TextLine;
+				line.mouseChildren = false;
+				line.mouseEnabled = false;
+				
+//				TextLine(element).doubleClickEnabled = true;
 				//TODO: This is a hack... fix this please.
 				//ps. don't screw it up.
-				if(TextLine(element).getChildByName('lineCatcher') == null)
-				{
-					createBackground(TextLine(element));
-					removeListeners(IEventDispatcher(element));
-					addListeners(IEventDispatcher(element));
-				}
+//				if(TextLine(element).getChildByName('lineCatcher') == null)
+//				{
+//					createBackground(TextLine(element));
+//				}
+			}
+			if(element is ITextContainer)
+			{
+				ITextContainer(element).target.doubleClickEnabled = true;
+				removeListeners(ITextContainer(element).target);
+				addListeners(ITextContainer(element).target);
 			}
 			
 			return super.getMirror(element);
@@ -97,6 +104,7 @@ package org.tinytlf.interaction
 		 * Adds a catcher to the TextLine so that mouse events bubble and can be
 		 * caught by the gestures.
 		 */
+		/*
 		private function createBackground(line:TextLine):void
 		{
 			//Try to guess the original paragraph width.
@@ -131,9 +139,10 @@ package org.tinytlf.interaction
 			
 			var sprite:Sprite = new Sprite();
 			sprite.name = 'lineCatcher';
-			sprite.graphics.beginFill(0x00, 0);
+			sprite.graphics.beginFill(0x00, 0.1);
 			sprite.graphics.drawRect(rect.x, rect.y, rect.width, rect.height);
 			line.addChildAt(sprite, 0);
 		}
+		*/
 	}
 }

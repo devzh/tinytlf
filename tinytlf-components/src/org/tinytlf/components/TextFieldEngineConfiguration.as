@@ -6,6 +6,7 @@ package org.tinytlf.components
 	import org.tinytlf.interaction.*;
 	import org.tinytlf.interaction.behaviors.*;
 	import org.tinytlf.interaction.gestures.*;
+	import org.tinytlf.layout.ITextContainer;
 	import org.tinytlf.layout.factories.*;
 	import org.tinytlf.styles.*;
 	
@@ -29,6 +30,7 @@ package org.tinytlf.components
 			mapDecorations(engine);
 			mapEventMirrors(engine);
 			mapGestures(engine);
+			applyGestures(engine);
 			mapElementAdapters(engine);
 			mapStyles(engine);
 		}
@@ -113,6 +115,14 @@ package org.tinytlf.components
 					mouseTripleDown.removeBehavior(paragraphSelect);
 				}
 			}
+		}
+		
+		protected function applyGestures(engine:ITextEngine):void
+		{
+			var containers:Vector.<ITextContainer> = engine.layout.containers;
+			containers.forEach(function(container:ITextContainer, ...args):void{
+				engine.interactor.getMirror(container);
+			});
 		}
 		
 		protected function mapElementAdapters(engine:ITextEngine):void

@@ -48,6 +48,7 @@ package org.tinytlf.layout
 			_target = doc;
 			
 			foreground = Sprite(target.addChild(fgShapes || new Sprite()));
+			lines = Sprite(target.addChild(lines || new Sprite()));
 			background = Sprite(target.addChildAt(bgShapes || new Sprite(), 0));
 		}
 		
@@ -102,6 +103,27 @@ package org.tinytlf.layout
 				fgShapes.mouseEnabled = false;
 				//But maybe we do want children to receive mouse events?
 				//fgShapes.mouseChildren = false;
+			}
+		}
+		
+		private var lineContainer:Sprite;
+		
+		protected function get lines():Sprite
+		{
+			return lineContainer;
+		}
+		
+		protected function set lines(container:Sprite):void
+		{
+			if(container === lineContainer)
+				return;
+			
+			lineContainer = container;
+			
+			if(lineContainer)
+			{
+				lineContainer.mouseEnabled = true;
+				lineContainer.mouseChildren = false;
 			}
 		}
 		
@@ -320,20 +342,20 @@ package org.tinytlf.layout
 		
 		protected function addLineToTarget(line:TextLine, index:int = 0):TextLine
 		{
-			if(target.contains(line))
+			if(lines.contains(line))
 				return line;
 			
-			index ||= target.numChildren > 1 ? target.numChildren - 1 : 1;
+//			index ||= target.numChildren > 1 ? target.numChildren - 1 : 1;
 			
-			return TextLine(target.addChildAt(line, index));
+			return TextLine(lines.addChildAt(line, index));
 		}
 		
 		protected function removeLineFromTarget(line:TextLine):TextLine
 		{
-			if(!target.contains(line))
+			if(!lines.contains(line))
 				return line;
 			
-			return TextLine(target.removeChild(line));
+			return TextLine(lines.removeChild(line));
 		}
 		
 		protected function getLineIndexFromTarget(line:TextLine):int

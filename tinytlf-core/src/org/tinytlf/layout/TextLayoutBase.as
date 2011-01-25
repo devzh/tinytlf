@@ -82,6 +82,7 @@ package org.tinytlf.layout
 			_containers.push(container);
 			container.engine = engine;
 			container.scrollable = true;
+			engine.interactor.getMirror(container);
 		}
 		
 		public function removeContainer(container:ITextContainer):void
