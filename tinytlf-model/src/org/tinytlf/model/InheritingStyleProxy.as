@@ -1,9 +1,11 @@
 package org.tinytlf.model
 {
+	import flash.text.engine.ElementFormat;
 	import flash.utils.flash_proxy;
 	
 	import org.tinytlf.styles.ITextStyler;
 	import org.tinytlf.styles.StyleAwareActor;
+	import org.tinytlf.util.TinytlfUtil;
 	
 	use namespace flash_proxy;
 	
@@ -90,6 +92,8 @@ package org.tinytlf.model
 			}
 			
 			super.setProperty(name, value);
+			
+			applyStyle(name, value);
 		}
 		
 		override flash_proxy function hasProperty(name:*):Boolean
@@ -172,6 +176,19 @@ package org.tinytlf.model
 			}
 			
 			return str;
+		}
+		
+		private function applyStyle(name:*, value:*):void
+		{
+			if(owner.contentElement == null)
+				return;
+			
+			var ef:ElementFormat = owner.contentElement.elementFormat;
+			var newEf:ElementFormat = owner.engine.styler.getElementFormat(this);;
+			
+			//Replace the ElementFormat only if the values are different.
+			if(TinytlfUtil.compareObjectValues(ef, newEf, {locked:true}) == false)
+				owner.contentElement.elementFormat = ef;
 		}
 	}
 }
