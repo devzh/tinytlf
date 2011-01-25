@@ -34,6 +34,23 @@ package org.tinytlf.interaction.behaviors
 			assignFocus();
 		}
 		
+		override protected function getSelection():Point
+		{
+			var pt:Point = selection;
+			var nextCaret:Point = getAnchor();
+			
+			if(!validSelection)
+				pt = new Point(caret, caret);
+			
+			if(caret <= pt.x)
+				pt.x = nextCaret.x;
+			else if(caret > pt.x)
+				pt.y = nextCaret.x;
+			
+			return pt;
+		}
+		
+		
 		protected function assignFocus():void
 		{
 			var a:ITextEngineAnalytics = engine.analytics;

@@ -15,7 +15,6 @@ package org.tinytlf.interaction.behaviors
 		
 		override protected function getAnchor():Point
 		{
-			var caret:int = engine.caretIndex;
 			var caretAtom:int = TinytlfUtil.globalIndexToAtomIndex(engine, line, caret);
 			var newCaret:int = TextLineUtil.getAtomWordBoundary(line, caretAtom);
 			return new Point(TinytlfUtil.atomIndexToGlobalIndex(engine, line, newCaret), 0);

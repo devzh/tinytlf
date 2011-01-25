@@ -3,6 +3,8 @@ package org.tinytlf.interaction.behaviors
 	import flash.events.KeyboardEvent;
 	import flash.geom.Point;
 	
+	import org.tinytlf.util.TinytlfUtil;
+	
 	public class LeftArrowBehavior extends KeySelectionBehaviorBase
 	{
 		public function LeftArrowBehavior()
@@ -10,27 +12,18 @@ package org.tinytlf.interaction.behaviors
 			super();
 		}
 		
-		override protected function getSelection():Point
-		{
-			var pt:Point = engine.selection.clone();
-			var caret:int = engine.caretIndex;
-			
-			var nextCaret:Point = getAnchor();
-			
-			if(pt.x != pt.x || pt.y != pt.y)
-				pt = new Point(caret, caret);
-			
-			if(caret <= pt.x)
-				pt.x = nextCaret.x;
-			else if(caret > pt.x)
-				pt.y = nextCaret.x;
-			
-			return pt;
-		}
-		
 		override protected function getAnchor():Point
 		{
-			return new Point(engine.caretIndex - 1, 0);
+			var k:KeyboardEvent = event as KeyboardEvent;
+			if(validSelection && !k.shiftKey)
+			{
+				if(caret > selection.x)
+					return new Point(selection.x, 0);
+				
+				return new Point(caret, 0);
+			}
+				
+			return new Point(caret - 1, 0);
 		}
 	}
 }
