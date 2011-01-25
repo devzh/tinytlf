@@ -25,7 +25,7 @@ package org.tinytlf.interaction.behaviors
 			var end:int = TextLineUtil.getAtomWordBoundary(line, atomIndex, false);
 			
 			return new Point(TinytlfUtil.atomIndexToGlobalIndex(engine, line, begin),
-							TinytlfUtil.atomIndexToGlobalIndex(engine, line, end + 1));
+							TinytlfUtil.atomIndexToGlobalIndex(engine, line, end));
 		}
 	}
 }
