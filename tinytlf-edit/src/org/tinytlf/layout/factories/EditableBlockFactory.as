@@ -42,7 +42,7 @@ package org.tinytlf.layout.factories
 			}
 		}
 		
-		private var root:ITLFNodeParent;
+		private var root:ITLFNodeParent = new TLFNode();
 		
 		override protected function generateTextBlock(index:int):TextBlock
 		{
