@@ -1,25 +1,13 @@
 package org.tinytlf.interaction.behaviors
 {
-	import flash.geom.Point;
-	import flash.text.engine.ContentElement;
-	import flash.text.engine.GroupElement;
-	import flash.text.engine.TextBlock;
-	
-	import org.tinytlf.analytics.ITextEngineAnalytics;
-	import org.tinytlf.util.fte.ContentElementUtil;
-	import org.tinytlf.util.fte.TextBlockUtil;
+	import org.tinytlf.model.ITLFNode;
 
-	public class CopyBehavior extends MultiGestureBehavior
+	public class CopyBehavior extends OperationFactoryBehavior
 	{
-		public function CopyBehavior()
-		{
-			super();
-		}
-		
 		[Event("copy")]
 		public function copy():void
 		{
-			var selection:Point = engine.selection;
+			var out:ITLFNode = model.clone(selection.x, selection.y);
 		}
 	}
 }

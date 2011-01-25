@@ -4,41 +4,38 @@ package org.tinytlf.interaction.behaviors
 	import flash.events.KeyboardEvent;
 	import flash.geom.Point;
 	
-	import org.tinytlf.model.ITLFNode;
-
-	public class TextInsertBehavior extends MultiGestureBehavior
+	import org.tinytlf.interaction.operations.*;
+	
+	public class TextInsertBehavior extends OperationFactoryBehavior
 	{
-		public function TextInsertBehavior()
-		{
-			super();
-		}
-		
 		[Event("keyDown")]
 		public function insert(events:Vector.<Event>):void
 		{
-			var model:ITLFNode = engine.layout.textBlockFactory.data as ITLFNode;
-			if(!model)
-				return;
+			var maxCaret:int = NaN;
+			var evt:KeyboardEvent = event as KeyboardEvent;
+			var chars:String = String.fromCharCode(evt.charCode);
 			
-			var selection:Point = engine.selection.clone();
-			var index:int = engine.caretIndex;
+			var op:CompositeOperation = new CompositeOperation();
 			
-			if(selection.x == selection.x && selection.y == selection.y)
+			if(validSelection)
 			{
-				model.remove(selection.x, selection.y);
-				if(index == selection.y)
-					index -= (selection.y - selection.x);
+				op.add(new TextRemoveOperation({start:selection.x, end:selection.y}));
+				
+				if(caret == selection.y)
+					caret -= (selection.y - selection.x);
+				
+				maxCaret = model.length - (selection.y - selection.x);
 			}
 			
-			index = Math.max(model.length, index);
-			var evt:KeyboardEvent = events.pop() as KeyboardEvent;
-			var char:String = String.fromCharCode(evt.charCode);
-			model.insert(char, index);
-			++index;
+			op.add(
+				new TextInsertOperation({start:caret, value:chars, end:caret + 1}),
+				new CaretMoveOperation({caret: ++caret, maxCaret: maxCaret}),
+				new TextSelectionOperation({selection: null})
+			);
 			
-			engine.caretIndex = index;
-			engine.select();
-			engine.invalidate();
+			op.runAtEnd(new InvalidateEngineOperation());
+			
+			initAndExecute(push(op));
 		}
 	}
 }

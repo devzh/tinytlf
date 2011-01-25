@@ -2,33 +2,31 @@ package org.tinytlf.interaction.behaviors
 {
 	import flash.text.engine.TextBlock;
 	
-	import org.tinytlf.model.ITLFNode;
-	import org.tinytlf.model.ITLFNodeParent;
-	import org.tinytlf.util.fte.TextBlockUtil;
+	import org.tinytlf.interaction.operations.*;
+	import org.tinytlf.model.*;
 
-	public class ShiftEnterBehavior extends MultiGestureBehavior
+	public class ShiftEnterBehavior extends OperationFactoryBehavior
 	{
-		public function ShiftEnterBehavior()
-		{
-			super();
-		}
-		
 		[Event("keyDown")]
 		public function down():void
 		{
-			var model:ITLFNodeParent = engine.layout.textBlockFactory.data as ITLFNodeParent;
-			if(!model)
-				return;
+			var op:CompositeOperation = new CompositeOperation();
 			
-			var caret:int = engine.caretIndex;
+			if(validSelection)
+			{
+				op.add(
+					new TextRemoveOperation({start: selection.x, end: selection.y}),
+					new CaretMoveOperation({caret: selection.x + 1}),
+					new TextSelectionOperation({selection: null})
+				);
+			}
 			
-			var index:int = model.getChildIndexAtPosition(caret);
+			var index:int = ITLFNodeParent(model).getChildIndexAtPosition(caret);
 			
-			var child:ITLFNode = model.getChildAt(index);
-			child.split(caret - model.getChildPosition(index));
+			op.add(new SplitParagraphOperation({caret: caret, nodeIndex: index}));
+			op.runAtEnd(new InvalidateEngineOperation());
 			
-			engine.analytics.addBlockAt(new TextBlock(), index + 1);
-			engine.invalidate();
+			initAndExecute(push(op));
 		}
 	}
 }

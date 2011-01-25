@@ -1,10 +1,11 @@
 package org.tinytlf.interaction.behaviors
 {
+	import org.tinytlf.interaction.operations.*;
 	import org.tinytlf.model.ITLFNode;
 	import org.tinytlf.util.TinytlfUtil;
 	import org.tinytlf.util.fte.TextLineUtil;
 
-	public class BackspaceCtrlBehavior extends MultiGestureBehavior
+	public class BackspaceCtrlBehavior extends OperationFactoryBehavior
 	{
 		public function BackspaceCtrlBehavior()
 		{
@@ -14,19 +15,23 @@ package org.tinytlf.interaction.behaviors
 		[Event("keyDown")]
 		public function backspace():void
 		{
-			var model:ITLFNode = engine.layout.textBlockFactory.data as ITLFNode;
-			if(!model)
-				return;
+			var op:CompositeOperation = new CompositeOperation();
 			
-			var index:int = engine.caretIndex;
-			var atomIndex:int = TinytlfUtil.globalIndexToAtomIndex(engine, line, index);
+			//Translate to the local atom index.
+			var atomIndex:int = TinytlfUtil.globalIndexToAtomIndex(engine, line, caret);
+			
+			//Get the previous word boundary
 			var start:int = TextLineUtil.getAtomWordBoundary(line, atomIndex);
-			if(start == atomIndex)
-				start = TextLineUtil.getAtomWordBoundary(line, atomIndex - 1);
 			
-			model.remove(start, atomIndex);
-			engine.caretIndex = TinytlfUtil.atomIndexToGlobalIndex(engine, line, start);
-			engine.invalidate();
+			op.add(
+				new TextRemoveOperation({start:start, end: caret}),
+				new CaretMoveOperation({caret: TinytlfUtil.atomIndexToGlobalIndex(engine, line, start)}),
+				new TextSelectionOperation({selection: null})
+			);
+			
+			op.runAtEnd(new InvalidateEngineOperation());
+			
+			initAndExecute(push(op));
 		}
 	}
 }

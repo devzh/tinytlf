@@ -3,23 +3,20 @@ package org.tinytlf.interaction.behaviors
 	import flash.geom.Point;
 	
 	import org.tinytlf.interaction.operations.*;
-	import org.tinytlf.model.ITLFNode;
 
-	public class BackspaceBehavior extends OperationFactoryBehavior
+	public class DeleteBehavior extends OperationFactoryBehavior
 	{
 		[Event("keyDown")]
-		public function backspace():void
+		public function deleteChars():void
 		{
 			var op:CompositeOperation = new CompositeOperation();
 			
 			if(!validSelection)
-				selection = new Point(--caret, caret + 1);
-			else
-				caret = selection.x;
+				selection = new Point(caret, caret + 1);
 			
 			op.add(
 				new TextRemoveOperation({start:selection.x, end:selection.y}),
-				new CaretMoveOperation({caret: caret}),
+				new CaretMoveOperation({caret: selection.x + 1}),
 				new TextSelectionOperation({selection: null})
 			);
 			
