@@ -16,7 +16,7 @@ package org.tinytlf.util.fte
 		{
 			var index:int = line.getAtomIndexAtPoint(stageCoords.x, stageCoords.y);
 			
-			if (index < 0)
+			if(index < 0)
 			{
 				var bounds:Rectangle = line.getBounds(line.stage);
 				var center:Point = bounds.topLeft.clone();
@@ -24,7 +24,7 @@ package org.tinytlf.util.fte
 				
 				if(stageCoords.y < bounds.y)
 					return 0;
-				if(stageCoords.y > bounds.y && 
+				if(stageCoords.y > bounds.y &&
 					stageCoords.y < bounds.y + bounds.height)
 					return line.atomCount;
 				
@@ -58,11 +58,11 @@ package org.tinytlf.util.fte
 		
 		/**
 		 * Finds the next/prev word boundary specified by the direction and the
-		 * boundaryPattern. If no boundary pattern is specified, the default 
+		 * boundaryPattern. If no boundary pattern is specified, the default
 		 * is used, which matches non-word characters or graphic characters.
 		 */
-		public static function getAtomWordBoundary(line:TextLine, atomIndex:int, 
-												   left:Boolean = true, boundaryPattern:RegExp = null):int
+		public static function getAtomWordBoundary(line:TextLine, atomIndex:int,
+			left:Boolean = true, boundaryPattern:RegExp = null):int
 		{
 			if(!boundaryPattern)
 				boundaryPattern = defaultWordBoundaryPattern;
@@ -75,29 +75,30 @@ package org.tinytlf.util.fte
 			var rawText:String = line.textBlock.content.rawText;
 			var adjustedIndex:int = line.getAtomTextBlockBeginIndex(atomIndex);
 			
-			if(nonWordPattern.test(rawText.charAt(adjustedIndex)))
+			// If the index is already at a word boundary,
+			// move to find the next word boundary.
+			while(nonWordPattern.test(rawText.charAt(adjustedIndex)))
 			{
-				return atomIndex;
+				adjustedIndex += left ? -1 : 1;
+				atomIndex += left ? -1 : 1;
 			}
-			else
+			
+			var text:String = left ?
+				rawText.slice(0, adjustedIndex).split("").reverse().join("") :
+				rawText.slice(adjustedIndex, rawText.length);
+			
+			var match:Array = boundaryPattern.exec(text);
+			if(match)
 			{
-				var text:String = left ?
-					rawText.slice(0, adjustedIndex).split("").reverse().join("") :
-					rawText.slice(adjustedIndex, rawText.length);
-				
-				var match:Array = boundaryPattern.exec(text);
-				if(match)
-				{
-					var str:String = String(match[0]);
-					atomIndex += nonWordPattern.test(str) ? 0 : str.length * (left ? -1 : 1);
-				}
+				var str:String = String(match[0]);
+				atomIndex += nonWordPattern.test(str) ? 0 : str.length * (left ? -1 : 1);
 			}
 			
 			return Math.max(atomIndex, 0);
 		}
 		
 		/**
-		 * Recursively drills down into the ContentElement of the TextLine's 
+		 * Recursively drills down into the ContentElement of the TextLine's
 		 * TextBlock to return the leaf element at the specified atomIndex.
 		 */
 		public static function getElementAtAtomIndex(line:TextLine, atomIndex:int):ContentElement
@@ -129,7 +130,7 @@ package org.tinytlf.util.fte
 		}
 		
 		/**
-		 * Returns a Vector of ContentElements which are rendered in this 
+		 * Returns a Vector of ContentElements which are rendered in this
 		 * TextLine. This can only return the elements that have specified
 		 * eventMirrors, so it's not guaranteed to be every ContentElement,
 		 * and the elements won't necessarily be in order.
@@ -199,6 +200,7 @@ package org.tinytlf.util.fte
 		}
 		
 		private static const lines:Vector.<TextLine> = new <TextLine>[];
+		
 		public static function checkIn(line:TextLine):void
 		{
 			cleanLine(line);
