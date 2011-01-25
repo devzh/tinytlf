@@ -27,6 +27,20 @@ package org.tinytlf.util
 			return globalIndex - blockStart - line.textBlockBeginIndex;
 		}
 		
+		public static function globalIndexToTextLine(engine:ITextEngine, globalIndex:int):TextLine
+		{
+			var a:ITextEngineAnalytics = engine.analytics;
+			var block:TextBlock = a.blockAtContent(globalIndex);
+			
+			if(globalIndex >= a.contentLength)
+			{
+				block = a.getBlockAt(a.numBlocks - 1);
+				--globalIndex;
+			}
+			
+			return block.getTextLineAtCharIndex(globalIndex - a.blockContentStart(block));
+		}
+		
 		public static function globalIndexToAtomBounds(engine:ITextEngine, globalIndex:int):Rectangle
 		{
 			var a:ITextEngineAnalytics = engine.analytics;
@@ -73,6 +87,40 @@ package org.tinytlf.util
 			return a.blockContentStart(b) + l.textBlockBeginIndex + atomIndex;
 		}
 		
+		public static function yToTextLine(engine:ITextEngine, y:Number):TextLine
+		{
+			var a:ITextEngineAnalytics = engine.analytics;
+			var b:TextBlock = a.blockAtPixel(engine.scrollPosition + y);
+			
+			if(!b)
+			{
+				if(y < 0)
+					return a.getBlockAt(0).firstLine;
+				
+				return null;
+			}
+			
+			var l:TextLine = b.firstLine;
+			var lp:LayoutProperties = getLP(b);
+			var h:Number = a.blockPixelStart(b) + lp.paddingTop;
+			
+			while(l)
+			{
+				h += l.ascent;
+				
+				if(h >= y)
+					break;
+				
+				h += l.descent + lp.leading;
+				l = l.nextLine;
+			}
+			
+			if(!l && h <= lp.y + lp.height + lp.paddingBottom)
+				l = b.lastLine;
+			
+			return l;
+		}
+		
 		private static var mac:Boolean = (/mac/i).test(Capabilities.os);
 		
 		/**
@@ -84,6 +132,11 @@ package org.tinytlf.util
 		public static function isMac():Boolean
 		{
 			return mac;
+		}
+		
+		public static function validPoint(p:Point):Boolean
+		{
+			return p.x == p.x && p.y == p.y;
 		}
 		
 		/**
