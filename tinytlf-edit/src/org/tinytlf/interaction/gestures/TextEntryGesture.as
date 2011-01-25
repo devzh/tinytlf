@@ -18,6 +18,10 @@ package org.tinytlf.interaction.gestures
 			var char:String = String.fromCharCode(event.charCode);
 			var result:Boolean = char != '' && event.charCode;
 			result &&= !(event.keyCode == Keyboard.ENTER && event.shiftKey);
+			result &&= !event.ctrlKey;
+			result &&= !(event.keyCode == Keyboard.DELETE);
+			result &&= !(event.keyCode == Keyboard.BACKSPACE);
+			
 			return result;
 		}
 	}
