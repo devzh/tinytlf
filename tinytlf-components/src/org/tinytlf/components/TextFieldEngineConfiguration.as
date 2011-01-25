@@ -1,19 +1,11 @@
 package org.tinytlf.components
 {
-	import flash.ui.Mouse;
-	
 	import org.tinytlf.*;
 	import org.tinytlf.decor.*;
 	import org.tinytlf.decor.selection.*;
 	import org.tinytlf.interaction.*;
 	import org.tinytlf.interaction.behaviors.*;
-	import org.tinytlf.interaction.behaviors.focus.FocusBehavior;
-	import org.tinytlf.interaction.behaviors.mouse.*;
-	import org.tinytlf.interaction.behaviors.selection.*;
-	import org.tinytlf.interaction.behaviors.selection.mouse.*;
-	import org.tinytlf.interaction.gestures.keyboard.*;
-	import org.tinytlf.interaction.gestures.keyboard.arrows.*;
-	import org.tinytlf.interaction.gestures.mouse.*;
+	import org.tinytlf.interaction.gestures.*;
 	import org.tinytlf.layout.factories.*;
 	import org.tinytlf.styles.*;
 	
@@ -75,8 +67,8 @@ package org.tinytlf.components
 			if (!selectable)
 				decor.unMapDecoration("selection");
 			
-			if (!editable)
-				decor.unMapDecoration("caret");
+//			if (!editable)
+//				decor.unMapDecoration("caret");
 		}
 		
 		protected function mapEventMirrors(engine:ITextEngine):void
