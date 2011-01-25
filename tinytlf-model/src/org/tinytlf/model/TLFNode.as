@@ -184,6 +184,11 @@ package org.tinytlf.model
 			children[index2] = child1;
 		}
 		
+		public function getLeaf(at:int):ITLFNode
+		{
+			return impl.getLeaf(at);
+		}
+		
 		private function checkRange(index:int):void
 		{
 			if(index < 0 || index > numChildren)
@@ -265,15 +270,9 @@ package org.tinytlf.model
 			return impl.merge(start, end);
 		}
 		
-		public function clone():ITLFNode
+		public function clone(start:int = 0, end:int = int.MAX_VALUE):ITLFNode
 		{
-			var node:TLFNode = new TLFNode();
-			applyTo(node);
-			
-			for(var i:int = 0, n:int = numChildren; i < n; i += 1)
-				node.addChild(getChildAt(i).clone());
-			
-			return node;
+			return impl.clone(start, end);
 		}
 		
 		override public function toString():String
@@ -415,7 +414,12 @@ internal class NodeImpl extends StyleAwareActor implements ITLFNodeParent
 		return null;
 	}
 	
-	public function clone():ITLFNode
+	public function clone(start:int = 0, end:int = int.MAX_VALUE):ITLFNode
+	{
+		return null;
+	}
+	
+	public function getLeaf(at:int):ITLFNode
 	{
 		return null;
 	}
@@ -597,8 +601,6 @@ internal class ContainerImpl extends NodeImpl implements ITLFNode
 			position += tmp;
 		}
 		
-		prune();
-		
 		return this;
 	}
 	
@@ -608,32 +610,7 @@ internal class ContainerImpl extends NodeImpl implements ITLFNode
 			return this;
 		
 		var index:int = getChildIndexAtPosition(at);
-		var position:int = getChildPosition(index);
-		var child:ITLFNode = ITLFNode(getChildAt(index));
-		
-		if(numChildren > 1)
-		{
-			return child.split(at - position);
-		}
-		else
-		{
-			index = parent.getChildIndex(owner);
-			
-			var p:ITLFNodeParent = parent;
-			p.removeChildAt(index);
-			
-			child.split(at - position);
-			
-			var node:ITLFNodeParent = p.addChildAt(new TLFNode(), index) as ITLFNodeParent;
-			node.addChild(getChildAt(0));
-			node.name = name;
-			
-			node = p.addChildAt(new TLFNode(), index + 1) as ITLFNodeParent;
-			node.addChild(getChildAt(0));
-			node.name = name;
-			
-			return p;
-		}
+		return getChildAt(index).split(at - getChildPosition(index));
 	}
 	
 	override public function merge(start:int, end:int):ITLFNode
@@ -645,32 +622,55 @@ internal class ContainerImpl extends NodeImpl implements ITLFNode
 		if(end > len)
 			end = len;
 		
+		split(start);
+		split(end);
+		
 		var index:int = getChildIndexAtPosition(start);
+		var node:ITLFNode = getLeaf(index);
+		node.merge(start, end);
+		
 		var endIndex:int = getChildIndexAtPosition(end);
-		var position:int = getChildPosition(index);
-		var child:ITLFNode = getChildAt(index);
-		var firstChild:ITLFNode = child;
-		var mergedKids:Vector.<ITLFNode> = new <ITLFNode>[];
-		child.merge(start - position, end);
-		position += child.length;
+		++index;
 		
-		while(++index <= endIndex)
+		while(index < endIndex)
 		{
-			child = getChildAt(index);
-			position += child.length;
-			child.merge(0, end - position);
-			firstChild.insert(child.text, firstChild.length);
-			mergedKids.push(child);
+			node.insert(getChildAt(index).text, node.length);
+			removeChildAt(index);
+			--endIndex;
 		}
-		
-		removeChildren(mergedKids);
 		
 		return this;
 	}
 	
-	override public function clone():ITLFNode
+	override public function clone(start:int = 0, end:int = int.MAX_VALUE):ITLFNode
 	{
-		return null;
+		if(start < 0)
+			start = 0;
+		
+		var len:int = length;
+		if(end > len)
+			end = len;
+		
+		var node:TLFNode = new TLFNode();
+		node.name = owner.name;
+		applyTo(node);
+		
+		var index:int = getChildIndexAtPosition(start);
+		var pos:int = getChildPosition(index);
+		
+		while(end > pos && index < numChildren)
+		{
+			node.addChild(getChildAt(index).clone(start - pos, end - pos));
+			pos = getChildPosition(++index);
+		}
+		
+		return node;
+	}
+	
+	override public function getLeaf(at:int):ITLFNode
+	{
+		var index:int = getChildIndexAtPosition(at);
+		return getChildAt(index).getLeaf(at - getChildPosition(index));
 	}
 	
 	private function prune():void
@@ -773,7 +773,12 @@ internal class LeafImpl extends NodeImpl implements ITLFNode
 			end = length;
 		
 		if(start == 0 && end == length)
+		{
 			_text = '';
+			parent.removeChild(owner);
+			contentElement = null;
+			return parent;
+		}
 		
 		_text = text.substring(0, start) + text.substring(end);
 		
@@ -785,20 +790,20 @@ internal class LeafImpl extends NodeImpl implements ITLFNode
 	
 	override public function split(at:int):ITLFNode
 	{
-		var s1:String = text.substring(0, at);
-		var s2:String = text.substring(at);
 		if(parent)
 		{
-			const index:int = parent.getChildIndex(owner);
-			parent.addChildAt(new TLFNode(s2), index + 1)
-			parent.addChildAt(new TLFNode(s1), index + 1);
-			parent.removeChildAt(index);
+			var index:int = parent.getChildIndex(owner);
+			_text = text.substring(0, at);
+			parent.addChildAt(clone(at), index + 1);
+			return parent;
 		}
 		else
 		{
-			owner.addChildren(new <ITLFNode>[new TLFNode(s1), new TLFNode(s2)]);
+			owner.addChildren(new <ITLFNode>[owner.clone(0, at), owner.clone(at)]);
+			return owner;
 		}
-		return owner;
+		
+		return null;
 	}
 	
 	override public function merge(start:int, end:int):ITLFNode
@@ -806,8 +811,17 @@ internal class LeafImpl extends NodeImpl implements ITLFNode
 		return parent;
 	}
 	
-	override public function clone():ITLFNode
+	override public function clone(start:int = 0, end:int = int.MAX_VALUE):ITLFNode
 	{
-		return null;
+		var node:TLFNode = new TLFNode(text.substring(start, end));
+		node.name = owner.name;
+		applyTo(node);
+		
+		return node;
+	}
+	
+	override public function getLeaf(at:int):ITLFNode
+	{
+		return owner;
 	}
 }

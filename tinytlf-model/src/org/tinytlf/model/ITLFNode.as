@@ -91,6 +91,11 @@ package org.tinytlf.model
 		/**
 		 * Creates and returns a copy of this ITextNode.
 		 */
-		function clone():ITLFNode;
+		function clone(start:int = 0, end:int = int.MAX_VALUE):ITLFNode;
+		
+		/**
+		 * Returns the lowest level leaf node at the specified position.
+		 */
+		function getLeaf(at:int):ITLFNode;
 	}
 }

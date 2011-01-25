@@ -74,6 +74,5 @@ package org.tinytlf.model
 		 * Swaps the positions of the specified children.
 		 */
 		function swapChildren(child1:ITLFNode, child2:ITLFNode):void;
-		
 	}
 }
