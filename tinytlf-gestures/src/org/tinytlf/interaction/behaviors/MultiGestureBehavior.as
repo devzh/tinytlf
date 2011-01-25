@@ -1,6 +1,7 @@
 package org.tinytlf.interaction.behaviors
 {
 	import flash.events.Event;
+	import flash.geom.Point;
 	
 	import org.tinytlf.util.TinytlfUtil;
 
@@ -33,8 +34,14 @@ package org.tinytlf.interaction.behaviors
 			}
 		}
 		
+		protected var selection:Point;
+		protected var caret:int;
+		
 		override protected function act(events:Vector.<Event>):void
 		{
+			selection = engine.selection.clone();
+			caret = engine.caretIndex;
+			
 			var type:String = event.type;
 			if(type in types)
 				types[type].length ? types[type](events) : types[type]();
@@ -47,6 +54,11 @@ package org.tinytlf.interaction.behaviors
 		protected function defaultAction(events:Vector.<Event>):void
 		{
 //			trace('default action occurred on ' + this['constructor'].toString());
+		}
+		
+		protected function get validSelection():Boolean
+		{
+			return selection.x == selection.x && selection.y == selection.y;
 		}
 	}
 }
