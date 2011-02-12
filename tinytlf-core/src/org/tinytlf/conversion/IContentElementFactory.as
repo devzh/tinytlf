@@ -4,7 +4,7 @@
  * Permission is hereby granted to use, modify, and distribute this file
  * in accordance with the terms of the license agreement accompanying it.
  */
-package org.tinytlf.layout.factories
+package org.tinytlf.conversion
 {
     import flash.text.engine.ContentElement;
     
