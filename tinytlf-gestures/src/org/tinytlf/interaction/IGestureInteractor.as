@@ -6,7 +6,7 @@
 */
 package org.tinytlf.interaction
 {
-	import org.tinytlf.interaction.gestures.IGesture;
+	import org.tinytlf.gestures.IGesture;
 
     public interface IGestureInteractor extends ITextInteractor
     {

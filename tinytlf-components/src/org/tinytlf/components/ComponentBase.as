@@ -1,6 +1,5 @@
 package org.tinytlf.components
 {
-	import flash.display.DisplayObject;
 	import flash.display.Sprite;
 	
 	[Exclude(name="$width", kind="property")]

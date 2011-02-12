@@ -29,9 +29,7 @@ package org.tinytlf.gestures
 		
 		public function drag(event:MouseEvent):Boolean
 		{
-			go = go && event.buttonDown;
-			
-			return go && event.type == MouseEvent.MOUSE_MOVE;
+			return go && event.buttonDown && event.type == MouseEvent.MOUSE_MOVE;
 		}
 		
 		public function down(event:MouseEvent):Boolean
@@ -40,11 +38,6 @@ package org.tinytlf.gestures
 		}
 		
 		private var go:Boolean = false;
-		
-		public function down2(event:MouseEvent):Boolean
-		{
-			return event.type == MouseEvent.MOUSE_DOWN;
-		}
 		
 		public function down3(event:MouseEvent):Boolean
 		{
@@ -66,14 +59,7 @@ package org.tinytlf.gestures
 		
 		override protected function testNotifiable(state:XML):Boolean
 		{
-			var result:Boolean = super.testNotifiable(state);
-			
-			if(!result)
-				return false;
-			
-			result = go;
-			
-			return result;
+			return super.testNotifiable(state) && go;
 		}
 	}
 }

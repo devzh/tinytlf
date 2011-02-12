@@ -4,9 +4,9 @@ package org.tinytlf.interaction
 	import flash.text.engine.TextLine;
 	import flash.ui.*;
 	
-	import org.tinytlf.interaction.operations.ITextOperation;
+	import org.tinytlf.operations.ITextOperation;
 	
-	public class EditInteractor extends CascadingTextInteractor implements IEditInteractor
+	public class EditInteractor extends GestureInteractor implements IEditInteractor
 	{
 		public function EditInteractor()
 		{
@@ -77,7 +77,7 @@ package org.tinytlf.interaction
 		}
 	}
 }
-import org.tinytlf.interaction.operations.ITextOperation;
+import org.tinytlf.operations.ITextOperation;
 import org.tinytlf.model.ITLFNode;
 
 internal class NullOperation implements ITextOperation

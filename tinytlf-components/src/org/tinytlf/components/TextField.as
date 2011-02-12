@@ -38,7 +38,7 @@ package org.tinytlf.components
         {
             if(height === value)
                 return;
-            
+			
             super.height = value;
 			container.height = value;
 			scrollPosition = scrollPosition;
@@ -73,6 +73,21 @@ package org.tinytlf.components
 			
 			engine.configuration = _configuration;
 			engine.invalidate();
+		}
+		
+		private var _editable:Boolean = false;
+		public function get editable():Boolean
+		{
+			return _editable;
+		}
+		
+		public function set editable(value:Boolean):void
+		{
+			if(value === editable)
+				return;
+			
+			_editable = value;
+			configuration = new TextFieldEngineConfiguration(selectable, editable);
 		}
         
         private var _engine:ITextEngine;
@@ -150,7 +165,7 @@ package org.tinytlf.components
 				return;
 			
 			_selectable = value;
-			configuration = new TextFieldEngineConfiguration(selectable, false);
+			configuration = new TextFieldEngineConfiguration(selectable, editable);
 		}
         
         private var _text:String = "";
@@ -165,7 +180,7 @@ package org.tinytlf.components
                 return;
             
             _text = value;
-            engine.layout.textBlockFactory.data = _text;
+            engine.blockFactory.data = _text;
             engine.invalidate();
         }
 		

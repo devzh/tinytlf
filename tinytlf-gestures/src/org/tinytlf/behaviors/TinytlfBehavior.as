@@ -15,9 +15,12 @@ package org.tinytlf.behaviors
 		protected var contentElement:ContentElement;
 		protected var mirrorRegion:TextLineMirrorRegion;
 		
-		override protected function act(events:Vector.<Event>):void
+		override public function activate(events:Vector.<Event>):void
 		{
-			super.act(events);
+			if(events.length <= 0)
+				return;
+			
+			finalEvent = events[events.length - 1];
 			
 			const info:EventLineInfo = EventLineInfo.getInfo(finalEvent);
 			
@@ -29,6 +32,8 @@ package org.tinytlf.behaviors
 			container = info.container;
 			mirrorRegion = info.mirrorRegion;
 			contentElement = info.element;
+			
+			act(events);
 		}
 	}
 }

@@ -11,8 +11,8 @@ package org.tinytlf.interaction
 	import flash.geom.Rectangle;
 	import flash.text.engine.*;
 	
-	import org.tinytlf.interaction.behaviors.*;
-	import org.tinytlf.interaction.gestures.IGesture;
+	import org.tinytlf.behaviors.*;
+	import org.tinytlf.gestures.IGesture;
 	import org.tinytlf.layout.ITextContainer;
 	import org.tinytlf.layout.properties.*;
 	
@@ -48,7 +48,7 @@ package org.tinytlf.interaction
 		{
 			for each(var gesture:IGesture in gestures)
 			{
-				gesture.spurn(target);
+				gesture.removeSource(target);
 			}
 		}
 		
@@ -56,7 +56,7 @@ package org.tinytlf.interaction
 		{
 			for each(var gesture:IGesture in gestures)
 			{
-				gesture.hearken(target);
+				gesture.addSource(target);
 			}
 		}
 		

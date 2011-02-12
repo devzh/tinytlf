@@ -1,6 +1,6 @@
 package org.tinytlf.interaction
 {
-	import org.tinytlf.interaction.operations.ITextOperation;
+	import org.tinytlf.operations.ITextOperation;
 
 	public interface IEditInteractor extends ITextInteractor
 	{

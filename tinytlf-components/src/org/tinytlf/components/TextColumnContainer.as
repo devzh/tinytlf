@@ -24,6 +24,8 @@ package org.tinytlf.components
 		{
 			super();
 			
+			focusRect = false;
+			
 			container = new ConstraintTextContainer(this, 100);
 		}
 		
@@ -189,6 +191,8 @@ package org.tinytlf.components
 			{
 				dispatchEvent(new Event('initScrollBar', true, true));
 			}
+			
+			drawBackground();
 		}
 		
 		public function layout(block:TextBlock, line:TextLine):TextLine
@@ -249,6 +253,17 @@ package org.tinytlf.components
 		public function removeConstraint(constraint:ITextConstraint):void
 		{
 			container.removeConstraint(constraint);
+		}
+		
+		private function drawBackground():void
+		{
+			var g:Graphics = graphics;
+			g.clear();
+			g.lineStyle();
+			g.beginFill(0x00, 0.1);
+			g.drawRect(0, 0, 
+				explicitWidth || measuredWidth || width, 
+				explicitHeight || measuredHeight || height);
 		}
 	}
 }
