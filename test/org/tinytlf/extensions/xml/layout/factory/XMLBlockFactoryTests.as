@@ -35,9 +35,9 @@ package org.tinytlf.extensions.xml.layout.factory
         public function paragraph_node_creates_one_text_block():void
         {
             trace('break here');
-            engine.layout.textBlockFactory.data = "<p>Text</p>";
+            engine.blockFactory.data = "<p>Text</p>";
             engine.prerender();
-            var blocks:Vector.<TextBlock> = engine.layout.textBlockFactory.blocks;
+            var blocks:Vector.<TextBlock> = engine.blockFactory.blocks;
             assertThat(blocks.length == 1);
         }
     }

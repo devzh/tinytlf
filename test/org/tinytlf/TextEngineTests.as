@@ -16,10 +16,10 @@ package org.tinytlf
     
     import org.flexunit.async.Async;
     import org.fluint.uiImpersonation.UIImpersonator;
+    import org.tinytlf.conversion.*;
     import org.tinytlf.decor.*;
     import org.tinytlf.interaction.*;
     import org.tinytlf.layout.*;
-    import org.tinytlf.layout.factories.*;
     import org.tinytlf.styles.*;
     
     public class TextEngineTests
@@ -70,7 +70,7 @@ package org.tinytlf
         [Test]
         public function engine_has_default_block_factory():void
         {
-            var factory:ITextBlockFactory = engine.layout.textBlockFactory;
+            var factory:ITextBlockFactory = engine.blockFactory;
             
             Assert.assertTrue(factory is TextBlockFactoryBase);
         }
@@ -216,7 +216,7 @@ package org.tinytlf
         {
             var target:Sprite = new Sprite();
             engine.layout.addContainer(new TextContainerBase(target, 100));
-            engine.layout.textBlockFactory.data = "Let's test this shit.";
+            engine.blockFactory.addBlocks("Let's test this shit.");
             engine.invalidate();
             engine.render();
         }

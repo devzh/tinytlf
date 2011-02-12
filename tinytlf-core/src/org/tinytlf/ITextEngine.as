@@ -10,6 +10,7 @@ package org.tinytlf
     import flash.geom.Point;
     
     import org.tinytlf.analytics.ITextEngineAnalytics;
+    import org.tinytlf.conversion.ITextBlockFactory;
     import org.tinytlf.decor.ITextDecor;
     import org.tinytlf.interaction.ITextInteractor;
     import org.tinytlf.layout.ITextLayout;
@@ -44,6 +45,13 @@ package org.tinytlf
 		 */
         function get analytics():ITextEngineAnalytics;
         function set analytics(textAnalytics:ITextEngineAnalytics):void;
+		
+		/**
+		 * The ILayoutFactoryMap for tinytlf. This object accepts arbitrary data
+		 * and converts it into Flash Text Engine ContentElements and TextBlocks.
+		 */
+		function get blockFactory():ITextBlockFactory;
+		function set blockFactory(value:ITextBlockFactory):void;
 		
 		/**
 		 * The index of the selection caret for the engine.

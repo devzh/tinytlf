@@ -7,10 +7,10 @@
 package org.tinytlf.layout
 {
 	import flash.text.engine.*;
-	import flash.utils.Dictionary;
 	
 	import org.tinytlf.ITextEngine;
-	import org.tinytlf.layout.factories.*;
+	import org.tinytlf.analytics.ITextEngineAnalytics;
+	import org.tinytlf.conversion.ITextBlockFactory;
 	import org.tinytlf.layout.properties.*;
 	import org.tinytlf.util.TinytlfUtil;
 	import org.tinytlf.util.fte.TextBlockUtil;
@@ -30,26 +30,6 @@ package org.tinytlf.layout
 				return;
 			
 			_engine = textEngine;
-		}
-		
-		protected var _textBlockFactory:ITextBlockFactory;
-		
-		public function get textBlockFactory():ITextBlockFactory
-		{
-			if(!_textBlockFactory)
-				textBlockFactory = new TextBlockFactoryBase();
-			
-			return _textBlockFactory;
-		}
-		
-		public function set textBlockFactory(value:ITextBlockFactory):void
-		{
-			if(value === _textBlockFactory)
-				return;
-			
-			_textBlockFactory = value;
-			
-			_textBlockFactory.engine = engine;
 		}
 		
 		/**
@@ -112,53 +92,51 @@ package org.tinytlf.layout
 		
 		/**
 		 * Renders all the TextLines from the list of TextBlocks into this
-		 * layout's ITextContainers.
+		 * layout's ITextContainers. Stops when it runs out of TextBlocks or
+		 * runs out of space.
 		 */
 		public function render():void
 		{
 			if(!containers || !containers.length)
 				return;
 			
-			totalBlockHeight = 0;
-			
 			containers.forEach(function(c:ITextContainer, ... args):void{
 				c.preLayout();
 			});
 			
-			textBlockFactory.beginRender();
+			var factory:ITextBlockFactory = engine.blockFactory;
+			var analytics:ITextEngineAnalytics = engine.analytics;
 			
-			var blockIndex:int = engine.analytics.indexAtPixel(engine.scrollPosition);
+			var blockIndex:int = analytics.indexAtPixel(engine.scrollPosition);
 			blockIndex = blockIndex <= 0 ? 0 : blockIndex;
-			var block:TextBlock = textBlockFactory.getTextBlock(blockIndex);
+			
+			var block:TextBlock = factory.getTextBlock(blockIndex);
 			var container:ITextContainer = containers[0];
+			
+			beginRender(blockIndex);
 			
 			while(block && container)
 			{
 				container = renderBlockAcrossContainers(block, container);
 				
-				textBlockFactory.cacheVisibleBlock(block);
+				cacheBlock(block, blockIndex);
 				
 				block.releaseLineCreationData();
 				
-				// Only call nextBlock if there's a container.
-				// Don't want to cause unnecessary processing if there's no
-				// place to render the lines.
+				// Only get the next block if there's a container.
 				if(container)
 				{
-					block = textBlockFactory.getTextBlock(++blockIndex);
+					block = factory.getTextBlock(++blockIndex);
 				}
 			}
 			
-			textBlockFactory.endRender();
+			endRender(blockIndex);
 			
 			containers.forEach(function(c:ITextContainer, ... args):void{
 				c.postLayout();
 			});
-			
-			totalBlockHeight = 0;
 		}
 		
-		protected var totalBlockHeight:Number = 0;
 		/**
 		 * Renders all the lines from the input TextBlock into the containers,
 		 * starting from the container specified by <code>startContainer</code>.
@@ -172,62 +150,92 @@ package org.tinytlf.layout
 		protected function renderBlockAcrossContainers(block:TextBlock, 
 													   startContainer:ITextContainer):ITextContainer
 		{
-			if(!containers || !containers.length)
-				return startContainer;
+			// If it's an invalid block that's already been rendered, re-render
+			// the damaged lines across multiple containers
+			if(TextBlockUtil.isInvalid(block) && block.firstLine)
+				return renderInvalidLines(block, startContainer);
 			
-			var container:ITextContainer = startContainer;
+			// If it's never been rendered, render all the lines across the
+			// containers.
+			// 
+			// Or if the block is 100% valid, still call the ITC's layout 
+			// method, but it should be smart enough to skip lines from this
+			// textblock.
+			
+			return renderAllLines(block, startContainer);
+		}
+		
+		protected function renderInvalidLines(block:TextBlock, container:ITextContainer):ITextContainer
+		{
+			// Check if there's any lines we need to render at the end
+			// of the TextBlock.
+			// Note: not sure if this case actually happens...
+			if(block.firstLine && !block.firstInvalidLine)
+			{
+				return renderLines(block, block.lastLine, container);
+			}
+			// Otherwise re-render the invalid lines.
+			else if(block.firstInvalidLine)
+			{
+				return renderLines(block, block.firstInvalidLine.previousLine, container);
+			}
+			
+			return container;
+		}
+		
+		protected function renderAllLines(block:TextBlock, container:ITextContainer):ITextContainer
+		{
+			return renderLines(block, null, container);
+		}
+		
+		protected function renderLines(block:TextBlock, 
+									   previousLine:TextLine, 
+									   container:ITextContainer):ITextContainer
+		{
 			var containerIndex:int = containers.indexOf(container);
-			
-			var line:TextLine;
-			
-			if(TextBlockUtil.isInvalid(block))
-			{
-				if(block.firstLine && !block.firstInvalidLine)
-				{
-					// Check if there's any lines we need to render at the end
-					// of the TextBlock.
-					line = container.layout(block, block.lastLine);
-				}
-				else
-				{
-					// Otherwise re-render the invalid lines.
-					if(block.firstInvalidLine)
-					{
-						line = container.layout(block, block.firstInvalidLine.previousLine);
-					}
-					else
-					{
-						//re-render ALL the lines.
-						line = container.layout(block, null);
-					}
-				}
-			}
-			else
-			{
-				line = container.layout(block, null);
-			}
-			
-			var lp:LayoutProperties = TinytlfUtil.getLP(block);
+			var line:TextLine = container.layout(block, previousLine);
 			
 			while(line)
 			{
 				if(++containerIndex < containers.length)
-				{
-					lp.y = Math.max(lp.y - totalBlockHeight, 0);
 					container = containers[containerIndex];
-				}
 				else
-				{
-					container = null;
-					break;
-				}
+					return null;
 				
 				line = container.layout(block, line);
 			}
 			
-			totalBlockHeight = lp.y;
-			
 			return container;
+		}
+		
+		protected function beginRender(startIndex:int):void
+		{
+			var a:ITextEngineAnalytics = engine.analytics;
+			
+			//Uncache the TextBlocks that exist before the startIndex
+			for(var i:int = 0; i < startIndex; i += 1)
+			{
+				a.removeBlockAt(i);
+			}
+		}
+		
+		protected function cacheBlock(block:TextBlock, index:int):void
+		{
+			var lp:LayoutProperties = TinytlfUtil.getLP(block);
+			var size:Number = lp.paddingTop + lp.height + lp.paddingBottom;
+			
+			engine.analytics.addBlockAt(block, index, size);
+		}
+		
+		protected function endRender(lastIndex:int):void
+		{
+			var a:ITextEngineAnalytics = engine.analytics;
+			
+			//Uncache any blocks after the end index.
+			for(var n:int = engine.blockFactory.numBlocks; lastIndex < n; lastIndex += 1)
+			{
+				a.removeBlockAt(lastIndex);
+			}
 		}
 	}
 }
