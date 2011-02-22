@@ -1,0 +1,33 @@
+<flex-config>
+	<compiler>
+		<incremental>true</incremental>
+		<locale>
+			<locale-element>en_US</locale-element>
+		</locale>
+		<accessible>true</accessible>
+		<debug>false</debug>
+		<optimize>true</optimize>
+		<strict>true</strict>
+		<external-library-path>
+			<path-element>${flexlib}/libs/player/10.1/playerglobal.swc</path-element>
+			<path-element>${flexlib}/libs/framework.swc</path-element>
+			<path-element>${flexlib}/libs/rpc.swc</path-element>
+		</external-library-path>
+		<doc>true</doc>
+
+		<keep-as3-metadata append="true">
+			<name>Event</name>
+		</keep-as3-metadata>
+	</compiler>
+	
+
+	<!--<link-report>link-report.xml</link-report>-->
+	
+	<target-player>10.1.0</target-player>
+	
+	<metadata>
+		<creator>Paul Taylor</creator>
+		<description>TinyTLF!</description>
+		<title>TinyTLF!</title>
+	</metadata>
+</flex-config>
