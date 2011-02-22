@@ -31,7 +31,7 @@ package org.tinytlf.analytics
 		function get pixelLength():int;
 		
 		function getBlockAt(index:int):TextBlock;
-		function addBlockAt(block:TextBlock, index:int):void;
+		function addBlockAt(block:TextBlock, index:int, size:Number):void;
 		function removeBlockAt(index:int):void;
 		function getBlockIndex(block:TextBlock):int;
 		

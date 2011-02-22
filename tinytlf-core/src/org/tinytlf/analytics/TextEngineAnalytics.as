@@ -4,7 +4,7 @@ package org.tinytlf.analytics
 	import flash.utils.Dictionary;
 	
 	import org.tinytlf.ITextEngine;
-	import org.tinytlf.layout.factories.ITextBlockFactory;
+	import org.tinytlf.conversion.ITextBlockFactory;
 	import org.tinytlf.layout.properties.LayoutProperties;
 	import org.tinytlf.util.TinytlfUtil;
 	import org.tinytlf.util.fte.TextBlockUtil;
@@ -58,7 +58,7 @@ package org.tinytlf.analytics
 		private var indexCache:Array = [];
 		private var blockCache:Dictionary = new Dictionary(false);
 		
-		public function addBlockAt(block:TextBlock, index:int):void
+		public function addBlockAt(block:TextBlock, index:int, size:Number):void
 		{
 			if(!(block in blockCache))
 			{
@@ -70,7 +70,7 @@ package org.tinytlf.analytics
 			
 			blockCache[block] = true;
 			
-			enqueuePosition(block, index);
+			enqueuePosition(index, size);
 			enqueueContent(block, index);
 		}
 		
@@ -154,7 +154,7 @@ package org.tinytlf.analytics
 				return 0;
 			
 			var index:int = getBlockIndex(block);
-			var size:int = block.content.rawText.length;
+			var size:int = block.content ? block.content.rawText.length : 0;
 			contentVector.setItemSize(index, size);
 			
 			return size;
@@ -219,12 +219,9 @@ package org.tinytlf.analytics
 			contentVector.setItemSize(index, blockSize);
 		}
 		
-		private function enqueuePosition(block:TextBlock, index:int):void
+		private function enqueuePosition(index:int, blockSize:Number):void
 		{
-			var lp:LayoutProperties = TinytlfUtil.getLP(block);
-			var blockSize:Number = lp.paddingTop + lp.height + lp.paddingBottom;
-			
-			if(blockSize == 0)
+			if(blockSize <= 0)
 				return;
 			
 			positionVector.setItemSize(index, blockSize);
