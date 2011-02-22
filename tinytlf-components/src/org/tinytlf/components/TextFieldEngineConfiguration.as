@@ -1,13 +1,13 @@
 package org.tinytlf.components
 {
 	import org.tinytlf.*;
+	import org.tinytlf.behaviors.*;
+	import org.tinytlf.conversion.*;
 	import org.tinytlf.decor.*;
 	import org.tinytlf.decor.selection.*;
+	import org.tinytlf.gestures.*;
 	import org.tinytlf.interaction.*;
-	import org.tinytlf.interaction.behaviors.*;
-	import org.tinytlf.interaction.gestures.*;
 	import org.tinytlf.layout.ITextContainer;
-	import org.tinytlf.layout.factories.*;
 	import org.tinytlf.styles.*;
 	
 	public class TextFieldEngineConfiguration implements ITextEngineConfiguration
@@ -25,7 +25,7 @@ package org.tinytlf.components
 		{
 			engine.interactor = new CascadingTextInteractor();
 			engine.styler = new FCSSTextStyler();
-			engine.layout.textBlockFactory = new XMLTextBlockFactory();
+			engine.blockFactory = new EditableBlockFactory();
 			
 			mapDecorations(engine);
 			mapEventMirrors(engine);
@@ -71,6 +71,8 @@ package org.tinytlf.components
 			
 //			if (!editable)
 //				decor.unMapDecoration("caret");
+			if (!editable)
+				decor.unMapDecoration("caret");
 		}
 		
 		protected function mapEventMirrors(engine:ITextEngine):void
@@ -113,6 +115,7 @@ package org.tinytlf.components
 				if (editable)
 				{
 					mouseTripleDown.removeBehavior(paragraphSelect);
+					mouseTripleDown.addBehavior(new LineSelectionBehavior());
 				}
 			}
 		}
@@ -127,7 +130,7 @@ package org.tinytlf.components
 		
 		protected function mapElementAdapters(engine:ITextEngine):void
 		{
-			var factory:ITextBlockFactory = engine.layout.textBlockFactory;
+			var factory:ITextBlockFactory = engine.blockFactory;
 			
 			if (!factory.hasElementFactory('ul'))
 				factory.mapElementFactory('ul', HTMLListAdapter);
