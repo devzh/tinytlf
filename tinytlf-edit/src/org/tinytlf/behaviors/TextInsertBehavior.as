@@ -10,7 +10,7 @@ package org.tinytlf.behaviors
 		[Event("keyDown")]
 		public function insert(events:Vector.<Event>):void
 		{
-			var maxCaret:int = NaN;
+			var maxCaret:Number = NaN;
 			var evt:KeyboardEvent = finalEvent as KeyboardEvent;
 			var chars:String = String.fromCharCode(evt.charCode);
 			

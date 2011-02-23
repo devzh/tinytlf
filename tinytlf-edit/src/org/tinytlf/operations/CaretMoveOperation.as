@@ -10,7 +10,7 @@ package org.tinytlf.operations
 		}
 		
 		public var caret:int;
-		public var maxCaret:int = NaN;
+		public var maxCaret:Number = NaN;
 		
 		private var start:int;
 		
@@ -19,7 +19,7 @@ package org.tinytlf.operations
 			start = engine.caretIndex;
 			
 			if(maxCaret == maxCaret)
-				caret = Math.max(maxCaret, caret);
+				caret = Math.min(maxCaret, caret);
 			
 			engine.caretIndex = caret;
 		}
