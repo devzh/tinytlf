@@ -12,13 +12,13 @@ package org.tinytlf.operations
 		private var operations:Vector.<ITextOperation> = new <ITextOperation>[];
 		public function add(...ops):void
 		{
-			operations = Vector.<ITextOperation>(ops);
+			operations = operations.concat(Vector.<ITextOperation>(ops));
 		}
 		
 		private var enders:Vector.<ITextOperation> = new <ITextOperation>[];
 		public function runAtEnd(...ops):void
 		{
-			enders = Vector.<ITextOperation>(ops);
+			enders = enders.concat(Vector.<ITextOperation>(ops));
 		}
 		
 		override public function initialize(model:ITLFNode):ITextOperation
