@@ -106,7 +106,7 @@ package org.tinytlf.components.spark
 				return;
 			
 			_text = value;
-			engine.layout.textBlockFactory.data = _text;
+			engine.blockFactory.data = _text;
 			engine.invalidate();
 			invalidateDisplayList();
 		}
