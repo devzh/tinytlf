@@ -122,7 +122,9 @@
 		<echo>[compile] Using Flex SDK at: ${FLEX_HOME}</echo>
 		<build-swc source="${utils.src.loc}" version="${project.name.versioned}" project="utils"/>
 		<build-swc source="${core.src.loc}" version="${project.name.versioned}" project="core" />
+		<build-swc source="${model.src.loc}" version="${project.name.versioned}" project="model" />
 		<build-swc source="${gestures.src.loc}" version="${project.name.versioned}" project="gestures" />
+		<build-swc source="${edit.src.loc}" version="${project.name.versioned}" project="edit" />
 		<build-swc source="${decorations.src.loc}" version="${project.name.versioned}" project="decorations" />
 		<build-swc source="${layouts.src.loc}" version="${project.name.versioned}" project="layouts" />
 		<build-swc source="${xhtml.src.loc}" version="${project.name.versioned}" project="xhtml" />

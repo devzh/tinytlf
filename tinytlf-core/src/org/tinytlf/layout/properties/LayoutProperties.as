@@ -61,7 +61,6 @@ package org.tinytlf.layout.properties
 			super.applyProperty(property, destination);
 		}
 		
-		
 		/**
 		 * Utility method which applies justification properties to the 
 		 * TextBlock before it's rendered.

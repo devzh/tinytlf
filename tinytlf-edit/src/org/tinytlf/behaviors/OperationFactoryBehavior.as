@@ -2,7 +2,6 @@ package org.tinytlf.behaviors
 {
 	import flash.events.Event;
 	
-	import org.tinytlf.conversion.EditableBlockFactory;
 	import org.tinytlf.interaction.IEditInteractor;
 	import org.tinytlf.model.ITLFNode;
 	import org.tinytlf.operations.ITextOperation;

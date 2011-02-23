@@ -69,8 +69,6 @@ package org.tinytlf.components
 			if (!selectable)
 				decor.unMapDecoration("selection");
 			
-//			if (!editable)
-//				decor.unMapDecoration("caret");
 			if (!editable)
 				decor.unMapDecoration("caret");
 		}
