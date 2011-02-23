@@ -14,7 +14,7 @@ package org.tinytlf.behaviors
 		
 		override protected function act(events:Vector.<Event>):void
 		{
-			model = EditableBlockFactory(engine.blockFactory).root as ITLFNode;
+			model = engine.blockFactory.data as ITLFNode;
 			interactor = engine.interactor as IEditInteractor;
 			
 			if(!model || !interactor)
