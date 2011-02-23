@@ -167,7 +167,7 @@ package org.tinytlf.decor.selection
 			
 			var rect2:Rectangle = line.getAtomBounds(Math.max(endIndex - 1, 0));
 			
-			if(endIndex >= line.atomCount)
+			if(endIndex > line.atomCount)
 				rect2 = new Rectangle(line.specifiedWidth);
 			
 			rect2.width ||= 1;
