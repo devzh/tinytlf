@@ -11,11 +11,13 @@ package org.tinytlf.layout
 	import flash.utils.Dictionary;
 	
 	import org.tinytlf.ITextEngine;
-	import org.tinytlf.layout.factories.ITextBlockFactory;
+	import org.tinytlf.conversion.ITextBlockFactory;
 	
 	public class TextContainerBase implements ITextContainer
 	{
-		public function TextContainerBase(container:Sprite, explicitWidth:Number = NaN, explicitHeight:Number = NaN)
+		public function TextContainerBase(container:Sprite, 
+										  explicitWidth:Number = NaN, 
+										  explicitHeight:Number = NaN)
 		{
 			this.target = container;
 			
@@ -251,9 +253,7 @@ package org.tinytlf.layout
 			var n:int = lines.length;
 			var l:TextLine;
 			
-			// Parse through and look for invalid lines. Add every line from
-			// their TextBlock to the list of orphans, because we'll re-render
-			// the entire paragraph.
+			// Parse through and look for invalid lines.
 			for(var i:int = 0; i < n; i += 1)
 			{
 				l = lines[i];
@@ -380,7 +380,11 @@ package org.tinytlf.layout
 		
 		protected function getRecycledLine(previousLine:TextLine):TextLine
 		{
-			var line:TextLine = orphanLines.pop();
+			if(orphanLines.length == 0)
+				return null;
+			
+			var line:TextLine = previousLine;
+			
 			while(line === previousLine)
 				line = orphanLines.pop();
 			

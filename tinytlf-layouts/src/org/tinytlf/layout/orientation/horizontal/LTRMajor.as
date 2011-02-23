@@ -63,7 +63,7 @@ package org.tinytlf.layout.orientation.horizontal
 				if(c.content is ContentElement)
 				{
 					elem = ContentElement(c.content);
-					if(elem.textBlock === block)
+					if(elem.textBlock == block)
 						if(elem.textBlockBeginIndex > lineBlockBeginIndex)
 							target.removeConstraint(c);
 				}

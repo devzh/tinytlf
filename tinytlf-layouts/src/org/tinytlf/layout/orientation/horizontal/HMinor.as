@@ -40,33 +40,13 @@ package org.tinytlf.layout.orientation.horizontal
 			}
 			else
 			{
-				if(TextBlockUtil.isInvalid(block))
-				{
-					if(lp.y)
-						y = lp.y;
-				}
-				
-				target.measuredHeight += lp.paddingTop;
 				y += lp.paddingTop;
 			}
 		}
 		
 		override public function postTextBlock(block:TextBlock):void
 		{
-			var lp:LayoutProperties = TinytlfUtil.getLP(block);
-			
-			lp.height = 0;
-			var line:TextLine = block.firstLine;
-			
-			while(line)
-			{
-				lp.height += line.textHeight + lp.leading;
-				line = line.nextLine;
-			}
-			
-			target.measuredHeight += lp.paddingBottom;
-			y += lp.paddingBottom;
-			
+			y += TinytlfUtil.getLP(block).paddingBottom;
 		}
 		
 		override public function position(line:TextLine):void
@@ -94,6 +74,7 @@ package org.tinytlf.layout.orientation.horizontal
 			{
 				incrementY(line);
 			}
+			
 			//Check to see if there's a line break at the end of this line.
 			//If so, increment the Y regardless of the X position.
 			else if(TextLineUtil.hasLineBreak(line))
@@ -118,8 +99,6 @@ package org.tinytlf.layout.orientation.horizontal
 			y += line.ascent;
 			line.y = y;
 			y += line.descent + lp.leading;
-			
-			target.measuredHeight += (line.textHeight || 1) + lp.leading;
 		}
 		
 		override public function checkTargetBounds(line:TextLine):Boolean

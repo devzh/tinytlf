@@ -121,9 +121,6 @@ package org.tinytlf.layout
 		{
 			super.preLayout();
 			
-			height = 0;
-			width = 0;
-			
 			major.preLayout();
 			minor.preLayout();
 		}
@@ -155,6 +152,7 @@ package org.tinytlf.layout
 			{
 				if(hasLine(line))
 				{
+					major.position(line);
 					minor.position(line);
 					
 					if(minor.checkTargetBounds(line))
@@ -171,6 +169,7 @@ package org.tinytlf.layout
 			}
 			
 			minor.postTextBlock(block);
+			
 			return line;
 		}
 		
@@ -208,24 +207,9 @@ package org.tinytlf.layout
 		{
 			var size:Number = major.getLineSize(block, previousLine);
 			
-			var orphan:TextLine;
-			
-			if(previousLine)
-			{
-				if(previousLine.validity == TextLineValidity.INVALID)
-				{
-					return block.recreateTextLine(previousLine, previousLine.previousLine, size, 0.0, true);
-				}
-			}
-			
-			if(orphanLines.length)
-			{
-				orphan = getRecycledLine(previousLine);
-				if(orphan)
-				{
-					return block.recreateTextLine(orphan, previousLine, size, 0.0, true);
-				}
-			}
+			var orphan:TextLine = getRecycledLine(previousLine);
+			if(orphan)
+				return block.recreateTextLine(orphan, previousLine, size, 0.0, true);
 			
 			return block.createTextLine(previousLine, size, 0.0, true);
 		}
