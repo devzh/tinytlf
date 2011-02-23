@@ -1,14 +1,12 @@
 package org.tinytlf.interaction
 {
-	import flash.events.IEventDispatcher;
 	import flash.events.MouseEvent;
 	import flash.text.engine.ElementFormat;
-	import flash.text.engine.TextLineValidity;
 	import flash.ui.Mouse;
 	import flash.ui.MouseCursor;
 	
 	import org.tinytlf.decor.ITextDecor;
-	import org.tinytlf.layout.factories.XMLModel;
+	import org.tinytlf.model.ITLFNode;
 	import org.tinytlf.util.TinytlfUtil;
 	
 	public class CSSMirror extends EventMirrorBase
@@ -115,7 +113,7 @@ package org.tinytlf.interaction
 			
 			applyFormat(props);
 			
-			var decor:ITextDecor = engine.decor;
+			var decor:ITextDecor = engine.decor; 
 			
 			for(var prop:String in props)
 				decor.undecorate(content, prop);
@@ -140,41 +138,12 @@ package org.tinytlf.interaction
 			if(state in stateCache)
 				return stateCache[state];
 			
-			var tree:Vector.<XMLModel> = 
-				content.userData as Vector.<XMLModel>;
+			var node:ITLFNode = content.userData as ITLFNode;
 			
-			if(!tree)
+			if(!node)
 				return {};
 			
-			tree = applyCSSStateToAncestorChain(tree, state);
-			var props:Object = engine.styler.describeElement(tree);
-			
-			return stateCache[state] = props;
+			return stateCache[state] = node[state + ':'];
 		}
-		
-		protected function applyCSSStateToAncestorChain(chain:Vector.<XMLModel>,
-														state:String):Vector.<XMLModel>
-		{
-			var a:Vector.<XMLModel> = new <XMLModel>[];
-			var n:int = chain.length;
-			var xml:XMLModel;
-			
-			state = state == NORMAL ? '' : state;
-			
-			for(var i:int = 0; i < n; ++i)
-			{
-				xml = chain[i];
-				// only anchor tags can have css pseudo-classes, 
-				// but we might be nested inside multiple anchors, so apply to
-				// the ancestor chain here.
-				if(xml.name == 'a')
-					xml.cssState = state;
-				
-				a.push(xml);
-			}
-			
-			return a;
-		}
-
 	}
 }

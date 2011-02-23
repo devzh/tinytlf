@@ -337,11 +337,12 @@ package org.tinytlf
 		
 		protected function renderLines():void
 		{
+			// If we have selection decorations and are re-rendering the lines,
+			// re-render the decorations so they don't get out of sync.
 			if(selection.x == selection.x && selection.y == selection.y)
-			{
 				invalidateDecorationsFlag = true;
-			}
 			
+			blockFactory.preRender();
 			layout.render();
 		}
 		

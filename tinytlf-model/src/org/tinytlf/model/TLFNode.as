@@ -4,7 +4,6 @@ package org.tinytlf.model
 	
 	import org.tinytlf.ITextEngine;
 	import org.tinytlf.styles.StyleAwareActor;
-	import org.tinytlf.util.fte.ContentElementUtil;
 	
 	public class TLFNode extends StyleAwareActor implements ITLFNode, ITLFNodeParent
 	{
@@ -37,6 +36,8 @@ package org.tinytlf.model
 		
 		public function addChildAt(node:ITLFNode, index:int):ITLFNode
 		{
+			validFlag = false;
+			
 			checkRange(index);
 			
 			if(node.parent)
@@ -48,13 +49,6 @@ package org.tinytlf.model
 				TLFNode(node)._parent = this;
 			
 			node.engine = engine;
-			
-			// attach the new node's contentElement as a child
-			// of our GroupElement, assuming it has been generated.
-			if((contentElement is GroupElement) && node.contentElement)
-			{
-				ContentElementUtil.addChildAt(contentElement, node.contentElement, index);
-			}
 			
 			impl;
 			
@@ -78,6 +72,8 @@ package org.tinytlf.model
 		
 		public function removeChildAt(index:int):ITLFNode
 		{
+			validFlag = false;
+			
 			checkRange(index);
 			
 			const node:ITLFNode = getChildAt(index);
@@ -89,16 +85,6 @@ package org.tinytlf.model
 			node.engine = null;
 			
 			node.regenerateStyles();
-			
-			// remove the node's contentElement from 
-			// the model if it's been generated yet.
-			if(node.contentElement)
-			{
-				if(contentElement is GroupElement)
-				{
-					ContentElementUtil.removeChildAt(contentElement, index);
-				}
-			}
 			
 			// ensure the proper implementation exists.
 			// if you add a child to a Leaf node, this 
@@ -171,6 +157,11 @@ package org.tinytlf.model
 		
 		public function swapChildren(child1:ITLFNode, child2:ITLFNode):void
 		{
+			if(child1 == child2)
+				return;
+			
+			validFlag = false;
+			
 			var index1:int = getChildIndex(child1);
 			var index2:int = getChildIndex(child2);
 			
@@ -194,6 +185,13 @@ package org.tinytlf.model
 			return numChildren > 0 ? TLFNodeType.CONTAINER : TLFNodeType.LEAF;
 		}
 		
+		private var validFlag:Boolean = false;
+		
+		public function get valid():Boolean
+		{
+			return validFlag;
+		}
+		
 		public function get contentElement():ContentElement
 		{
 			return impl.contentElement;
@@ -201,6 +199,7 @@ package org.tinytlf.model
 		
 		public function set contentElement(value:ContentElement):void
 		{
+			validFlag = true;
 			impl.contentElement = value;
 		}
 		
@@ -246,21 +245,25 @@ package org.tinytlf.model
 		
 		public function insert(value:Object, at:int):ITLFNode
 		{
+			validFlag = false;
 			return impl.insert(value, at);
 		}
 		
 		public function remove(start:int, end:int = int.MAX_VALUE):ITLFNode
 		{
+			validFlag = false;
 			return impl.remove(start, end);
 		}
 		
 		public function split(at:int):ITLFNode
 		{
+			validFlag = false;
 			return impl.split(at);
 		}
 		
 		public function merge(start:int, end:int):ITLFNode
 		{
+			validFlag = false;
 			return impl.merge(start, end);
 		}
 		
@@ -333,7 +336,6 @@ import flash.text.engine.*;
 import org.tinytlf.ITextEngine;
 import org.tinytlf.model.*;
 import org.tinytlf.styles.*;
-import org.tinytlf.util.fte.ContentElementUtil;
 
 internal class NodeImpl extends StyleAwareActor implements ITLFNodeParent
 {
@@ -389,6 +391,11 @@ internal class NodeImpl extends StyleAwareActor implements ITLFNodeParent
 	public function get type():String
 	{
 		return null;
+	}
+	
+	public function get valid():Boolean
+	{
+		return owner.valid;
 	}
 	
 	public function get parent():ITLFNodeParent
@@ -795,8 +802,8 @@ internal class LeafImpl extends NodeImpl implements ITLFNode
 	{
 		if(value is String)
 		{
-			if(contentElement)
-				TextElement(contentElement).replaceText(at, at, String(value));
+//			if(contentElement)
+//				TextElement(contentElement).replaceText(at, at, String(value));
 			
 			_text = text.substring(0, at) + String(value) + text.substring(at);
 		}
@@ -827,8 +834,8 @@ internal class LeafImpl extends NodeImpl implements ITLFNode
 		
 		_text = text.substring(0, start) + text.substring(end);
 		
-		if(contentElement is TextElement)
-			TextElement(contentElement).text = _text;
+//		if(contentElement is TextElement)
+//			TextElement(contentElement).text = _text;
 		
 		return owner;
 	}

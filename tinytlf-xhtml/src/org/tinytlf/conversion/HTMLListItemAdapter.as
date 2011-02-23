@@ -4,15 +4,16 @@ package org.tinytlf.conversion
 	import flash.geom.Rectangle;
 	import flash.text.engine.*;
 	
+	import org.tinytlf.model.ITLFNode;
 	import org.tinytlf.util.fte.*;
 	
-	public class HTMLListItemAdapter extends XMLElementFactory
+	public class HTMLListItemAdapter extends TLFNodeElementFactory
 	{
 		override public function execute(data:Object, ... context:Array):ContentElement
 		{
 			var item:ContentElement = super.execute.apply(null, [data].concat(context));
 			
-			if(data is XML)
+			if(data is ITLFNode)
 			{
 				var styles:Object = engine.styler.describeElement(context);
 				var outside:Boolean = styles.listStylePosition == 'outside';

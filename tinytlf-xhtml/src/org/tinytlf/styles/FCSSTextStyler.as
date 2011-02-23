@@ -11,9 +11,6 @@ package org.tinytlf.styles
 	
 	import flash.text.engine.*;
 	
-	import org.tinytlf.layout.factories.XMLModel;
-	import org.tinytlf.model.ITLFNode;
-	
 	public class FCSSTextStyler extends TextStyler
 	{
 		[Embed(source="default.css", mimeType="application/octet-stream")]

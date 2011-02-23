@@ -61,6 +61,16 @@ package org.tinytlf.conversion
 		function get numBlocks():int;
 		
 		/**
+		 * Called during the ITextEngine render phase, just before the
+		 * ITextLayoutBase#render() method is called.
+		 * 
+		 * This provides an opportunity to invalidate the visible TextBlocks,
+		 * gather up orphan lines, and anything else that the render algorithm
+		 * may depend on being done.
+		 */
+		function preRender():void;
+		
+		/**
 		 * Returns a reference to the next visible TextBlock. This method should
 		 * generate the TextBlock on the fly, as keeping references to every
 		 * TextBlock in the TextField is potentially expensive.

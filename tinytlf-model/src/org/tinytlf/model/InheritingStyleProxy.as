@@ -184,7 +184,7 @@ package org.tinytlf.model
 				return;
 			
 			var ef:ElementFormat = owner.contentElement.elementFormat;
-			var newEf:ElementFormat = owner.engine.styler.getElementFormat(this);;
+			var newEf:ElementFormat = owner.engine.styler.getElementFormat(owner);
 			
 			//Replace the ElementFormat only if the values are different.
 			if(TinytlfUtil.compareObjectValues(ef, newEf, {locked:true}) == false)

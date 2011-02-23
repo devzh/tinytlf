@@ -12,15 +12,16 @@ package org.tinytlf.conversion
     import flash.text.engine.*;
     
     import org.tinytlf.layout.properties.LayoutProperties;
+    import org.tinytlf.model.ITLFNode;
     import org.tinytlf.util.fte.*;
 
     public class HTMLImageAdapter extends ContentElementFactory
     {
         override public function execute(data:Object, ...context:Array):ContentElement
         {
-            var img:XMLModel = context[context.length - 1];
+            var img:ITLFNode = data as ITLFNode;
 			var imageProperties:Object = engine.styler.describeElement(img);
-			var inheritedProperties:Object = engine.styler.describeElement(context);
+			var inheritedProperties:Object = engine.styler.describeElement(img.parent);
 			
 			var lp:LayoutProperties = new LayoutProperties(imageProperties);
 			
@@ -32,13 +33,13 @@ package org.tinytlf.conversion
 			if(imageProperties.float)
 			{
 	            element = new GraphicElement(
-					new ImageLoader(img.src, lp), 
+					new ImageLoader(img['src'], lp), 
 					lp.width, 
 					lp.height, 
 					format, 
-					getEventMirror(context) || new EventDispatcher());
+					getEventMirror(img) || new EventDispatcher());
 				
-	            element.userData = Vector.<XMLModel>(context);
+	            element.userData = img;
 				
 				//Decorate this element?
 				engine.decor.decorate(
@@ -56,12 +57,12 @@ package org.tinytlf.conversion
 			}
 			
             element = new GraphicElement(
-				new ImageLoader(img.src, lp), 
+				new ImageLoader(img['src'], lp), 
 				lp.width + lp.paddingLeft + lp.paddingRight, 
 				lp.height + lp.paddingTop + lp.paddingBottom, 
-				format, getEventMirror(context) || new EventDispatcher());
+				format, getEventMirror(img) || new EventDispatcher());
 			
-            element.userData = Vector.<XMLModel>(context);
+            element.userData = img;
 			
 			engine.decor.decorate(
 				element, 

@@ -209,6 +209,10 @@ package org.tinytlf.util.fte
 			
 			var group:GroupElement = GroupElement(parent);
 			var elements:Vector.<ContentElement> = getChildren(group);
+			
+			if(elements.indexOf(child) != -1)
+				removeChild(group, child);
+			
 			elements.splice(index, 0, child);
 			group.setElements(elements);
 			
@@ -234,6 +238,20 @@ package org.tinytlf.util.fte
 			group.replaceElements(index, index + 1, null);
 			
 			return child;
+		}
+		
+		public static function removeChildren(parent:ContentElement):Vector.<ContentElement>
+		{
+			if(!(parent is GroupElement))
+				return null;
+			
+			var group:GroupElement = GroupElement(parent);
+			var children:Vector.<ContentElement> = new <ContentElement>[];
+			
+			while(group.elementCount)
+				children.push(removeChildAt(group, group.elementCount));
+			
+			return children;
 		}
 		
 		public static function getChildren(group:GroupElement):Vector.<ContentElement>

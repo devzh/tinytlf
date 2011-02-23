@@ -14,7 +14,7 @@ package org.tinytlf.model
 		function set engine(textEngine:ITextEngine):void;
 		
 		/**
-		 * @return The length of this ITextNode
+		 * @return The length of the text in this ITLFNode
 		 */
 		function get length():int;
 		
@@ -34,6 +34,12 @@ package org.tinytlf.model
 		 * @see ITLFNodeType
 		 */
 		function get type():String;
+		
+		/**
+		 * Signals to the world that this ITLFNode has changed since the last
+		 * ContentElement composition pass and should be re-processed.
+		 */
+		function get valid():Boolean;
 		
 		/**
 		 * Signals to the ITLFNode that its styles are outdated and should
@@ -94,7 +100,9 @@ package org.tinytlf.model
 		function clone(start:int = 0, end:int = int.MAX_VALUE):ITLFNode;
 		
 		/**
-		 * Returns the lowest level leaf node at the specified position.
+		 * @return The lowest level leaf node at the specified position. May
+		 * return itself if this is called on an ITLFNode that's type is
+		 * TLFNodeType.LEAF.
 		 */
 		function getLeaf(at:int):ITLFNode;
 	}

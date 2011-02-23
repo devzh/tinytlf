@@ -1,6 +1,7 @@
 package org.tinytlf.conversion
 {
 	import flash.text.engine.*;
+	import flash.utils.Dictionary;
 	
 	import org.tinytlf.analytics.ITextEngineAnalytics;
 	import org.tinytlf.layout.properties.LayoutProperties;
@@ -15,6 +16,53 @@ package org.tinytlf.conversion
 	 */
 	public class EditableBlockFactory extends TextBlockFactoryBase implements ITextBlockFactory
 	{
+		override public function preRender():void
+		{
+			var a:ITextEngineAnalytics = engine.analytics;
+			
+			if(root.numChildren <= 0)
+			{
+				a.clear();
+				root.addChild(new TLFNode());
+				return;
+			}
+			
+			var n:int = a.numBlocks;
+			var node:ITLFNode;
+			var element:ContentElement;
+			var block:TextBlock;
+			var lp:LayoutProperties;
+			
+			for(var i:int = 0; i < n; i += 1)
+			{
+				block = a.getBlockAt(i);
+				lp = TinytlfUtil.getLP(block);
+				
+				if(i >= root.numChildren)
+				{
+					lp.model = null;
+					a.removeBlockAt(i);
+					continue;
+				}
+				
+				node = root.getChildAt(i);
+				
+				if(lp.model == node)
+				{
+					element = getElementFactory(node.name).execute(node);
+					if(block.content != element)
+						block.content = element;
+				}
+				else
+				{
+					a.removeBlockAt(i);
+					block = textBlockGenerator.generate(node, getElementFactory(node.name));
+					lp.model = node;
+					a.addBlockAt(block, i, 1);
+				}
+			}
+		}
+		
 		override public function getTextBlock(index:int):TextBlock
 		{
 			if(index >= numBlocks)
@@ -28,15 +76,7 @@ package org.tinytlf.conversion
 			if(!block)
 				block = textBlockGenerator.generate(node, getElementFactory(node.name));
 			
-			var props:LayoutProperties = TinytlfUtil.getLP(block);
-			
-			if(props.model != node)
-			{
-				a.removeBlockAt(index);
-				block = textBlockGenerator.generate(node, getElementFactory(node.name));
-			}
-			
-			props.model = node;
+			TinytlfUtil.getLP(block).model = node;
 			
 			return block;
 		}

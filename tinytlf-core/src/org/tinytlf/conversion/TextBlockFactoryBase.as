@@ -30,6 +30,10 @@ package org.tinytlf.conversion
 			_engine = textEngine;
 		}
 		
+		public function preRender():void
+		{
+		}
+		
 		public function getTextBlock(index:int):TextBlock
 		{
 			var block:TextBlock = engine.analytics.getBlockAt(index);
