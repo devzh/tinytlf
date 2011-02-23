@@ -21,6 +21,9 @@ package org.tinytlf.behaviors
 			var atomIndex:int = TinytlfUtil.globalIndexToAtomIndex(engine, line, caret);
 			var bounds:Rectangle = TinytlfUtil.globalIndexToAtomBounds(engine, caret);
 			
+			if(!bounds)
+				return null;
+			
 			var l:TextLine = line;
 			
 			if(l.previousLine)
