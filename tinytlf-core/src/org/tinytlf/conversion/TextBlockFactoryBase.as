@@ -140,7 +140,8 @@ internal class TextBlockGenerator implements ITextBlockGenerator
 		var block:TextBlock = TextBlockUtil.checkOut();
 		block.content = factory.execute(data);
 		
-		var props:LayoutProperties = TinytlfUtil.getLP(data);
+		var props:LayoutProperties = TinytlfUtil.getLP();
+		props.mergeWith(data);
 		props.applyTo(block);
 		props.model = data;
 		block.userData = props;
