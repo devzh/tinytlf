@@ -116,26 +116,17 @@ package org.tinytlf.conversion
 		
 		private function buildNode(child:XML):ITLFNode
 		{
-			var node:TLFNode;
-			
-			if(child..*.length() > 1)
-			{
-				node = new TLFNode();
-				node.engine = engine;
-				
-				for each(var x:XML in child.*)
-				{
-					node.addChild(buildNode(x));
-				}
-			}
-			else
-			{
-				node = new TLFNode(child.toString());
-				node.engine = engine;
-			}
-			
+			var node:TLFNode = new TLFNode(	child.nodeKind() != 'element' ?
+											child.toString() :
+											null);
+			node.engine = engine;
 			node.name = child.localName();
 			node.mergeWith(XMLUtil.buildKeyValueAttributes(child.attributes()));
+			
+			for each(var x:XML in child.*)
+			{
+			    node.addChild(buildNode(x));
+			}
 			
 			return node;
 		}
