@@ -83,14 +83,12 @@ package org.tinytlf.conversion
 		
 		override public function getElementFactory(element:*):IContentElementFactory
 		{
-			if(!(element in elementAdapterMap))
-			{
-				var adapter:IContentElementFactory = new TLFNodeElementFactory();
-				IContentElementFactory(adapter).engine = engine;
-				return adapter;
-			}
+			if(hasElementFactory(element))
+				return super.getElementFactory(element);
 			
-			return super.getElementFactory(element);
+			var adapter:IContentElementFactory = new TLFNodeElementFactory();
+			IContentElementFactory(adapter).engine = engine;
+			return adapter;
 		}
 		
 		override public function get numBlocks():int
@@ -120,32 +118,24 @@ package org.tinytlf.conversion
 		{
 			var node:TLFNode;
 			
-			if(child..*.length() > 0)
+			if(child..*.length() > 1)
 			{
 				node = new TLFNode();
 				node.engine = engine;
-				node.mergeWith(XMLUtil.buildKeyValueAttributes(child.attributes()));
 				
-				if(child..*.length() == 1)
+				for each(var x:XML in child.*)
 				{
-					node.addChild(new TLFNode(child.toString()));
-					node.getChildAt(node.numChildren - 1).engine = engine;
+					node.addChild(buildNode(x));
 				}
-				else
-				{
-					for each(var x:XML in child.*)
-					{
-						node.addChild(buildNode(x));
-					}
-				}
-				
-				node.name = child.localName();
 			}
-			else if(child.nodeKind() == 'text')
+			else
 			{
 				node = new TLFNode(child.toString());
 				node.engine = engine;
 			}
+			
+			node.name = child.localName();
+			node.mergeWith(XMLUtil.buildKeyValueAttributes(child.attributes()));
 			
 			return node;
 		}
