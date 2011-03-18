@@ -120,18 +120,18 @@ package org.tinytlf.conversion
 		{
 			var node:TLFNode;
 			
-			if(child..*.length() > 0)
+			if(child.nodeKind() == 'element')
 			{
 				node = new TLFNode();
 				node.engine = engine;
 				node.mergeWith(XMLUtil.buildKeyValueAttributes(child.attributes()));
 				
-				if(child..*.length() == 1)
+				if(child.children().length() == 1)
 				{
 					node.addChild(new TLFNode(child.toString()));
 					node.getChildAt(node.numChildren - 1).engine = engine;
 				}
-				else
+				else if(child.children().length() > 1)
 				{
 					for each(var x:XML in child.*)
 					{
