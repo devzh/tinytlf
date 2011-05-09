@@ -5,7 +5,7 @@ package org.tinytlf.conversion
 	import org.tinytlf.analytics.IVirtualizer;
 	import org.tinytlf.layout.properties.LayoutProperties;
 	import org.tinytlf.model.*;
-	import org.tinytlf.model.xml.TagSoup;
+	import org.tinytlf.xml.TagSoup;
 	import org.tinytlf.util.*;
 	import org.tinytlf.util.fte.TextBlockUtil;
 	

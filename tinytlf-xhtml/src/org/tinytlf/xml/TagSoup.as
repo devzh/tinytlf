@@ -1,4 +1,4 @@
-package org.tinytlf.model.xml
+package org.tinytlf.xml
 {
 	import flash.external.ExternalInterface;
 	import flash.utils.getDefinitionByName;
