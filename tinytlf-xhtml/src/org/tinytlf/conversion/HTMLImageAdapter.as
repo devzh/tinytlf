@@ -12,25 +12,21 @@ package org.tinytlf.conversion
     import flash.text.engine.*;
     
     import org.tinytlf.layout.properties.LayoutProperties;
-    import org.tinytlf.model.ITLFNode;
     import org.tinytlf.util.fte.*;
 
-    public class HTMLImageAdapter extends ContentElementFactory
+    public class HTMLImageAdapter extends HTMLNodeElementFactory
     {
         override public function execute(data:Object, ...context:Array):ContentElement
         {
-            var img:ITLFNode = data as ITLFNode;
-			var imageProperties:Object = engine.styler.describeElement(img);
-			var inheritedProperties:Object = engine.styler.describeElement(img.parent);
-			
-			var lp:LayoutProperties = new LayoutProperties(imageProperties);
+            var img:Object = engine.styler.describeElement(data as IHTMLNode);
+			var lp:LayoutProperties = new LayoutProperties(img);
 			
 			var format:ElementFormat = getElementFormat(context);
 			format.dominantBaseline = TextBaseline.IDEOGRAPHIC_TOP;
 			
 			var element:ContentElement;
 			
-			if(imageProperties.float)
+			if(img['float'])
 			{
 	            element = new GraphicElement(
 					new ImageLoader(img['src'], lp), 
@@ -42,12 +38,7 @@ package org.tinytlf.conversion
 	            element.userData = img;
 				
 				//Decorate this element?
-				engine.decor.decorate(
-					element, 
-					inheritedProperties, 
-					inheritedProperties.layer, 
-					null, 
-					inheritedProperties.foreground);
+				engine.decor.decorate(element, img, img['layer'], null, img['foreground']);
 				
 				var lBreakGraphic:GraphicElement = new GraphicElement(new Shape(),0, 0, new ElementFormat());
 				lBreakGraphic.userData = 'lineBreak';
@@ -64,12 +55,7 @@ package org.tinytlf.conversion
 			
             element.userData = img;
 			
-			engine.decor.decorate(
-				element, 
-				inheritedProperties, 
-				inheritedProperties.layer, 
-				null, 
-				inheritedProperties.foreground);
+			engine.decor.decorate(element, img, img['layer'], null, img['foreground']);
 			
             return element;
         }

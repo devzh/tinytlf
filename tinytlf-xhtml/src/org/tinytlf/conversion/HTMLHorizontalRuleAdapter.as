@@ -6,7 +6,7 @@ package org.tinytlf.conversion
 	
 	import org.tinytlf.util.fte.ContentElementUtil;
 	
-	public class HTMLHorizontalRuleAdapter extends ContentElementFactory
+	public class HTMLHorizontalRuleAdapter extends HTMLNodeElementFactory
 	{
 		override public function execute(data:Object, ...context):ContentElement
 		{

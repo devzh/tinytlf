@@ -38,7 +38,7 @@ package org.tinytlf
     public interface ITextEngine
     {
 		/**
-		 * The ILayoutFactoryMap for tinytlf. This object accepts arbitrary data
+		 * The ITextBlockFactory for tinytlf. This object accepts arbitrary data
 		 * and converts it into Flash Text Engine ContentElements and TextBlocks.
 		 */
 		function get blockFactory():ITextBlockFactory;

@@ -5,7 +5,7 @@ package org.tinytlf.conversion
 	
 	import org.tinytlf.util.fte.ContentElementUtil;
 	
-	public class HTMLColumnBreakAdapter extends ContentElementFactory
+	public class HTMLColumnBreakAdapter extends HTMLNodeElementFactory
 	{
 		override public function execute(data:Object, ...parameters):ContentElement
 		{

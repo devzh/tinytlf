@@ -25,7 +25,7 @@ package org.tinytlf.components
 		{
 			engine.interactor = new CascadingTextInteractor();
 			engine.styler = new FCSSTextStyler();
-			engine.blockFactory = new EditableBlockFactory();
+			engine.blockFactory = new XMLEditableBlockFactory();
 			
 			mapDecorations(engine);
 			mapEventMirrors(engine);
@@ -120,10 +120,10 @@ package org.tinytlf.components
 		
 		protected function applyGestures(engine:ITextEngine):void
 		{
-			var containers:Vector.<ITextContainer> = engine.layout.containers;
-			containers.forEach(function(container:ITextContainer, ...args):void{
-				engine.interactor.getMirror(container);
-			});
+//			var containers:Vector.<ITextContainer> = engine.layout.containers;
+//			containers.forEach(function(container:ITextContainer, ...args):void{
+//				engine.interactor.getMirror(container);
+//			});
 		}
 		
 		protected function mapElementAdapters(engine:ITextEngine):void

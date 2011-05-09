@@ -5,7 +5,7 @@ package org.tinytlf.conversion
 	
 	import org.tinytlf.util.fte.ContentElementUtil;
 	
-	public class HTMLLineBreakAdapter extends ContentElementFactory
+	public class HTMLLineBreakAdapter extends HTMLNodeElementFactory
 	{
 		override public function execute(data:Object, ...parameters):ContentElement
 		{
