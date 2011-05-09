@@ -27,7 +27,7 @@ package org.tinytlf.analytics
 		
 		public function get size():int
 		{
-			return vector.length;
+			return vector.end(vector.length - 1);
 		}
 		
 		public function get length():int
@@ -56,9 +56,12 @@ package org.tinytlf.analytics
 		{
 			if(item in itemCache)
 				return item;
+			
+			if(size <= 0)
+				size = 1;
 				
 			indexCache.splice(index, 0, item);
-			itemCache[item] = index;
+			itemCache[item] = true;
 			vector.insert(index);
 			vector.setItemSize(index, size);
 			return item;
@@ -90,10 +93,7 @@ package org.tinytlf.analytics
 		
 		public function getItemIndex(item:*):int
 		{
-			if(item in itemCache)
-				return itemCache[item];
-			
-			return -1;
+			return indexCache.indexOf(item);
 		}
 		
 		public function getItemStart(item:*):int
