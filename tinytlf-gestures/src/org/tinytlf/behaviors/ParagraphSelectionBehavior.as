@@ -3,7 +3,7 @@ package org.tinytlf.behaviors
 	import flash.geom.Point;
 	import flash.text.engine.TextBlock;
 	
-	import org.tinytlf.analytics.ITextEngineAnalytics;
+	import org.tinytlf.analytics.IVirtualizer;
 
 	public class ParagraphSelectionBehavior extends MouseSelectionBehavior
 	{
@@ -17,10 +17,11 @@ package org.tinytlf.behaviors
 		
 		override protected function getAnchor():Point
 		{
-			var a:ITextEngineAnalytics = engine.analytics;
+			var textBlockVirtualizer:IVirtualizer = engine.layout.textBlockVirtualizer;
+			var contentVirtualizer:IVirtualizer = engine.blockFactory.contentVirtualizer;
 			var block:TextBlock = line.textBlock;
-			var begin:int = a.blockContentStart(block);
-			var end:int = begin + a.blockContentSize(block);
+			var begin:int = contentVirtualizer.getItemStart(block);
+			var end:int = begin + contentVirtualizer.getItemSize(block);
 			return new Point(begin, end);
 		}
 	}

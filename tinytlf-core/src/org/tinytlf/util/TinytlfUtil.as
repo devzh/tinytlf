@@ -7,7 +7,7 @@ package org.tinytlf.util
 	import flash.utils.*;
 	
 	import org.tinytlf.ITextEngine;
-	import org.tinytlf.analytics.ITextEngineAnalytics;
+	import org.tinytlf.analytics.IVirtualizer;
 	import org.tinytlf.layout.properties.LayoutProperties;
 	import org.tinytlf.util.fte.TextLineUtil;
 	
@@ -15,41 +15,42 @@ package org.tinytlf.util
 	{
 		public static function atomIndexToGlobalIndex(engine:ITextEngine, line:TextLine, atomIndex:int):int
 		{
-			var a:ITextEngineAnalytics = engine.analytics;
-			var blockStart:int = a.blockContentStart(line.textBlock);
+			var v:IVirtualizer = engine.layout.textBlockVirtualizer;
+			var blockStart:int = v.getItemStart(line.textBlock);
 			return blockStart + line.textBlockBeginIndex + atomIndex;
 		}
 		
 		public static function globalIndexToAtomIndex(engine:ITextEngine, line:TextLine, globalIndex:int):int
 		{
-			var a:ITextEngineAnalytics = engine.analytics;
-			var blockStart:int = a.blockContentStart(line.textBlock);
+			var v:IVirtualizer = engine.layout.textBlockVirtualizer;
+			var blockStart:int = v.getItemStart(line.textBlock);
 			return globalIndex - blockStart - line.textBlockBeginIndex;
 		}
 		
 		public static function globalIndexToTextLine(engine:ITextEngine, globalIndex:int):TextLine
 		{
-			var a:ITextEngineAnalytics = engine.analytics;
-			var block:TextBlock = a.blockAtContent(globalIndex);
+			var textBlockVirtualizer:IVirtualizer = engine.layout.textBlockVirtualizer;
+			var contentVirtualizer:IVirtualizer = engine.blockFactory.contentVirtualizer;
+			var block:TextBlock = textBlockVirtualizer.getItemFromPosition(globalIndex);
 			
-			if(globalIndex >= a.contentLength)
+			if(globalIndex >= contentVirtualizer.size)
 			{
-				block = a.getBlockAt(a.numBlocks - 1);
+				block = textBlockVirtualizer.getItemFromIndex(textBlockVirtualizer.length - 1);
 				--globalIndex;
 			}
 			
-			return block.getTextLineAtCharIndex(globalIndex - a.blockContentStart(block));
+			return block.getTextLineAtCharIndex(globalIndex - textBlockVirtualizer.getItemStart(block));
 		}
 		
 		public static function globalIndexToAtomBounds(engine:ITextEngine, globalIndex:int):Rectangle
 		{
-			var a:ITextEngineAnalytics = engine.analytics;
-			var b:TextBlock = a.blockAtContent(globalIndex);
+			var textBlockVirtualizer:IVirtualizer = engine.layout.textBlockVirtualizer;
+			var b:TextBlock = textBlockVirtualizer.getItemFromPosition(globalIndex);
 			
 			if(!b)
 				return null;
 			
-			var blockIndex:int = globalIndex - a.blockContentStart(b);
+			var blockIndex:int = globalIndex - textBlockVirtualizer.getItemStart(b);
 			var line:TextLine = b.getTextLineAtCharIndex(blockIndex);
 			var atomBounds:Rectangle = line.getAtomBounds(blockIndex - line.textBlockBeginIndex);
 			atomBounds.offset(line.x, line.y);
@@ -58,8 +59,8 @@ package org.tinytlf.util
 		
 		public static function pointToGlobalIndex(engine:ITextEngine, point:Point):int
 		{
-			var a:ITextEngineAnalytics = engine.analytics;
-			var blocks:Dictionary = a.cachedBlocks;
+			var textBlockVirtualizer:IVirtualizer = engine.layout.textBlockVirtualizer;
+			var blocks:Dictionary = textBlockVirtualizer.items;
 			var b:TextBlock;
 			var l:TextLine;
 			
@@ -84,25 +85,25 @@ package org.tinytlf.util
 			
 			var atomIndex:int = TextLineUtil.getAtomIndexAtPoint(l, point);
 			
-			return a.blockContentStart(b) + l.textBlockBeginIndex + atomIndex;
+			return textBlockVirtualizer.getItemStart(b) + l.textBlockBeginIndex + atomIndex;
 		}
 		
 		public static function yToTextLine(engine:ITextEngine, y:Number):TextLine
 		{
-			var a:ITextEngineAnalytics = engine.analytics;
-			var b:TextBlock = a.blockAtPixel(engine.scrollPosition + y);
+			var textBlockVirtualizer:IVirtualizer = engine.layout.textBlockVirtualizer;
+			var b:TextBlock = textBlockVirtualizer.getItemFromPosition(engine.scrollPosition + y);
 			
 			if(!b)
 			{
 				if(y < 0)
-					return a.getBlockAt(0).firstLine;
+					return TextBlock(textBlockVirtualizer.getItemFromIndex(0)).firstLine;
 				
 				return null;
 			}
 			
 			var l:TextLine = b.firstLine;
 			var lp:LayoutProperties = getLP(b);
-			var h:Number = a.blockPixelStart(b) + lp.paddingTop;
+			var h:Number = textBlockVirtualizer.getItemStart(b) + lp.paddingTop;
 			
 			while(l)
 			{

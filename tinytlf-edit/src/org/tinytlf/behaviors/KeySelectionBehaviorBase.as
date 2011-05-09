@@ -5,7 +5,7 @@ package org.tinytlf.behaviors
 	import flash.text.engine.TextBlock;
 	import flash.text.engine.TextLine;
 	
-	import org.tinytlf.analytics.ITextEngineAnalytics;
+	import org.tinytlf.analytics.IVirtualizer;
 	
 	public class KeySelectionBehaviorBase extends SelectionBehaviorBase
 	{
@@ -50,16 +50,18 @@ package org.tinytlf.behaviors
 		
 		protected function assignFocus():void
 		{
-			var a:ITextEngineAnalytics = engine.analytics;
+			var textBlockVirtualizer:IVirtualizer = engine.layout.textBlockVirtualizer;
+			var contentVirtualizer:IVirtualizer = engine.blockFactory.contentVirtualizer;
+			
 			var caret:int = engine.caretIndex;
 			
 			if(caret < 0)
 				caret = 0;
-			if(caret >= a.contentLength)
-				caret = a.contentLength - 1;
+			if(caret >= contentVirtualizer.size)
+				caret = contentVirtualizer.size - 1;
 			
-			var block:TextBlock = a.blockAtContent(caret);
-			var blockStart:int = a.blockContentStart(block);
+			var block:TextBlock = contentVirtualizer.getItemFromPosition(caret);
+			var blockStart:int = textBlockVirtualizer.getItemStart(block);
 			var newLine:TextLine = block.getTextLineAtCharIndex(caret - blockStart);
 			
 			if(newLine != line)

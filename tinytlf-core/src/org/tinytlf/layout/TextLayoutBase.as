@@ -8,12 +8,12 @@ package org.tinytlf.layout
 {
 	import flash.text.engine.*;
 	
-	import org.tinytlf.ITextEngine;
-	import org.tinytlf.analytics.ITextEngineAnalytics;
-	import org.tinytlf.conversion.ITextBlockFactory;
+	import org.tinytlf.*;
+	import org.tinytlf.analytics.*;
+	import org.tinytlf.conversion.*;
 	import org.tinytlf.layout.properties.*;
-	import org.tinytlf.util.TinytlfUtil;
-	import org.tinytlf.util.fte.TextBlockUtil;
+	import org.tinytlf.util.*;
+	import org.tinytlf.util.fte.*;
 	
 	public class TextLayoutBase implements ITextLayout
 	{
@@ -30,6 +30,13 @@ package org.tinytlf.layout
 				return;
 			
 			_engine = textEngine;
+		}
+		
+		private const virtualizer:IVirtualizer = new Virtualizer();
+		
+		public function get textBlockVirtualizer():IVirtualizer
+		{
+			return virtualizer;
 		}
 		
 		/**
@@ -105,9 +112,8 @@ package org.tinytlf.layout
 			});
 			
 			var factory:ITextBlockFactory = engine.blockFactory;
-			var analytics:ITextEngineAnalytics = engine.analytics;
 			
-			var blockIndex:int = analytics.indexAtPixel(engine.scrollPosition);
+			var blockIndex:int = textBlockVirtualizer.getIndexFromPosition(engine.scrollPosition);
 			blockIndex = blockIndex <= 0 ? 0 : blockIndex;
 			
 			var block:TextBlock = factory.getTextBlock(blockIndex);
@@ -210,12 +216,11 @@ package org.tinytlf.layout
 		
 		protected function beginRender(startIndex:int):void
 		{
-			var a:ITextEngineAnalytics = engine.analytics;
-			
 			//Uncache the TextBlocks that exist before the startIndex
 			for(var i:int = 0; i < startIndex; i += 1)
 			{
-				a.removeBlockAt(i);
+				TextBlockUtil.checkIn(textBlockVirtualizer.getItemFromIndex(i));
+				textBlockVirtualizer.dequeueAt(i);
 			}
 		}
 		
@@ -224,17 +229,16 @@ package org.tinytlf.layout
 			var lp:LayoutProperties = TinytlfUtil.getLP(block);
 			var size:Number = lp.paddingTop + lp.height + lp.paddingBottom;
 			
-			engine.analytics.addBlockAt(block, index, size);
+			textBlockVirtualizer.enqueueAt(block, index, size);
 		}
 		
 		protected function endRender(lastIndex:int):void
 		{
-			var a:ITextEngineAnalytics = engine.analytics;
-			
 			//Uncache any blocks after the end index.
 			for(var n:int = engine.blockFactory.numBlocks; lastIndex < n; lastIndex += 1)
 			{
-				a.removeBlockAt(lastIndex);
+				TextBlockUtil.checkIn(textBlockVirtualizer.getItemFromIndex(lastIndex));
+				textBlockVirtualizer.dequeueAt(lastIndex);
 			}
 		}
 	}

@@ -9,6 +9,7 @@ package org.tinytlf.layout
 	import flash.text.engine.TextLine;
 	
 	import org.tinytlf.ITextEngine;
+	import org.tinytlf.analytics.IVirtualizer;
 	
 	/**
 	 * ITextLayout is the tinytlf text layout actor. ITextLayout is responsible
@@ -52,6 +53,14 @@ package org.tinytlf.layout
 		 */
 		function get engine():ITextEngine;
 		function set engine(textEngine:ITextEngine):void;
+		
+		/**
+		 * <p>
+		 * Reference to the <code>IVirtualizer</code> this ITextLayout keeps for
+		 * virtualizing TextBlocks.
+		 * </p>
+		 */
+		function get textBlockVirtualizer():IVirtualizer;
 		
 		/**
 		 * Adds an ITextContainer to be managed and used in layout.

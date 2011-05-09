@@ -9,6 +9,7 @@ package org.tinytlf.conversion
 	import flash.text.engine.TextBlock;
 	
 	import org.tinytlf.ITextEngine;
+	import org.tinytlf.analytics.IVirtualizer;
 	
 	/**
 	 * ITextBlockFactory parses arbitrary data and returns a Vector of 
@@ -49,6 +50,8 @@ package org.tinytlf.conversion
 		
 		function get textBlockGenerator():ITextBlockGenerator;
 		function set textBlockGenerator(value:ITextBlockGenerator):void;
+		
+		function get contentVirtualizer():IVirtualizer;
 		
 		/**
 		 * The number of potential discreet TextBlock instances that this

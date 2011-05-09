@@ -29,24 +29,6 @@ package org.tinytlf
 			this.stage = stage;
 		}
 		
-		private var _analytics:ITextEngineAnalytics;
-		public function get analytics():ITextEngineAnalytics
-		{
-			if(!_analytics)
-				analytics = new TextEngineAnalytics();
-			
-			return _analytics;
-		}
-		
-		public function set analytics(textAnalytics:ITextEngineAnalytics):void
-		{
-			if(textAnalytics === _analytics)
-				return;
-			
-			_analytics = textAnalytics;
-			_analytics.engine = this;
-		}
-		
 		protected var _blockFactory:ITextBlockFactory;
 		
 		public function get blockFactory():ITextBlockFactory
@@ -179,7 +161,7 @@ package org.tinytlf
 			if(index === _caretIndex)
 				return;
 			
-			_caretIndex = Math.max(Math.min(index, analytics.contentLength), 0);
+			_caretIndex = Math.max(Math.min(index, blockFactory.contentVirtualizer.size), 0);
 			
 			//Don't draw the caretIndex if we don't have a caret decoration.
 			if(!decor.hasDecoration('caret'))
@@ -213,7 +195,7 @@ package org.tinytlf
 			if(rendering)
 				return;
 			
-			_scrollPosition = Math.min(Math.max(value, 0), analytics.pixelLength);
+			_scrollPosition = Math.min(Math.max(value, 0), layout.textBlockVirtualizer.size);
 			invalidate();
 		}
 		

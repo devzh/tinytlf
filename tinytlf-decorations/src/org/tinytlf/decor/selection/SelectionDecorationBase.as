@@ -5,7 +5,7 @@ package org.tinytlf.decor.selection
 	import flash.text.engine.TextBlock;
 	import flash.text.engine.TextLine;
 	
-	import org.tinytlf.analytics.ITextEngineAnalytics;
+	import org.tinytlf.analytics.IVirtualizer;
 	import org.tinytlf.decor.TextDecor;
 	import org.tinytlf.decor.TextDecoration;
 	import org.tinytlf.layout.ITextContainer;
@@ -23,7 +23,8 @@ package org.tinytlf.decor.selection
 			var rects:Vector.<Rectangle> = new <Rectangle>[];
 			// this must be a Point object
 			var pt:Point = Point(parameters[0]).clone();
-			var a:ITextEngineAnalytics = engine.analytics;
+			var textBlockVirtualizer:IVirtualizer = engine.layout.textBlockVirtualizer;
+			var contentVirtualizer:IVirtualizer = engine.blockFactory.contentVirtualizer;
 			var block:TextBlock;
 			var index:int = 0;
 			
@@ -32,15 +33,15 @@ package org.tinytlf.decor.selection
 			
 			while(start < pt.y)
 			{
-				index = a.indexAtContent(start);
+				index = contentVirtualizer.getIndexFromPosition(start);
 				
-				if(start == a.contentLength)
-					index = a.numBlocks - 1;
+				if(start == contentVirtualizer.size)
+					index = textBlockVirtualizer.length - 1;
 				
 				if(index == -1)
 					break;
 				
-				block = a.getBlockAt(index);
+				block = textBlockVirtualizer.getItemFromIndex(index);
 				
 				if(block)
 				{
@@ -52,10 +53,12 @@ package org.tinytlf.decor.selection
 						break;
 				}
 				
-				if(start == a.contentLength)
+				if(start == contentVirtualizer.size)
 					break;
 				
-				start = a.indexContentStart(index) + a.indexContentSize(index);
+				var item:* = contentVirtualizer.getItemFromIndex(index);
+				start = contentVirtualizer.getItemStart(item) + 
+						contentVirtualizer.getItemSize(item);
 			}
 			
 			return rects;
@@ -63,9 +66,12 @@ package org.tinytlf.decor.selection
 		
 		protected function getBlockSelectionIndicies(block:TextBlock, selection:Point):Point
 		{
-			var a:ITextEngineAnalytics = engine.analytics;
-			var start:Number = a.blockContentStart(block);
-			var size:Number = a.blockContentSize(block);
+			var textBlockVirtualizer:IVirtualizer = engine.layout.textBlockVirtualizer;
+			var contentVirtualizer:IVirtualizer = engine.blockFactory.contentVirtualizer;
+			var blockIndex:int = textBlockVirtualizer.getItemIndex(block);
+			var contentItem:* = contentVirtualizer.getItemFromIndex(blockIndex);
+			var start:Number = contentVirtualizer.getItemStart(contentItem);
+			var size:Number = contentVirtualizer.getItemSize(contentItem);
 			var end:Number = start + size;
 			
 			var p:Point = new Point();
@@ -93,8 +99,9 @@ package org.tinytlf.decor.selection
 		
 		protected function getBlockRects(block:TextBlock, selectionIndicies:Point):Vector.<Rectangle>
 		{
-			var a:ITextEngineAnalytics = engine.analytics;
-			var blockSize:Number = a.blockContentSize(block);
+			var textBlockVirtualizer:IVirtualizer = engine.layout.textBlockVirtualizer;
+			var contentVirtualizer:IVirtualizer = engine.blockFactory.contentVirtualizer;
+			var blockSize:Number = contentVirtualizer.getItemSize(block);
 			
 			if(selectionIndicies.x == 0 && selectionIndicies.y >= blockSize - 1)
 			{
@@ -102,7 +109,7 @@ package org.tinytlf.decor.selection
 			}
 			
 			var rects:Vector.<Rectangle> = new <Rectangle>[];
-			var blockLength:int = a.blockContentSize(block);
+			var blockLength:int = contentVirtualizer.getItemSize(block);
 			var line:TextLine = block.getTextLineAtCharIndex(Math.min(selectionIndicies.x, blockLength - 1));
 			var indicies:Point;
 			

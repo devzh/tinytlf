@@ -30,13 +30,20 @@ package org.tinytlf.conversion
 			_engine = textEngine;
 		}
 		
+		protected var virtualizer:IVirtualizer = new Virtualizer();
+		
+		public function get contentVirtualizer():IVirtualizer
+		{
+			return virtualizer;
+		}
+		
 		public function preRender():void
 		{
 		}
 		
 		public function getTextBlock(index:int):TextBlock
 		{
-			var block:TextBlock = engine.analytics.getBlockAt(index);
+			var block:TextBlock = engine.layout.textBlockVirtualizer.getItemFromIndex(index) as TextBlock;
 			
 			if(block)
 				return block;
@@ -56,7 +63,7 @@ package org.tinytlf.conversion
 			var adapter:*;
 			
 			//Return the generic adapter if we haven't mapped any.
-			if(!(element in elementAdapterMap))
+			if(!hasElementFactory(element))
 			{
 				adapter = new ContentElementFactory();
 				IContentElementFactory(adapter).engine = engine;

@@ -268,7 +268,7 @@ package org.tinytlf.layout
 		
 		public function postLayout():void
 		{
-			var visibleBlocks:Dictionary = engine.analytics.cachedBlocks;
+			var visibleBlocks:Dictionary = engine.layout.textBlockVirtualizer.items;
 			var n:int = visibleLines.length;
 			var line:TextLine;
 			

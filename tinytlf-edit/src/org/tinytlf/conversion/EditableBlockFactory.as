@@ -1,9 +1,8 @@
 package org.tinytlf.conversion
 {
 	import flash.text.engine.*;
-	import flash.utils.Dictionary;
 	
-	import org.tinytlf.analytics.ITextEngineAnalytics;
+	import org.tinytlf.analytics.IVirtualizer;
 	import org.tinytlf.layout.properties.LayoutProperties;
 	import org.tinytlf.model.*;
 	import org.tinytlf.model.xml.TagSoup;
@@ -16,18 +15,25 @@ package org.tinytlf.conversion
 	 */
 	public class EditableBlockFactory extends TextBlockFactoryBase implements ITextBlockFactory
 	{
+		public function EditableBlockFactory()
+		{
+			virtualizer = new EditableVirtualizer();
+		}
+		
 		override public function preRender():void
 		{
-			var a:ITextEngineAnalytics = engine.analytics;
+			var textBlockVirtualizer:IVirtualizer = engine.layout.textBlockVirtualizer;
+			var contentVirtualizer:IVirtualizer = engine.blockFactory.contentVirtualizer;
 			
 			if(root.numChildren <= 0)
 			{
-				a.clear();
+				textBlockVirtualizer.clear();
+				contentVirtualizer.clear();
 				root.addChild(new TLFNode());
 				return;
 			}
 			
-			var n:int = a.numBlocks;
+			var n:int = textBlockVirtualizer.length;
 			var node:ITLFNode;
 			var element:ContentElement;
 			var block:TextBlock;
@@ -35,13 +41,14 @@ package org.tinytlf.conversion
 			
 			for(var i:int = 0; i < n; i += 1)
 			{
-				block = a.getBlockAt(i);
+				block = textBlockVirtualizer.getItemFromIndex(i);
 				lp = TinytlfUtil.getLP(block);
 				
 				if(i >= root.numChildren)
 				{
 					lp.model = null;
-					a.removeBlockAt(i);
+					TextBlockUtil.checkIn(block);
+					textBlockVirtualizer.dequeueAt(i);
 					continue;
 				}
 				
@@ -55,10 +62,11 @@ package org.tinytlf.conversion
 				}
 				else
 				{
-					a.removeBlockAt(i);
+					TextBlockUtil.checkIn(block);
+					textBlockVirtualizer.dequeueAt(i);
 					block = textBlockGenerator.generate(node, getElementFactory(node.name));
 					lp.model = node;
-					a.addBlockAt(block, i, 1);
+					textBlockVirtualizer.enqueueAt(block, i, 1);
 				}
 			}
 		}
@@ -68,8 +76,8 @@ package org.tinytlf.conversion
 			if(index >= numBlocks)
 				return null;
 			
-			var a:ITextEngineAnalytics = engine.analytics;
-			var block:TextBlock = a.getBlockAt(index);
+			var textBlockVirtualizer:IVirtualizer = engine.layout.textBlockVirtualizer;
+			var block:TextBlock = textBlockVirtualizer.getItemFromIndex(index);
 			
 			var node:ITLFNode = root.getChildAt(index);
 			
@@ -108,7 +116,12 @@ package org.tinytlf.conversion
 				root = buildNode(TagSoup.toXML(value.toString(), true)) as ITLFNodeParent;
 				value = root;
 				
-				engine.analytics.clear();
+				var textBlockVirtualizer:IVirtualizer = engine.layout.textBlockVirtualizer;
+				var contentVirtualizer:IVirtualizer = engine.blockFactory.contentVirtualizer;
+				
+				textBlockVirtualizer.clear();
+				contentVirtualizer.clear();
+				
 			}
 			
 			super.data = value;
@@ -130,5 +143,16 @@ package org.tinytlf.conversion
 			
 			return node;
 		}
+	}
+}
+import org.tinytlf.analytics.Virtualizer;
+import org.tinytlf.model.ITLFNode;
+
+internal class EditableVirtualizer extends Virtualizer
+{
+	override public function get size():int
+	{
+		var root:ITLFNode = engine.blockFactory.data as ITLFNode;
+		return root ? root.length : super.size;
 	}
 }
