@@ -15,14 +15,14 @@ package org.tinytlf.util
 	{
 		public static function atomIndexToGlobalIndex(engine:ITextEngine, line:TextLine, atomIndex:int):int
 		{
-			var v:IVirtualizer = engine.layout.textBlockVirtualizer;
+			var v:IVirtualizer = engine.blockFactory.contentVirtualizer;
 			var blockStart:int = v.getItemStart(line.textBlock);
 			return blockStart + line.textBlockBeginIndex + atomIndex;
 		}
 		
 		public static function globalIndexToAtomIndex(engine:ITextEngine, line:TextLine, globalIndex:int):int
 		{
-			var v:IVirtualizer = engine.layout.textBlockVirtualizer;
+			var v:IVirtualizer = engine.blockFactory.contentVirtualizer;
 			var blockStart:int = v.getItemStart(line.textBlock);
 			return globalIndex - blockStart - line.textBlockBeginIndex;
 		}
@@ -44,13 +44,13 @@ package org.tinytlf.util
 		
 		public static function globalIndexToAtomBounds(engine:ITextEngine, globalIndex:int):Rectangle
 		{
-			var textBlockVirtualizer:IVirtualizer = engine.layout.textBlockVirtualizer;
-			var b:TextBlock = textBlockVirtualizer.getItemFromPosition(globalIndex);
+			var contentVirtualizer:IVirtualizer = engine.blockFactory.contentVirtualizer;
+			var b:TextBlock = contentVirtualizer.getItemFromPosition(globalIndex);
 			
 			if(!b)
 				return null;
 			
-			var blockIndex:int = globalIndex - textBlockVirtualizer.getItemStart(b);
+			var blockIndex:int = globalIndex - contentVirtualizer.getItemStart(b);
 			var line:TextLine = b.getTextLineAtCharIndex(blockIndex);
 			var atomBounds:Rectangle = line.getAtomBounds(blockIndex - line.textBlockBeginIndex);
 			atomBounds.offset(line.x, line.y);
@@ -60,6 +60,7 @@ package org.tinytlf.util
 		public static function pointToGlobalIndex(engine:ITextEngine, point:Point):int
 		{
 			var textBlockVirtualizer:IVirtualizer = engine.layout.textBlockVirtualizer;
+			var contentVirtualizer:IVirtualizer = engine.blockFactory.contentVirtualizer;
 			var blocks:Dictionary = textBlockVirtualizer.items;
 			var b:TextBlock;
 			var l:TextLine;
@@ -85,7 +86,7 @@ package org.tinytlf.util
 			
 			var atomIndex:int = TextLineUtil.getAtomIndexAtPoint(l, point);
 			
-			return textBlockVirtualizer.getItemStart(b) + l.textBlockBeginIndex + atomIndex;
+			return contentVirtualizer.getItemStart(b) + l.textBlockBeginIndex + atomIndex;
 		}
 		
 		public static function yToTextLine(engine:ITextEngine, y:Number):TextLine

@@ -23,7 +23,6 @@ package org.tinytlf.decor.selection
 			var rects:Vector.<Rectangle> = new <Rectangle>[];
 			// this must be a Point object
 			var pt:Point = Point(parameters[0]).clone();
-			var textBlockVirtualizer:IVirtualizer = engine.layout.textBlockVirtualizer;
 			var contentVirtualizer:IVirtualizer = engine.blockFactory.contentVirtualizer;
 			var block:TextBlock;
 			var index:int = 0;
@@ -36,12 +35,12 @@ package org.tinytlf.decor.selection
 				index = contentVirtualizer.getIndexFromPosition(start);
 				
 				if(start == contentVirtualizer.size)
-					index = textBlockVirtualizer.length - 1;
+					index = contentVirtualizer.length - 1;
 				
 				if(index == -1)
 					break;
 				
-				block = textBlockVirtualizer.getItemFromIndex(index);
+				block = contentVirtualizer.getItemFromIndex(index);
 				
 				if(block)
 				{
@@ -56,9 +55,7 @@ package org.tinytlf.decor.selection
 				if(start == contentVirtualizer.size)
 					break;
 				
-				var item:* = contentVirtualizer.getItemFromIndex(index);
-				start = contentVirtualizer.getItemStart(item) + 
-						contentVirtualizer.getItemSize(item);
+				start = contentVirtualizer.getItemStart(block) + contentVirtualizer.getItemSize(block);
 			}
 			
 			return rects;
@@ -66,9 +63,8 @@ package org.tinytlf.decor.selection
 		
 		protected function getBlockSelectionIndicies(block:TextBlock, selection:Point):Point
 		{
-			var textBlockVirtualizer:IVirtualizer = engine.layout.textBlockVirtualizer;
 			var contentVirtualizer:IVirtualizer = engine.blockFactory.contentVirtualizer;
-			var blockIndex:int = textBlockVirtualizer.getItemIndex(block);
+			var blockIndex:int = contentVirtualizer.getItemIndex(block);
 			var contentItem:* = contentVirtualizer.getItemFromIndex(blockIndex);
 			var start:Number = contentVirtualizer.getItemStart(contentItem);
 			var size:Number = contentVirtualizer.getItemSize(contentItem);
@@ -99,7 +95,6 @@ package org.tinytlf.decor.selection
 		
 		protected function getBlockRects(block:TextBlock, selectionIndicies:Point):Vector.<Rectangle>
 		{
-			var textBlockVirtualizer:IVirtualizer = engine.layout.textBlockVirtualizer;
 			var contentVirtualizer:IVirtualizer = engine.blockFactory.contentVirtualizer;
 			var blockSize:Number = contentVirtualizer.getItemSize(block);
 			

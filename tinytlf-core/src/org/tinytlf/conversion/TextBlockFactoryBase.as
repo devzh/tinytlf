@@ -43,7 +43,7 @@ package org.tinytlf.conversion
 		
 		public function getTextBlock(index:int):TextBlock
 		{
-			var block:TextBlock = engine.layout.textBlockVirtualizer.getItemFromIndex(index) as TextBlock;
+			var block:TextBlock = contentVirtualizer.getItemFromIndex(index) as TextBlock;
 			
 			if(block)
 				return block;
