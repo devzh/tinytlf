@@ -80,7 +80,7 @@ package org.tinytlf.interaction
 				return;
 			}
 			
-			info = EventLineInfo.getInfo(event, this);
+			info = EventLineInfo.getInfo(event);
 			if(!info)
 				return;
 			
