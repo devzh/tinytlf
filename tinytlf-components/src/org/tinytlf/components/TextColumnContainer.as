@@ -103,6 +103,16 @@ package org.tinytlf.components
 			container.foreground = shapesContainer;
 		}
 		
+		public function get lines():Sprite
+		{
+			return container.lines;
+		}
+		
+		public function set lines(linesContainer:Sprite):void
+		{
+			container.lines = linesContainer;
+		}
+		
 		public function get explicitWidth():Number
 		{
 			return container.explicitWidth;
@@ -257,10 +267,12 @@ package org.tinytlf.components
 		
 		private function drawBackground():void
 		{
+			return;
+			
 			var g:Graphics = graphics;
 			g.clear();
 			g.lineStyle();
-			g.beginFill(0x00, 0.1);
+			g.beginFill(0x00, 0);
 			g.drawRect(0, 0, 
 				explicitWidth || measuredWidth || width, 
 				explicitHeight || measuredHeight || height);

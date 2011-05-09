@@ -78,6 +78,16 @@ package org.tinytlf.layout
         function set foreground(shapesContainer:Sprite):void;
         
 		/**
+		 * The Sprite in which TextLines are added. Exists between the
+		 * background and foreground Sprites.
+		 * 
+		 * @see org.tinytlf.decor.ITextDecor
+		 * @see org.tinytlf.decor.ITextDecoration
+		 */
+        function get lines():Sprite;
+        function set lines(linesContainer:Sprite):void;
+        
+		/**
 		 * The height within which to render and lay out TextLines. If this
 		 * value is not set, the <code>ITextContainer</code> will render lines
 		 * into this container indefinitely, never signaling that the container

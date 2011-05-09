@@ -11,7 +11,6 @@ package org.tinytlf.layout
 	import flash.utils.Dictionary;
 	
 	import org.tinytlf.ITextEngine;
-	import org.tinytlf.conversion.ITextBlockFactory;
 	
 	public class TextContainerBase implements ITextContainer
 	{
@@ -49,9 +48,9 @@ package org.tinytlf.layout
 			
 			_target = doc;
 			
-			foreground = Sprite(target.addChild(fgShapes || new Sprite()));
-			lines = Sprite(target.addChild(lines || new Sprite()));
 			background = Sprite(target.addChildAt(bgShapes || new Sprite(), 0));
+			lines = Sprite(target.addChild(lines || new Sprite()));
+			foreground = Sprite(target.addChild(fgShapes || new Sprite()));
 		}
 		
 		protected var _engine:ITextEngine;
@@ -110,12 +109,12 @@ package org.tinytlf.layout
 		
 		private var lineContainer:Sprite;
 		
-		protected function get lines():Sprite
+		public function get lines():Sprite
 		{
 			return lineContainer;
 		}
 		
-		protected function set lines(container:Sprite):void
+		public function set lines(container:Sprite):void
 		{
 			if(container === lineContainer)
 				return;
@@ -124,8 +123,8 @@ package org.tinytlf.layout
 			
 			if(lineContainer)
 			{
-				lineContainer.mouseEnabled = true;
-				lineContainer.mouseChildren = false;
+				lineContainer.mouseChildren = true;
+				lineContainer.mouseEnabled = false;
 			}
 		}
 		
