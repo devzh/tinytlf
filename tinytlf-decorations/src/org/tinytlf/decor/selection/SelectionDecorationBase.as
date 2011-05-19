@@ -160,14 +160,14 @@ package org.tinytlf.decor.selection
 			
 			if(startIndex >= line.atomCount)
 				startIndex = line.atomCount - 1;
-			if(endIndex > line.atomCount)
-				endIndex = line.atomCount;
+			if(endIndex >= line.atomCount)
+				endIndex = line.atomCount - 1;
 			
 			var rect:Rectangle = line.getAtomBounds(startIndex);
 			rect.width ||= 1;
 			rect.height ||= 1;
 			
-			var rect2:Rectangle = line.getAtomBounds(Math.max(endIndex - 1, 0));
+			var rect2:Rectangle = line.getAtomBounds(Math.max(endIndex, 0));
 			
 			if(endIndex > line.atomCount)
 				rect2 = new Rectangle(line.specifiedWidth);

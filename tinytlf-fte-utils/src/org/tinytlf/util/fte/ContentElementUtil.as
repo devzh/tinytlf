@@ -147,9 +147,9 @@ package org.tinytlf.util.fte
 			ef.dominantBaseline = TextBaseline.IDEOGRAPHIC_TOP;
 			
 			var s:Shape = new Shape();
-			s.graphics.beginFill(color);
-			s.graphics.drawRect(0, 0, 10, 2);
-			s.graphics.endFill();
+//			s.graphics.beginFill(color);
+//			s.graphics.drawRect(0, 0, 10, 2);
+//			s.graphics.endFill();
 			
 			var g:GraphicElement = new GraphicElement(s, 0, 0, ef);
 			g.userData = marker;

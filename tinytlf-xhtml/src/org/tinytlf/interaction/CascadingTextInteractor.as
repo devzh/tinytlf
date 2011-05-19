@@ -2,9 +2,9 @@ package org.tinytlf.interaction
 {
 	import flash.events.EventDispatcher;
 	
-	import org.tinytlf.model.ITLFNode;
+	import org.tinytlf.conversion.IHTMLNode;
 	
-	public class CascadingTextInteractor extends EditInteractor
+	public class CascadingTextInteractor extends GestureInteractor
 	{
 		public function CascadingTextInteractor()
 		{
@@ -13,15 +13,17 @@ package org.tinytlf.interaction
 		
 		override public function getMirror(element:* = null):EventDispatcher
 		{
-			if(element is ITLFNode)
+			if(element is XML)
 			{
 				var mirror:EventDispatcher;
-				var node:ITLFNode = element as ITLFNode;
+				var node:IHTMLNode = element as IHTMLNode;
 				while(node)
 				{
 					mirror = super.getMirror(node.name);
+					
 					if(mirror)
 						return mirror;
+					
 					node = node.parent;
 				}
 				

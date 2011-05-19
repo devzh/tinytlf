@@ -18,7 +18,7 @@ package org.tinytlf.conversion
     {
         override public function execute(data:Object, ...context:Array):ContentElement
         {
-            var img:Object = engine.styler.describeElement(data as IHTMLNode);
+            var img:IHTMLNode = data as IHTMLNode;
 			var lp:LayoutProperties = new LayoutProperties(img);
 			
 			var format:ElementFormat = getElementFormat(context);

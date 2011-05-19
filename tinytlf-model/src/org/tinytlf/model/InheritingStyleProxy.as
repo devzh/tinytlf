@@ -3,8 +3,7 @@ package org.tinytlf.model
 	import flash.text.engine.ElementFormat;
 	import flash.utils.flash_proxy;
 	
-	import org.tinytlf.styles.ITextStyler;
-	import org.tinytlf.styles.StyleAwareActor;
+	import org.tinytlf.styles.*;
 	import org.tinytlf.util.TinytlfUtil;
 	
 	use namespace flash_proxy;
@@ -159,21 +158,21 @@ package org.tinytlf.model
 			var inheritanceTree:String = '* ' + walkStylesTree(owner);
 			cssProperties.mergeWith(styler.describeElement(inheritanceTree.split(' ')));
 			cssProperties.mergeWith(this);
+			mergeWith(cssProperties);
 		}
 		
-		private function walkStylesTree(owner:ITLFNode):String
+		private function walkStylesTree(node:ITLFNode):String
 		{
 			var str:String = '';
 			
-			if(owner.type == TLFNodeType.CONTAINER)
-			{
-				str += owner.name;
-				
-				if('class' in owner)
-					str += ' .' + owner['class'];
-				if('id' in owner)
-					str += ' #' + owner['id'];
-			}
+			str += node.name;
+			if('class' in node)
+				str += ' .' + node['class'];
+			if('id' in node)
+				str += ' #' + node['id'];
+			
+			if(node.parent)
+				str = walkStylesTree(node.parent) + ' ' + str;
 			
 			return str;
 		}
@@ -208,6 +207,7 @@ internal class CSSProperties extends StyleAwareActor
 	public function clear():void
 	{
 		properties = {};
+//		states = {};
 	}
 	
 	override flash_proxy function getProperty(name:*):*
@@ -219,6 +219,11 @@ internal class CSSProperties extends StyleAwareActor
 		{
 			state = propName.substring(0, propName.indexOf(':') + 1);
 			propName = propName.substr(propName.indexOf(':') + 1);
+		}
+		
+		if(propName == "")
+		{
+			return properties[state] || properties;
 		}
 		
 		if(state == 'normal:')

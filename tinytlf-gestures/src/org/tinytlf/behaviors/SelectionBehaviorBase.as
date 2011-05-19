@@ -3,7 +3,6 @@ package org.tinytlf.behaviors
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
 	
-	
 	public class SelectionBehaviorBase extends MultiGestureBehavior
 	{
 		public function SelectionBehaviorBase()

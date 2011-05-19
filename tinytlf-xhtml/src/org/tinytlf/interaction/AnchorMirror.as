@@ -1,10 +1,10 @@
 package org.tinytlf.interaction
 {
-	import flash.events.MouseEvent;
-	import flash.events.TextEvent;
-	import flash.net.URLRequest;
-	import flash.net.navigateToURL;
-	import flash.ui.ContextMenu;
+	import flash.events.*;
+	import flash.net.*;
+	import flash.ui.*;
+	
+	import org.tinytlf.conversion.IHTMLNode;
 	
 	public class AnchorMirror extends CSSMirror
 	{
@@ -15,12 +15,12 @@ package org.tinytlf.interaction
 				return super.up();
 			
 			var request:URLRequest = getURLRequest();
+			var node:IHTMLNode = content.userData as IHTMLNode;
 			
 			//If there's an href, launch the URL. 
 			if(request)
 			{
-				var props:Object = resolveCSSProperties(NORMAL);
-				navigateToURL(request, props['target'] || '_blank');
+				navigateToURL(request, node['target'] || '_blank');
 			}
 			else
 			{
@@ -66,12 +66,17 @@ package org.tinytlf.interaction
 		private function applyLink():void
 		{
 			var menu:ContextMenu = line.contextMenu;
-			menu.link = getURLRequest();
+			
+			if(menu)
+				menu.link = getURLRequest();
 		}
 		
 		private function unapplyLink():void
 		{
 			var menu:ContextMenu = line.contextMenu;
+			
+			if(!menu) return;
+			
 			menu.link = null;
 			menu.clipboardMenu = true;
 		}
@@ -88,12 +93,8 @@ package org.tinytlf.interaction
 		
 		private function getLink():String
 		{
-			var props:Object = resolveCSSProperties(NORMAL);
-			
-			if(!props.hasOwnProperty('href'))
-				return '';
-			
-			return props.href;
+			var node:IHTMLNode = content.userData as IHTMLNode;
+			return node['href'];
 		}
 	}
 }

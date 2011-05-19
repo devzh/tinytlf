@@ -5,17 +5,12 @@ package org.tinytlf.interaction
 	import flash.ui.Mouse;
 	import flash.ui.MouseCursor;
 	
+	import org.tinytlf.conversion.IHTMLNode;
 	import org.tinytlf.decor.ITextDecor;
-	import org.tinytlf.model.ITLFNode;
 	import org.tinytlf.util.TinytlfUtil;
 	
 	public class CSSMirror extends EventMirrorBase
 	{
-		public function CSSMirror()
-		{
-			super();
-		}
-		
 		protected static const NORMAL:String = 'normal';
 		protected static const ACTIVE:String = 'active';
 		protected static const HOVER:String = 'hover';
@@ -131,19 +126,10 @@ package org.tinytlf.interaction
 			}
 		}
 		
-		protected const stateCache:Object = {};
-		
 		protected function resolveCSSProperties(state:String):Object
 		{
-			if(state in stateCache)
-				return stateCache[state];
-			
-			var node:ITLFNode = content.userData as ITLFNode;
-			
-			if(!node)
-				return {};
-			
-			return stateCache[state] = node[state + ':'];
+			var node:IHTMLNode = content.userData as IHTMLNode;
+			return node ? node[state + ':'] : {};
 		}
 	}
 }

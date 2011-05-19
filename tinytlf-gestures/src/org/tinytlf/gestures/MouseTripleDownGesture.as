@@ -53,6 +53,7 @@ package org.tinytlf.gestures
 		
 		public function up(event:MouseEvent):Boolean
 		{
+			go = false;
 			upTime = getTimer();
 			return event.type == MouseEvent.MOUSE_UP;
 		}

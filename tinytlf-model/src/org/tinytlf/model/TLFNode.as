@@ -1,9 +1,12 @@
 package org.tinytlf.model
 {
 	import flash.text.engine.*;
+	import flash.utils.flash_proxy;
 	
 	import org.tinytlf.ITextEngine;
 	import org.tinytlf.styles.StyleAwareActor;
+	
+	use namespace flash_proxy;
 	
 	public class TLFNode extends StyleAwareActor implements ITLFNode, ITLFNodeParent
 	{
@@ -36,6 +39,9 @@ package org.tinytlf.model
 		
 		public function addChildAt(node:ITLFNode, index:int):ITLFNode
 		{
+			if(!node)
+				return null;
+			
 			validFlag = false;
 			
 			checkRange(index);
@@ -49,6 +55,8 @@ package org.tinytlf.model
 				TLFNode(node)._parent = this;
 			
 			node.engine = engine;
+			
+			node.regenerateStyles();
 			
 			impl;
 			
@@ -329,6 +337,30 @@ package org.tinytlf.model
 			
 			impl.mergeWith(object);
 		}
+		
+		override flash_proxy function nextName(index:int):String
+		{
+			if(style is InheritingStyleProxy)
+				return InheritingStyleProxy(style).flash_proxy::nextName(index);
+			
+			return super.nextName(index);
+		}
+		
+		override flash_proxy function nextNameIndex(index:int):int
+		{
+			if(style is InheritingStyleProxy)
+				return InheritingStyleProxy(style).flash_proxy::nextNameIndex(index);
+			
+			return super.nextNameIndex(index);
+		}
+		
+		override flash_proxy function nextValue(index:int):*
+		{
+			if(style is InheritingStyleProxy)
+				return InheritingStyleProxy(style).flash_proxy::nextValue(index);
+			
+			return super.nextValue(index);
+		}
 	}
 }
 import flash.text.engine.*;
@@ -374,13 +406,19 @@ internal class NodeImpl extends StyleAwareActor implements ITLFNodeParent
 		return 0;
 	}
 	
+	private var _name:String = '';
+	
 	public function get name():String
 	{
-		return null;
+		return _name;
 	}
 	
 	public function set name(value:String):void
 	{
+		if(value == _name)
+			return;
+		
+		_name = value;
 	}
 	
 	public function get text():String
@@ -522,21 +560,6 @@ internal class ContainerImpl extends NodeImpl implements ITLFNode
 	override public function get length():int
 	{
 		return text.length;
-	}
-	
-	private var _name:String = '';
-	
-	override public function get name():String
-	{
-		return _name;
-	}
-	
-	override public function set name(value:String):void
-	{
-		if(value == _name)
-			return;
-		
-		_name = value;
 	}
 	
 	override public function get text():String
@@ -755,24 +778,12 @@ internal class LeafImpl extends NodeImpl implements ITLFNode
 	
 	override public function toString():String
 	{
-		if(TLFNode.DEBUG_MODE)
-			return '<' + name + '>' + text + '</' + name + '>';
-		
-		return text ? text : XML(<{name}/>).toXMLString();
+		return '<' + owner.name + owner.style.toString() + '>' + text + '</' + owner.name + '>';
 	}
 	
 	override public function get length():int
 	{
 		return text.length;
-	}
-	
-	override public function get name():String
-	{
-		return TLFNodeType.LEAF;
-	}
-	
-	override public function set name(value:String):void
-	{
 	}
 	
 	private var _text:String = '';
@@ -802,9 +813,6 @@ internal class LeafImpl extends NodeImpl implements ITLFNode
 	{
 		if(value is String)
 		{
-//			if(contentElement)
-//				TextElement(contentElement).replaceText(at, at, String(value));
-			
 			_text = text.substring(0, at) + String(value) + text.substring(at);
 		}
 		else if(value is ITLFNode)
@@ -833,9 +841,6 @@ internal class LeafImpl extends NodeImpl implements ITLFNode
 		}
 		
 		_text = text.substring(0, start) + text.substring(end);
-		
-//		if(contentElement is TextElement)
-//			TextElement(contentElement).text = _text;
 		
 		return owner;
 	}

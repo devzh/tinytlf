@@ -40,13 +40,16 @@ package org.tinytlf.gestures
 		{
 			go = (getTimer() - upTime) < 400;
 			
-			return go && event.type == MouseEvent.MOUSE_DOWN;
+			var doIt:Boolean = go && event.type == MouseEvent.MOUSE_DOWN;
+			
+			return doIt;
 		}
 		
 		private var upTime:int = 0;
 		
 		public function up(event:MouseEvent):Boolean
 		{
+			go = false;
 			upTime = getTimer();
 			return event.type == MouseEvent.MOUSE_UP;
 		}

@@ -22,7 +22,7 @@ package org.tinytlf.behaviors
 			var m:MouseEvent = MouseEvent(finalEvent);
 			var atomIndex:int = TextLineUtil.getAtomIndexAtPoint(line, new Point(m.stageX, m.stageY));
 			var begin:int = TextLineUtil.getAtomWordBoundary(line, atomIndex);
-			var end:int = TextLineUtil.getAtomWordBoundary(line, atomIndex, false);
+			var end:int = TextLineUtil.getAtomWordBoundary(line, atomIndex, false) - 1;
 			
 			return new Point(TinytlfUtil.atomIndexToGlobalIndex(engine, line, begin),
 							TinytlfUtil.atomIndexToGlobalIndex(engine, line, end));
