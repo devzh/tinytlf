@@ -150,13 +150,15 @@ package org.tinytlf.layout.orientation.horizontal
 				{
 					if(c.float == TextFloat.LEFT)
 					{
-						if(majorValue >= l){
+						if(majorValue >= l)
+						{
 							l = majorValue;
 						}
 					}
 					else if(c.float == TextFloat.RIGHT)
 					{
-						if(majorValue < r){
+						if(majorValue < r)
+						{
 							r = majorValue;
 						}
 					}
@@ -174,16 +176,35 @@ package org.tinytlf.layout.orientation.horizontal
 			rightConstraint = Math.max(r, 0);
 			
 			var lp:LayoutProperties = TinytlfUtil.getLP(around);
+			var indent:Number = 0;
+			
+			if(around is TextBlock)
+			{
+				var block:TextBlock = TextBlock(around);
+				if(block.firstLine == null || block.firstInvalidLine == block.firstLine)
+				{
+					indent = lp.textIndent;
+				}
+			}
+			
+			if(around is TextLine && !TextLine(around).previousLine)
+			{
+				indent += lp.textIndent;
+			}
+			
 			switch(lp.textAlign)
 			{
 				case TextAlign.LEFT:
 				case TextAlign.JUSTIFY:
+					leftConstraint += indent;
 					x = leftConstraint;
 					break;
 				case TextAlign.CENTER:
-					x = (totalWidth * .5) + (l * .5) - (r * .5);
+					leftConstraint += indent;
+					x = (totalWidth * .5) + (leftConstraint * .5) - (rightConstraint * .5);
 					break;
 				case TextAlign.RIGHT:
+					rightConstraint -= indent;
 					x = rightConstraint;
 					break;
 			}
