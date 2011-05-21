@@ -10,7 +10,7 @@ package org.tinytlf.util.fte
 		/**
 		 * Returns the index of the atom at a particular point. If the point
 		 * is outside the boundaries of the line, this determines which side the
-		 * point is on, and returns 0 or atomCount - 1.
+		 * point is on, and returns 0 or line.atomCount.
 		 */
 		public static function getAtomIndexAtPoint(line:TextLine, stageCoords:Point):int
 		{

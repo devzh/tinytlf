@@ -6,52 +6,37 @@
  */
 package org.tinytlf.styles
 {
-	import com.flashartofwar.fcss.styles.IStyle;
-	import com.flashartofwar.fcss.stylesheets.FStyleSheet;
+	import com.flashartofwar.fcss.styles.*;
+	import com.flashartofwar.fcss.stylesheets.*;
 	
 	import flash.text.engine.*;
 	
 	public class FCSSTextStyler extends TextStyler
 	{
 		[Embed(source="default.css", mimeType="application/octet-stream")]
-		private const defaultCSS:Class;
+		private var defaultCSS:Class;
 		
 		public function FCSSTextStyler()
 		{
 			style = new defaultCSS().toString();
 			// A list of non-inheriting styles. If a style isn't in this list,
 			// it's assumed to be an inheriting style.
-			setStyle('nonInheritingStyles', 
+			setStyle('nonInheritingStyles',
 				{
-					margin:null, marginLeft: null, marginRight:null, marginTop:null,
-					padding: null, paddingLeft: null, paddingRight:null, paddingTop:null,
+					margin: null, marginLeft: null, marginRight: null, marginTop: null,
+					padding: null, paddingLeft: null, paddingRight: null, paddingTop: null,
 					width: null, height: null, 'class': null, id: null, style: null
 				});
 		}
 		
-		private var sheet:FStyleSheet;
-		private var stylesheet:String;
+		private const styleSheet:TinytlfStyleSheet = new TinytlfStyleSheet();
 		
 		override public function set style(value:Object):void
 		{
 			if(value is String)
 			{
-				if(!sheet)
-					sheet = new TinytlfStyleSheet();
-				
-				stylesheet = String(value);
-				sheet.parseCSS(stylesheet);
-				
-				//Add the global styles onto this ITextStyler dude.
-				if(super.style is FCSSStyleProxy)
-				{
-					mergeWith(new FCSSStyleProxy(sheet.getStyle("*")));
-					value = super.style;
-				}
-				else
-				{
-					value = new FCSSStyleProxy(sheet.getStyle("*"));
-				}
+				styleSheet.parseCSS(String(value));
+				value = styleSheet.getStyle("*");
 			}
 			
 			super.style = value;
@@ -77,29 +62,26 @@ package org.tinytlf.styles
 			if(element is String)
 				element = String(element).split(' ');
 			if(element is Array)
-				return sheet.getStyle.apply(null, element as Array);
+				return styleSheet.getStyle.apply(null, element as Array);
 			
 			return super.describeElement(element);
 		}
 		
 		override public function toString():String
 		{
-			if(stylesheet)
-				return stylesheet;
-			
-			return super.toString();
+			return styleSheet.toString();
 		}
 	}
 }
 
-import com.flashartofwar.fcss.applicators.AbstractApplicator;
-import com.flashartofwar.fcss.styles.IStyle;
-import com.flashartofwar.fcss.stylesheets.FStyleSheet;
-import com.flashartofwar.fcss.utils.TypeHelperUtil;
+import com.flashartofwar.fcss.applicators.*;
+import com.flashartofwar.fcss.styles.*;
+import com.flashartofwar.fcss.stylesheets.*;
+import com.flashartofwar.fcss.utils.*;
 
 import flash.text.engine.*;
 
-import org.tinytlf.styles.FCSSStyleProxy;
+import org.tinytlf.styles.*;
 
 internal class EFApplicator extends AbstractApplicator
 {
@@ -173,6 +155,36 @@ internal class FDApplicator extends AbstractApplicator
 
 internal class TinytlfStyleSheet extends FStyleSheet
 {
+	override public function parseCSS(cssText:String, useCSSTidy:Boolean = true):IStyleSheet
+	{
+		cachedstyles.length = 0;
+		
+		indexCSS(useCSSTidy ? tidy(cssText) : cssText);
+		
+		// Force @variables to cache
+		getStyle("@variables");
+		
+		this.cssText = '';
+		
+		return this;
+	}
+	
+	override public function toString():String
+	{
+		if(cssText != '')
+			return cssText;
+		
+		var s:String = '';
+		var o:Object;
+		
+		for each(var styleName:String in styleNames)
+		{
+			s += styleLookup(styleName, false).toString();
+		}
+		
+		return cssText = s;
+	}
+	
 	override protected function createEmptyStyle():IStyle
 	{
 		return new FCSSStyleProxy();

@@ -7,7 +7,6 @@
 package org.tinytlf.styles
 {
 	import com.flashartofwar.fcss.styles.IStyle;
-	import com.flashartofwar.fcss.utils.TypeHelperUtil;
 	
 	import flash.system.Capabilities;
 	import flash.utils.flash_proxy;
@@ -19,16 +18,29 @@ package org.tinytlf.styles
 		public function FCSSStyleProxy(styleObject:Object = null)
 		{
 			super(styleObject);
+			
+			if(styleObject is IStyle)
+			{
+				styleName = IStyle(styleObject).styleName;
+			}
 		}
-		
-		//Properties which can have their values set in em, pt, px, or % sizes.
-		protected const specialSizeProperties:Object = {fontSize: true, lineHeight: true, wordSpacing: true, letterSpacing: true};
 		
 		override protected function mergeProperty(property:String, source:Object):void
 		{
-			if(property in specialSizeProperties)
+			var value:* = source[property];
+			
+			if(value is String)
 			{
-				this[property] = deriveFontSizeValue(source[property], this[property]);
+				if(valueIsEm(value))
+					this[property] = deriveValueFromBaseValue(value, this[property]);
+				else if(valueIsPoint(value))
+					this[property] = deriveValueFromPoint(value);
+				else if(valueIsPercent(value))
+					this[property] = deriveValueFromBaseValue(value, this[property]);
+				else if(valueIsPixel(value))
+					this[property] = deriveValueFromPixel(value);
+				else
+					super.mergeProperty(property, source);
 			}
 			else
 			{
@@ -56,61 +68,56 @@ package org.tinytlf.styles
 			return new FCSSStyleProxy(this);
 		}
 		
-		protected function deriveFontSizeValue(sizeValue:Object, baseFontSize:Number = NaN):Object
+		protected function valueIsPoint(value:String):Boolean
 		{
-			var number:Number = baseFontSize;
-			
-			if(sizeValue is Number)
-			{
-				number = Number(sizeValue);
-			}
-			else if(sizeValue is String)
-			{
-				var s:String = String(sizeValue);
-				if(/pt/i.test(s))
-				{
-					s = s.substring(0, s.indexOf('pt'));
-					//a point is 1/72nd of an inch.
-					number = (Number(s) / 72) * screenDPI;
-				}
-				else if(/em/i.test(s))
-				{
-					//If no font size was passed in, just store the sizeValue for later.
-					if(baseFontSize != baseFontSize)
-						return sizeValue;
-					
-					s = s.substring(0, s.indexOf('em'));
-					number = baseFontSize * Number(s);
-				}
-				else if(/%/i.test(s))
-				{
-					//If no font size was passed in, just store the sizeValue for later.
-					if(baseFontSize != baseFontSize)
-						return sizeValue;
-					
-					s = s.substring(0, s.indexOf('%'));
-					number = baseFontSize * Number(s) * .01;
-				}
-				else
-				{
-					if(/px/i.test(s))
-						s = s.substring(0, s.indexOf('px'));
-					
-					number = Number(s);
-				}
-			}
-			
-			return number;
+			return /pt/i.test(value);
 		}
 		
-		//Put this here so we're not querying Capabilities every time.
+		protected function valueIsEm(value:String):Boolean
+		{
+			return /em/i.test(value);
+		}
+		
+		protected function valueIsPercent(value:String):Boolean
+		{
+			return /%/i.test(value);
+		}
+		
+		protected function valueIsPixel(value:String):Boolean
+		{
+			return /px/i.test(value);
+		}
+		
+		protected function deriveValueFromPoint(value:String):Number
+		{
+			//a point is 1/72nd of an inch.
+			return (Number(value.substring(0, value.indexOf('pt'))) / 72) * screenDPI;
+		}
+		
+		protected function deriveValueFromBaseValue(value:String, baseValue:Number = NaN):*
+		{
+			//If no base value was passed in, we can't derive an M-height.
+			if(baseValue != baseValue)
+				return value;
+			
+			return baseValue * Number(value.substring(0, value.indexOf('em')));
+		}
+		
+		protected function deriveValueFromPixel(value:String):Number
+		{
+			return Number(value.substring(0, value.indexOf('px')));
+		}
+		
+		//Cache the screen DPI.
 		protected static const screenDPI:Number = Capabilities.screenDPI;
 		
 		override flash_proxy function setProperty(name:*, value:*):void
 		{
 			//Convert any #FFFFFF values to 0xFFFFFF
 			if(value is String && String(value).indexOf("#") != -1)
-				value = TypeHelperUtil.stringToUint(value);
+			{
+				value = uint('0x' + String(value).substring(1));
+			}
 			
 			super.setProperty(name, value);
 		}
@@ -118,6 +125,16 @@ package org.tinytlf.styles
 		public function merge(obj:Object):void
 		{
 			mergeWith(obj);
+			
+			if(obj is IStyle)
+			{
+				styleName = IStyle(obj).styleName;
+			}
+		}
+		
+		override public function toString():String
+		{
+			return styleName + ' ' + super.toString();
 		}
 	}
 }
