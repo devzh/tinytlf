@@ -47,6 +47,12 @@ package org.tinytlf.util
 			var contentVirtualizer:IVirtualizer = engine.blockFactory.contentVirtualizer;
 			var b:TextBlock = contentVirtualizer.getItemFromPosition(globalIndex);
 			
+			if(globalIndex >= contentVirtualizer.size)
+			{
+				b = contentVirtualizer.getItemFromIndex(contentVirtualizer.length - 1);
+				globalIndex = contentVirtualizer.size - 1;
+			}
+			
 			if(!b)
 				return null;
 			
