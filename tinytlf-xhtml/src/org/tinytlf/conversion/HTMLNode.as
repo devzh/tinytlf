@@ -17,9 +17,7 @@ package org.tinytlf.conversion
 			
 			this.parent = parent;
 			
-			inheritance = parent ? 
-				parent.inheritanceList + ' ' + describeInheritance(node) :
-				'*';
+			inheritance = (parent ? parent.inheritanceList : '* body') + ' ' + describeInheritance(node);
 		}
 		
 		override flash_proxy function getDescendants(name:*):*
@@ -54,7 +52,7 @@ package org.tinytlf.conversion
 			var str:String = node.localName();
 			
 			if(node.attribute('class').length())
-				str += ' .' + node.node.attribute('class');
+				str += ' .' + node.attribute('class');
 			if(node.attribute('id').length())
 				str += ' #' + node.@id;
 			

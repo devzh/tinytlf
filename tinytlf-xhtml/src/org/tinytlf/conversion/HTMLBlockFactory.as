@@ -22,6 +22,7 @@ package org.tinytlf.conversion
 			{
 				var paragraph:IHTMLNode = new HTMLNode(paragraphs[index]);
 				paragraph.mergeWith(engine.styler);
+				paragraph.mergeWith(engine.styler.describeElement(paragraph.inheritanceList.split(' ')));
 				block = textBlockGenerator.generate(paragraph, getElementFactory(paragraph.name));
 			}
 			
