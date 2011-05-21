@@ -14,7 +14,7 @@ package org.tinytlf.decor
 	 * is a map for defining text decorations, including what they're called and
 	 * the classes or instances which draw the decoration.
 	 * <code>ITextDecor</code> also manages the application and rendering of 
-	 * decorations. Use <code>decorate</code< and <code>undecorate</code> to 
+	 * decorations. Use <code>decorate</code> and <code>undecorate</code> to 
 	 * apply or un-apply a decoration to an element. <code>ITextDecor</code> 
 	 * handles invalidating and rendering the decorations.
 	 */

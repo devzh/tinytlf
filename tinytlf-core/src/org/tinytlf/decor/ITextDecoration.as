@@ -63,6 +63,7 @@ package org.tinytlf.decor
 		 * input and should return a Vector of 
 		 * <code>flash.geom.Rectangle</code>s which can be passed to 
 		 * <code>draw</code>.
+		 * </p>
 		 * <p>
 		 * <code>Setup</code> accepts a variable number of 
 		 * arguments, but in tinytlf core, the second argument is the 

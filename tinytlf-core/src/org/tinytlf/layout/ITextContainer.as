@@ -131,7 +131,7 @@ package org.tinytlf.layout
 		
 		/**
 		 * Whether the TextContainer is scrollable or not. The TextContainer must
-		 * have an <code>explicitHeight<code> (or <code>explicitWidth</code> if
+		 * have an <code>explicitHeight</code> (or <code>explicitWidth</code> if
 		 * a vertical layout is applied) defined which binds TextLines within
 		 * the content area.
 		 * 

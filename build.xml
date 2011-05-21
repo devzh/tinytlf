@@ -1,11 +1,14 @@
-<project name="fcss-build" basedir="." default="compile-swc">
+<project name="fcss-build" basedir="." default="asdoc">
+	
 	<property environment="env." />
+	
 	<!-- identify properties file -->
 	<property file="build.properties" />
 	<property name="FLEX_HOME" location="${env.FLEX_HOME}" />
+	
 	<!-- Set up FlexUnit Ant tasks -->
 	<taskdef resource="flexUnitTasks.tasks" classpath="${lib.loc}/flexUnitTasks.jar" />
-
+	
 	<target name="usage">
 		<echo message="" />
 		<echo message="${project.name} Build Usage" />
@@ -21,12 +24,7 @@
 		<echo message="init          --> Clean and create build folders" />
 		<echo message="" />
 	</target>
-
-	<target name="disconnect">
-		<delete dir="${basedir}/.git" />
-		<delete file="${basedir}/.gitignore" />
-	</target>
-
+	
 	<!-- Clean Build and Report files -->
 	<target name="clean">
 		<!-- Remove all directories created during the build process -->
@@ -59,15 +57,26 @@
 	</target>
 
 	<!-- Run Unit Tests -->
-	<target name="test" depends="init" if="run.test">
+	<target name="test" depends="init">
 		<echo>[test] Running Unit Tests</echo>
 		<!-- Compile TestRunner.mxml as a SWF -->
 
 		<mkdir dir="${report.loc}" />
 
 		<java jar="${FLEX_HOME}/lib/mxmlc.jar" dir="${FLEX_HOME}/frameworks" fork="true" failonerror="true">
-			<arg value="${test.src.loc}/${project.name}TestApp.mxml" />
-			<arg value="-source-path=${main.src.loc}" />
+			<arg value="+flexlib=${FLEX_HOME}/frameworks"/>
+			<arg value="-load-config+=${basedir}/config.xml" />
+			
+			<arg value="${test.src.loc}/${project.name}Tests.mxml" />
+			
+			<arg value="-source-path=${utils.src.loc}" />
+			<arg value="-source-path=${core.src.loc}" />
+			<arg value="-source-path=${gestures.src.loc}" />
+			<arg value="-source-path=${edit.src.loc}" />
+			<arg value="-source-path=${decorations.src.loc}" />
+			<arg value="-source-path=${layouts.src.loc}" />
+			<arg value="-source-path=${html.src.loc}" />
+			<arg value="-source-path=${components.src.loc}" />
 
 			<arg value="-output=${bin.loc}/TestRunner.swf" />
 			<arg value="-default-size=148,148" />
@@ -97,37 +106,39 @@
 	</target>
 
 	<!-- Build Documentation -->
-	<target name="asdoc" depends="test" if="run.asdoc">
-		<echo>[create-docs] Generating ASDOC documentation</echo>
-		<tstamp>
-			<format property="docgen.time" pattern="MM/dd/yyyy hh:mm aa" unit="hour" />
-		</tstamp>
-
+	<target name="asdoc" depends="compile-swc">
+		<echo>[asdoc] Generating ASDOC documentation</echo>
+		
 		<java jar="${FLEX_HOME}/lib/asdoc.jar" dir="${FLEX_HOME}/frameworks" fork="true" failonerror="true">
-			<arg line="-external-library-path ${lib.loc}" />
-			<arg line="-doc-sources ${core.src.loc}" />
-			<arg line="-source-path ${core.src.loc}" />
+			<arg value="+flexlib=${FLEX_HOME}/frameworks"/>
+			<arg value="-load-config+=${basedir}/config.xml" />
+		
+			<!-- Include classes from SWCs in this folder, but only the ones we use. -->
+			<arg value="-library-path+=${lib.loc}" />
+			<arg value="-external-library-path+=${bin.loc}" />
+			
+			<arg line="-doc-sources ${utils.src.loc} ${core.src.loc} ${gestures.src.loc} ${decorations.src.loc} ${layouts.src.loc} ${html.src.loc} ${edit.src.loc} ${components.src.loc}" />
+			<arg line="-source-path ${utils.src.loc} ${core.src.loc} ${gestures.src.loc} ${decorations.src.loc} ${layouts.src.loc} ${html.src.loc} ${edit.src.loc} ${components.src.loc}" />
 			<arg line="-output ${doc.loc}" />
-			<arg line="-window-title '${project.name}'" />
-			<arg line="-main-title '${project.name}'" />
-			<arg line="-footer '${project.name} - Documentation generated at: ${docgen.time}'" />
+			<arg line="-window-title '${project.name.versioned}'" />
+			<arg line="-main-title '${project.name.versioned}'" />
+			<arg line="-footer '${project.name.versioned}'" />
 		</java>
-
-		<echo>[create-docs] ASDOC documentation generated successfully</echo>
+		
+		<echo>[asdoc] ASDOC documentation generated successfully</echo>
 	</target>
-
+	
 	<!-- Compile Release SWC -->
-	<target name="compile-swc" depends="init">
+	<target name="compile-swc" depends="test">
 		<echo>[compile] Compiling release SWC</echo>
 		<echo>[compile] Using Flex SDK at: ${FLEX_HOME}</echo>
 		<build-swc source="${utils.src.loc}" version="${project.name.versioned}" project="utils"/>
 		<build-swc source="${core.src.loc}" version="${project.name.versioned}" project="core" />
-		<build-swc source="${model.src.loc}" version="${project.name.versioned}" project="model" />
 		<build-swc source="${gestures.src.loc}" version="${project.name.versioned}" project="gestures" />
-		<build-swc source="${edit.src.loc}" version="${project.name.versioned}" project="edit" />
 		<build-swc source="${decorations.src.loc}" version="${project.name.versioned}" project="decorations" />
 		<build-swc source="${layouts.src.loc}" version="${project.name.versioned}" project="layouts" />
-		<build-swc source="${xhtml.src.loc}" version="${project.name.versioned}" project="xhtml" />
+		<build-swc source="${html.src.loc}" version="${project.name.versioned}" project="html" />
+		<build-swc source="${edit.src.loc}" version="${project.name.versioned}" project="edit" />
 		<build-swc source="${components.src.loc}" version="${project.name.versioned}" project="components" />
 	</target>
 

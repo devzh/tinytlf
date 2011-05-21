@@ -4,8 +4,6 @@ package org.tinytlf
     import flash.display.Stage;
     import flash.events.Event;
     import flash.events.TimerEvent;
-    import flash.text.engine.TextBlock;
-    import flash.text.engine.TextElement;
     import flash.utils.Timer;
     
     import flexunit.framework.Assert;
@@ -16,6 +14,7 @@ package org.tinytlf
     
     import org.flexunit.async.Async;
     import org.fluint.uiImpersonation.UIImpersonator;
+    import org.tinytlf.components.TextFieldEngineConfiguration;
     import org.tinytlf.conversion.*;
     import org.tinytlf.decor.*;
     import org.tinytlf.interaction.*;
@@ -33,6 +32,7 @@ package org.tinytlf
         {
             engineStage = UIImpersonator.addChild(new UIComponent()).stage;
             engine = new TextEngine(engineStage);
+			engine.configuration = new TextFieldEngineConfiguration();
             delayTimer = new Timer(1000, 1);
             Async.proceedOnEvent(this,
                                  prepare(ITextDecor, ITextBlockFactory, ITextLayout),
@@ -216,7 +216,7 @@ package org.tinytlf
         {
             var target:Sprite = new Sprite();
             engine.layout.addContainer(new TextContainerBase(target, 100));
-            engine.blockFactory.addBlocks("Let's test this shit.");
+            engine.blockFactory.data = "Let's test this shit.";
             engine.invalidate();
             engine.render();
         }
