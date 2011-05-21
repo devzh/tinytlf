@@ -1,6 +1,6 @@
 package org.tinytlf.operations
 {
-	import org.tinytlf.model.ITLFNode;
+	import org.tinytlf.conversion.IHTMLNode;
 
 	public class CompositeOperation extends TextOperation
 	{
@@ -21,7 +21,7 @@ package org.tinytlf.operations
 			enders = enders.concat(Vector.<ITextOperation>(ops));
 		}
 		
-		override public function initialize(model:ITLFNode):ITextOperation
+		override public function initialize(model:IHTMLNode):ITextOperation
 		{
 			super.initialize(model);
 			

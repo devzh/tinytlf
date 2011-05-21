@@ -1,12 +1,9 @@
 package org.tinytlf.operations
 {
-	import flash.text.engine.TextBlock;
 	
-	import org.tinytlf.model.*;
-
 	public class SplitParagraphOperation extends TextOperation
 	{
-		public function SplitParagraphOperation(props:Object=null)
+		public function SplitParagraphOperation(props:Object = null)
 		{
 			super(props);
 		}
@@ -16,19 +13,19 @@ package org.tinytlf.operations
 		
 		override public function execute():void
 		{
-			var root:ITLFNodeParent = ITLFNodeParent(model);
-			nodeIndex = root.getChildIndexAtPosition(caret);
-			var child:ITLFNode = root.getChildAt(nodeIndex);
-			child.split(caret - root.getChildPosition(nodeIndex));
+//			var root:ITLFNodeParent = ITLFNodeParent(model);
+//			nodeIndex = root.getChildIndexAtPosition(caret);
+//			var child:ITLFNode = root.getChildAt(nodeIndex);
+//			child.split(caret - root.getChildPosition(nodeIndex));
 //			engine.analytics.addBlockAt(new TextBlock(), nodeIndex + 1, 0);
 		}
 		
 		override public function backout():void
 		{
 //			engine.analytics.removeBlockAt(nodeIndex + 1);
-			var root:ITLFNodeParent = ITLFNodeParent(model);
-			var pos:int = root.getChildPosition(nodeIndex);
-			root.merge(pos, pos + 1);
+//			var root:ITLFNodeParent = ITLFNodeParent(model);
+//			var pos:int = root.getChildPosition(nodeIndex);
+//			root.merge(pos, pos + 1);
 		}
 	}
 }

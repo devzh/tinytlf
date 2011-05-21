@@ -3,7 +3,6 @@ package org.tinytlf.behaviors
 	import flash.geom.Point;
 	
 	import org.tinytlf.operations.*;
-	import org.tinytlf.model.ITLFNode;
 
 	public class BackspaceBehavior extends OperationFactoryBehavior
 	{

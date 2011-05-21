@@ -1,17 +1,11 @@
 package org.tinytlf.behaviors
 {
 	import org.tinytlf.operations.*;
-	import org.tinytlf.model.ITLFNode;
 	import org.tinytlf.util.TinytlfUtil;
 	import org.tinytlf.util.fte.TextLineUtil;
 
 	public class BackspaceCtrlBehavior extends OperationFactoryBehavior
 	{
-		public function BackspaceCtrlBehavior()
-		{
-			super();
-		}
-		
 		[Event("keyDown")]
 		public function backspace():void
 		{

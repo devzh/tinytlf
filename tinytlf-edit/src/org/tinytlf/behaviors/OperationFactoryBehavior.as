@@ -2,18 +2,18 @@ package org.tinytlf.behaviors
 {
 	import flash.events.Event;
 	
+	import org.tinytlf.conversion.IHTMLNode;
 	import org.tinytlf.interaction.IEditInteractor;
-	import org.tinytlf.model.ITLFNode;
 	import org.tinytlf.operations.ITextOperation;
 
 	public class OperationFactoryBehavior extends MultiGestureBehavior
 	{
-		protected var model:ITLFNode;
+		protected var model:IHTMLNode;
 		protected var interactor:IEditInteractor;
 		
 		override protected function act(events:Vector.<Event>):void
 		{
-			model = engine.blockFactory.data as ITLFNode;
+			model = engine.blockFactory.data as IHTMLNode;
 			interactor = engine.interactor as IEditInteractor;
 			
 			if(!model || !interactor)

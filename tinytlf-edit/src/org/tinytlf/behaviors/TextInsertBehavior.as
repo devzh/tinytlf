@@ -23,7 +23,7 @@ package org.tinytlf.behaviors
 				if(caret == selection.y)
 					caret -= (selection.y - selection.x);
 				
-				maxCaret = model.length - (selection.y - selection.x);
+//				maxCaret = model.length - (selection.y - selection.x);
 			}
 			
 			op.add(

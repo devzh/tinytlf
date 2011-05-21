@@ -1,7 +1,7 @@
 package org.tinytlf.operations
 {
 	import org.tinytlf.ITextEngine;
-	import org.tinytlf.model.ITLFNode;
+	import org.tinytlf.conversion.IHTMLNode;
 	import org.tinytlf.styles.StyleAwareActor;
 	
 	public class TextOperation extends StyleAwareActor implements ITextOperation
@@ -11,13 +11,13 @@ package org.tinytlf.operations
 			super(props);
 		}
 		
-		protected var model:ITLFNode;
+		protected var model:IHTMLNode;
 		protected var engine:ITextEngine;
 		
-		public function initialize(model:ITLFNode):ITextOperation
+		public function initialize(model:IHTMLNode):ITextOperation
 		{
 			this.model = model;
-			this.engine = model.engine;
+//			this.engine = model.engine;
 			return this;
 		}
 		

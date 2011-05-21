@@ -1,9 +1,6 @@
 package org.tinytlf.behaviors
 {
-	import flash.text.engine.TextBlock;
-	
 	import org.tinytlf.operations.*;
-	import org.tinytlf.model.*;
 
 	public class ShiftEnterBehavior extends OperationFactoryBehavior
 	{
@@ -21,7 +18,7 @@ package org.tinytlf.behaviors
 				);
 			}
 			
-			var index:int = ITLFNodeParent(model).getChildIndexAtPosition(caret);
+			var index:int = 0;//model.getChildIndexAtPosition(caret);
 			
 			op.add(new SplitParagraphOperation({caret: caret, nodeIndex: index}));
 			op.runAtEnd(new InvalidateEngineOperation());

@@ -1,6 +1,6 @@
 package org.tinytlf.operations
 {
-	import org.tinytlf.model.ITLFNode;
+	
 	
 	public class TextInsertOperation extends TextOperation implements ITextOperation
 	{
@@ -15,12 +15,12 @@ package org.tinytlf.operations
 		
 		override public function execute():void
 		{
-			model.insert(value, start);
+//			model.insert(value, start);
 		}
 		
 		override public function backout():void
 		{
-			model.remove(start, end);
+//			model.remove(start, end);
 		}
 		
 		override public function merge(op:ITextOperation):void

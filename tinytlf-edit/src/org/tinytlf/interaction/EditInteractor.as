@@ -77,12 +77,12 @@ package org.tinytlf.interaction
 		}
 	}
 }
+import org.tinytlf.conversion.IHTMLNode;
 import org.tinytlf.operations.ITextOperation;
-import org.tinytlf.model.ITLFNode;
 
 internal class NullOperation implements ITextOperation
 {
-	public function initialize(model:ITLFNode):ITextOperation{return this;}
+	public function initialize(model:IHTMLNode):ITextOperation{return this;}
 	public function execute():void{}
 	public function backout():void{}
 	public function merge(op:ITextOperation):void{}
