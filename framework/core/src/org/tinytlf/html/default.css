@@ -1,0 +1,53 @@
+*{
+	font-lookup: embeddedCFF;
+	font-family: _sans;
+	font-size: 16px;
+	layout-direction: ltr;
+}
+h1, h2, h3, h4, h5, h6, b, strong {
+	font-weight: bold;
+}
+em, i{
+	font-posture: italic;
+}
+u, underline{
+	underline: true;
+}
+h1{
+	font-size: 2em;
+}
+h2{
+	font-size: 1.5em;
+}
+h3{
+	font-size: 1.2em;
+}
+h4{
+	font-size: 1.12em;
+}
+h5{
+	font-size: .83em;
+}
+h6{
+	font-size: .75em;
+}
+ol{
+	margin-left: 40px;
+	list-style-position: inside;
+}
+ul{
+	margin-left: 40px;
+	list-style-position: inside;
+	margin-top: 0;
+	margin-bottom: 0;
+}
+sup{
+	font-size: .6em;
+	alignment-baseline: ideographicCenter;
+}
+hr{
+	padding-top: 5;
+	padding-bottom: 5;
+	weight: 2;
+	height: 2;
+}

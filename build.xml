@@ -71,12 +71,6 @@
 			
 			<arg value="-source-path=${utils.src.loc}" />
 			<arg value="-source-path=${core.src.loc}" />
-			<arg value="-source-path=${gestures.src.loc}" />
-			<arg value="-source-path=${edit.src.loc}" />
-			<arg value="-source-path=${decorations.src.loc}" />
-			<arg value="-source-path=${layouts.src.loc}" />
-			<arg value="-source-path=${html.src.loc}" />
-			<arg value="-source-path=${components.src.loc}" />
 
 			<arg value="-output=${bin.loc}/TestRunner.swf" />
 			<arg value="-default-size=148,148" />
@@ -117,8 +111,8 @@
 			<arg value="-library-path+=${lib.loc}" />
 			<arg value="-external-library-path+=${bin.loc}" />
 			
-			<arg line="-doc-sources ${utils.src.loc} ${core.src.loc} ${gestures.src.loc} ${decorations.src.loc} ${layouts.src.loc} ${html.src.loc} ${edit.src.loc} ${components.src.loc}" />
-			<arg line="-source-path ${utils.src.loc} ${core.src.loc} ${gestures.src.loc} ${decorations.src.loc} ${layouts.src.loc} ${html.src.loc} ${edit.src.loc} ${components.src.loc}" />
+			<arg line="-doc-sources ${utils.src.loc} ${core.src.loc}" />
+			<arg line="-source-path ${utils.src.loc} ${core.src.loc}" />
 			<arg line="-output ${doc.loc}" />
 			<arg line="-window-title '${project.name.versioned}'" />
 			<arg line="-main-title '${project.name.versioned}'" />
@@ -132,14 +126,8 @@
 	<target name="compile-swc" depends="test">
 		<echo>[compile] Compiling release SWC</echo>
 		<echo>[compile] Using Flex SDK at: ${FLEX_HOME}</echo>
-		<build-swc source="${utils.src.loc}" version="${project.name.versioned}" project="utils"/>
+		<build-swc source="${utils.src.loc}" version="${project.name.versioned}" project="fte-utils"/>
 		<build-swc source="${core.src.loc}" version="${project.name.versioned}" project="core" />
-		<build-swc source="${gestures.src.loc}" version="${project.name.versioned}" project="gestures" />
-		<build-swc source="${decorations.src.loc}" version="${project.name.versioned}" project="decorations" />
-		<build-swc source="${layouts.src.loc}" version="${project.name.versioned}" project="layouts" />
-		<build-swc source="${html.src.loc}" version="${project.name.versioned}" project="html" />
-		<build-swc source="${edit.src.loc}" version="${project.name.versioned}" project="edit" />
-		<build-swc source="${components.src.loc}" version="${project.name.versioned}" project="components" />
 	</target>
 
 	<macrodef name="build-swc">
