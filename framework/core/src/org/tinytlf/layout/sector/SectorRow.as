@@ -30,7 +30,7 @@ package org.tinytlf.layout.sector
 				else if(progression == TextBlockProgression.TTB || progression == TextBlockProgression.BTT)
 					s += (sector.height || sector.textHeight);
 			});
-			return s;
+			return Math.ceil(s);
 		}
 	}
 }

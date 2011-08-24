@@ -1,7 +1,5 @@
 package org.tinytlf.html
 {
-	import flash.utils.getTimer;
-	
 	import org.tinytlf.*;
 	
 	public class CSS extends Styleable

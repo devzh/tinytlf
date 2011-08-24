@@ -5,11 +5,11 @@ package org.tinytlf
 	import org.swiftsuspenders.*;
 	import org.tinytlf.content.*;
 	import org.tinytlf.decoration.*;
-	import org.tinytlf.html.CSS;
-	import org.tinytlf.html.ParagraphTSF;
+	import org.tinytlf.html.*;
 	import org.tinytlf.interaction.*;
 	import org.tinytlf.layout.*;
 	import org.tinytlf.style.*;
+	import org.tinytlf.virtualization.*;
 	
 	public class TextEngineInjector extends Injector
 	{
@@ -34,6 +34,7 @@ package org.tinytlf
 			mapValue(IElementFormatFactory, new DOMEFFactory());
 			mapValue(ITextDecorator, new TextDecorator());
 			mapValue(CSS, new CSS());
+			mapValue(IVirtualizer, new Virtualizer());
 		}
 		
 		protected function injectMappings():void
@@ -45,6 +46,7 @@ package org.tinytlf
 			injectInto(getInstance(ITextSectorFactoryMap));
 			injectInto(getInstance(IElementFormatFactory));
 			injectInto(getInstance(ITextDecorator));
+			injectInto(getInstance(IVirtualizer));
 		}
 	}
 }
