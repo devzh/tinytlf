@@ -17,6 +17,7 @@
 
 		<keep-as3-metadata append="true">
 			<name>Event</name>
+			<name>Inject</name>
 		</keep-as3-metadata>
 	</compiler>
 	
@@ -27,7 +28,7 @@
 	
 	<metadata>
 		<creator>Paul Taylor</creator>
-		<description>TinyTLF!</description>
-		<title>TinyTLF!</title>
+		<description>tinytlf</description>
+		<title>tinytlf</title>
 	</metadata>
 </flex-config>
