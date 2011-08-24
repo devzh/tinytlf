@@ -1,5 +1,7 @@
 package
 {
+	import embeds.*;
+	
 	import flash.display.*;
 	import flash.events.*;
 	import flash.geom.*;
@@ -18,27 +20,10 @@ package
 	[SWF(width = "402", height = "502")]
 	public class Main extends Sprite
 	{
-		[Embed(source = "assets/css/arabic.css", mimeType = "application/octet-stream")]
-		private const cssSource:Class;
-		
-//		[Embed(source = "assets/html/idlewords.txt", mimeType = "application/octet-stream")]
-		[Embed(source = "assets/html/lipsum.txt", mimeType = "application/octet-stream")]
-		private const htmlSource:Class;
-		
-		[Embed(source = "assets/fonts/Helvetica Regular.ttf", fontFamily = "Helvetica")]
-		private const helvetica:Class;
-		
-		[Embed(source = "assets/fonts/Helvetica Italic.ttf", fontStyle = "italic", fontFamily = "Helvetica")]
-		private const helveticaItalic:Class;
-		
-		[Embed(source = "assets/fonts/Helvetica Bold.ttf", fontWeight = "bold", fontFamily = "Helvetica")]
-		private const helveticaBold:Class;
-		
-		[Embed(source = "assets/fonts/Helvetica Bold Italic.ttf",
-			fontWeight = "bold",
-			fontStyle = "italic",
-			fontFamily = "Helvetica")]
-		private const helveticaBoldItalic:Class;
+		private var helvetica:Helvetica;
+		private var helveticaBold:HelveticaBold;
+		private var helveticaItalic:HelveticaItalic;
+		private var helveticaBoldItalic:HelveticaBoldItalic;
 		
 		public function Main()
 		{
@@ -51,7 +36,7 @@ package
 			container = addChild(new Sprite()) as Sprite;
 			
 			const css:CSS = injector.getInstance(CSS);
-			css.inject(new cssSource());
+			css.inject(new CSSSource().toString());
 			css.inject('*{font-name: Helvetica;}');
 			css.inject('p{' +
 					   'padding-top: 10;' +
@@ -59,7 +44,7 @@ package
 					   'text-align: justify;' +
 					   '}');
 			
-			const html:XML = TagSoup.toXML(new htmlSource(), false);
+			const html:XML = TagSoup.toXML(new HTMLSource().toString(), false);
 			const dom:IDOMNode = new DOMNode(html);
 			injector.injectInto(dom);
 			
@@ -114,7 +99,7 @@ package
 			
 			visibleRows.x = i;
 			
-			for(; i < n; ++i)
+			for(; i <= n; ++i)
 			{
 				row = vir.getItemAtIndex(i) || vir.add(new SectorRow(), 1);
 				const y:Number = vir.getStart(row);
@@ -122,8 +107,12 @@ package
 				var rowWidth:Number = 0;
 				
 				row.forEach(function(sector:TextSector, ... args):void {
+					sector.y = y;
+					
+					sector.render();
+					
 					sector.
-						render().
+						textLines.
 						forEach(function(line:TextLine, ... args):void {
 							container.addChild(line);
 						});
