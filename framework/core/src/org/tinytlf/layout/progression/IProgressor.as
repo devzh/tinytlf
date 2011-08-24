@@ -1,8 +1,9 @@
-package org.tinytlf.layout
+package org.tinytlf.layout.progression
 {
 	import flash.text.engine.*;
+	import org.tinytlf.layout.sector.TextSector;
 	
-	public interface IBlockProgressor
+	public interface IProgressor
 	{
 		function progress(region:TextSector, previousLine:TextLine):Number;
 		

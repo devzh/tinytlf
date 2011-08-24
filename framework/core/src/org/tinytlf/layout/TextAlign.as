@@ -13,7 +13,7 @@ package org.tinytlf.layout
         public static const RIGHT:String = 'right';
         public static const JUSTIFY:String = 'justify';
 		
-		internal static function isValid(value:String):Boolean
+		public static function isValid(value:String):Boolean
 		{
 			return value == LEFT || value == CENTER || value == RIGHT || value == JUSTIFY;
 		}

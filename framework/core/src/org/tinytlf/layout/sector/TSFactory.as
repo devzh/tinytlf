@@ -1,6 +1,8 @@
-package org.tinytlf.layout
+package org.tinytlf.layout.sector
 {
 	import org.tinytlf.html.*;
+	import org.tinytlf.layout.ITextSectorFactory;
+	import org.tinytlf.layout.ITextSectorFactoryMap;
 
 	public class TSFactory implements ITextSectorFactory
 	{

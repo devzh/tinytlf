@@ -3,9 +3,10 @@ package org.tinytlf.layout.alignment
 	import flash.text.engine.*;
 	
 	import org.tinytlf.layout.*;
+	import org.tinytlf.layout.sector.*;
 	import org.tinytlf.util.*;
 	
-	public class AlignerBase implements IBlockAligner
+	public class AlignerBase implements IAligner
 	{
 		public function getSize(region:TextSector, previousItem:*):Number
 		{

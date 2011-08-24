@@ -1,9 +1,11 @@
 package org.tinytlf.layout.progression
 {
 	import flash.text.engine.*;
-	import org.tinytlf.layout.*;
 	
-	public class BTTProgressor implements IBlockProgressor
+	import org.tinytlf.layout.*;
+	import org.tinytlf.layout.sector.*;
+	
+	public class BTTProgressor implements IProgressor
 	{
 		public function progress(region:TextSector, previousLine:TextLine):Number
 		{

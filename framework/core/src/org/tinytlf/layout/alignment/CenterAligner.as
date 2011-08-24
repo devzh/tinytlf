@@ -1,7 +1,7 @@
 package org.tinytlf.layout.alignment
 {
 	import flash.text.engine.TextLine;
-	import org.tinytlf.layout.TextSector;
+	import org.tinytlf.layout.sector.TextSector;
 	
 	public class CenterAligner extends AlignerBase
 	{

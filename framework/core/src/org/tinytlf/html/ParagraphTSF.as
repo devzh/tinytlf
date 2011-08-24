@@ -1,9 +1,10 @@
 package org.tinytlf.html
 {
-	import flash.text.engine.TextBlock;
+	import flash.text.engine.*;
 	
-	import org.tinytlf.content.IContentElementFactoryMap;
+	import org.tinytlf.content.*;
 	import org.tinytlf.layout.*;
+	import org.tinytlf.layout.sector.*;
 	
 	public class ParagraphTSF extends TSFactory
 	{
@@ -14,6 +15,8 @@ package org.tinytlf.html
 		{
 			const sector:TextSector = new TextSector();
 			sector.textBlock = new TextBlock(cef.instantiate(dom.name).create(dom));
+			sector.mergeWith(dom);
+			sector.percentWidth = 100;
 			return [sector];
 		}
 	}

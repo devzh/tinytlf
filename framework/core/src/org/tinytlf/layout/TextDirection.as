@@ -11,7 +11,7 @@ package org.tinytlf.layout
         public static const LTR:String = "ltr";
         public static const RTL:String = "rtl";
 		
-		internal static function isValid(value:String):Boolean
+		public static function isValid(value:String):Boolean
 		{
 			return value == LTR || value == RTL;
 		}

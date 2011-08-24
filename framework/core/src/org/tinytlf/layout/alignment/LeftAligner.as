@@ -1,7 +1,7 @@
 package org.tinytlf.layout.alignment
 {
 	import flash.text.engine.*;
-	import org.tinytlf.layout.TextSector;
+	import org.tinytlf.layout.sector.TextSector;
 	
 	public class LeftAligner extends AlignerBase
 	{

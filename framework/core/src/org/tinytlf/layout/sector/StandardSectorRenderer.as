@@ -1,32 +1,29 @@
-package org.tinytlf.layout
+package org.tinytlf.layout.sector
 {
 	import flash.text.engine.*;
 	
 	import org.tinytlf.util.*;
+	import org.tinytlf.layout.alignment.IAligner;
+	import org.tinytlf.layout.progression.IProgressor;
 	
-	internal class StandardBlockRenderer implements IBlockRenderer
+	internal class StandardSectorRenderer implements ISectorRenderer
 	{
-		public function StandardBlockRenderer(aligner:IBlockAligner = null, progression:IBlockProgressor = null)
+		public function StandardSectorRenderer(aligner:IAligner = null, progression:IProgressor = null)
 		{
 			a = aligner;
 			p = progression;
 		}
 		
-		public function render(block:TextBlock,
-							   region:TextSector = null,
-							   constraints:Array = null):Array /*<TextLine>*/
+		public function render(block:TextBlock, region:TextSector = null):Array /*<TextLine>*/
 		{
 			var lines:Array = TextBlockUtil.getValidLines(block);
-			var line:TextLine;
 			
 			if(TextBlockUtil.isInvalid(block))
 			{
-				if(block.firstInvalidLine)
-					line = block.firstInvalidLine.previousLine;
-				else if(block.textLineCreationResult != TextLineCreationResult.COMPLETE)
-					line = block.lastLine;
-				
-				lines = lines.concat(createLines(block, line, region));
+				lines = lines.concat(createLines(
+									 block,
+									 TextBlockUtil.getFirstValidLineBeforeInvalidLine(block),
+									 region));
 			}
 			
 			return lines.concat();
@@ -59,16 +56,16 @@ package org.tinytlf.layout
 				block.createTextLine(previousLine, width, 0.0, true);
 		}
 		
-		protected var a:IBlockAligner;
+		protected var a:IAligner;
 		
-		public function set aligner(value:IBlockAligner):void
+		public function set aligner(value:IAligner):void
 		{
 			a = value;
 		}
 		
-		protected var p:IBlockProgressor;
+		protected var p:IProgressor;
 		
-		public function set progressor(value:IBlockProgressor):void
+		public function set progressor(value:IProgressor):void
 		{
 			p = value;
 		}

@@ -1,6 +1,8 @@
-package org.tinytlf.layout
+package org.tinytlf.layout.alignment
 {
-	public interface IBlockAligner
+	import org.tinytlf.layout.sector.TextSector;
+
+	public interface IAligner
 	{
 		function getSize(region:TextSector, previousItem:*):Number;
 		

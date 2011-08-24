@@ -1,25 +1,31 @@
-package org.tinytlf.layout
+package org.tinytlf.layout.sector
 {
 	import flash.display.*;
 	import flash.events.*;
 	import flash.text.engine.*;
+	import flash.utils.*;
 	
 	import org.tinytlf.*;
 	import org.tinytlf.layout.alignment.*;
 	import org.tinytlf.layout.progression.*;
 	import org.tinytlf.util.*;
+	import org.tinytlf.layout.TextAlign;
+	import org.tinytlf.layout.TextBlockProgression;
+	import org.tinytlf.layout.TextDirection;
 	
-	public final class TextSector extends Styleable
+	use namespace flash_proxy;
+	
+	public dynamic final class TextSector extends Styleable
 	{
-		private var progressor:IBlockProgressor = new TTBProgressor();
-		private var aligner:IBlockAligner = new LeftAligner();
-		private var renderer:IBlockRenderer = new StandardBlockRenderer(aligner, progressor);
-		private var layout:IBlockLayout = new StandardBlockLayout(aligner, progressor);
+		private var progressor:IProgressor = new TTBProgressor();
+		private var aligner:IAligner = new LeftAligner();
+		private var renderer:ISectorRenderer = new StandardSectorRenderer(aligner, progressor);
+		private var layout:ISectorLayout = new StandardSectorLayout(aligner, progressor);
 		
-		public function render():void
+		public function render():Array
 		{
 			if(!invalid)
-				return;
+				return [];
 			
 			th = 0;
 			tw = 0;
@@ -42,6 +48,18 @@ package org.tinytlf.layout
 			
 			tw = progressor.getTotalHorizontalSize(this, lines);
 			th = progressor.getTotalVerticalSize(this, lines);
+			
+			invalidated = false;
+			
+			return textLines;
+		}
+		
+		public function invalidate():void
+		{
+			invalidated = true;
+			lines.forEach(function(line:TextLine, ... args):void {
+				line.validity = TextLineValidity.INVALID;
+			});
 		}
 		
 		/*
@@ -118,6 +136,9 @@ package org.tinytlf.layout
 		 */
 		
 		private var w:Number = NaN;
+		
+		[PercentProxy("percentWidth")]
+		
 		public function get width():Number
 		{
 			return w || 0;
@@ -133,6 +154,9 @@ package org.tinytlf.layout
 		}
 		
 		private var h:Number = NaN;
+		
+		[PercentProxy("percentHeight")]
+		
 		public function get height():Number
 		{
 			return h || 0;
@@ -144,6 +168,38 @@ package org.tinytlf.layout
 				return;
 			
 			h = value;
+			invalidate();
+		}
+		
+		private var pw:Number = NaN;
+		
+		public function get percentWidth():Number
+		{
+			return pw;
+		}
+		
+		public function set percentWidth(value:Number):void
+		{
+			if(value == pw)
+				return;
+			
+			pw = value;
+			invalidate();
+		}
+		
+		private var ph:Number = NaN;
+		
+		public function get percentHeight():Number
+		{
+			return ph;
+		}
+		
+		public function set percentHeight(value:Number):void
+		{
+			if(value == ph)
+				return;
+			
+			ph = value;
 			invalidate();
 		}
 		
@@ -391,13 +447,10 @@ package org.tinytlf.layout
 			invalidate();
 		}
 		
-		private var invalid:Boolean = true;
-		private function invalidate():void
+		private var invalidated:Boolean = true;
+		public function get invalid():Boolean
 		{
-			invalid = true;
-			lines.forEach(function(line:TextLine, ... args):void {
-				line.validity = TextLineValidity.INVALID;
-			});
+			return invalidated;
 		}
 		
 		private function setupBlockJustifier(block:TextBlock):void
@@ -416,5 +469,46 @@ package org.tinytlf.layout
 				block.textJustifier = justifier;
 			}
 		}
+		
+		override protected function mergeProperty(property:String, source:Object):void
+		{
+			const prop:String = property.toString();
+			
+			if(prop.indexOf('-') != -1)
+				property = convertFromDashed(prop);
+			
+			this[property] = source[prop];
+		}
+		
+		override flash_proxy function setProperty(name:*, value:*):void
+		{
+			const prop:String = name.toString();
+			if(prop.indexOf('-') != -1)
+				name = convertFromDashed(prop);
+			
+			super.setProperty(name, value);
+		}
+		
+		override flash_proxy function getProperty(name:*):*
+		{
+			const prop:String = name.toString();
+			if(prop.indexOf('-') != -1)
+				name = convertFromDashed(prop);
+			
+			return super.getProperty(name) || defaults[name];
+		}
+		
+		private function convertFromDashed(property:String):String
+		{
+			return property.split('-').map(function(part:String, i:int, ... args):String {
+				return i == 0 ? part : part.charAt(0).toUpperCase() + part.substr(1);
+			}).join('');
+		}
+		
+		private static const defaults:Object = {
+			padding: 0, paddingLeft: 0, paddingRight: 0, paddingTop: 0, 
+			paddingBottom: 0, margin: 0, marginLeft: 0, marginRight: 0, 
+			marginTop: 0, marginBottom: 0, width: 0, height: 0
+		};
 	}
 }
