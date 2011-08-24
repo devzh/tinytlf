@@ -104,7 +104,10 @@ package org.tinytlf
 		
 		protected function applyProperty(property:String, destination:Object, dynamic:Boolean = false):void
 		{
-			const isFunction:Boolean = (destination[property] is Function);
+			if(!destination.hasOwnProperty(property) && !dynamic)
+				return
+			
+			const isFunction:Boolean = destination[property] is Function;
 			if(isFunction)
 				return;
 			
