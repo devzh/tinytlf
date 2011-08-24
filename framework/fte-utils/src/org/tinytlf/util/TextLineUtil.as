@@ -173,20 +173,25 @@ package org.tinytlf.util
 		public static function cleanLine(line:TextLine):void
 		{
 			line.userData = null;
-			line.validity = TextLineValidity.STATIC;
 		}
 		
-		private static const lines:Vector.<TextLine> = new <TextLine>[];
+		private static const lines:Dictionary = new Dictionary();
 		
 		public static function checkIn(line:TextLine):void
 		{
 			cleanLine(line);
-			lines.push(line);
+			lines[line] = true;
 		}
 		
 		public static function checkOut():TextLine
 		{
-			return lines.pop();
+			for(var line:* in lines)
+			{
+				delete lines[line];
+				return line;
+			}
+			
+			return null;
 		}
 	}
 }
