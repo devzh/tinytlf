@@ -1,5 +1,7 @@
 package org.tinytlf.layout.sector
 {
+	import flash.geom.Point;
+	
 	import org.tinytlf.layout.*;
 	
 	public dynamic class SectorRow extends Array
@@ -20,6 +22,9 @@ package org.tinytlf.layout.sector
 		{
 			progression = TextBlockProgression.isValid(value) ? value : TextBlockProgression.TTB;
 		}
+		
+		public var x:Number = 0;
+		public var y:Number = 0;
 		
 		public function get size():Number
 		{

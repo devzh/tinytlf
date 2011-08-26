@@ -158,6 +158,9 @@ package org.tinytlf.html
 		}
 	}
 }
+import flash.utils.flash_proxy;
+
+use namespace flash_proxy;
 
 internal class StyleLink extends Styleable
 {
@@ -169,6 +172,10 @@ internal class StyleLink extends Styleable
 	
 	override public function setStyle(styleProp:String, newValue:*):void
 	{
+		const prop:String = styleProp.toString();
+		if(prop.indexOf('-') != -1)
+			styleProp = convertFromDashed(prop);
+		
 		const i:int = styleNames.indexOf(styleProp);
 		i == -1 ? styleNames.push(styleProp) : styleNames.splice(i, 1, styleProp);
 		super.setStyle(styleProp, newValue);
@@ -191,6 +198,46 @@ internal class StyleLink extends Styleable
 		
 		return this;
 	}
+	
+	override protected function mergeProperty(property:String, source:Object):void
+	{
+		const prop:String = property;
+		if(prop.indexOf('-') != -1)
+			property = convertFromDashed(prop);
+		
+		this[property] = source[prop];
+	}
+	
+	override flash_proxy function setProperty(name:*, value:*):void
+	{
+		const prop:String = name.toString();
+		if(prop.indexOf('-') != -1)
+			name = convertFromDashed(prop);
+		
+		super.setProperty(name, value);
+	}
+	
+	override flash_proxy function getProperty(name:*):*
+	{
+		const prop:String = name.toString();
+		if(prop.indexOf('-') != -1)
+			name = convertFromDashed(prop);
+		
+		return super.getProperty(name) || defaults[name];
+	}
+	
+	private function convertFromDashed(property:String):String
+	{
+		return property.split('-').map(function(part:String, i:int, ... args):String {
+			return i == 0 ? part : part.charAt(0).toUpperCase() + part.substr(1);
+		}).join('');
+	}
+	
+	private static const defaults:Object = {
+			padding: 0, paddingLeft: 0, paddingRight: 0, paddingTop: 0,
+			paddingBottom: 0, margin: 0, marginLeft: 0, marginRight: 0,
+			marginTop: 0, marginBottom: 0, width: 0, height: 0
+		};
 }
 
 import org.tinytlf.*;

@@ -1,8 +1,9 @@
-package org.tinytlf.layout.sector
+package org.tinytlf.layout
 {
 	import flash.text.engine.*;
 	import org.tinytlf.layout.alignment.IAligner;
 	import org.tinytlf.layout.progression.IProgressor;
+	import org.tinytlf.layout.sector.TextSector;
 	
 	public interface ISectorRenderer
 	{
@@ -10,6 +11,6 @@ package org.tinytlf.layout.sector
 		
 		function set progressor(value:IProgressor):void;
 		
-		function render(block:TextBlock, region:TextSector = null):Array/*<TextLine>*/;
+		function render(block:TextBlock, sector:TextSector):Array/*<TextLine>*/;
 	}
 }

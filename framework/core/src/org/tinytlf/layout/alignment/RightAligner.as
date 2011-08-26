@@ -1,18 +1,19 @@
 package org.tinytlf.layout.alignment
 {
 	import flash.text.engine.*;
-	import org.tinytlf.layout.sector.TextSector;
+	
+	import org.tinytlf.layout.sector.*;
 	
 	public class RightAligner extends AlignerBase
 	{
-		override public function getSize(region:TextSector, previousItem:*):Number
+		override public function getSize(rect:TextRectangle, previousItem:* = null):Number
 		{
-			return region.width - region.paddingLeft - region.paddingRight;
+			return rect.width - rect.paddingLeft - rect.paddingRight;
 		}
 		
-		override public function getStart(region:TextSector, thisItem:*):Number
+		override public function getStart(rect:TextRectangle, thisItem:*):Number
 		{
-			return region.width - TextLine(thisItem).width - region.paddingRight;
+			return rect.width - TextLine(thisItem).width - rect.paddingRight;
 		}
 		
 		override public function sort(items:Array):Array

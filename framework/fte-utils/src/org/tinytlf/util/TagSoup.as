@@ -20,11 +20,13 @@ package org.tinytlf.util
 			}
 			catch(e:Error)
 			{
-				try{
+				try
+				{
 					//But maybe he's just missing a root node?
 					x = new XML('<body>' + unwashed.toString() + ' </body>');
 				}
-				catch(e:Error){
+				catch(e:Error)
+				{
 					//Nope, too optimistic. slurp em up.
 					x = new XML('<body>' + slurp(unwashed.toString()) + ' </body>');
 				}
@@ -35,13 +37,14 @@ package org.tinytlf.util
 				// if we were passed a string with no root at all
 				// or if we were passed the root node and we want 
 				// it wrapped inside another root.
-				if(	(x..*.length() == 0) || 
-					((x.*.length() > 0) && (x.*[0].nodeKind().toString() == 'text'))
-				)
+				if((x..*.length() == 0) ||
+					((x.*.length() > 0) && (x.*[0].nodeKind().toString() == 'text')))
 				{
 					//wrap it upp
 					x = <body>{x}</body>;
 				}
+import flash.utils.getDefinitionByName;
+
 			}
 			
 			return x;
@@ -88,10 +91,20 @@ package org.tinytlf.util
 					}', tags);
 			}
 			//Might we be running in AIR?
-			else if(getDefinitionByName('flash.html.HTMLLoader') != null)
+			else
 			{
-				const htmlLoader:* = new (getDefinitionByName('flash.html.HTMLLoader') as Class)();
-				const html:String =	'<body>\
+				var loader:Class;
+				try
+				{
+					loader = getDefinitionByName('flash.html.HTMLLoader') as Class;
+				}
+				catch(e:Error)
+				{
+					return '';
+				}
+				
+				const htmlLoader:* = new loader();
+				const html:String = '<body>\
 										<script type="text/javascript">\
 											window.soup = function(tags)\
 											{\
@@ -109,13 +122,13 @@ package org.tinytlf.util
 		}
 		
 		/**
-		 * Trims out the excess white space between XML nodes before parsing, 
+		 * Trims out the excess white space between XML nodes before parsing,
 		 * but we still want to respect at least one white space between nodes.
 		 * This is a feature of HTML.
-		 * 
+		 *
 		 * TODO: This will have to be tweaked to take into account the
-		 * difference between sibling block-level nodes (Divs and Ps) and 
-		 * sibling inline elements (like Spans). Spaces are not respected 
+		 * difference between sibling block-level nodes (Divs and Ps) and
+		 * sibling inline elements (like Spans). Spaces are not respected
 		 * between block-level elements, but are trimmed to one space between
 		 * inline elements.
 		 */

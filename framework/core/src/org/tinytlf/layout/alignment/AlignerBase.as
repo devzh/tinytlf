@@ -8,7 +8,7 @@ package org.tinytlf.layout.alignment
 	
 	public class AlignerBase implements IAligner
 	{
-		public function getSize(region:TextSector, previousItem:*):Number
+		public function getSize(region:TextRectangle, previousItem:* = null):Number
 		{
 			return 0;
 		
@@ -24,7 +24,7 @@ package org.tinytlf.layout.alignment
 //			return width;
 		}
 		
-		public function getStart(region:TextSector, thisItem:*):Number
+		public function getStart(region:TextRectangle, thisItem:*):Number
 		{
 //			Left alignment
 //			var x:Number = layout.paddingLeft;

@@ -1,12 +1,12 @@
 package org.tinytlf.layout.alignment
 {
-	import org.tinytlf.layout.sector.TextSector;
+	import org.tinytlf.layout.sector.*;
 
 	public interface IAligner
 	{
-		function getSize(region:TextSector, previousItem:*):Number;
+		function getSize(rect:TextRectangle, previousItem:* = null):Number;
 		
-		function getStart(region:TextSector, thisItem:*):Number;
+		function getStart(rect:TextRectangle, thisItem:*):Number;
 		
 		function sort(items:Array):Array;
 	}

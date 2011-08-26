@@ -2,6 +2,7 @@ package org.tinytlf.html
 {
 	import flash.text.engine.*;
 	
+	import org.swiftsuspenders.*;
 	import org.tinytlf.content.*;
 	import org.tinytlf.layout.*;
 	import org.tinytlf.layout.sector.*;
@@ -13,7 +14,7 @@ package org.tinytlf.html
 		
 		override public function create(dom:IDOMNode):Array
 		{
-			const sector:TextSector = new TextSector();
+			const sector:TextSector = injector.instantiate(TextSector);
 			sector.textBlock = new TextBlock(cef.instantiate(dom.name).create(dom));
 			sector.mergeWith(dom);
 			sector.percentWidth = 100;

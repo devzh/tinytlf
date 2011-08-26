@@ -11,7 +11,7 @@ package org.tinytlf.html
 		
 		override public function create(dom:IDOMNode):Array
 		{
-			const sector:TextSector = new TextSector();
+			const sector:TextSector = injector.instantiate(TextSector);
 			sector.paddingBottom = dom['height'];
 			return [sector];
 		}

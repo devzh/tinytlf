@@ -1,22 +1,25 @@
 package org.tinytlf.layout.alignment
 {
 	import flash.text.engine.*;
-	import org.tinytlf.layout.sector.TextSector;
+	
+	import org.tinytlf.layout.sector.*;
 	
 	public class LeftAligner extends AlignerBase
 	{
-		override public function getSize(region:TextSector, previousItem:*):Number
+		override public function getSize(rect:TextRectangle, previousItem:* = null):Number
 		{
-			return (region.width - region.paddingLeft - region.paddingRight) -
-				((previousItem == null) ? region.textIndent : 0);
+			const indent:Number = (rect is TextSector) ? TextSector(rect).textIndent : 0;
+			return (rect.width - rect.paddingLeft - rect.paddingRight) -
+				((previousItem == null) ? indent : 0);
 		}
 		
-		override public function getStart(region:TextSector, thisItem:*):Number
+		override public function getStart(rect:TextRectangle, thisItem:*):Number
 		{
-			var x:Number = region.paddingLeft;
+			var x:Number = rect.paddingLeft;
+			const indent:Number = (rect is TextSector) ? TextSector(rect).textIndent : 0;
 			
 			if(!thisItem || TextLine(thisItem).previousLine == null)
-				x += region.textIndent;
+				x += indent;
 			
 			return x;
 		}

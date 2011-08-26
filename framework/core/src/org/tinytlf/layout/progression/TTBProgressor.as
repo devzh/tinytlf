@@ -7,35 +7,44 @@ package org.tinytlf.layout.progression
 	
 	public class TTBProgressor implements IProgressor
 	{
-		public function progress(region:TextSector, previousLine:TextLine):Number
+		public function progress(rect:TextRectangle, previousItem:*):Number
 		{
-			if(!previousLine)
-				return region.paddingTop;
+			if(rect is SectorPane && previousItem is SectorRow)
+				return SectorRow(previousItem).y + SectorRow(previousItem).size;
 			
-			return previousLine.y + previousLine.descent + region.leading || 0;
+			if(!previousItem)
+				return rect.paddingTop;
+			
+			if(previousItem is TextLine)
+				return TextLine(previousItem).y + TextLine(previousItem).descent + rect.leading || 0;
+			
+			return 0;
 		}
 		
-		public function getTotalHorizontalSize(region:TextSector, lines:Array):Number
+		public function getTotalHorizontalSize(rect:TextRectangle):Number
 		{
 			var w:Number = 0;
-			lines.forEach(function(line:TextLine, ... args):void{
+			rect.
+				textLines.
+				forEach(function(line:TextLine, ... args):void{
 				w = Math.max(w, line.width);
 			});
-			return region.paddingLeft + w + region.paddingRight || 0;
+			return rect.paddingLeft + w + rect.paddingRight || 0;
 		}
 		
-		public function getTotalVerticalSize(region:TextSector, lines:Array):Number
+		public function getTotalVerticalSize(rect:TextRectangle):Number
 		{
-			var h:Number = region.paddingTop;
-			
-			lines.forEach(function(line:TextLine, i:int, a:Array):void{
+			var h:Number = rect.paddingTop;
+			rect.
+				textLines.
+				forEach(function(line:TextLine, i:int, a:Array):void{
 				h += line.totalHeight;
 				
 				if(i < a.length - 1)
-					h += region.leading;
+					h += rect.leading;
 			});
 			
-			return h + region.paddingBottom || 0;
+			return h + rect.paddingBottom || 0;
 		}
 	}
 }

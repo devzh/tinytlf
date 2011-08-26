@@ -57,7 +57,7 @@ package org.tinytlf.virtualization
 		
 		public function setSize(item:*, size:int):*
 		{
-			setSizeAt(getIndex(item), size);
+			return setSizeAt(getIndex(item), size);
 		}
 		
 		public function setSizeAt(index:int, size:int):*
@@ -73,7 +73,7 @@ package org.tinytlf.virtualization
 		
 		public function remove(item:*):*
 		{
-			removeAt(getIndex(item));
+			return removeAt(getIndex(item));
 		}
 		
 		public function removeAt(index:int):*

@@ -1,16 +1,17 @@
 package org.tinytlf.layout.alignment
 {
-	import flash.text.engine.TextLine;
-	import org.tinytlf.layout.sector.TextSector;
+	import flash.text.engine.*;
+	
+	import org.tinytlf.layout.sector.*;
 	
 	public class CenterAligner extends AlignerBase
 	{
-		override public function getSize(region:TextSector, previousItem:*):Number
+		override public function getSize(region:TextRectangle, previousItem:* = null):Number
 		{
 			return region.width - region.paddingLeft - region.paddingRight;
 		}
 		
-		override public function getStart(region:TextSector, thisItem:*):Number
+		override public function getStart(region:TextRectangle, thisItem:*):Number
 		{
 			return (getSize(region, null) - TextLine(thisItem).width) * 0.5;
 		}

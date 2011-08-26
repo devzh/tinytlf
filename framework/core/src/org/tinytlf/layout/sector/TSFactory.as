@@ -1,11 +1,13 @@
 package org.tinytlf.layout.sector
 {
+	import org.swiftsuspenders.*;
 	import org.tinytlf.html.*;
-	import org.tinytlf.layout.ITextSectorFactory;
-	import org.tinytlf.layout.ITextSectorFactoryMap;
 
 	public class TSFactory implements ITextSectorFactory
 	{
+		[Inject]
+		public var injector:Injector;
+		
 		[Inject]
 		public var tsfm:ITextSectorFactoryMap;
 		

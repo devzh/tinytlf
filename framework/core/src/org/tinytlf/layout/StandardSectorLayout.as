@@ -1,10 +1,12 @@
-package org.tinytlf.layout.sector
+package org.tinytlf.layout
 {
 	import flash.text.engine.*;
-	import org.tinytlf.layout.alignment.IAligner;
-	import org.tinytlf.layout.progression.IProgressor;
 	
-	internal class StandardSectorLayout implements ISectorLayout
+	import org.tinytlf.layout.alignment.*;
+	import org.tinytlf.layout.progression.*;
+	import org.tinytlf.layout.sector.*;
+	
+	public class StandardSectorLayout implements ISectorLayout
 	{
 		public function StandardSectorLayout(aligner:IAligner = null, progression:IProgressor = null)
 		{
@@ -12,11 +14,11 @@ package org.tinytlf.layout.sector
 			p = progression;
 		}
 		
-		public function layout(lines:Array, region:TextSector = null):Array/*<TextLine>*/
+		public function layout(lines:Array, sector:TextSector):Array/*<TextLine>*/
 		{
 			lines.forEach(function(line:TextLine, ... args):void{
-				line.y = p.progress(region, line.previousLine) + line.ascent;
-				line.x = a.getStart(region, line);
+				line.y = p.progress(sector, line.previousLine) + line.ascent;
+				line.x = a.getStart(sector, line);
 			});
 			
 			return lines;

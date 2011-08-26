@@ -6,23 +6,25 @@ package org.tinytlf.layout.sector
 	import flash.utils.*;
 	
 	import org.tinytlf.*;
+	import org.tinytlf.layout.*;
 	import org.tinytlf.layout.alignment.*;
 	import org.tinytlf.layout.progression.*;
 	import org.tinytlf.util.*;
-	import org.tinytlf.layout.TextAlign;
-	import org.tinytlf.layout.TextBlockProgression;
-	import org.tinytlf.layout.TextDirection;
 	
-	use namespace flash_proxy;
-	
-	public dynamic final class TextSector extends Styleable
+	public dynamic class TextSector extends TextRectangle
 	{
-		private var progressor:IProgressor = new TTBProgressor();
-		private var aligner:IAligner = new LeftAligner();
 		private var renderer:ISectorRenderer = new StandardSectorRenderer(aligner, progressor);
 		private var layout:ISectorLayout = new StandardSectorLayout(aligner, progressor);
 		
-		public function render():Array
+		public function TextSector()
+		{
+			super();
+			
+			renderer.aligner = layout.aligner = aligner;
+			renderer.progressor = layout.progressor = progressor;
+		}
+		
+		override public function render():Array
 		{
 			if(!invalid)
 				return [];
@@ -46,32 +48,24 @@ package org.tinytlf.layout.sector
 					});
 			}
 			
-			tw = progressor.getTotalHorizontalSize(this, lines);
-			th = progressor.getTotalVerticalSize(this, lines);
+			tw = progressor.getTotalHorizontalSize(this);
+			th = progressor.getTotalVerticalSize(this);
 			
 			invalidated = false;
 			
 			return textLines;
 		}
 		
-		public function invalidate():void
-		{
-			invalidated = true;
-			lines.forEach(function(line:TextLine, ... args):void {
-				line.validity = TextLineValidity.INVALID;
-			});
-		}
-		
 		/*
-		 * TextRegion linked list impl.
+		 * TextSector linked list impl.
 		 */
 		private var prev:TextSector;
-		public function get previousRegion():TextSector
+		public function get previousSector():TextSector
 		{
 			return prev;
 		}
 		
-		public function set previousRegion(value:TextSector):void
+		public function set previousSector(value:TextSector):void
 		{
 			if(value == prev)
 				return;
@@ -81,12 +75,12 @@ package org.tinytlf.layout.sector
 		
 		private var next:TextSector;
 		
-		public function get nextRegion():TextSector
+		public function get nextSector():TextSector
 		{
 			return next;
 		}
 		
-		public function set nextRegion(value:TextSector):void
+		public function set nextSector(value:TextSector):void
 		{
 			if(next == value)
 				return;
@@ -95,84 +89,10 @@ package org.tinytlf.layout.sector
 		}
 		
 		/*
-		 * Text manipulation and metrics methods.
+		 * TextSector component properties and methods.
 		 */
-		
-		public function indexToLine(index:int):TextLine
-		{
-			return lines.filter(function(l:TextLine, ... args):Boolean {
-				return (index >= l.textBlockBeginIndex && (index - l.textBlockBeginIndex) < l.atomCount);
-			})[0] as TextLine;
-		}
-		
-		public function indexToElement(index:int):ContentElement
-		{
-			if(!textBlock)
-				return null;
-			
-			return ContentElementUtil.getLeaf(textBlock.content, index);
-		}
-		
-		private var lines:Array = [];
-		public function get textLines():Array
-		{
-			return lines.concat();
-		}
-		
-		private var th:Number = 0;
-		public function get textHeight():Number
-		{
-			return th;
-		}
-		
-		private var tw:Number = 0;
-		public function get textWidth():Number
-		{
-			return tw;
-		}
-		
-		/*
-		 * TextRegion component methods.
-		 */
-		
-		private var w:Number = NaN;
-		
-		[PercentProxy("percentWidth")]
-		
-		public function get width():Number
-		{
-			return w || 0;
-		}
-		
-		public function set width(value:Number):void
-		{
-			if(value == w)
-				return;
-			
-			w = value;
-			invalidate();
-		}
-		
-		private var h:Number = NaN;
-		
-		[PercentProxy("percentHeight")]
-		
-		public function get height():Number
-		{
-			return h || 0;
-		}
-		
-		public function set height(value:Number):void
-		{
-			if(value == h)
-				return;
-			
-			h = value;
-			invalidate();
-		}
 		
 		private var pw:Number = NaN;
-		
 		public function get percentWidth():Number
 		{
 			return pw;
@@ -188,7 +108,6 @@ package org.tinytlf.layout.sector
 		}
 		
 		private var ph:Number = NaN;
-		
 		public function get percentHeight():Number
 		{
 			return ph;
@@ -236,6 +155,7 @@ package org.tinytlf.layout.sector
 		/*
 		 * Formatting properties.
 		 */
+		
 		private var direction:String = TextDirection.LTR;
 		public function get textDirection():String
 		{
@@ -269,116 +189,12 @@ package org.tinytlf.layout.sector
 			invalidate();
 		}
 		
-		private var leadingValue:Number = 0;
-		public function get leading():Number
+		override public function set progression(value:String):void
 		{
-			return leadingValue;
-		}
-		
-		public function set leading(value:Number):void
-		{
-			if(value == leadingValue)
-				return;
-			
-			leadingValue = value;
-			invalidate();
-		}
-		
-		private var paddingLeftValue:Number = 0;
-		public function get paddingLeft():Number
-		{
-			return paddingLeftValue;
-		}
-		
-		public function set paddingLeft(value:Number):void
-		{
-			if(value == paddingLeftValue)
-				return;
-			
-			paddingLeftValue = value;
-			invalidate();
-		}
-		
-		private var paddingRightValue:Number = 0;
-		public function get paddingRight():Number
-		{
-			return paddingRightValue;
-		}
-		
-		public function set paddingRight(value:Number):void
-		{
-			if(value == paddingRightValue)
-				return;
-			
-			paddingRightValue = value;
-			invalidate();
-		}
-		
-		private var paddingTopValue:Number = 0;
-		public function get paddingTop():Number
-		{
-			return paddingTopValue;
-		}
-		
-		public function set paddingTop(value:Number):void
-		{
-			if(value == paddingTopValue)
-				return;
-			
-			paddingTopValue = value;
-			invalidate();
-		}
-		
-		private var paddingBottomValue:Number = 0;
-		public function get paddingBottom():Number
-		{
-			return paddingBottomValue;
-		}
-		
-		public function set paddingBottom(value:Number):void
-		{
-			if(value == paddingBottomValue)
-				return;
-			
-			paddingBottomValue = value;
-			invalidate();
-		}
-		
-		private var blockProgression:String = TextBlockProgression.TTB;
-		public function get progression():String
-		{
-			return blockProgression;
-		}
-		
-		public function set progression(value:String):void
-		{
-			if(!TextBlockProgression.isValid(value))
-				value = TextBlockProgression.TTB;
-			
-			if(value == blockProgression)
-				return;
-			
-			blockProgression = value;
-			switch(blockProgression)
-			{
-				case TextBlockProgression.BTT:
-					progressor = new BTTProgressor();
-					break;
-				case TextBlockProgression.TTB:
-					progressor = new TTBProgressor();
-					break;
-				case TextBlockProgression.LTR:
-					progressor = new LTRProgressor();
-					break;
-				case TextBlockProgression.RTL:
-					progressor = new RTLProgressor();
-					break;
-			}
+			super.progression = value;
 			
 			renderer.progressor = progressor;
 			layout.progressor = progressor;
-			
-			invalidate();
 		}
 		
 		private var align:String = TextAlign.LEFT;
@@ -447,12 +263,6 @@ package org.tinytlf.layout.sector
 			invalidate();
 		}
 		
-		private var invalidated:Boolean = true;
-		public function get invalid():Boolean
-		{
-			return invalidated;
-		}
-		
 		private function setupBlockJustifier(block:TextBlock):void
 		{
 			const justification:String = textAlign == TextAlign.JUSTIFY ?
@@ -469,46 +279,5 @@ package org.tinytlf.layout.sector
 				block.textJustifier = justifier;
 			}
 		}
-		
-		override protected function mergeProperty(property:String, source:Object):void
-		{
-			const prop:String = property.toString();
-			
-			if(prop.indexOf('-') != -1)
-				property = convertFromDashed(prop);
-			
-			this[property] = source[prop];
-		}
-		
-		override flash_proxy function setProperty(name:*, value:*):void
-		{
-			const prop:String = name.toString();
-			if(prop.indexOf('-') != -1)
-				name = convertFromDashed(prop);
-			
-			super.setProperty(name, value);
-		}
-		
-		override flash_proxy function getProperty(name:*):*
-		{
-			const prop:String = name.toString();
-			if(prop.indexOf('-') != -1)
-				name = convertFromDashed(prop);
-			
-			return super.getProperty(name) || defaults[name];
-		}
-		
-		private function convertFromDashed(property:String):String
-		{
-			return property.split('-').map(function(part:String, i:int, ... args):String {
-				return i == 0 ? part : part.charAt(0).toUpperCase() + part.substr(1);
-			}).join('');
-		}
-		
-		private static const defaults:Object = {
-			padding: 0, paddingLeft: 0, paddingRight: 0, paddingTop: 0, 
-			paddingBottom: 0, margin: 0, marginLeft: 0, marginRight: 0, 
-			marginTop: 0, marginBottom: 0, width: 0, height: 0
-		};
 	}
 }

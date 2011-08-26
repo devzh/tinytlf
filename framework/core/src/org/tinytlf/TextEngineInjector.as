@@ -8,6 +8,7 @@ package org.tinytlf
 	import org.tinytlf.html.*;
 	import org.tinytlf.interaction.*;
 	import org.tinytlf.layout.*;
+	import org.tinytlf.layout.sector.*;
 	import org.tinytlf.style.*;
 	import org.tinytlf.virtualization.*;
 	
