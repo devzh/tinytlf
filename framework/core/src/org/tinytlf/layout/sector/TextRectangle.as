@@ -11,6 +11,8 @@ package org.tinytlf.layout.sector
 	
 	use namespace flash_proxy;
 	
+	[ExcludeClass]
+	
 	public class TextRectangle extends Styleable
 	{
 		protected var progressor:IProgressor = new TTBProgressor();
@@ -18,15 +20,15 @@ package org.tinytlf.layout.sector
 		
 		public function dispose():void
 		{
-			lines.forEach(function(line:TextLine, ... args):void {
+			kids.forEach(function(line:TextLine, ... args):void {
 				TextLineUtil.checkIn(line);
 			});
-			lines.length = 0;
+			kids.length = 0;
 		}
 		
 		public function render():Array
 		{
-			return textLines;
+			return children;
 		}
 		
 		protected var invalidated:Boolean = true;
@@ -38,7 +40,7 @@ package org.tinytlf.layout.sector
 		public function invalidate():void
 		{
 			invalidated = true;
-			lines.forEach(function(line:TextLine, ... args):void {
+			kids.forEach(function(line:TextLine, ... args):void {
 				line.validity = TextLineValidity.INVALID;
 			});
 		}
@@ -152,28 +154,28 @@ package org.tinytlf.layout.sector
 			invalidate();
 		}
 		
-		protected var lines:Array = [];
-		public function get textLines():Array
+		protected var kids:Array = [];
+		public function get children():Array
 		{
-			return lines.concat();
+			return kids.concat();
 		}
 		
 		/*
 		* Text manipulation and metrics methods.
 		*/
 		
-		public function indexToLine(index:int):TextLine
-		{
-			return null;
+//		public function indexToLine(index:int):TextLine
+//		{
+//			return null;
 //			return lines.filter(function(l:TextLine, ... args):Boolean {
 //				return (index >= l.textBlockBeginIndex && (index - l.textBlockBeginIndex) < l.atomCount);
 //			})[0] as TextLine;
-		}
-		
-		public function indexToElement(index:int):ContentElement
-		{
-			return null;
-		}
+//		}
+//		
+//		public function indexToElement(index:int):ContentElement
+//		{
+//			return null;
+//		}
 		
 		protected var th:Number = 0;
 		public function get textHeight():Number

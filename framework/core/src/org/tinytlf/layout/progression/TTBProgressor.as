@@ -25,7 +25,7 @@ package org.tinytlf.layout.progression
 		{
 			var w:Number = 0;
 			rect.
-				textLines.
+				children.
 				forEach(function(line:TextLine, ... args):void{
 				w = Math.max(w, line.width);
 			});
@@ -36,7 +36,7 @@ package org.tinytlf.layout.progression
 		{
 			var h:Number = rect.paddingTop;
 			rect.
-				textLines.
+				children.
 				forEach(function(line:TextLine, i:int, a:Array):void{
 				h += line.totalHeight;
 				

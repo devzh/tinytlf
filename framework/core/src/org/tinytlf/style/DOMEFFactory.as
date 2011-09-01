@@ -15,31 +15,31 @@ package org.tinytlf.style
 			
 			const fd:FontDescription = new FontDescription();
 			
-			fd.cffHinting = tryBoth(dom, 'cff', 'hinting') || CFFHinting.HORIZONTAL_STEM;
-			fd.fontLookup = tryBoth(dom, 'font', 'lookup') || FontLookup.EMBEDDED_CFF;
-			fd.fontName = tryBoth(dom, 'font', 'name') || tryBoth(dom, 'font', 'family') || '_sans';
-			fd.fontPosture = tryBoth(dom, 'font', 'style') == FontPosture.ITALIC ? FontPosture.ITALIC : FontPosture.NORMAL;
-			fd.fontPosture = tryBoth(dom, 'font', 'posture') || fd.fontPosture;
-			fd.fontWeight = tryBoth(dom, 'font', 'weight') || FontWeight.NORMAL;
-			fd.renderingMode = tryBoth(dom, 'rendering', 'mode') || RenderingMode.CFF;
+			fd.cffHinting = dom.cffHinting || CFFHinting.HORIZONTAL_STEM;
+			fd.fontLookup = dom.fontLookup || FontLookup.EMBEDDED_CFF;
+			fd.fontName = dom.fontName || dom.fontFamily || '_sans';
+			fd.fontPosture = dom.fontStyle == FontPosture.ITALIC ? FontPosture.ITALIC : FontPosture.NORMAL;
+			fd.fontPosture = dom.fontPosture || fd.fontPosture;
+			fd.fontWeight = dom.fontWeight || FontWeight.NORMAL;
+			fd.renderingMode = dom.renderingMode || RenderingMode.CFF;
 			
 			const ef:ElementFormat = new ElementFormat(fd);
-			ef.alignmentBaseline = tryBoth(dom, 'alignment', 'baseline') || TextBaseline.USE_DOMINANT_BASELINE;
+			ef.alignmentBaseline = dom.alignmentBaseline || TextBaseline.USE_DOMINANT_BASELINE;
 			ef.alpha = valueFilter(dom.alpha || '1', 'number');
-			ef.baselineShift = valueFilter(tryBoth(dom, 'baseline', 'shift') || '0', 'number');
-			ef.breakOpportunity = dom.tryBoth(dom, 'break', 'opportunity') || BreakOpportunity.AUTO;
+			ef.baselineShift = valueFilter(dom.baselineShift || '0', 'number');
+			ef.breakOpportunity = dom.breakOpportunity || BreakOpportunity.AUTO;
 			ef.color = valueFilter(dom.color || '0x00', 'uint');
-			ef.digitCase = tryBoth(dom, 'digit', 'case') || DigitCase.DEFAULT;
-			ef.digitWidth = tryBoth(dom, 'digit', 'width') || DigitWidth.DEFAULT;
-			ef.dominantBaseline = dom.tryBoth(dom, 'dominant', 'baseline') || TextBaseline.ROMAN;
-			ef.fontSize = valueFilter(dom.tryBoth(dom, 'font', 'size') || '12', 'number');
+			ef.digitCase = dom.digitCase || DigitCase.DEFAULT;
+			ef.digitWidth = dom.digitWidth || DigitWidth.DEFAULT;
+			ef.dominantBaseline = dom.dominantBaseline || TextBaseline.ROMAN;
+			ef.fontSize = valueFilter(dom.fontSize || '12', 'number');
 			ef.kerning = dom.kerning || Kerning.AUTO;
-			ef.ligatureLevel = dom.tryBoth(dom, 'ligature', 'level') || LigatureLevel.COMMON;
+			ef.ligatureLevel = dom.ligatureLevel || LigatureLevel.COMMON;
 			ef.locale = dom.locale || 'en_US';
-			ef.textRotation = dom.tryBoth(dom, 'text', 'rotation') || TextRotation.AUTO;
-			ef.trackingLeft = valueFilter(dom.tryBoth(dom, 'tracking', 'left') || '0', 'number');
-			ef.trackingRight = valueFilter(dom.tryBoth(dom, 'tracking', 'right') || '0', 'number');
-			ef.typographicCase = dom.tryBoth(dom, 'typographic', 'case') || TypographicCase.DEFAULT;
+			ef.textRotation = dom.textRotation || TextRotation.AUTO;
+			ef.trackingLeft = valueFilter(dom.trackingLeft || '0', 'number');
+			ef.trackingRight = valueFilter(dom.trackingRight || '0', 'number');
+			ef.typographicCase = dom.typographicCase || TypographicCase.DEFAULT;
 			
 			return ef;
 		}
@@ -47,34 +47,6 @@ package org.tinytlf.style
 		private function valueFilter(value:String, type:String):*
 		{
 			return conversionMap.hasOwnProperty(type) ? conversionMap[type](value) : value;
-		}
-		
-		private function tryBoth(obj:Object, ... props):*
-		{
-			var str:String = '';
-			props.
-				forEach(function(part:String, i:int, ... args):void {
-					if(i > 0)
-						part = part.charAt(0).toUpperCase() + part.substr(1);
-					str += part;
-				});
-			
-			if(obj.hasOwnProperty(str))
-				return obj[str];
-			
-			str = '';
-			props.
-				forEach(function(part:String, i:int, a:Array):void {
-					if(i != a.length - 1)
-						part += '-';
-					
-					str += part;
-				});
-			
-			if(obj.hasOwnProperty(str))
-				return obj[str];
-			
-			return null;
 		}
 		
 		private static const conversionMap:Object = {

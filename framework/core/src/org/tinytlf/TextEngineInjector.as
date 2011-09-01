@@ -10,7 +10,6 @@ package org.tinytlf
 	import org.tinytlf.layout.*;
 	import org.tinytlf.layout.sector.*;
 	import org.tinytlf.style.*;
-	import org.tinytlf.virtualization.*;
 	
 	public class TextEngineInjector extends Injector
 	{
@@ -35,7 +34,13 @@ package org.tinytlf
 			mapValue(IElementFormatFactory, new DOMEFFactory());
 			mapValue(ITextDecorator, new TextDecorator());
 			mapValue(CSS, new CSS());
-			mapValue(IVirtualizer, new Virtualizer());
+			// When someone asks for a Virtualizer, assume
+			// they want the one we use for layout.
+			const v:Virtualizer = new Virtualizer();
+			mapValue(Virtualizer, v);
+			mapValue(Virtualizer, v, 'layout');
+			
+			mapValue(Virtualizer, new Virtualizer(), 'content');
 		}
 		
 		protected function injectMappings():void

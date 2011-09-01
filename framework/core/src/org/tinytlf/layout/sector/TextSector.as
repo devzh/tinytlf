@@ -40,7 +40,7 @@ package org.tinytlf.layout.sector
 				textBlock.bidiLevel = direction == TextDirection.LTR ? 0 : 1;
 				
 				// Do the magic.
-				lines = layout.layout(renderer.render(textBlock, this), this)
+				kids = layout.layout(renderer.render(textBlock, this), this)
 					.map(function(line:TextLine, ... args):TextLine {
 						line.x += x;
 						line.y += y;
@@ -53,7 +53,7 @@ package org.tinytlf.layout.sector
 			
 			invalidated = false;
 			
-			return textLines;
+			return children;
 		}
 		
 		/*

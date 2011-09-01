@@ -15,7 +15,6 @@ package
 	import org.tinytlf.layout.*;
 	import org.tinytlf.layout.sector.*;
 	import org.tinytlf.util.*;
-	import org.tinytlf.virtualization.*;
 	
 	[SWF(width = "402", height = "502")]
 	public class Main extends Sprite

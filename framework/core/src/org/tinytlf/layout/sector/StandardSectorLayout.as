@@ -1,10 +1,9 @@
-package org.tinytlf.layout
+package org.tinytlf.layout.sector
 {
 	import flash.text.engine.*;
 	
 	import org.tinytlf.layout.alignment.*;
 	import org.tinytlf.layout.progression.*;
-	import org.tinytlf.layout.sector.*;
 	
 	public class StandardSectorLayout implements ISectorLayout
 	{

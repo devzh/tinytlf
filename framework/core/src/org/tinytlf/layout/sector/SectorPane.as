@@ -1,16 +1,17 @@
 package org.tinytlf.layout.sector
 {
+	import flash.display.*;
 	import flash.geom.*;
 	import flash.text.engine.*;
 	
+	import org.tinytlf.*;
 	import org.tinytlf.layout.*;
 	import org.tinytlf.layout.progression.*;
-	import org.tinytlf.virtualization.*;
 	
 	public class SectorPane extends TextRectangle
 	{
-		[Inject]
-		public var llv:IVirtualizer;
+		[Inject("layout")]
+		public var llv:Virtualizer;
 		
 		private var sectors:Array = [];
 		private var unrenderedSectors:Array = [];
@@ -47,7 +48,7 @@ package org.tinytlf.layout.sector
 		{
 			if(invalid)
 			{
-				lines.length = 0;
+				kids.length = 0;
 				
 				var startIndex:int = llv.getIndexAt(scrollP);
 				if(startIndex == -1)
@@ -72,6 +73,9 @@ package org.tinytlf.layout.sector
 					// If there's still more space, go round one more time.
 					if(usedSpace < (availableSpace + scrollDifference))
 						++n;
+					
+					if(n >= sectors.length)
+						break;
 				}
 				
 				removeRowRange(n, llv.length);
@@ -81,7 +85,7 @@ package org.tinytlf.layout.sector
 			
 			invalidated = false;
 			
-			return textLines;
+			return children;
 		}
 		
 		protected function renderRow(row:SectorRow, rowStart:Number):Number
@@ -90,7 +94,7 @@ package org.tinytlf.layout.sector
 			row.forEach(function(sector:TextSector, ... args):void {
 				setSectorStart(sector, rowStart);
 				sector.render();
-				lines = lines.concat(sector.textLines);
+				kids = kids.concat(sector.children);
 				rowSize += aligner.getSize(sector);
 			});
 			
@@ -105,7 +109,7 @@ package org.tinytlf.layout.sector
 				setSectorStart(sector, rowStart);
 				setSectorSize(sector, size);
 				
-				lines = lines.concat(sector.render());
+				kids = kids.concat(sector.render());
 				
 				rowSize += getSectorSize(sector);
 				row.push(sector);
@@ -131,7 +135,7 @@ package org.tinytlf.layout.sector
 					continue;
 				
 				row.forEach(function(sector:TextSector, ... args):void {
-					sector.textLines.forEach(function(line:TextLine, ... args):void {
+					sector.children.forEach(function(line:DisplayObject, ... args):void {
 						if(line.parent)line.parent.removeChild(line);
 					});
 				});
