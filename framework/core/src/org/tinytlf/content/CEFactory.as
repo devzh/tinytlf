@@ -37,7 +37,7 @@ package org.tinytlf.content
 			{
 				const elements:Vector.<ContentElement> = new <ContentElement>[];
 				dom.children.forEach(function(child:IDOMNode, ... args):void {
-					elements.push(cefm.instantiate(child).create(child));
+					elements.push(cefm.instantiate(child.name).create(child));
 				});
 				element = new GroupElement(elements, eff.getElementFormat(dom), dom.mirror);
 			}
