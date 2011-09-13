@@ -59,15 +59,8 @@ package org.tinytlf.html
 		}
 		
 		[PostConstruct]
-		public function finalizeCreation():void
+		public function initialize():void
 		{
-			eventMirror = emm.instantiate(name);
-			
-			if(parent && reflector.getClass(parent.mirror) != emm.defaultFactory)
-			{
-				eventMirror = new Link(eventMirror, parent.mirror);
-			}
-			
 			mergeWith(css.lookup(inheritance));
 			
 			// Build out the DOM
@@ -104,10 +97,10 @@ package org.tinytlf.html
 			return inheritanceList;
 		}
 		
-		private var eventMirror:EventDispatcher;
-		public function get mirror():EventDispatcher
+		private var eventMirror:*;
+		public function set mirror(value:*):void
 		{
-			return eventMirror;
+			eventMirror = value;
 		}
 		
 		public function get name():String
@@ -155,48 +148,5 @@ package org.tinytlf.html
 			
 			return all;
 		}
-	}
-}
-
-import flash.events.*;
-
-internal class Link extends EventDispatcher
-{
-	private var target:EventDispatcher;
-	
-	public function Link(dispatcher:EventDispatcher, parent:EventDispatcher = null)
-	{
-		target = dispatcher;
-		p = parent;
-	}
-	
-	private var p:EventDispatcher;
-	
-	override public function dispatchEvent(event:Event):Boolean
-	{
-		var success:Boolean = true;
-		// Targeting phase
-		if(target.hasEventListener(event.type))
-		{
-			success = target.dispatchEvent(event.clone());
-		}
-		
-		// Bubbling phase
-		if(p)
-		{
-			p.dispatchEvent(event.clone());
-		}
-		
-		return success;
-	}
-	
-	override public function hasEventListener(type:String):Boolean
-	{
-		return true;
-	}
-	
-	override public function willTrigger(type:String):Boolean
-	{
-		return true;
 	}
 }

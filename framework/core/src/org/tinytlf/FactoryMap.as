@@ -69,7 +69,9 @@ package org.tinytlf
 				item = factory;
 			
 			if(item)
+			{
 				injector.injectInto(item);
+			}
 			
 			return item;
 		}

@@ -52,7 +52,11 @@ package org.tinytlf.style
 		private static const conversionMap:Object = {
 				'number': function(input:String):Number {return Number(input);},
 				'boolean': function(input:String):Number {return Boolean(input);},
-				'uint': function(input:String):Number {return uint(input);}
+				'uint': function(input:String):Number {
+					if(input.indexOf('#') == 0)
+						input = '0x' + input.substring(1);
+					return uint(input);
+				}
 			};
 	}
 }

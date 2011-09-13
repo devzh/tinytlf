@@ -2,8 +2,10 @@ package org.tinytlf.html
 {
 	import flash.events.*;
 	import flash.text.engine.*;
+	
+	import org.tinytlf.*;
 
-	public interface IDOMNode
+	public interface IDOMNode extends IStyleable
 	{
 		function get children():Vector.<IDOMNode>;
 		
@@ -17,6 +19,6 @@ package org.tinytlf.html
 		
 		function get content():ContentElement;
 		function set content(ce:ContentElement):void;
-		function get mirror():EventDispatcher;
+		function set mirror(eventMirror:*):void;
 	}
 }

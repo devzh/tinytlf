@@ -60,6 +60,7 @@ package org.tinytlf.html
 					// properties.
 					if(component != path)
 						merged.mergeWith(internalLookup(component));
+//						merged.mergeWith(lookup(component));
 					
 					const name:StyleName = Cache.getName(component);
 					name.
@@ -156,6 +157,16 @@ package org.tinytlf.html
 						});
 				});
 		}
+		
+		override public function getStyle(styleProp:String):*
+		{
+			return styles['*'].getStyle(styleProp);
+		}
+		
+		override public function setStyle(styleProp:String, newValue:*):void
+		{
+			styles['*'].setStyle(styleProp, newValue);
+		}
 	}
 }
 import flash.utils.flash_proxy;
@@ -236,7 +247,7 @@ internal class StyleLink extends Styleable
 	private static const defaults:Object = {
 			padding: 0, paddingLeft: 0, paddingRight: 0, paddingTop: 0,
 			paddingBottom: 0, margin: 0, marginLeft: 0, marginRight: 0,
-			marginTop: 0, marginBottom: 0, width: 0, height: 0
+			marginTop: 0, marginBottom: 0, width: 0, height: 0, fontSize: 12
 		};
 }
 

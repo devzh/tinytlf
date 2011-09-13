@@ -56,6 +56,7 @@ package org.tinytlf.content
 			// Associate these objects with each other.
 			dom.content = element;
 			element.userData = dom;
+			dom.mirror = emm.instantiate(dom);
 			
 			if(!(element is GroupElement))
 			{
