@@ -12,7 +12,6 @@ package org.tinytlf.layout.sector
 	use namespace flash_proxy;
 	
 	[ExcludeClass]
-	
 	public class TextRectangle extends Styleable
 	{
 		protected var progressor:IProgressor = new TTBProgressor();
@@ -40,9 +39,6 @@ package org.tinytlf.layout.sector
 		public function invalidate():void
 		{
 			invalidated = true;
-			kids.forEach(function(line:TextLine, ... args):void {
-				line.validity = TextLineValidity.INVALID;
-			});
 		}
 		
 		private var leadingValue:Number = 0;
@@ -154,7 +150,7 @@ package org.tinytlf.layout.sector
 			invalidate();
 		}
 		
-		protected var kids:Array = [];
+		protected const kids:Array = [];
 		public function get children():Array
 		{
 			return kids.concat();

@@ -9,7 +9,7 @@ package org.tinytlf.layout.progression
 	{
 		public function progress(rect:TextRectangle, previousItem:*):Number
 		{
-			if(rect is SectorPane && previousItem is SectorRow)
+			if(rect is TextPane && previousItem is SectorRow)
 				return SectorRow(previousItem).y + SectorRow(previousItem).size;
 			
 			if(!previousItem)

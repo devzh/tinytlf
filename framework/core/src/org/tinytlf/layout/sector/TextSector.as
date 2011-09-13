@@ -24,32 +24,47 @@ package org.tinytlf.layout.sector
 			renderer.progressor = layout.progressor = progressor;
 		}
 		
+		override public function dispose():void
+		{
+			invalidated = true;
+			
+			super.dispose();
+			
+			if(block)
+			{
+				if(block.firstLine)
+				{
+					block.releaseLines(block.firstLine, block.lastLine);
+				}
+				block.releaseLineCreationData();
+			}
+		}
+		
 		override public function render():Array
 		{
-			if(!invalid)
-				return [];
-			
-			th = 0;
-			tw = 0;
-			
-			if(textBlock)
+			if(textBlock && (invalid || TextBlockUtil.isInvalid(textBlock)))
 			{
+				th = 0;
+				tw = 0;
+				
 				if(textAlign == TextAlign.JUSTIFY)
 					setupBlockJustifier(textBlock);
 				
 				textBlock.bidiLevel = direction == TextDirection.LTR ? 0 : 1;
 				
+				kids.length = 0;
+				
 				// Do the magic.
-				kids = layout.layout(renderer.render(textBlock, this), this)
-					.map(function(line:TextLine, ... args):TextLine {
-						line.x += x;
-						line.y += y;
-						return line;
-					});
+				kids.push.apply(null, layout.layout(renderer.render(textBlock, this), this)
+								.map(function(line:TextLine, ... args):TextLine {
+									line.x += x;
+									line.y += y;
+									return line;
+								}));
+				
+				tw = progressor.getTotalHorizontalSize(this);
+				th = progressor.getTotalVerticalSize(this);
 			}
-			
-			tw = progressor.getTotalHorizontalSize(this);
-			th = progressor.getTotalVerticalSize(this);
 			
 			invalidated = false;
 			

@@ -7,23 +7,28 @@ package org.tinytlf.layout.sector
 	import org.tinytlf.*;
 	import org.tinytlf.layout.*;
 	import org.tinytlf.layout.progression.*;
+	import org.tinytlf.util.TextLineUtil;
 	
-	public class SectorPane extends TextRectangle
+	public class TextPane extends TextRectangle
 	{
 		[Inject("layout")]
 		public var llv:Virtualizer;
 		
-		private var sectors:Array = [];
-		private var unrenderedSectors:Array = [];
+		private const sectors:Array = [];
+		private const unrenderedSectors:Array = [];
 		
 		public function set textSectors(value:Array):void
 		{
-			if(value == sectors)
-				return;
-			
-			sectors = value.concat();
-			unrenderedSectors = value.concat();
+			sectors.length = 0;
+			sectors.push.apply(null, value);
+			unrenderedSectors.length = 0;
+			unrenderedSectors.push.apply(null, value);
 			invalidate();
+		}
+		
+		public function get leftoverSectors():Array /*<TextSector>*/
+		{
+			return unrenderedSectors.concat();
 		}
 		
 		private var scrollP:Number = 0;
@@ -46,42 +51,39 @@ package org.tinytlf.layout.sector
 		
 		override public function render():Array
 		{
-			if(invalid)
+			kids.length = 0;
+			
+			var startIndex:int = llv.getIndexAt(scrollP);
+			if(startIndex == -1)
+				startIndex = Math.max(llv.length - 1, 0);
+			
+			removeRowRange(firstIndexCache, firstIndexCache = startIndex);
+			
+			const availableSpace:Number = getProgressionSize();
+			const scrollDifference:Number = scrollP - llv.getStart(llv.getItemAtIndex(startIndex));
+			
+			var usedSpace:Number = 0;
+			
+			for(var i:int = 0, n:int = 1; i < n; ++i)
 			{
-				kids.length = 0;
+				const row:SectorRow = llv.getItemAtIndex(startIndex + i) || llv.add(new SectorRow(), 1);
+				usedSpace += llv.getSize(llv.setSize(row, renderRow(row, llv.getStart(row))));
 				
-				var startIndex:int = llv.getIndexAt(scrollP);
-				if(startIndex == -1)
-					startIndex = Math.max(llv.length - 1, 0);
+				// If we've filled all the space, stop rendering.
+				if(startIndex < llv.length && usedSpace > (availableSpace + scrollDifference))
+					break;
 				
-				removeRowRange(firstIndexCache, firstIndexCache = startIndex);
+				// If there's still more space, go round one more time.
+				if(usedSpace < (availableSpace + scrollDifference))
+					++n;
 				
-				const availableSpace:Number = getProgressionSize();
-				const scrollDifference:Number = scrollP - llv.getStart(llv.getItemAtIndex(startIndex));
-				
-				var usedSpace:Number = 0;
-				
-				for(var i:int = 0, n:int = 1; i < n; ++i)
-				{
-					const row:SectorRow = llv.getItemAtIndex(startIndex + i) || llv.add(new SectorRow(), 1);
-					usedSpace += llv.getSize(llv.setSize(row, renderRow(row, llv.getStart(row))))
-					
-					// If we've filled all the space, stop rendering.
-					if(startIndex < llv.length && usedSpace > (availableSpace + scrollDifference))
-						break;
-					
-					// If there's still more space, go round one more time.
-					if(usedSpace < (availableSpace + scrollDifference))
-						++n;
-					
-					if(n >= sectors.length)
-						break;
-				}
-				
-				removeRowRange(n, llv.length);
-				
-				setTotalSize(unrenderedSectors.length == 0 ? llv.size - availableSpace : getTotalSize() + usedSpace);
+				if(n >= sectors.length)
+					break;
 			}
+			
+			removeRowRange(n + startIndex, llv.length);
+			
+			setTotalSize(unrenderedSectors.length == 0 ? llv.size - availableSpace : getTotalSize() + usedSpace);
 			
 			invalidated = false;
 			
@@ -94,7 +96,7 @@ package org.tinytlf.layout.sector
 			row.forEach(function(sector:TextSector, ... args):void {
 				setSectorStart(sector, rowStart);
 				sector.render();
-				kids = kids.concat(sector.children);
+				kids.push.apply(null, sector.children);
 				rowSize += aligner.getSize(sector);
 			});
 			
@@ -109,7 +111,7 @@ package org.tinytlf.layout.sector
 				setSectorStart(sector, rowStart);
 				setSectorSize(sector, size);
 				
-				kids = kids.concat(sector.render());
+				kids.push.apply(null, sector.render());
 				
 				rowSize += getSectorSize(sector);
 				row.push(sector);
@@ -135,9 +137,10 @@ package org.tinytlf.layout.sector
 					continue;
 				
 				row.forEach(function(sector:TextSector, ... args):void {
-					sector.children.forEach(function(line:DisplayObject, ... args):void {
-						if(line.parent)line.parent.removeChild(line);
+					sector.children.forEach(function(line:TextLine, ... args):void {
+						if(line.parent) line.parent.removeChild(line);
 					});
+//					sector.dispose();
 				});
 			}
 		}
