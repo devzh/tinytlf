@@ -1,8 +1,7 @@
 package org.tinytlf.util
 {
-	import flash.display.Bitmap;
-	import flash.display.Shape;
-	import flash.geom.Rectangle;
+	import flash.display.*;
+	import flash.geom.*;
 	import flash.text.engine.*;
 	
 	public final class ContentElementUtil
@@ -35,30 +34,15 @@ package org.tinytlf.util
 		 */
 		public static function getMirrorRegions(element:ContentElement):Vector.<TextLineMirrorRegion>
 		{
-			var lines:Vector.<TextLine> = getTextLines(element);
-			var line:TextLine;
+			var regions:Vector.<TextLineMirrorRegion> = new <TextLineMirrorRegion>[];
 			
-			var regions:Vector.<TextLineMirrorRegion> = new Vector.<TextLineMirrorRegion>();
-			var tlmrs:Vector.<TextLineMirrorRegion>;
-			var tlmr:TextLineMirrorRegion;
-			
-			while(lines.length)
-			{
-				line = lines.pop();
-				tlmrs = line.mirrorRegions;
-				
-				if(line.validity != TextLineValidity.VALID || !tlmrs)
-					continue;
-				
-				tlmrs = tlmrs.concat();
-				
-				while(tlmrs.length)
-				{
-					tlmr = tlmrs.pop();
-					if(tlmr.mirror === element.eventMirror)
-						regions.push(tlmr);
-				}
-			}
+			getTextLines(element).
+				forEach(function(line:TextLine, ... args):void {
+					const tlmrs:Vector.<TextLineMirrorRegion> = line.mirrorRegions || new Vector.<TextLineMirrorRegion>();
+					regions = regions.concat(tlmrs.filter(function(tlmr:TextLineMirrorRegion, ... args):Boolean {
+						return tlmr.mirror === element.eventMirror;
+					}));
+				});
 			
 			return regions;
 		}
@@ -126,8 +110,8 @@ package org.tinytlf.util
 		 * input ContentElement.
 		 */
 		public static function lineBreakBeforeAndAfter(element:ContentElement,
-			markerLeft:Object = null,
-			markerRight:Object = null):GroupElement
+													   markerLeft:Object = null,
+													   markerRight:Object = null):GroupElement
 		{
 			var start:GraphicElement = getLineBreakGraphic(markerLeft, 0xFF0000);
 			var end:GraphicElement = getLineBreakGraphic(markerRight, 0x0000FF);

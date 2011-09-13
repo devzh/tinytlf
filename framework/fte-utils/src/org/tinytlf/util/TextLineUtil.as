@@ -1,9 +1,9 @@
 package org.tinytlf.util
 {
-	import flash.display.DisplayObject;
+	import flash.display.*;
 	import flash.geom.*;
 	import flash.text.engine.*;
-	import flash.utils.Dictionary;
+	import flash.utils.*;
 	
 	public final class TextLineUtil
 	{
@@ -170,16 +170,21 @@ package org.tinytlf.util
 			return g.userData === 'lineBreak';
 		}
 		
-		public static function cleanLine(line:TextLine):void
+		public static function cleanLine(line:TextLine):TextLine
 		{
+			if(line.parent)
+				line.parent.removeChild(line);
+			
 			line.userData = null;
+			line.validity = TextLineValidity.STATIC;
+			
+			return line;
 		}
 		
-		private static const lines:Dictionary = new Dictionary();
+		private static const lines:Dictionary = new Dictionary(false);
 		
 		public static function checkIn(line:TextLine):void
 		{
-			cleanLine(line);
 			lines[line] = true;
 		}
 		
