@@ -1,5 +1,6 @@
 package org.tinytlf
 {
+	import flash.display.*;
 	import flash.events.*;
 	
 	import org.swiftsuspenders.*;
@@ -27,19 +28,27 @@ package org.tinytlf
 			mapValue(Injector, this);
 			mapValue(Reflector, new Reflector());
 			
-			mapValue(IEventMirrorMap, new FactoryMap(EventDispatcher));
+			mapValue(IEventMirrorMap, new EventMirrorMap());
 			mapValue(IContentElementFactoryMap, new FactoryMap(CEFactory));
 			mapValue(ITextSectorFactoryMap, new FactoryMap(ParagraphTSF));
 			mapValue(ITextDecorationMap, new FactoryMap());
 			mapValue(IElementFormatFactory, new DOMEFFactory());
 			mapValue(ITextDecorator, new TextDecorator());
 			mapValue(CSS, new CSS());
-			// When someone asks for a Virtualizer, assume
-			// they want the one we use for layout.
+			mapValue(Observables, new Observables());
+			
+			mapValue(Array, [new Sprite()], '<Sprite>');
+			mapValue(Array, [], '<TextPane>');
+			
+			// When someone asks for a vanilla Virtualizer,
+			// assume they want the one we use for layout.
 			const v:Virtualizer = new Virtualizer();
 			mapValue(Virtualizer, v);
 			mapValue(Virtualizer, v, 'layout');
 			
+			// Create a virtualizer to store ContentElements into.
+			// This instance is used to lookup elements by caret index
+			// for operations like copying text.
 			mapValue(Virtualizer, new Virtualizer(), 'content');
 		}
 		
@@ -52,7 +61,16 @@ package org.tinytlf
 			injectInto(getInstance(ITextSectorFactoryMap));
 			injectInto(getInstance(IElementFormatFactory));
 			injectInto(getInstance(ITextDecorator));
-			injectInto(getInstance(IVirtualizer));
+			injectInto(getInstance(Observables));
+			injectInto(getInstance(Virtualizer, 'layout'));
+			injectInto(getInstance(Virtualizer, 'content'));
+			
+			// Instantiate UI behaviors.
+			instantiate(IBeamBehavior);
+			
+			// Start off with at least one TextPane.
+			const panes:Array = getInstance(Array, '<TextPane>');
+			panes.push(instantiate(TextPane));
 		}
 	}
 }

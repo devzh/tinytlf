@@ -39,15 +39,15 @@ package org.tinytlf.content
 				dom.children.forEach(function(child:IDOMNode, ... args):void {
 					elements.push(cefm.instantiate(child.name).create(child));
 				});
-				element = new GroupElement(elements, eff.getElementFormat(dom), dom.mirror);
+				element = new GroupElement(elements, eff.getElementFormat(dom), new EventDispatcher());
 			}
 			else if(dom.text)
 			{
-				element = new TextElement(dom.text, eff.getElementFormat(dom), dom.mirror);
+				element = new TextElement(dom.text, eff.getElementFormat(dom));
 			}
 			else
 			{
-				element = new GraphicElement(new Shape(), 0, 0, eff.getElementFormat(dom), dom.mirror);
+				element = new GraphicElement(new Shape(), 0, 0, eff.getElementFormat(dom));
 			}
 			
 			if(!element)

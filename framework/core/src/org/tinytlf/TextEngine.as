@@ -14,15 +14,18 @@ package org.tinytlf
 	
 	import org.swiftsuspenders.*;
 	import org.tinytlf.decoration.*;
+	import org.tinytlf.html.*;
+	import org.tinytlf.interaction.*;
+	import org.tinytlf.layout.sector.*;
 	
-//	import org.tinytlf.interaction.*;
-//	import org.tinytlf.layout.*;
-//	import org.tinytlf.styles.*;
+	[Event(name = "render", type = "flash.events.Event")]
+	[Event(name = "renderLines", type = "flash.events.Event")]
+	[Event(name = "renderDecorations", type = "flash.events.Event")]
 	
 	/**
-	 * @see org.tinytlf.ITextEngine
+	 * @inherit
 	 */
-	public class TextEngine extends Styleable implements ITextEngine
+	public class TextEngine extends EventDispatcher implements ITextEngine
 	{
 		[Inject]
 		public var decorator:ITextDecorator;
@@ -31,28 +34,22 @@ package org.tinytlf
 		public var decorationMap:ITextDecorationMap;
 		
 		[Inject]
-		public var injector:Injector;
+		public var css:CSS;
 		
-//		[Inject]
-//		public var layout:ITextLayout;
-//		
-//		[Inject]
-//		public var styler:ITextStyler;
-//		
-//		[Inject]
-//		public var virtualizer:IVirtualizer;
+		[Inject('<TextPane>')]
+		public var panes:Array;
 		
-		public function set configuration(engineConfiguration:Function):void
-		{
-			engineConfiguration(this);
-		}
+		[Inject('<Sprite>')]
+		public var containers:Array;
 		
-		private var _caretIndex:int = 0;
+		[Inject]
+		public var observables:Observables;
 		
 		// A unique identifier for the caret index during
 		// decoration, since ints are passed by value.
 		private const caretWrapper:Object = {caretIndex: 0};
 		
+		private var _caretIndex:int = 0;
 		public function get caretIndex():int
 		{
 			return _caretIndex;
@@ -71,19 +68,20 @@ package org.tinytlf
 			
 			caretWrapper.caretIndex = _caretIndex;
 			
-			decorator.decorate(caretWrapper,
-							   {
+			decorator.decorate(caretWrapper, {
 								   caret: true,
-								   selectionColor: getStyle('caretColor'),
-								   selectionAlpha: getStyle('caretAlpha')
+								   selectionColor: css.getStyle('caretColor'),
+								   selectionAlpha: css.getStyle('caretAlpha')
 							   },
 							   TextDecorator.CARET_LAYER, true);
 			
 			invalidateDecorations();
 		}
 		
-		private var _scrollPosition:Number = 0;
+		[Inject("layout")]
+		public var llv:Virtualizer;
 		
+		private var _scrollPosition:Number = 0;
 		public function get scrollPosition():Number
 		{
 			return _scrollPosition;
@@ -91,14 +89,12 @@ package org.tinytlf
 		
 		public function set scrollPosition(value:Number):void
 		{
-			if(value === _scrollPosition)
-				return;
+			value = Math.min(Math.max(value, 0), llv.size);
 			
-			if(rendering)
+			if(value == _scrollPosition)
 				return;
 			
 			_scrollPosition = value;
-//			_scrollPosition = Math.min(Math.max(value, 0), virtualizer.size);
 			invalidate();
 		}
 		
@@ -136,18 +132,15 @@ package org.tinytlf
 			if(!decorationMap.hasMapping('selection'))
 				return;
 			
-			decorator.decorate(selection,
-							   {
+			decorator.decorate(selection, {
 								   selection: true,
-								   selectionColor: getStyle('selectionColor'),
-								   selectionAlpha: getStyle('selectionAlpha')
-							   },
+								   selectionColor: css.getStyle('selectionColor'),
+								   selectionAlpha: css.getStyle('selectionAlpha')
+							   }, 
 							   TextDecorator.SELECTION_LAYER, true);
 			
 			invalidateDecorations();
 		}
-		
-		private const shape:Shape = new Shape();
 		
 		public function invalidate():void
 		{
@@ -177,33 +170,29 @@ package org.tinytlf
 			invalidateStage();
 		}
 		
+		protected const shape:Shape = new Shape();
+		
 		protected function invalidateStage():void
 		{
-			shape.addEventListener(Event.ENTER_FRAME, onRender);
+			if(shape.hasEventListener(Event.ENTER_FRAME))
+				return;
+			
+			shape.addEventListener(Event.ENTER_FRAME, function(event:Event):void {
+				shape.removeEventListener(Event.ENTER_FRAME, arguments.callee);
+				render();
+				invalidateLinesFlag = false;
+				invalidateDecorationsFlag = false;
+			});
 		}
-		
-		protected function onRender(event:Event):void
-		{
-			render();
-		}
-		
-		protected var rendering:Boolean = false;
 		
 		public function render():void
 		{
-			shape.removeEventListener(Event.ENTER_FRAME, onRender);
-			
-			rendering = true;
-			
 			if(invalidateLinesFlag)
 				renderLines();
-			invalidateLinesFlag = false;
-			
 			if(invalidateDecorationsFlag)
 				renderDecorations();
-			invalidateDecorationsFlag = false;
 			
-			rendering = false;
+			dispatchEvent(new Event(Event.RENDER));
 		}
 		
 		protected function renderLines():void
@@ -212,18 +201,47 @@ package org.tinytlf
 			// re-render the decorations so selection doesn't get out of sync.
 			if(selection.x == selection.x && selection.y == selection.y)
 				invalidateDecorationsFlag = true;
-		
 			
+			var sectors:Array;
+			var scrollY:Number = scrollPosition;
 			
+			panes.forEach(function(pane:TextPane, i:int, ... args):void {
+				if(i >= containers.length) {
+					throw new Error('You need as many Sprites as you have TextPanes.');
+				}
+				
+				if(sectors) {
+					pane.textSectors = sectors;
+				}
+				
+				const container:Sprite = containers[i];
+				
+				pane.scrollPosition = scrollY;
+				pane.render().
+					forEach(function(line:TextLine, ... args):void {
+						container.addChild(line);
+					});
+				
+				observables.register(container);
+				container.scrollRect = new Rectangle(0, scrollY, pane.width, pane.height);
+				
+				const g:Graphics = container.graphics;
+				g.clear();
+				g.beginFill(0x00, 0.05);
+				g.drawRect(0, scrollY, pane.width, pane.height);
+				g.endFill();
+				
+				sectors = pane.leftoverSectors;
+				scrollY += pane.textHeight;
+			});
 			
-//			blockFactory.preRender();
-//			layout.render();
+			dispatchEvent(new Event(Event.RENDER + 'Lines'));
 		}
 		
 		protected function renderDecorations():void
 		{
-//			layout.resetShapes();
 			decorator.render();
+			dispatchEvent(new Event(Event.RENDER + 'Decorations'));
 		}
 	}
 }

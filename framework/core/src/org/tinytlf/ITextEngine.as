@@ -6,32 +6,15 @@
  */
 package org.tinytlf
 {
-    import flash.display.Stage;
-    import flash.geom.Point;
-    
-    import org.swiftsuspenders.Injector;
+    import flash.events.*;
+    import flash.geom.*;
     
 	/**
-	 * <p>The <code>ITextEngine</code> is the facade which unifies the 
-	 * subsystems of tinytlf. Since tinytlf is relies on external definitions 
-	 * for implementation, the engine provides access to the <code>decor</code>,
-	 * <code>interactor</code>, <code>styler</code>, and <code>layout</code>. 
-	 * <code>ITextEngine</code> supports external configuration through the 
-	 * <code>ITextEngineConfiguration</code> interface. To apply a 
-	 * configuration, write a class that implements 
-	 * <code>ITextEngineConfiguration</code> and pass an instance into the
-	 * <code>configuration</code> setter of <code>ITextEngine</code>.</p>
-	 * <p>The <code>ITextEngine</code> is also responsible for invalidation, 
-	 * selection, and the <code>TextBlock</code>s that make up a tinytlf text 
-	 * field.</p>
-	 * 
-	 * @see org.tinytlf.decor.ITextDecor
-	 * @see org.tinytlf.interaction.ITextInteractor
-	 * @see org.tinytlf.layout.ITextLayout
-	 * @see org.tinytlf.styles.ITextStyler
-	 * @see org.tinytlf.ITextEngineConfiguration
+	 * ITextEngine is the invalidation and rendering coordinator in tinytlf.
+	 * It's also responsible for certain framework-wide properties, such as
+	 * caretIndex, scrollPosition, and selection indicies.
 	 */
-    public interface ITextEngine extends IStyleable
+    public interface ITextEngine extends IEventDispatcher
     {
 		/**
 		 * The index of the selection caret for the engine.
