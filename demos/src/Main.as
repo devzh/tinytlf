@@ -12,6 +12,7 @@ package
 	import org.tinytlf.*;
 	import org.tinytlf.content.*;
 	import org.tinytlf.html.*;
+	import org.tinytlf.interaction.*;
 	import org.tinytlf.layout.*;
 	import org.tinytlf.layout.sector.*;
 	import org.tinytlf.util.*;
@@ -26,22 +27,39 @@ package
 		
 		public function Main()
 		{
+			const injector:Injector = new TextEngineInjector(new TextEngine());
+			
 			const g:Graphics = graphics;
+			g.beginFill(0xFFFFFF, 1);
 			g.lineStyle(1, 0xCCCCCC);
 			g.drawRect(1, 1, stage.stageWidth - 1, stage.stageHeight - 1);
-			
-			stage.addEventListener(MouseEvent.MOUSE_WHEEL, onScroll);
-			
-			container = addChild(new Sprite()) as Sprite;
 			
 			const css:CSS = injector.getInstance(CSS);
 			css.inject(new CSSSource().toString());
 			css.inject('*{font-name: Helvetica;}');
 			css.inject('p{' +
-					   'padding-top: 10;' +
-					   'padding-bottom: 0;' +
-					   'text-align: justify;' +
+						   'padding-top: 5px;' +
+						   'padding-bottom: 5px;' +
+						   'text-align: justify;' +
+					   '}' +
+					   'a {' +
+						   'color: #0000CC;' +
+					   '}' +
+					   'a:hover {' +
+						   'color: #FF0000;' +
+					   '}' +
+					   'a:active {' +
+						   'color: #FFFF00;' +
+					   '}' +
+					   'a:visited {' +
+						   'color: #00FF00;' +
 					   '}');
+			
+			const emm:IEventMirrorMap = injector.getInstance(IEventMirrorMap);
+			emm.mapFactory('a', AnchorMirror);
+			
+			XML.prettyPrinting = false;
+			XML.ignoreWhitespace = false;
 			
 			const html:XML = TagSoup.toXML(new HTMLSource().toString(), false);
 			const dom:IDOMNode = new DOMNode(html);
@@ -54,49 +72,24 @@ package
 			tsfm.mapFactory('br', LineBreakTSF);
 			tsfm.mapFactory('table', LineBreakTSF);
 			
-			injector.injectInto(pane);
-			
+			const panes:Array = injector.getInstance(Array, '<TextPane>');
+			const pane:TextPane = panes[0];
 			pane.width = 400;
 			pane.height = 500;
 			pane.textSectors = tsfm.instantiate(dom.name).create(dom);
 			
-			render();
-		}
-		
-		private const injector:Injector = new TextEngineInjector(new TextEngine());
-		private const pane:SectorPane = new SectorPane();
-		
-		private var container:Sprite;
-		
-		private var scrollPosition:Number = 0;
-		private var totalHeight:Number = 500;
-		
-		private function onScroll(event:MouseEvent):void
-		{
-			if(scrollPosition != Math.min(Math.max(scrollPosition - event.delta, 0), totalHeight))
-			{
-				scrollPosition = Math.min(Math.max(scrollPosition - event.delta, 0), totalHeight);
-				stage.invalidate();
-				stage.addEventListener(Event.RENDER, onRender);
-			}
-		}
-		
-		private function onRender(... args):void
-		{
-			stage.removeEventListener(Event.RENDER, onRender);
-			pane.scrollPosition = scrollPosition;
-			render();
-		}
-		
-		private function render():void
-		{
-			pane.render().
-				forEach(function(line:TextLine, ... args):void {
-					container.addChild(line);
-				});
+			const containers:Array = injector.getInstance(Array, '<Sprite>');
+			addChild(containers[0]);
+			containers[0].y += 1;
+			containers[0].x += 1;
 			
-			totalHeight = pane.textHeight;
-			container.scrollRect = new Rectangle(0, scrollPosition, 400, 500);
+			const obs:Observables = injector.getInstance(Observables);
+			obs.mouseWheel(stage).subscribe(function(me:MouseEvent):void {
+				engine.scrollPosition -= me.delta;
+			});
+			
+			const engine:ITextEngine = injector.getInstance(ITextEngine);
+			engine.invalidate();
 		}
 	}
 }

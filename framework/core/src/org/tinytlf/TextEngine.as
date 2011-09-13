@@ -227,7 +227,7 @@ package org.tinytlf
 				
 				const g:Graphics = container.graphics;
 				g.clear();
-				g.beginFill(0x00, 0.05);
+				g.beginFill(0x00, 0);
 				g.drawRect(0, scrollY, pane.width, pane.height);
 				g.endFill();
 				

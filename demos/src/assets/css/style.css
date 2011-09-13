@@ -5,6 +5,8 @@ html{
 body{
 	margin: 0;
 	padding: 0;
+	fontFamily: 'helvetica';
+	font-size: 8px;
 }
 
 a{
