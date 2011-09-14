@@ -40,7 +40,7 @@ package org.tinytlf.util
 				if(valid)
 					lines.push(line);
 				else
-					TextLineUtil.checkIn(line);
+					TextLineUtil.checkIn(TextLineUtil.cleanLine(line));
 				
 				line = line.nextLine;
 			}

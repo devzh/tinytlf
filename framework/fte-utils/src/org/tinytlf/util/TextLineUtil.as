@@ -182,9 +182,14 @@ package org.tinytlf.util
 		}
 		
 		private static const lines:Dictionary = new Dictionary(false);
+		public static var numLines:int = 0;
 		
 		public static function checkIn(line:TextLine):void
 		{
+			if(line in lines)
+				return;
+			
+			++numLines;
 			lines[line] = true;
 		}
 		
@@ -193,6 +198,7 @@ package org.tinytlf.util
 			for(var line:* in lines)
 			{
 				delete lines[line];
+				--numLines;
 				return line;
 			}
 			

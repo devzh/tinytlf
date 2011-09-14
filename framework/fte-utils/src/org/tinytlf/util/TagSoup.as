@@ -2,7 +2,7 @@ package org.tinytlf.util
 {
 	import flash.external.ExternalInterface;
 	import flash.utils.getDefinitionByName;
-	
+
 	/**
 	 * Tries to convert weird or possibly invalid HTML into valid XML.
 	 * Pass the unwashed HTML to the slurp method to clean it up, or toXML
@@ -24,27 +24,31 @@ package org.tinytlf.util
 				{
 					//But maybe he's just missing a root node?
 					x = new XML('<body>' + unwashed.toString() + ' </body>');
+					wrap = false;
 				}
 				catch(e:Error)
 				{
-					//Nope, too optimistic. slurp em up.
-					x = new XML('<body>' + slurp(unwashed.toString()) + ' </body>');
+					//Nope, too optimistic. Slurp 'em up.
+					try
+					{
+						// Try without a root node first.
+						x = new XML(slurp(unwashed.toString()));
+					}
+					catch(e:Error)
+					{
+						// Try one last time with a root node.
+						x = new XML('<body>' + slurp(unwashed.toString()) + ' </body>');
+						wrap = false;
+					}
 				}
 			}
 			
+			// if we were passed a string with no root at all
+			// or if we were passed the root node and we want 
+			// it wrapped inside another root.
 			if(wrap)
 			{
-				// if we were passed a string with no root at all
-				// or if we were passed the root node and we want 
-				// it wrapped inside another root.
-				if((x..*.length() == 0) ||
-					((x.*.length() > 0) && (x.*[0].nodeKind().toString() == 'text')))
-				{
-					//wrap it upp
-					x = <body>{x}</body>;
-				}
-import flash.utils.getDefinitionByName;
-
+				x = <body>{x}</body>;
 			}
 			
 			return x;
