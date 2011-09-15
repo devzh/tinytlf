@@ -72,12 +72,6 @@ package org.tinytlf.util
 			return bounds;
 		}
 		
-		public static function attachLineBreak(element:ContentElement):GroupElement
-		{
-			var graphic:GraphicElement = getLineBreakGraphic('lineBreak', 0xFF0000);
-			return new GroupElement(new <ContentElement>[element, graphic], new ElementFormat());
-		}
-		
 		/**
 		 * Creates a GroupElement with two children, a place-holder GraphicElement
 		 * and the input ContentElement. The GroupElement has an elementFormat
@@ -125,9 +119,9 @@ package org.tinytlf.util
 			return ef;
 		}
 		
-		private static function getLineBreakGraphic(marker:Object = null, color:uint = 0xFFFFFF):GraphicElement
+		public static function getLineBreakGraphic(marker:Object = null, color:uint = 0xFFFFFF):GraphicElement
 		{
-			var ef:ElementFormat = new ElementFormat();
+			const ef:ElementFormat = new ElementFormat();
 			ef.dominantBaseline = TextBaseline.IDEOGRAPHIC_TOP;
 			
 			var s:Shape = new Shape();
@@ -135,7 +129,7 @@ package org.tinytlf.util
 //			s.graphics.drawRect(0, 0, 10, 2);
 //			s.graphics.endFill();
 			
-			var g:GraphicElement = new GraphicElement(s, 0, 0, ef);
+			const g:GraphicElement = new GraphicElement(s, 0, 0, ef);
 			g.userData = marker;
 			
 			return g;
