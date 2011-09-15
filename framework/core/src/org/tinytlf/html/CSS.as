@@ -42,7 +42,8 @@ package org.tinytlf.html
 		//	div a.class:active
 		private function internalLookup(path:String):IStyleable
 		{
-			const merged:Styleable = new Styleable();
+			const merged:Styleable = new MergedStyleable();
+//			const merged:Styleable = new Styleable();
 			
 			if(!path)
 				return merged;
@@ -58,9 +59,12 @@ package org.tinytlf.html
 					// make sure to pull top-level properties for 'a:hover'
 					// first, then apply the div's cascading 'a:hover'
 					// properties.
+					//
+					// I think we can get away with a cached lookup here,
+					// forcing a manual lookup would be unnecessary work.
 					if(component != path)
-						merged.mergeWith(internalLookup(component));
-//						merged.mergeWith(lookup(component));
+						merged.mergeWith(lookup(component));
+					//	merged.mergeWith(internalLookup(component));
 					
 					const name:StyleName = Cache.getName(component);
 					name.
@@ -169,7 +173,10 @@ package org.tinytlf.html
 		}
 	}
 }
+import flash.system.Capabilities;
 import flash.utils.flash_proxy;
+
+import org.tinytlf.*;
 
 use namespace flash_proxy;
 
@@ -251,7 +258,48 @@ internal class StyleLink extends Styleable
 		};
 }
 
-import org.tinytlf.*;
+use namespace flash_proxy;
+
+internal class MergedStyleable extends Styleable
+{
+	override flash_proxy function setProperty(name:*, value:*):void
+	{
+		if(value is String)
+		{
+			value = processNumberValue(name, value);
+		}
+		
+		super.setProperty(name, value);
+	}
+	
+	private static const screenDPI:Number = Capabilities.screenDPI;
+	
+	private function processNumberValue(styleProp:String, val:String):*
+	{
+		const baseValue:Number = hasOwnProperty(styleProp) ? this[styleProp] :
+			hasOwnProperty('fontSize') ? this['fontSize'] : NaN;
+		
+		if(val == '' || baseValue != baseValue)
+			return val;
+		
+		if(val.lastIndexOf('%') == val.length - 1)
+			baseValue * Number(val.substring(0, val.indexOf('%')));
+		
+		if(val.length < 2)
+			return val;
+		
+		if(val.lastIndexOf('em') == val.length - 2)
+			return baseValue * Number(val.substring(0, val.indexOf('em')));
+		else if(val.lastIndexOf('ex') == val.length - 2)
+			return baseValue * Number(val.substring(0, val.indexOf('ex'))) * 0.5;
+		else if(val.lastIndexOf('pt') == val.length - 2)
+			return (Number(val.substring(0, val.indexOf('pt'))) / 72) * screenDPI;
+		else if(val.indexOf('#') == 0)
+			return uint('0x' + val.substring(1));
+		
+		return parseFloat(val) || val;
+	}
+}
 
 internal class StyleName extends Styleable
 {
