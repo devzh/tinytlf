@@ -176,7 +176,6 @@ package org.tinytlf.util
 				line.parent.removeChild(line);
 			
 			line.userData = null;
-			line.validity = TextLineValidity.STATIC;
 			
 			return line;
 		}
