@@ -32,7 +32,7 @@ package org.tinytlf
 		{
 			defaultFactoryValue = null;
 			
-			if(value is Class || value is Function)
+			if(value is Class || value is Function || value)
 				defaultFactoryValue = value;
 			
 			if(!defaultFactoryValue)
