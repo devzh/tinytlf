@@ -2,7 +2,7 @@ package org.tinytlf.util
 {
 	import flash.external.ExternalInterface;
 	import flash.utils.getDefinitionByName;
-
+	
 	/**
 	 * Tries to convert weird or possibly invalid HTML into valid XML.
 	 * Pass the unwashed HTML to the slurp method to clean it up, or toXML
@@ -10,45 +10,47 @@ package org.tinytlf.util
 	 */
 	public final class TagSoup
 	{
-		public static function toXML(unwashed:String, wrap:Boolean = false):XML
+		public static function toXML(unwashed:String):XML
 		{
+			XML.prettyPrinting = false;
+			XML.prettyIndent = 0;
+			XML.ignoreWhitespace = false;
+			XML.ignoreComments = true;
+			
+			unwashed = stripComments(unwashed);
+			
 			var x:XML;
+			var s:String;
 			try
 			{
+				s = trim(unwashed);
+				
 				//Maybe our string can be easily converted to XML?
-				x = new XML(trim(unwashed.toString()));
+				x = new XML(s);
 			}
 			catch(e:Error)
 			{
 				try
 				{
 					//But maybe he's just missing a root node?
-					x = new XML('<body>' + unwashed.toString() + ' </body>');
-					wrap = false;
+					x = new XML('<body>' + unwashed + ' </body>');
 				}
 				catch(e:Error)
 				{
 					//Nope, too optimistic. Slurp 'em up.
 					try
 					{
+						s = slurp(unwashed);
 						// Try without a root node first.
-						x = new XML(slurp(unwashed.toString()));
+						x = new XML(s);
 					}
 					catch(e:Error)
 					{
+						s = slurp(unwashed);
 						// Try one last time with a root node.
-						x = new XML('<body>' + slurp(unwashed.toString()) + ' </body>');
-						wrap = false;
+						x = new XML('<body>' + s + ' </body>');
 					}
 				}
-			}
-			
-			// if we were passed a string with no root at all
-			// or if we were passed the root node and we want 
-			// it wrapped inside another root.
-			if(wrap)
-			{
-				x = <body>{x}</body>;
 			}
 			
 			return x;
@@ -73,6 +75,7 @@ package org.tinytlf.util
 			
 			// Convert any open tags back to self-terminating nodes.
 			tags = tags.replace(/<(hr|br|img)(.*?)>/g, '<$1$2/>');
+			
 			return trim(tags);
 		}
 		
@@ -138,7 +141,17 @@ package org.tinytlf.util
 		 */
 		private static function trim(input:String):String
 		{
-			return input.replace(/\n|\r|\t/g, ' ').replace(/>(\s\s+)</g, '><').replace(/(\s\s+)/g, ' ');
+			return input.
+				replace(/\n|\r|\t/g, '  ').
+				replace(/(<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>)(\s+)(<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>)/g, '$1$6').
+				replace(/(<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>)(\s+)(<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>)/g, '$1$6').
+//				replace(/>(\s\s+)</g, '><').
+				replace(/(\s\s+)/g, ' ');
+		}
+		
+		private static function stripComments(input:String):String
+		{
+			return input.replace(/<!--(.*?)-->/g, '');
 		}
 	}
 }
