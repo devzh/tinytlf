@@ -5,6 +5,7 @@ package
 	import flash.display.*;
 	import flash.events.*;
 	import flash.geom.*;
+	import flash.net.URLRequest;
 	import flash.text.engine.*;
 	import flash.utils.*;
 	
@@ -17,7 +18,7 @@ package
 	import org.tinytlf.layout.sector.*;
 	import org.tinytlf.util.*;
 	
-	[SWF(width = "402", height = "502")]
+	[SWF(width = "452", height = "500")]
 	public class Main extends Sprite
 	{
 		private var helvetica:Helvetica;
@@ -55,27 +56,24 @@ package
 						   'color: #00FF00;' +
 					   '}');
 			
+			const source:String = new HTMLSource().toString();
+			const html:XML = TagSoup.toXML(source);
+			css.inject(html..style.text().toString());
+			
+			const body:XML = html.localName() == 'body' ? html : (html..body[0] || <body>{html}</body>);
+			
 			const emm:IEventMirrorMap = injector.getInstance(IEventMirrorMap);
 			emm.mapFactory('a', AnchorMirror);
 			
-			XML.prettyPrinting = false;
-			XML.ignoreWhitespace = false;
-			
-			const html:XML = TagSoup.toXML(new HTMLSource().toString(), false);
-			const dom:IDOMNode = new DOMNode(html);
+			const dom:IDOMNode = new DOMNode(body);
 			injector.injectInto(dom);
 			
 			const tsfm:ITextSectorFactoryMap = injector.getInstance(ITextSectorFactoryMap);
-			tsfm.mapFactory('div', TSFactory);
-			tsfm.mapFactory('ol', TSFactory);
-			tsfm.mapFactory('body', TSFactory);
-			tsfm.mapFactory('br', LineBreakTSF);
-			tsfm.mapFactory('table', LineBreakTSF);
 			
 			const panes:Array = injector.getInstance(Array, '<TextPane>');
 			const pane:TextPane = panes[0];
-			pane.width = 400;
-			pane.height = 500;
+			pane.width = 450;
+			pane.height = 498;
 			pane.textSectors = tsfm.instantiate(dom.name).create(dom);
 			
 			const containers:Array = injector.getInstance(Array, '<Sprite>');
