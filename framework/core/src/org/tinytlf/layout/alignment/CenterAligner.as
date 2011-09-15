@@ -13,7 +13,7 @@ package org.tinytlf.layout.alignment
 		
 		override public function getStart(region:TextRectangle, thisItem:*):Number
 		{
-			return (getSize(region, null) - TextLine(thisItem).width) * 0.5;
+			return (getSize(region, thisItem) - thisItem.width) * 0.5;
 		}
 		
 		override public function sort(items:Array):Array
