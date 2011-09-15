@@ -7,7 +7,7 @@ package org.tinytlf.html
 
 	public interface IDOMNode extends IStyleable
 	{
-		function get children():Vector.<IDOMNode>;
+		function get children():Array;
 		
 		function get inheritance():String;
 		

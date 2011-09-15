@@ -10,8 +10,11 @@ package org.tinytlf.style
 		public function getElementFormat(item:Object):ElementFormat
 		{
 			const dom:DOMNode = item as DOMNode;
+			
 			if(!dom)
+			{
 				return new ElementFormat();
+			}
 			
 			const fd:FontDescription = new FontDescription();
 			

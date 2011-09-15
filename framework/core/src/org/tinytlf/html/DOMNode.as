@@ -48,7 +48,7 @@ package org.tinytlf.html
 				const classes:String = this['class'];
 				classes.
 					split(' ').
-					forEach(function(cls:String, ...args):void{
+					forEach(function(cls:String, ... args):void {
 						inheritanceList += (' .' + cls);
 					});
 			}
@@ -66,16 +66,14 @@ package org.tinytlf.html
 			// Build out the DOM
 			for each(var child:XML in xml.*)
 			{
-				const kid:IDOMNode = new DOMNode(child, this);
-				injector.injectInto(kid);
-				kids.push(kid);
+				kids.push(new DOMNode(child, this));
 			}
 		}
 		
 		private var xml:XML = <_/>;
 		
-		private const kids:Vector.<IDOMNode> = new <IDOMNode>[];
-		public function get children():Vector.<IDOMNode>
+		private const kids:Array = [];
+		public function get children():Array
 		{
 			return kids.concat();
 		}
@@ -136,10 +134,9 @@ package org.tinytlf.html
 		
 		override flash_proxy function getDescendants(name:*):*
 		{
-			const all:Vector.<IDOMNode> = new <IDOMNode>[];
+			const all:Array = [];
 			
-			kids.forEach(function(child:IDOMNode, ... args):void{
-				
+			kids.forEach(function(child:IDOMNode, ... args):void {
 				if(child.children.length)
 					all.push.apply(null, child..name);
 				else if(child.name == name || name == '*')

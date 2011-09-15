@@ -4,6 +4,6 @@ package org.tinytlf.layout.sector
 
 	public interface ITextSectorFactory
 	{
-		function create(dom:IDOMNode):Array/*<TextSector>*/
+		function create(dom:IDOMNode):Array /*<TextRectangle>*/
 	}
 }

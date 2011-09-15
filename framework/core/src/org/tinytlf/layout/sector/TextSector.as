@@ -5,14 +5,20 @@ package org.tinytlf.layout.sector
 	import flash.text.engine.*;
 	import flash.utils.*;
 	
+	import org.swiftsuspenders.*;
 	import org.tinytlf.*;
+	import org.tinytlf.content.*;
+	import org.tinytlf.html.*;
 	import org.tinytlf.layout.*;
 	import org.tinytlf.layout.alignment.*;
 	import org.tinytlf.layout.progression.*;
 	import org.tinytlf.util.*;
 	
-	public dynamic class TextSector extends TextRectangle
+	public class TextSector extends TextRectangle
 	{
+		[Inject]
+		public var cefm:IContentElementFactoryMap;
+		
 		private var renderer:ISectorRenderer = new StandardSectorRenderer(aligner, progressor);
 		private var layout:ISectorLayout = new StandardSectorLayout(aligner, progressor);
 		
@@ -26,36 +32,70 @@ package org.tinytlf.layout.sector
 		
 		override public function dispose():void
 		{
-			invalidated = true;
+			invalidate();
 			
-			super.dispose();
+			kids.length = 0;
 			
+			if(!block)
+				return;
+			
+			if(block.firstLine)
+				block.releaseLines(block.firstLine, block.lastLine);
+			block.releaseLineCreationData();
+			
+			TextBlockUtil.checkIn(block);
+			block = null;
+		}
+		
+		private var block:TextBlock;
+		
+		override protected function internalParse():Array
+		{
 			if(block)
+				TextBlockUtil.checkIn(block);
+			
+			injectInto(domNode.children, true);
+			
+			if(domNode.content == null)
 			{
-				if(block.firstLine)
-				{
-					block.releaseLines(block.firstLine, block.lastLine);
-				}
-				block.releaseLineCreationData();
+				domNode.content = cefm.instantiate(domNode.name).create(domNode);
 			}
+			
+			block = TextBlockUtil.checkOut();
+			block.content = domNode.content;
+			
+			trace('parsing content for:', block.content.rawText);
+			
+			return super.internalParse();
+		}
+		
+		override public function invalidate():void
+		{
+			kids.forEach(function(line:TextLine, ... args):void {
+				TextLineUtil.checkIn(TextLineUtil.cleanLine(line));
+			});
+			super.invalidate();
 		}
 		
 		override public function render():Array
 		{
-			if(textBlock && (invalid || TextBlockUtil.isInvalid(textBlock)))
+			if(block && (invalid || TextBlockUtil.isInvalid(block)))
 			{
 				th = 0;
 				tw = 0;
 				
 				if(textAlign == TextAlign.JUSTIFY)
-					setupBlockJustifier(textBlock);
+					setupBlockJustifier(block);
 				
-				textBlock.bidiLevel = direction == TextDirection.LTR ? 0 : 1;
+				block.bidiLevel = direction == TextDirection.LTR ? 0 : 1;
 				
+				kids.forEach(function(line:TextLine, ... args):void {
+					if(line.parent) line.parent.removeChild(line);
+				});
 				kids.length = 0;
 				
 				// Do the magic.
-				kids.push.apply(null, layout.layout(renderer.render(textBlock, this), this)
+				kids.push.apply(null, layout.layout(renderer.render(block, this), this)
 								.map(function(line:TextLine, ... args):TextLine {
 									line.x += x;
 									line.y += y;
@@ -66,7 +106,7 @@ package org.tinytlf.layout.sector
 				th = progressor.getTotalVerticalSize(this);
 			}
 			
-			invalidated = false;
+			invalid = false;
 			
 			return children;
 		}
@@ -101,70 +141,6 @@ package org.tinytlf.layout.sector
 				return;
 			
 			next = value;
-		}
-		
-		/*
-		 * TextSector component properties and methods.
-		 */
-		
-		private var pw:Number = NaN;
-		public function get percentWidth():Number
-		{
-			return pw;
-		}
-		
-		public function set percentWidth(value:Number):void
-		{
-			if(value == pw)
-				return;
-			
-			pw = value;
-			invalidate();
-		}
-		
-		private var ph:Number = NaN;
-		public function get percentHeight():Number
-		{
-			return ph;
-		}
-		
-		public function set percentHeight(value:Number):void
-		{
-			if(value == ph)
-				return;
-			
-			ph = value;
-			invalidate();
-		}
-		
-		private var xValue:Number = 0;
-		public function get x():Number
-		{
-			return xValue;
-		}
-		
-		public function set x(value:Number):void
-		{
-			if(value == xValue)
-				return;
-			
-			xValue = value;
-			invalidate();
-		}
-		
-		private var yValue:Number = 0;
-		public function get y():Number
-		{
-			return yValue;
-		}
-		
-		public function set y(value:Number):void
-		{
-			if(value == yValue)
-				return;
-			
-			yValue = value;
-			invalidate();
 		}
 		
 		/*
@@ -245,21 +221,6 @@ package org.tinytlf.layout.sector
 			renderer.aligner = aligner;
 			layout.aligner = aligner;
 			
-			invalidate();
-		}
-		
-		private var block:TextBlock;
-		public function get textBlock():TextBlock
-		{
-			return block;
-		}
-		
-		public function set textBlock(value:TextBlock):void
-		{
-			if(value == block)
-				return;
-			
-			block = value;
 			invalidate();
 		}
 		

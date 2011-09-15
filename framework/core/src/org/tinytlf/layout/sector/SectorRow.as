@@ -26,16 +26,41 @@ package org.tinytlf.layout.sector
 		public var x:Number = 0;
 		public var y:Number = 0;
 		
-		public function get size():Number
+		public function get progressionSize():Number
 		{
 			var s:Number = 0;
-			forEach(function(sector:TextSector, ... args):void {
+			forEach(function(sector:TextRectangle, ... args):void {
 				if(progression == TextBlockProgression.LTR || progression == TextBlockProgression.RTL)
 					s += (sector.width || sector.textWidth);
 				else if(progression == TextBlockProgression.TTB || progression == TextBlockProgression.BTT)
 					s += (sector.height || sector.textHeight);
 			});
 			return Math.ceil(s);
+		}
+		
+		public function get layoutSize():Number
+		{
+			var s:Number = 0;
+			forEach(function(sector:TextRectangle, ... args):void {
+				if(progression == TextBlockProgression.LTR || progression == TextBlockProgression.RTL)
+					s += (sector.height || sector.textHeight);
+				else if(progression == TextBlockProgression.TTB || progression == TextBlockProgression.BTT)
+					s += (sector.width || sector.textWidth);
+			});
+			return Math.ceil(s);
+		}
+		
+		public function pushRectangle(... rects):uint
+		{
+			const prop:String = (progression == TextBlockProgression.TTB ||
+				progression == TextBlockProgression.BTT) ? 'x' : 'y';
+			
+			rects.forEach(function(rect:TextRectangle, ... args):void {
+				rect[prop] += layoutSize;
+				push(rect);
+			});
+			
+			return length;
 		}
 	}
 }
