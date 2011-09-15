@@ -218,8 +218,8 @@ package org.tinytlf
 				
 				pane.scrollPosition = scrollY;
 				pane.render().
-					forEach(function(line:TextLine, ... args):void {
-						container.addChild(line);
+					forEach(function(child:DisplayObject, ... args):void {
+						container.addChild(child);
 					});
 				
 				observables.register(container);
