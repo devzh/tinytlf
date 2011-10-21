@@ -1,13 +1,12 @@
-package org.tinytlf.layout.sector
+package org.tinytlf.layout.rect
 {
-	import flash.display.DisplayObject;
+	import flash.display.*;
 	import flash.text.engine.*;
 	
 	import org.swiftsuspenders.*;
 	import org.tinytlf.*;
 	import org.tinytlf.html.*;
 	import org.tinytlf.layout.*;
-	import org.tinytlf.layout.alignment.*;
 	import org.tinytlf.layout.progression.*;
 	import org.tinytlf.util.*;
 	
@@ -15,9 +14,6 @@ package org.tinytlf.layout.sector
 	{
 		[Inject]
 		public var injector:Injector;
-		
-		protected var progressor:IProgressor = new TTBProgressor();
-		protected var aligner:IAligner = new LeftAligner();
 		
 		public function dispose():void
 		{
@@ -52,6 +48,11 @@ package org.tinytlf.layout.sector
 		}
 		
 		protected const parseCache:Array = [];
+		public function get parsedRectangleCache():Array
+		{
+			return parseCache.concat();
+		}
+		
 		public function parse():Array /*<TextRectangle>*/
 		{
 			if(invalidated)
@@ -60,7 +61,7 @@ package org.tinytlf.layout.sector
 				parseCache.push.apply(null, internalParse());
 			}
 			
-			return parseCache;
+			return parsedRectangleCache;
 		}
 		
 		protected function internalParse():Array /*<TextRectangle>*/
@@ -68,22 +69,31 @@ package org.tinytlf.layout.sector
 			return [this];
 		}
 		
-		protected function injectInto(children:Array, recurse:Boolean = false):void
+		protected function injectInto(dom:IDOMNode, recurse:Boolean = false):void
 		{
-			children.forEach(function(child:IDOMNode, ... args):void {
+			for(var i:int, n:int = dom.numChildren; i < n; ++i)
+			{
+				const child:IDOMNode = dom.getChildAt(i);
 				injector.injectInto(child);
-				
 				if(recurse)
-				{
-					injectInto(child.children, recurse);
-				}
-			});
+					injectInto(child, recurse);
+			}
 		}
 		
 		public function render():Array
 		{
+			progression.alignment = getAlignmentForProgression(textAlign, blockProgression);
 			invalid = false;
 			return children;
+		}
+		
+		public function getSelectionRects(start:int, end:int):Array /*<Rectangle>*/
+		{
+			const rects:Array = [];
+			kids.forEach(function(child:DisplayObject, ...args):void {
+				rects.push(child.getBounds(child));
+			});
+			return rects;
 		}
 		
 		public function addChild(child:DisplayObject):DisplayObject
@@ -97,8 +107,18 @@ package org.tinytlf.layout.sector
 			const i:int = kids.indexOf(child);
 			if(i != -1)
 				kids.splice(1, i);
-			
 			return child;
+		}
+		
+		private var _progression:IProgression = new TTBProgression();
+		public function get progression():IProgression
+		{
+			return _progression;
+		}
+		
+		public function set progression(p:IProgression):void
+		{
+			_progression = p;
 		}
 		
 		private var leadingValue:Number = 0;
@@ -176,13 +196,13 @@ package org.tinytlf.layout.sector
 			invalidate();
 		}
 		
-		protected var blockProgression:String = TextBlockProgression.TTB;
-		public function get progression():String
+		protected var bProgression:String = TextBlockProgression.TTB;
+		public function get blockProgression():String
 		{
-			return blockProgression;
+			return bProgression;
 		}
 		
-		public function set progression(value:String):void
+		public function set blockProgression(value:String):void
 		{
 			if(!TextBlockProgression.isValid(value))
 				value = TextBlockProgression.TTB;
@@ -190,22 +210,38 @@ package org.tinytlf.layout.sector
 			if(value == blockProgression)
 				return;
 			
-			blockProgression = value;
+			bProgression = value;
 			switch(blockProgression)
 			{
-				case TextBlockProgression.BTT:
-					progressor = new BTTProgressor();
-					break;
 				case TextBlockProgression.TTB:
-					progressor = new TTBProgressor();
+					progression = new TTBProgression();
 					break;
 				case TextBlockProgression.LTR:
-					progressor = new LTRProgressor();
+					progression = new LTRProgression();
 					break;
 				case TextBlockProgression.RTL:
-					progressor = new RTLProgressor();
+					progression = new RTLProgression();
 					break;
 			}
+			
+			invalidate();
+		}
+		
+		private var align:String = TextAlign.LEFT;
+		public function get textAlign():String
+		{
+			return align;
+		}
+		
+		public function set textAlign(value:String):void
+		{
+			if(!TextAlign.isValid(value))
+				value = TextAlign.LEFT;
+			
+			if(value == align)
+				return;
+			
+			align = value;
 			
 			invalidate();
 		}
@@ -298,7 +334,7 @@ package org.tinytlf.layout.sector
 			invalidate();
 		}
 		
-		private var xValue:Number = 0;
+		protected var xValue:Number = 0;
 		public function get x():Number
 		{
 			return xValue;
@@ -309,11 +345,24 @@ package org.tinytlf.layout.sector
 			if(value == xValue)
 				return;
 			
+			if(parseCache.length > 1)
+			{
+				const thisRect:TextRectangle = this;
+				parseCache.forEach(function(rect:TextRectangle, ... args):void {
+					if(rect == thisRect)
+						return;
+					rect.x += value - x;
+				});
+			}
+			else
+			{
+				invalidate();
+			}
+			
 			xValue = value;
-			invalidate();
 		}
 		
-		private var yValue:Number = 0;
+		protected var yValue:Number = 0;
 		public function get y():Number
 		{
 			return yValue;
@@ -324,8 +373,21 @@ package org.tinytlf.layout.sector
 			if(value == yValue)
 				return;
 			
+			if(parseCache.length > 1)
+			{
+				const thisRect:TextRectangle = this;
+				parseCache.forEach(function(rect:TextRectangle, ... args):void {
+					if(rect == thisRect)
+						return;
+					rect.y += value - y;
+				});
+			}
+			else
+			{
+				invalidate();
+			}
+			
 			yValue = value;
-			invalidate();
 		}
 	}
 }

@@ -15,45 +15,38 @@ package org.tinytlf.util
 			XML.prettyPrinting = false;
 			XML.prettyIndent = 0;
 			XML.ignoreWhitespace = false;
-			XML.ignoreComments = true;
 			
 			unwashed = stripComments(unwashed);
 			
-			var x:XML;
-			var s:String;
 			try
 			{
-				s = trim(unwashed);
-				
 				//Maybe our string can be easily converted to XML?
-				x = new XML(s);
+				return new XML(trim(unwashed));
 			}
 			catch(e:Error)
 			{
 				try
 				{
 					//But maybe he's just missing a root node?
-					x = new XML('<body>' + unwashed + ' </body>');
+					return new XML('<body>' + trim(unwashed) + '</body>');
 				}
 				catch(e:Error)
 				{
 					//Nope, too optimistic. Slurp 'em up.
 					try
 					{
-						s = slurp(unwashed);
 						// Try without a root node first.
-						x = new XML(s);
+						return new XML(slurp(unwashed));
 					}
 					catch(e:Error)
 					{
-						s = slurp(unwashed);
 						// Try one last time with a root node.
-						x = new XML('<body>' + s + ' </body>');
+						return new XML('<body>' + slurp(unwashed) + '</body>');
 					}
 				}
 			}
 			
-			return x;
+			return <_/>;
 		}
 		
 		/**
@@ -83,7 +76,6 @@ package org.tinytlf.util
 		 * @private
 		 * Attempts to parse the input malformed XML tags with the browser
 		 * through an ExternalInterface call.
-		 *
 		 */
 		private static function soup(tags:String):String
 		{
@@ -142,11 +134,12 @@ package org.tinytlf.util
 		private static function trim(input:String):String
 		{
 			return input.
-				replace(/\n|\r|\t/g, '  ').
+//				replace(/\n|\r|\t/g, '  ').
+				replace(/\n|\r|\t/g, '').
 				replace(/(<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>)(\s+)(<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>)/g, '$1$6').
-				replace(/(<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>)(\s+)(<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>)/g, '$1$6').
+				replace(/(<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>)(\s+)(<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>)/g, '$1$6');
 //				replace(/>(\s\s+)</g, '><').
-				replace(/(\s\s+)/g, ' ');
+//				replace(/(\s\s+)/g, ' ').
 		}
 		
 		private static function stripComments(input:String):String

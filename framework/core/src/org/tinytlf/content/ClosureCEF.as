@@ -10,6 +10,21 @@ package org.tinytlf.content
 	import org.tinytlf.interaction.*;
 	import org.tinytlf.style.*;
 	
+	/**
+	 * <p>
+	 * ClosureCEF is a ContentElement Factory that calls a closure to create
+	 * ContentElements.
+	 * </p>
+	 *
+	 * <p>
+	 * The closure's method signature should accept an IDOMNode argument and
+	 * return a ContentElement instance:
+	 * </p>
+	 *
+	 * <p>
+	 * <code>function(node:IDOMNode):ContentElement{}</code>
+	 * </p>
+	 */
 	public class ClosureCEF implements IContentElementFactory
 	{
 		[Inject]
@@ -28,17 +43,19 @@ package org.tinytlf.content
 			createFunc = closure || function(dom:IDOMNode):ContentElement {
 				var element:ContentElement;
 				
-				if(dom.children.length)
+				if(dom.numChildren)
 				{
 					const elements:Vector.<ContentElement> = new <ContentElement>[];
-					dom.children.forEach(function(child:IDOMNode, ... args):void {
-						elements.push(cefm.instantiate(child.name).create(child));
-					});
+					for(var i:int = 0, n:int = dom.numChildren; i < n; ++i)
+					{
+						const child:IDOMNode = dom.getChildAt(i);
+						elements.push(cefm.instantiate(child.nodeName).create(child));
+					}
 					element = new GroupElement(elements, eff.getElementFormat(dom), new EventDispatcher());
 				}
-				else if(dom.text)
+				else if(dom.nodeValue)
 				{
-					element = new TextElement(dom.text, eff.getElementFormat(dom));
+					element = new TextElement(dom.nodeValue, eff.getElementFormat(dom));
 				}
 				else
 				{

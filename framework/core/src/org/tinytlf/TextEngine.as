@@ -16,7 +16,8 @@ package org.tinytlf
 	import org.tinytlf.decoration.*;
 	import org.tinytlf.html.*;
 	import org.tinytlf.interaction.*;
-	import org.tinytlf.layout.sector.*;
+	import org.tinytlf.layout.TextBlockProgression;
+	import org.tinytlf.layout.rect.*;
 	
 	[Event(name = "render", type = "flash.events.Event")]
 	[Event(name = "renderLines", type = "flash.events.Event")]
@@ -102,7 +103,7 @@ package org.tinytlf
 		
 		public function get selection():Point
 		{
-			return _selection;
+			return _selection.clone();
 		}
 		
 		public function select(startIndex:Number = NaN, endIndex:Number = NaN):void
@@ -128,11 +129,17 @@ package org.tinytlf
 			selection.x = startIndex;
 			selection.y = endIndex;
 			
+			//// TEMP
+			panes.forEach(function(pane:TextPane, ...args):void {
+				pane.getSelectionRects(startIndex, endIndex);
+			});
+			////
+			
 			//Don't draw selection if we don't have a selection decoration.
 			if(!decorationMap.hasMapping('selection'))
 				return;
 			
-			decorator.decorate(selection, {
+			decorator.decorate(_selection, {
 								   selection: true,
 								   selectionColor: css.getStyle('selectionColor'),
 								   selectionAlpha: css.getStyle('selectionAlpha')
@@ -188,9 +195,17 @@ package org.tinytlf
 		public function render():void
 		{
 			if(invalidateLinesFlag)
+			{
+//				const t:Number = getTimer();
 				renderLines();
+//				trace('line render time:', getTimer() - t);
+			}
 			if(invalidateDecorationsFlag)
+			{
+//				const t:Number = getTimer();
 				renderDecorations();
+//				trace('decoration render time:', getTimer() - t);
+			}
 			
 			dispatchEvent(new Event(Event.RENDER));
 		}
@@ -202,16 +217,11 @@ package org.tinytlf
 			if(selection.x == selection.x && selection.y == selection.y)
 				invalidateDecorationsFlag = true;
 			
-			var sectors:Array;
 			var scrollY:Number = scrollPosition;
 			
 			panes.forEach(function(pane:TextPane, i:int, ... args):void {
 				if(i >= containers.length) {
 					throw new Error('You need as many Sprites as you have TextPanes.');
-				}
-				
-				if(sectors) {
-					pane.textSectors = sectors;
 				}
 				
 				const container:Sprite = containers[i];
@@ -223,16 +233,17 @@ package org.tinytlf
 					});
 				
 				observables.register(container);
-				container.scrollRect = new Rectangle(0, scrollY, pane.width, pane.height);
+				
+				const scrollRect:Rectangle = pane.scrollRect;
+				container.scrollRect = scrollRect;
 				
 				const g:Graphics = container.graphics;
 				g.clear();
 				g.beginFill(0x00, 0);
-				g.drawRect(0, scrollY, pane.width, pane.height);
+				g.drawRect(scrollRect.x, scrollRect.y, scrollRect.width, scrollRect.height);
 				g.endFill();
 				
-				sectors = pane.leftoverSectors;
-				scrollY += pane.textHeight;
+				scrollY += pane.blockProgression == TextBlockProgression.TTB ? pane.height : pane.width;
 			});
 			
 			dispatchEvent(new Event(Event.RENDER + 'Lines'));

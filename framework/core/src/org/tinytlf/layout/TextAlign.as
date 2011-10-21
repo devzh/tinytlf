@@ -17,6 +17,11 @@ package org.tinytlf.layout
 		{
 			return value == LEFT || value == CENTER || value == RIGHT || value == JUSTIFY;
 		}
+		
+		public static function throwArgumentError(value:String):void
+		{
+			throw new ArgumentError('TextAlign ' + value + ' is invalid.');
+		}
     }
 }
 

@@ -5,15 +5,15 @@ package org.tinytlf.html
 	public class CSS extends Styleable
 	{
 		[Embed(source = "default.css", mimeType = "application/octet-stream")]
-		private const defaultCSS:Class;
+		public static const defaultCSS:Class;
 		
 		public function CSS()
 		{
-			styles['*'] = styles;
-			inject(new defaultCSS().toString());
+			super();
+			clearStyles();
 		}
 		
-		private const styles:StyleLink = new StyleLink();
+		private var styles:StyleLink;
 		
 		/**
 		 * Queries for all properties derived from the given style path. The
@@ -162,14 +162,22 @@ package org.tinytlf.html
 				});
 		}
 		
+		public function clearStyles():void
+		{
+			Cache.clearStyles();
+			styles = new StyleLink();
+			styles['html'] = styles;
+			inject(new defaultCSS().toString());
+		}
+		
 		override public function getStyle(styleProp:String):*
 		{
-			return styles['*'].getStyle(styleProp);
+			return styles['html'].getStyle(styleProp);
 		}
 		
 		override public function setStyle(styleProp:String, newValue:*):void
 		{
-			styles['*'].setStyle(styleProp, newValue);
+			styles['html'].setStyle(styleProp, newValue);
 		}
 	}
 }
@@ -383,13 +391,18 @@ internal class StyleName extends Styleable
 
 internal class Cache
 {
+	public static function clearStyles():void
+	{
+		styleCache = {};
+	}
+	
 	private static const nameCache:Object = {};
 	public static function getName(name:String):StyleName
 	{
 		return nameCache[name] ||= new StyleName(name);
 	}
 	
-	private static const styleCache:Object = {};
+	private static var styleCache:Object = {};
 	public static function getStyle(lookup:String):IStyleable
 	{
 		return styleCache[lookup];

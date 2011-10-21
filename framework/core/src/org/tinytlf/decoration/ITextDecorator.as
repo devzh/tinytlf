@@ -50,7 +50,7 @@ package org.tinytlf.decoration
 		 * layer 1.
 		 * </p>
 		 * 
-		 * @see org.tinytlf.decor.TextDecor
+		 * @see org.tinytlf.decor.TextDecorator
 		 */
         function decorate(element:*, styleObject:Object, layer:int = 3, foreground:Boolean = false):void;
 		

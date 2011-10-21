@@ -9,9 +9,8 @@ package org.tinytlf.interaction
 	import org.tinytlf.html.*;
 	import org.tinytlf.util.*;
 	
-	public class EventMirror
+	public class EventBehavior
 	{
-		[Inject]
 		public var dom:IDOMNode;
 		
 		[Inject]

@@ -1,8 +1,8 @@
-package org.tinytlf.layout.sector
+package org.tinytlf.layout.rect
 {
 	import org.tinytlf.html.IDOMNode;
-
-	public interface ITextSectorFactory
+	
+	public interface ITextRectangleFactory
 	{
 		function create(dom:IDOMNode):Array /*<TextRectangle>*/
 	}

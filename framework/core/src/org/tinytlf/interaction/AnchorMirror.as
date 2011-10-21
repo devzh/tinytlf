@@ -1,6 +1,7 @@
 package org.tinytlf.interaction
 {
 	import flash.events.*;
+	import flash.net.*;
 	import flash.text.engine.*;
 	import flash.ui.*;
 	
@@ -12,7 +13,7 @@ package org.tinytlf.interaction
 	
 	import raix.reactive.*;
 	
-	public class AnchorMirror extends EventMirror
+	public class AnchorMirror extends EventBehavior
 	{
 		[Inject]
 		public var css:CSS;
@@ -22,6 +23,9 @@ package org.tinytlf.interaction
 		
 		[Inject]
 		public var decorator:ITextDecorator;
+		
+		[Inject]
+		public var ibeam:MouseSelectionBehavior;
 		
 		protected var downCancelable:ICancelable;
 		protected var upCancelable:ICancelable;
@@ -78,7 +82,7 @@ package org.tinytlf.interaction
 			Mouse.cursor = MouseCursor.BUTTON;
 			downHere = true;
 			active = true;
-			const activeStyle:Object = css.lookup(dom.inheritance + ':active');
+			const activeStyle:Object = css.lookup(dom.cssInheritanceChain.split(' ').join(':active ') + ':active');
 			dom.mergeWith(activeStyle);
 			refreshDOM(dom);
 			invalidate();
@@ -86,11 +90,12 @@ package org.tinytlf.interaction
 		
 		protected function onOver(me:MouseEvent):void
 		{
+			ibeam.enabled = false;
 			over = true;
 			originalMouseValue = Mouse.cursor;
 			Mouse.cursor = MouseCursor.BUTTON;
 			
-			const hover:Object = css.lookup(dom.inheritance + (active ? ':active' : visited ? ':visited' : ':hover'));
+			const hover:Object = css.lookup(dom.cssInheritanceChain + (active ? ':active' : visited ? ':visited' : ':hover'));
 			dom.mergeWith(hover);
 			refreshDOM(dom);
 			invalidate();
@@ -98,9 +103,10 @@ package org.tinytlf.interaction
 		
 		protected function onOut(me:MouseEvent):void
 		{
+			ibeam.enabled = true;
 			over = false;
 			Mouse.cursor = originalMouseValue || MouseCursor.AUTO;
-			const style:Object = css.lookup(dom.inheritance + (visited || active ? ':visited' : ''));
+			const style:Object = css.lookup(dom.cssInheritanceChain + (visited || active ? ':visited' : ''));
 			dom.mergeWith(style);
 			refreshDOM(dom);
 			
@@ -118,10 +124,18 @@ package org.tinytlf.interaction
 			if(invalidated)
 				return;
 			
-			const visitedStyle:Object = css.lookup(dom.inheritance + ':visited');
+			const visitedStyle:Object = css.lookup(dom.cssInheritanceChain + ':visited');
 			dom.mergeWith(visitedStyle);
 			refreshDOM(dom);
 			invalidate();
+			
+			const href:String = dom.getStyle('href');
+			if(!href)
+				return;
+			if(href.indexOf('#') == 0)
+				return;
+			
+			navigateToURL(new URLRequest(href), '_blank');
 		}
 		
 		protected function watchMoveOut():void
@@ -166,17 +180,14 @@ package org.tinytlf.interaction
 		protected function refreshDOM(dom:IDOMNode):void
 		{
 			const mirror:AnchorMirror = this;
-			dom.children.
-				forEach(function(child:IDOMNode, ... args):void {
-					if(child.children.length)
-					{
-						refreshDOM(child);
-					}
-					else
-					{
-						child.content.elementFormat = eff.getElementFormat(dom);
-					}
-				});
+			for(var i:int = 0, n:int = dom.numChildren; i < n; ++i)
+			{
+				const child:IDOMNode = dom.getChildAt(i);
+				if(child.numChildren)
+					refreshDOM(child);
+				else if(child.content)
+					child.content.elementFormat = eff.getElementFormat(dom);
+			}
 		}
 	}
 }

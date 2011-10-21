@@ -11,20 +11,26 @@ package org.tinytlf
 	use namespace flash_proxy;
 	
 	/**
+	 * <p>
 	 * Styleable is a useful base class for objects with sealed properties
 	 * but who also wish to dynamically accept and store named values.
-	 *
+	 * </p>
+	 * 
+	 * <p>
 	 * Since it extends Proxy, it overrides the flash_proxy functions for setting
 	 * and retrieving data. If you are calling a sealed property on
 	 * Styleable or one of his subclasses, the property or function is called
 	 * like normal. However, if you dynamically set or call a property on it,
 	 * <code>getStyle</code> and <code>setStyle</code> are called instead.
+	 * </p>
 	 *
+	 * <p>
 	 * Styleable has a <code>style</code> member, on which the style
 	 * properties and values are stored. You can pass in your own dynamic
 	 * instance to store styles on by setting the <code>style</code> setter.
 	 * This will set the new value as the internal styles storage object, as
 	 * well as copy over all the key/value pairs currently on the new instance.
+	 * </p>
 	 */
 	public dynamic class Styleable extends Proxy implements IStyleable
 	{

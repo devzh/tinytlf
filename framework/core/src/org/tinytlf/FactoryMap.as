@@ -6,9 +6,9 @@ package org.tinytlf
 	import org.tinytlf.content.*;
 	import org.tinytlf.decoration.*;
 	import org.tinytlf.interaction.*;
-	import org.tinytlf.layout.sector.*;
+	import org.tinytlf.layout.rect.*;
 	
-	public class FactoryMap implements ITextDecorationMap, IContentElementFactoryMap, IEventMirrorMap, ITextSectorFactoryMap
+	public class FactoryMap implements ITextDecorationMap, IContentElementFactoryMap, IEventMirrorMap, ITextRectangleFactoryMap
 	{
 		public function FactoryMap(factory:* = null)
 		{

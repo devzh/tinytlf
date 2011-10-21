@@ -1,4 +1,4 @@
-package org.tinytlf.layout.sector
+package org.tinytlf.layout.rect.sector
 {
 	import flash.display.*;
 	import flash.events.*;
@@ -10,24 +10,20 @@ package org.tinytlf.layout.sector
 	import org.tinytlf.content.*;
 	import org.tinytlf.html.*;
 	import org.tinytlf.layout.*;
-	import org.tinytlf.layout.alignment.*;
 	import org.tinytlf.layout.progression.*;
 	import org.tinytlf.util.*;
+	import org.tinytlf.layout.rect.TextRectangle;
 	
 	public class TextSector extends TextRectangle
 	{
 		[Inject]
 		public var cefm:IContentElementFactoryMap;
 		
-		private var renderer:ISectorRenderer = new StandardSectorRenderer(aligner, progressor);
-		private var layout:ISectorLayout = new StandardSectorLayout(aligner, progressor);
-		
 		public function TextSector()
 		{
 			super();
 			
-			renderer.aligner = layout.aligner = aligner;
-			renderer.progressor = layout.progressor = progressor;
+			renderer.progression = layout.progression = progression;
 		}
 		
 		override public function dispose():void
@@ -54,17 +50,17 @@ package org.tinytlf.layout.sector
 			if(block)
 				TextBlockUtil.checkIn(block);
 			
-			injectInto(domNode.children, true);
+			injectInto(domNode, true);
 			
 			if(domNode.content == null)
 			{
-				domNode.content = cefm.instantiate(domNode.name).create(domNode);
+				domNode.content = cefm.instantiate(domNode.nodeName).create(domNode);
 			}
 			
 			block = TextBlockUtil.checkOut();
 			block.content = domNode.content;
 			
-			trace('parsing content for:', block.content.rawText);
+			block.lineRotation = domNode.getStyle('lineRotation') || TextRotation.ROTATE_0;
 			
 			return super.internalParse();
 		}
@@ -84,31 +80,127 @@ package org.tinytlf.layout.sector
 				th = 0;
 				tw = 0;
 				
-				if(textAlign == TextAlign.JUSTIFY)
-					setupBlockJustifier(block);
+				setupBlockJustifier(block);
+				
+				renderer.progression.alignment =
+					layout.progression.alignment = getAlignmentForProgression(textAlign, blockProgression);
+				
+				block.lineRotation = blockProgression == TextBlockProgression.TTB ?
+					TextRotation.ROTATE_0 : blockProgression == TextBlockProgression.LTR ?
+					TextRotation.ROTATE_270 :
+					TextRotation.ROTATE_90;
 				
 				block.bidiLevel = direction == TextDirection.LTR ? 0 : 1;
 				
 				kids.forEach(function(line:TextLine, ... args):void {
-					if(line.parent) line.parent.removeChild(line);
+					if(line.parent)line.parent.removeChild(line);
 				});
 				kids.length = 0;
 				
 				// Do the magic.
-				kids.push.apply(null, layout.layout(renderer.render(block, this), this)
+				kids.push.apply(null, layout.layout(renderer.render(block, this, TextBlockUtil.getValidLines(block)), this)
 								.map(function(line:TextLine, ... args):TextLine {
 									line.x += x;
 									line.y += y;
 									return line;
 								}));
 				
-				tw = progressor.getTotalHorizontalSize(this);
-				th = progressor.getTotalVerticalSize(this);
+				tw = progression.getTotalHorizontalSize(this);
+				th = progression.getTotalVerticalSize(this);
 			}
 			
 			invalid = false;
 			
 			return children;
+		}
+		
+		override public function getSelectionRects(start:int, end:int):Array
+		{
+			if(!block)
+				return [];
+			
+			const rects:Array = [];
+			
+			var line:TextLine = block.getTextLineAtCharIndex(start);
+			var lastLine:TextLine = block.getTextLineAtCharIndex(end);
+			
+			while(line)
+			{
+				const s:int = start - line.textBlockBeginIndex;
+				const e:int = Math.min(end - line.textBlockBeginIndex, line.atomCount);
+				
+				if(s < 0)
+					break;
+				
+				rects.push(line.getAtomBounds(s).union(line.getAtomBounds(e)));
+				line = line == lastLine ? null : line.nextLine;
+			}
+			
+			return rects;
+		}
+		
+		override public function set progression(p:IProgression):void
+		{
+			super.progression = p;
+			
+			renderer.progression =
+				layout.progression = p;
+		}
+		
+		private var _layout:ISectorLayout = new StandardSectorLayout();
+		public function get layout():ISectorLayout
+		{
+			return _layout;
+		}
+		
+		public function set layout(value:ISectorLayout):void
+		{
+			if(value == _layout)
+				return;
+			
+			_layout = value;
+			layout.progression = progression;
+			invalidate();
+		}
+		
+		private var _renderer:ISectorRenderer = new StandardSectorRenderer();
+		public function get renderer():ISectorRenderer
+		{
+			return _renderer;
+		}
+		
+		public function set renderer(value:ISectorRenderer):void
+		{
+			if(value == _renderer)
+				return;
+			
+			_renderer = value;
+			renderer.progression = progression;
+			invalidate();
+		}
+		
+		override public function set x(value:Number):void
+		{
+			if(value == xValue)
+				return;
+			
+			kids.forEach(function(line:TextLine, ... args):void {
+				line.x += (value - x);
+			});
+			
+			xValue = value;
+		}
+		
+		override public function set y(value:Number):void
+		{
+			if(value == yValue)
+				return;
+			
+			kids.forEach(function(line:TextLine, ... args):void {
+				line.y += (value - y);
+			});
+			
+			yValue = value;
 		}
 		
 		/*
@@ -177,50 +269,6 @@ package org.tinytlf.layout.sector
 				return;
 			
 			localValue = value;
-			invalidate();
-		}
-		
-		override public function set progression(value:String):void
-		{
-			super.progression = value;
-			
-			renderer.progressor = progressor;
-			layout.progressor = progressor;
-		}
-		
-		private var align:String = TextAlign.LEFT;
-		public function get textAlign():String
-		{
-			return align;
-		}
-		
-		public function set textAlign(value:String):void
-		{
-			if(!TextAlign.isValid(value))
-				value = TextAlign.LEFT;
-			
-			if(value == align)
-				return;
-			
-			align = value;
-			
-			switch(value)
-			{
-				case TextAlign.LEFT:
-				case TextAlign.JUSTIFY:
-					aligner = new LeftAligner();
-					break;
-				case TextAlign.RIGHT:
-					aligner = new RightAligner();
-					break;
-				case TextAlign.CENTER:
-					aligner = new CenterAligner();
-					break;
-			}
-			
-			renderer.aligner = aligner;
-			layout.aligner = aligner;
-			
 			invalidate();
 		}
 		
