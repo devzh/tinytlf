@@ -1,13 +1,15 @@
 package embeds
 {
-	import flash.utils.ByteArray;
+	import org.tinytlf.html.CSS;
 
-	[Embed(source = "assets/css/arabic.css", mimeType = "application/octet-stream")]
-//	[Embed(source = "assets/css/style.css", mimeType = "application/octet-stream")]
-	public class CSSSource extends ByteArray
+	public class CSSSource
 	{
-		public function CSSSource()
-		{
-		}
+		public static const Default:Class = CSS.defaultCSS;
+		
+		[Embed(source = "assets/css/helvetica.css", mimeType = "application/octet-stream")]
+		public static const Helvetica:Class;
+		
+		[Embed(source = "assets/css/idle_words.css", mimeType = "application/octet-stream")]
+		public static const IdleWords:Class;
 	}
 }

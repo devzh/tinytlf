@@ -57,7 +57,7 @@
  
 <br/> 
  
-<div id="cover"><center><img src="farmer_one_350x525.jpg" width="350" height="525"/></center></div> 
+<div id="cover"><center><img src="http://www.livingdigitally.net/books/farmer_one/farmer_one_350x525.jpg" width="350" height="525"/></center></div> 
  
 <!-- Title Page --> 
 <br/><br/><br/><br/><br/><br/> 

@@ -6,12 +6,12 @@
 	<tr>
 		<td valign="top" width="130">
 		
-			<a style="text-decoration:none;font-size:10px;" href="/2010/07/mission_burfjord.htm">
+			<a style="text-decoration:none;font-size:10px;" href="http://idlewords.com//2010/07/mission_burfjord.htm">
 			&lt;&lt;  Mission: Burfjord</a>
 		
 		</td>
 		<td valign="top" align="center">
-		<a style="text-decoration:none;font-size:10px" href="/2010/07/">^ July, 2010</a>
+		<a style="text-decoration:none;font-size:10px" href="http://idlewords.com/2010/07/">^ July, 2010</a>
 		</td>
 		<td align="right" valign="top" width="130">
 		
@@ -24,7 +24,7 @@
 <div class="entrybox">
 
 <b>20.08.2011</b><br/><br/>
-<a style="text-decoration:none" class="post_title" href="/2011/08/why_arabic_is_terrific.htm">Why Arabic is Terrific</a></p>
+<a style="text-decoration:none" class="post_title" href="http://idlewords.com/2011/08/why_arabic_is_terrific.htm">Why Arabic is Terrific</a></p>
 
 <br/>
 
@@ -206,11 +206,12 @@ a consonant pronounced so far back in the throat that you must wait two hours af
 <br/><br/>
 		</div>
 	<img src="http://idlewords.com/images/ocean_pout.gif" />
+	<br/><br/><br/>
 	<!-- from http://idlewords.com/2010/07/ -->
 	<div class="entrybox">
 <br/><br/>
 	<b>07.12.2010</b><br/><br/>
-	<a style="text-decoration:none" class="post_title" href="/2010/07/mission_burfjord.htm">
+	<a style="text-decoration:none" class="post_title" href="http://idlewords.com/2010/07/mission_burfjord.htm">
 		Mission: Burfjord</a>
 		<br/><br/>
 
@@ -255,18 +256,17 @@ a consonant pronounced so far back in the throat that you must wait two hours af
 <p>Half an hour after we depart the ferry drops me at Dunvik pier to start the walk back to my cabin. Burfjord is now mercifully hidden by a long spit of land to the southwest.   Within ten minutes I am out of sight of all the houses and all I see are comic book mountains and open water.    But all around me are the invisible tendrils of Scandinavian socialism, just watching and waiting for a single moment of weakness in order to strike, and provide me with skilful medical attention, or rescue me from the sea, or show me that despite my efforts to hide from the world entirely I am standing on a spot with five bars of cell phone coverage.</p>
 
 <p>I can see the sea eagle circling high above me, but a cold voice in my heart whispers that he has already been banded.  I have left my illusions in Burfjord.</p>
-		 <a style="color:#aaf;text-decoration:none" href="/2010/07/mission_burfjord.htm">[link]</a>
+		 <a style="color:#aaf;text-decoration:none" href="http://idlewords.com/2010/07/mission_burfjord.htm">[link]</a>
 		 <br/><br/><br/>
 	</div>
 
 
 	<div class="entrybox">
 	<b>07.02.2010</b><br/><br/>
-	<a style="text-decoration:none" class="post_title" href="/2010/07/the_great_legacy.com_swindle.htm">
+	<a style="text-decoration:none" class="post_title" href="http://idlewords.com/2010/07/the_great_legacy.com_swindle.htm">
 		The Great Legacy.com Swindle</a>
 		<br/><br/>
-
-		 (See below for an <a href="#update_legacy">update</a>)<br/>
+(See below for an <a href="#update_legacy">update</a>)<br/>
 <p>Last month my dear friend committed suicide, and in the middle of many emotions I came into contact with that part of the Internet that specializes in the business of dying.  
 
 <p>My friend's parents had bought an online obituary at the <a href="http://www.legacy.com/obituaries/nytimes/">New York Times website</a>, something I later found out was run by an outfit called <a href="http://legacy.com/">legacy.com</a>.  The obituary includes a guest book, where you can send your condolences.  There is a little text generator, in case you're out of ideas; you can "light a candle", and there is also a tie-in to an online florist who very generously offers to say with flowers what you might not be able to express through the text generator at such a difficult time.   I was mildly surprised not to find a selection of tasteful, black-rimmed emoticons, a bit of kitsch that would have delighted my friend.
@@ -305,7 +305,7 @@ a consonant pronounced so far back in the throat that you must wait two hours af
 </div>
 <br/>
 
-		 <a style="color:#aaf;text-decoration:none" href="/2010/07/the_great_legacy.com_swindle.htm">[link]</a>
+		 <a style="color:#aaf;text-decoration:none" href="http://idlewords.com/2010/07/the_great_legacy.com_swindle.htm">[link]</a>
 		 <br/><br/><br/>
 	</div>
 
@@ -314,11 +314,11 @@ a consonant pronounced so far back in the throat that you must wait two hours af
 	<tr>
  		<td width=130>
  		
- 			<a style="font-size:10px;text-decoration:none" href="/2010/06/">&lt;&lt; June 2010</a>
+ 			<a style="font-size:10px;text-decoration:none" href="http://idlewords.com/2010/06/">&lt;&lt; June 2010</a>
  		
  </td>
  <td width=140 align="center">&nbsp;<span style="font-size:10px;font-weight:bold"> 
- <a style="text-decoration:none" href="/2010/">^ 2010</a> &nbsp;</span></td>
+ <a style="text-decoration:none" href="http://idlewords.com/2010/">^ 2010</a> &nbsp;</span></td>
  <td width=130 align="right">
  
 </td></tr></table>
