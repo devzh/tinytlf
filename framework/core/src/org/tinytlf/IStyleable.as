@@ -29,22 +29,22 @@ package org.tinytlf
         function setStyle(styleProp:String, newValue:*):void;
 		
 		/**
-		 * Applies this IStyleAware's styles to the specified Object.
+		 * Applies this IStyleable's styles to the specified Object.
 		 */
 		function applyTo(target:Object, dynamic:Boolean = false):IStyleable;
 		
 		/**
-		 * Unapplies this IStyleAware's styles from the specified Object.
+		 * Unapplies this IStyleable's styles from the specified Object.
 		 */
 		function unapplyTo(target:Object):IStyleable;
 		
 		/**
-		 * Merges the specified object's properties into this IStyleAware object.
+		 * Merges the specified object's properties into this IStyleable object.
 		 */
 		function mergeWith(withObj:Object):IStyleable;
 		
 		/**
-		 * Removes the specified object's properties from this IStyleAware object.
+		 * Removes the specified object's properties from this IStyleable object.
 		 */
 		function unmergeWith(withObj:Object):IStyleable;
 		

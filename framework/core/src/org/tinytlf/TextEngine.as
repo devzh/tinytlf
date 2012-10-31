@@ -17,7 +17,8 @@ package org.tinytlf
 	import org.tinytlf.html.*;
 	import org.tinytlf.interaction.*;
 	import org.tinytlf.layout.*;
-	import org.tinytlf.layout.rect.*;
+	import org.tinytlf.layout.box.*;
+	import org.tinytlf.layout.box.region.Region;
 	
 	[Event(name = "render", type = "flash.events.Event")]
 	[Event(name = "renderLines", type = "flash.events.Event")]
@@ -37,8 +38,8 @@ package org.tinytlf
 		[Inject]
 		public var css:CSS;
 		
-		[Inject(name='<TextPane>')]
-		public var panes:Array;
+		[Inject(name='<Box>')]
+		public var boxes:Array;
 		
 		[Inject(name='<Sprite>')]
 		public var containers:Array;
@@ -82,20 +83,24 @@ package org.tinytlf
 		[Inject("layout")]
 		public var llv:Virtualizer;
 		
-		private var _scrollPosition:Number = 0;
-		public function get scrollPosition():Number
+		private const _scrollPosition:Point = new Point();
+		public function get scroll():Point
 		{
 			return _scrollPosition;
 		}
 		
-		public function set scrollPosition(value:Number):void
+		public function set scroll(value:Point):void
 		{
-			value = Math.min(Math.max(value, 0), llv.size);
+			boxes.forEach(function(box:Box, ...args):void {
+				value.x = Math.min(Math.max(value.x, 0), box.width);
+			});
+			value.y = Math.min(Math.max(value.y, 0), llv.size);
 			
-			if(value == _scrollPosition)
+			if(!value || value.x == _scrollPosition.x && value.y == scroll.y)
 				return;
 			
-			_scrollPosition = value;
+			_scrollPosition.x = value.x;
+			_scrollPosition.y = value.y
 			invalidate();
 		}
 		
@@ -130,8 +135,8 @@ package org.tinytlf
 			_selection.y = endIndex;
 			
 			//// TEMP
-			panes.forEach(function(pane:TextPane, ...args):void {
-				pane.getSelectionRects(startIndex, endIndex);
+			boxes.forEach(function(box:Box, ...args):void {
+				box.getSelectionRects(startIndex, endIndex);
 			});
 			////
 			
@@ -217,24 +222,25 @@ package org.tinytlf
 			if(_selection.x == _selection.x && _selection.y == _selection.y)
 				invalidateDecorationsFlag = true;
 			
-			var scrollY:Number = scrollPosition;
-			
-			panes.forEach(function(pane:TextPane, i:int, ... args):void {
+			boxes.forEach(function(box:Box, i:int, ... args):void {
 				if(i >= containers.length) {
-					throw new Error('You need as many Sprites as you have TextPanes.');
+					throw new Error('You need as many Sprites as you have Regions.');
 				}
 				
 				const container:Sprite = containers[i];
 				
-				pane.scrollPosition = scrollY;
-				pane.render().
+				box.scroll = scroll.clone();
+				
+				box.parse();
+				
+				box.render().
 					forEach(function(child:DisplayObject, ... args):void {
 						container.addChild(child);
 					});
 				
 				observables.register(container);
 				
-				const scrollRect:Rectangle = pane.scrollRect;
+				const scrollRect:Rectangle = box.scrollRect;
 				container.scrollRect = scrollRect;
 				
 				const g:Graphics = container.graphics;
@@ -242,8 +248,6 @@ package org.tinytlf
 				g.beginFill(0x00, 0);
 				g.drawRect(scrollRect.x, scrollRect.y, scrollRect.width, scrollRect.height);
 				g.endFill();
-				
-				scrollY += pane.blockProgression == TextBlockProgression.TTB ? pane.height : pane.width;
 			});
 			
 			dispatchEvent(new Event(Event.RENDER + 'Lines'));

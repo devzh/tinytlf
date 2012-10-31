@@ -1,36 +1,36 @@
-package org.tinytlf.layout.rect
+package org.tinytlf.layout.box
 {
 	import org.swiftsuspenders.*;
 	import org.tinytlf.html.*;
 	
 	/**
 	 * <p>
-	 * ClosureTRF is a TextRectangle factory which creates an Array of
-	 * TextRectangles with a closure.
+	 * ClosureBoxFactory is a Box factory which creates an Array of
+	 * Boxes with a closure.
 	 * </p>
 	 * 
 	 * <p>
 	 * If the creation closure accepts two arguments, the first must be an
-	 * IDOMNode and the second a TextRectangle. In this case, ClosureTRF ensures
+	 * IDOMNode and the second a Box. In this case, ClosureTRF ensures
 	 * the supplied <code>parse</code> and <code>render</code> functions are 
-	 * called when the TextRectangle's <code>parse()</code> and
+	 * called when the Box's <code>parse()</code> and
 	 * <code>render()</code> functions are called.
 	 * </p>
 	 * 
 	 * <p>
-	 * The parse function can accept nothing, or a TextRectangle. It should
-	 * return an array of TextRectangles to be rendered.
+	 * The parse function can accept nothing, or a Box. It should
+	 * return an array of Boxes to be rendered.
 	 * </p>
 	 * 
 	 * <p>
-	 * The render function can accept nothing, or a TextRectangle. It should
+	 * The render function can accept nothing, or a Box. It should
 	 * return nothing, a DisplayObject, or an Array of DisplayObjects. If it
 	 * returns DisplayObjects, they will be added to the display list.
 	 * </p>
 	 */
-	public class ClosureTRF implements ITextRectangleFactory
+	public class ClosureBoxFactory implements IBoxFactory
 	{
-		public function ClosureTRF(injector:Injector, create:Function = null, parse:Function = null, render:Function = null)
+		public function ClosureBoxFactory(injector:Injector, create:Function = null, parse:Function = null, render:Function = null)
 		{
 			this.injector = injector;
 			createFunc = create || function():Array {return [];};
@@ -58,16 +58,16 @@ package org.tinytlf.layout.rect
 import flash.display.*;
 
 import org.swiftsuspenders.*;
-import org.tinytlf.layout.progression.*;
-import org.tinytlf.layout.rect.*;
+import org.tinytlf.layout.box.*;
+import org.tinytlf.layout.box.progression.*;
 
-internal class ClosureRectangle extends TextRectangle
+internal class ClosureRectangle extends Box
 {
 	public function ClosureRectangle(injector:Injector, parseF:Function = null, renderF:Function = null)
 	{
 		this.injector = injector;
-		parseFunc = parseF || function(rect:TextRectangle):Array {return [];};
-		renderFunc = renderF || function(rect:TextRectangle):Array {return rect.children;};
+		parseFunc = parseF || function(box:Box):Array {return [];};
+		renderFunc = renderF || function(box:Box):Array {return box.children;};
 	}
 	
 	private var parseFunc:Function;

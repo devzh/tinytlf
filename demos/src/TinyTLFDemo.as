@@ -220,33 +220,50 @@ import flash.text.engine.*;
 import org.tinytlf.components.*;
 import org.tinytlf.html.*;
 import org.tinytlf.layout.*;
-import org.tinytlf.layout.progression.*;
-import org.tinytlf.layout.rect.*;
-import org.tinytlf.layout.rect.sector.*;
+import org.tinytlf.layout.box.*;
+import org.tinytlf.layout.box.paragraph.*;
+import org.tinytlf.layout.box.progression.*;
+import org.tinytlf.layout.box.region.*;
 
 internal class CircleTextField extends org.tinytlf.components.TextField
 {
 	public function CircleTextField()
 	{
 		super();
+		
+		const boxes:Array = injector.getInstance(Array, '<Box>');
+		boxes[0] = injector.instantiateUnmapped(CircleRegion);
 	}
 	
-	override protected function createTextRectangles(root:IDOMNode):Array
+//	override protected function createBoxes(root:IDOMNode):Array
+//	{
+//		const panes:Array = injector.getInstance(Array, '<Box>');
+//		const region:Region = panes[0];
+//		
+//		pane.progression = pane.blockProgression == TextBlockProgression.TTB ?
+//			new CircleTTBProgression() :
+//			pane.blockProgression == TextBlockProgression.LTR ?
+//			new CircleLTRProgression() : new CircleRTLProgression();
+//		
+//		return super.createBoxes(root).map(function(box:Box, ... args):Box {
+//			if(box is Paragraph)
+//				Paragraph(box).layout = new CircleLayout();
+//			return box;
+//		});
+//	}
+}
+
+internal class CircleRegion extends Region
+{
+	override public function set blockProgression(value:String):void
 	{
-		const panes:Array = injector.getInstance(Array, '<TextPane>');
-		const pane:TextPane = panes[0];
+		super.blockProgression = value;
 		
-		pane.progression = pane.blockProgression == TextBlockProgression.TTB ?
+		progression = value == TextBlockProgression.TTB ?
 			new CircleTTBProgression() :
-			pane.blockProgression == TextBlockProgression.LTR ?
-			new CircleLTRProgression() : new CircleRTLProgression();
-		
-		return super.createTextRectangles(root).
-			map(function(rect:TextRectangle, ... args):TextRectangle {
-				if(rect is TextSector)
-					TextSector(rect).layout = new CircleLayout();
-				return rect;
-			});
+			value == TextBlockProgression.LTR ?
+				new CircleLTRProgression() :
+				new CircleRTLProgression();
 	}
 }
 
@@ -258,20 +275,20 @@ internal class CircleTTBProgression extends TTBProgression
 		defaultAlignment = getAlignmentForProgression(TextAlign.CENTER, TextBlockProgression.TTB);
 	}
 	
-	override public function getLineSize(rect:TextRectangle, previousLine:TextLine):Number
+	override public function getLineSize(box:Box, previousLine:TextLine):Number
 	{
 		if(!previousLine)
-			return rect.width * .2;
+			return box.width * .2;
 		
-		const d:Number = rect.width - rect.paddingTop - rect.paddingBottom;
+		const d:Number = box.width - box.paddingTop - box.paddingBottom;
 		const r:Number = d * 0.5;
-		position(rect, previousLine);
-		var y:Number = previousLine.y + previousLine.descent + rect.leading;
+		position(box, previousLine);
+		var y:Number = previousLine.y + previousLine.descent + box.leading;
 		
 		if(y > d)
 			y %= d;
 		
-		const indent:Number = (rect is TextSector) ? TextSector(rect).textIndent : 0;
+		const indent:Number = (box is Paragraph) ? Paragraph(box).textIndent : 0;
 		const point:Point = xAtY(y, new Point(r, r), r);
 		
 		return Math.floor(point.y - point.x - indent);
@@ -286,20 +303,20 @@ internal class CircleLTRProgression extends LTRProgression
 		defaultAlignment = getAlignmentForProgression(TextAlign.CENTER, TextBlockProgression.LTR);
 	}
 	
-	override public function getLineSize(rect:TextRectangle, previousLine:TextLine):Number
+	override public function getLineSize(box:Box, previousLine:TextLine):Number
 	{
 		if(!previousLine)
-			return rect.height * .2;
+			return box.height * .2;
 		
-		const d:Number = rect.height - rect.paddingLeft - rect.paddingRight;
+		const d:Number = box.height - box.paddingLeft - box.paddingRight;
 		const r:Number = d * 0.5;
-		position(rect, previousLine);
-		var x:Number = previousLine.x + previousLine.width + rect.leading;
+		position(box, previousLine);
+		var x:Number = previousLine.x + previousLine.width + box.leading;
 		
 		if(x > d)
 			x %= d;
 		
-		const indent:Number = (rect is TextSector) ? TextSector(rect).textIndent : 0;
+		const indent:Number = (box is Paragraph) ? Paragraph(box).textIndent : 0;
 		const point:Point = xAtY(x, new Point(r, r), r);
 		
 		return Math.floor(point.y - point.x - indent);
@@ -314,20 +331,20 @@ internal class CircleRTLProgression extends RTLProgression
 		defaultAlignment = getAlignmentForProgression(TextAlign.CENTER, TextBlockProgression.RTL);
 	}
 	
-	override public function getLineSize(rect:TextRectangle, previousLine:TextLine):Number
+	override public function getLineSize(box:Box, previousLine:TextLine):Number
 	{
 		if(!previousLine)
-			return Math.floor(rect.height * .2);
+			return Math.floor(box.height * .2);
 		
-		const d:Number = rect.height - rect.paddingLeft - rect.paddingRight;
+		const d:Number = box.height - box.paddingLeft - box.paddingRight;
 		const r:Number = d * 0.5;
-		position(rect, previousLine);
-		var x:Number = Math.floor(previousLine.x - previousLine.width - rect.leading);
+		position(box, previousLine);
+		var x:Number = Math.floor(previousLine.x - previousLine.width - box.leading);
 		
 		if(x < 0)
 			x = Math.abs(x % d);
 		
-		const indent:Number = (rect is TextSector) ? TextSector(rect).textIndent : 0;
+		const indent:Number = (box is Paragraph) ? Paragraph(box).textIndent : 0;
 		const point:Point = xAtY(x, new Point(r, r), r);
 		
 		return Math.floor(point.y - point.x - indent);
@@ -372,9 +389,9 @@ internal function yAtX(xValue:Number, center:Point, radius:Number):Point
 	return new Point(0.5 * (-b - d), 0.5 * (-b + d));
 }
 
-internal class CircleLayout extends StandardSectorLayout
+internal class CircleLayout extends StandardParagraphLayout
 {
-	override public function layout(lines:Array, sector:TextSector):Array
+	override public function layout(lines:Array, paragraph:Paragraph):Array
 	{
 		return lines;
 	}

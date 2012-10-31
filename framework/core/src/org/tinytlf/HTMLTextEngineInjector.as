@@ -12,14 +12,15 @@ package org.tinytlf
 	import org.tinytlf.html.*;
 	import org.tinytlf.interaction.*;
 	import org.tinytlf.layout.*;
-	import org.tinytlf.layout.rect.*;
-	import org.tinytlf.layout.rect.sector.*;
+	import org.tinytlf.layout.box.*;
+	import org.tinytlf.layout.box.paragraph.*;
+	import org.tinytlf.layout.box.region.Region;
 	import org.tinytlf.style.*;
 	import org.tinytlf.util.*;
 	
-	public class TextEngineInjector extends Injector
+	public class HTMLTextEngineInjector extends Injector
 	{
-		public function TextEngineInjector(engine:ITextEngine)
+		public function HTMLTextEngineInjector(engine:ITextEngine)
 		{
 			super();
 			
@@ -40,7 +41,7 @@ package org.tinytlf
 			
 			map(IEventMirrorMap).toValue(new EventMirrorMap());
 			map(IContentElementFactoryMap).toValue(new FactoryMap());
-			map(ITextRectangleFactoryMap).toValue(new FactoryMap());
+			map(IBoxFactoryMap).toValue(new FactoryMap());
 			map(ITextDecorationMap).toValue(new FactoryMap());
 			map(IElementFormatFactory).toValue(new DOMEFFactory());
 			map(ITextDecorator).toValue(new TextDecorator());
@@ -48,7 +49,7 @@ package org.tinytlf
 			map(Observables).toValue(new Observables());
 			
 			map(Array, '<Sprite>').toValue([new Sprite()]);
-			map(Array, '<TextPane>').toValue([]);
+			map(Array, '<Box>').toValue([]);
 			
 			map(MouseSelectionBehavior).toSingleton(MouseSelectionBehavior);
 			
@@ -70,7 +71,7 @@ package org.tinytlf
 			injectInto(getInstance(IEventMirrorMap));
 			injectInto(getInstance(IContentElementFactoryMap));
 			injectInto(getInstance(ITextDecorationMap));
-			injectInto(getInstance(ITextRectangleFactoryMap));
+			injectInto(getInstance(IBoxFactoryMap));
 			injectInto(getInstance(IElementFormatFactory));
 			injectInto(getInstance(ITextDecorator));
 			injectInto(getInstance(Observables));
@@ -82,8 +83,8 @@ package org.tinytlf
 			unmap(IDOMNode);
 			
 			// Start off with at least one TextPane.
-			const panes:Array = getInstance(Array, '<TextPane>');
-			panes.push(instantiateUnmapped(TextPane));
+			const boxes:Array = getInstance(Array, '<Box>');
+			boxes.push(instantiateUnmapped(Region));
 		}
 		
 		protected function mapEventMirrors():void
@@ -104,34 +105,34 @@ package org.tinytlf
 		
 		protected function mapTRFs():void
 		{
-			const trfm:ITextRectangleFactoryMap = getInstance(ITextRectangleFactoryMap);
+			const bfm:IBoxFactoryMap = getInstance(IBoxFactoryMap);
 			const engine:ITextEngine = getInstance(ITextEngine);
 			const injector:Injector = this;
 			const cllv:Virtualizer = getInstance(Virtualizer, 'content');
 			
-			trfm.defaultFactory = new ClosureTRF(injector, function(dom:IDOMNode):Array {
-				const sector:TextSector = injector.instantiateUnmapped(TextSector);
-				sector.domNode = dom;
-				sector.width = 0;
-				sector.percentWidth = 100;
-				sector.percentHeight = 100;
+			bfm.defaultFactory = new ClosureBoxFactory(injector, function(dom:IDOMNode):Array {
+				const paragraph:Paragraph = injector.instantiateUnmapped(Paragraph);
+				paragraph.domNode = dom;
+				paragraph.width = 0;
+				paragraph.percentWidth = 100;
+				paragraph.percentHeight = 100;
 				
-				cllv.add(sector, dom.contentSize);
-				return [sector];
+				cllv.add(paragraph, dom.contentSize);
+				return [paragraph];
 			});
 			
 			const passThrough:Function = function(dom:IDOMNode):Array {
-				const rects:Array = [];
+				const boxes:Array = [];
 				for(var i:int = 0, n:int = dom.numChildren; i < n; ++i) {
 					const child:IDOMNode = dom.getChildAt(i);
-					rects.push.apply(null, trfm.instantiate(child.nodeName)['create'](child));
+					boxes.push.apply(null, bfm.instantiate(child.nodeName)['create'](child));
 				}
-				return rects;
+				return boxes;
 			};
 			
-			trfm.mapFactory('ol', new ClosureTRF(injector, passThrough));
-			trfm.mapFactory('ul', new ClosureTRF(injector, passThrough));
-			trfm.mapFactory('center', new ClosureTRF(injector, passThrough));
+			bfm.mapFactory('ol', new ClosureBoxFactory(injector, passThrough));
+			bfm.mapFactory('ul', new ClosureBoxFactory(injector, passThrough));
+			bfm.mapFactory('center', new ClosureBoxFactory(injector, passThrough));
 			
 			const injectIntoDOMNode:Function = function(dom:IDOMNode, recurse:Boolean = false):void {
 				for(var i:int, n:int = dom.numChildren; i < n; ++i) {
@@ -142,126 +143,126 @@ package org.tinytlf
 				}
 			};
 			
-			const containerTRF:ITextRectangleFactory = new ClosureTRF(injector,
+			const containerBF:IBoxFactory = new ClosureBoxFactory(injector,
 				// create
-				function(dom:IDOMNode, rect:TextRectangle):Array {
-					rect.domNode = dom;
-					return [rect];
+				function(dom:IDOMNode, box:Box):Array {
+					box.domNode = dom;
+					return [box];
 				},
 				// parse
-				function(rect:TextRectangle):Array {
-					injectIntoDOMNode(rect.domNode);
-					return [rect].concat(new ClosureTRF(injector, passThrough).create(rect.domNode));
+				function(box:Box):Array {
+					injectIntoDOMNode(box.domNode);
+					return [box].concat(new ClosureBoxFactory(injector, passThrough).create(box.domNode));
 				},
 				// render
-				function(rect:TextRectangle):Array {
-					return rect.children;
+				function(box:Box):Array {
+					return box.children;
 				}
 			); 
 			
-			trfm.mapFactory('body', containerTRF);
-			trfm.mapFactory('div', containerTRF);
+			bfm.mapFactory('body', containerBF);
+			bfm.mapFactory('div', containerBF);
 			
-			trfm.mapFactory('hr', new ClosureTRF(injector, function(dom:IDOMNode, rect:TextRectangle):Array {
-				dom.mergeWith(rect);
-				rect.percentWidth = 100;
-				rect.percentHeight = 100;
-				rect.height ||= 1;
-				rect.paddingLeft ||= 2;
-				rect.paddingRight ||= 2;
+			bfm.mapFactory('hr', new ClosureBoxFactory(injector, function(dom:IDOMNode, box:Box):Array {
+				dom.mergeWith(box);
+				box.percentWidth = 100;
+				box.percentHeight = 100;
+				box.height ||= 1;
+				box.paddingLeft ||= 2;
+				box.paddingRight ||= 2;
 				const s:Sprite = new Sprite();
 				s.graphics.beginFill(0x00, 0.1);
-				s.graphics.drawRect(0, 0, rect.width || 1, rect.height || 1);
+				s.graphics.drawRect(0, 0, box.width || 1, box.height || 1);
 				s.graphics.endFill();
-				rect.addChild(s);
+				box.addChild(s);
 				
-				cllv.add(rect, 1);
-				return [rect];
+				cllv.add(box, 1);
+				return [box];
 			},
 			null,
-			function(rect:TextRectangle):void {
-				const s:Sprite = rect.children[0];
-				s.width = rect.width - rect.paddingLeft - rect.paddingRight;
-				s.height = rect.height;
-				s.x = rect.x;
-				s.y = rect.y;
+			function(box:Box):void {
+				const s:Sprite = box.children[0];
+				s.width = box.width - box.paddingLeft - box.paddingRight;
+				s.height = box.height;
+				s.x = box.x;
+				s.y = box.y;
 			}));
 			
-			trfm.mapFactory('br', new ClosureTRF(injector, function(dom:IDOMNode):Array {
-				const rect:TextRectangle = injector.instantiateUnmapped(TextRectangle);
-				rect.mergeWith(dom);
-				rect.percentWidth = 100;
-				rect.percentHeight = 100;
-				rect.height = dom['fontSize'] || dom['height'];
+			bfm.mapFactory('br', new ClosureBoxFactory(injector, function(dom:IDOMNode):Array {
+				const box:Box = injector.instantiateUnmapped(Box);
+				box.mergeWith(dom);
+				box.percentWidth = 100;
+				box.percentHeight = 100;
+				box.height = dom['fontSize'] || dom['height'];
 				
-				cllv.add(rect, 1);
-				return [rect];
+				cllv.add(box, 1);
+				return [box];
 			}));
 			
-			trfm.mapFactory('img', new ClosureTRF(injector, function(dom:IDOMNode, rect:TextRectangle):Array {
-				rect.mergeWith(dom);
-				rect.width = 0;
-				rect.height = 0;
-				rect.percentWidth = 100;
-				rect.percentHeight = 100;
+			bfm.mapFactory('img', new ClosureBoxFactory(injector, function(dom:IDOMNode, box:Box):Array {
+				box.mergeWith(dom);
+				box.width = 0;
+				box.height = 0;
+				box.percentWidth = 100;
+				box.percentHeight = 100;
 				const loader:Loader = new Loader();
 				loader.load(new URLRequest(dom.getStyle('src')));
 				loader.contentLoaderInfo.addEventListener(Event.COMPLETE, function(e:Event):void {
 					loader.contentLoaderInfo.removeEventListener(Event.COMPLETE, arguments.callee);
 					dom.applyTo(loader);
-					rect.addChild(loader);
+					box.addChild(loader);
 					engine.invalidate();
 				});
-				cllv.add(rect, 1);
-				return [rect];
-			}, null, function(rect:TextRectangle):void {
-				const kids:Array = rect.children;
+				cllv.add(box, 1);
+				return [box];
+			}, null, function(box:Box):void {
+				const kids:Array = box.children;
 				if(kids.length == 0)
 					return;
 				const loader:Loader = kids[0];
-				rect.progression.position(rect, loader);
-				rect.width = Math.max(rect.width, loader.width);
-				rect.height = Math.max(rect.height, loader.height);
+				box.progression.position(box, loader);
+				box.width = Math.max(box.width, loader.width);
+				box.height = Math.max(box.height, loader.height);
 			}));
 			
-			trfm.mapFactory('table', new ClosureTRF(injector, function(dom:IDOMNode):Array {
-				const sector:TextSector = injector.instantiateUnmapped(TextSector);
-				sector.domNode = new DOMNode(<body><h2>[Table Here]</h2><br/><h5>(Tables aren't supported yet.)</h5></body>);
-				sector.width = 0;
-				sector.percentWidth = 100;
-				sector.percentHeight = 100;
-				sector.textAlign = TextAlign.CENTER;
+			bfm.mapFactory('table', new ClosureBoxFactory(injector, function(dom:IDOMNode):Array {
+				const paragraph:Paragraph = injector.instantiateUnmapped(Paragraph);
+				paragraph.domNode = new DOMNode(<body><h2>[Table Here]</h2><br/><h5>(Tables aren't supported yet.)</h5></body>);
+				paragraph.width = 0;
+				paragraph.percentWidth = 100;
+				paragraph.percentHeight = 100;
+				paragraph.textAlign = TextAlign.CENTER;
 				
-				cllv.add(sector, dom.contentSize);
-				return [sector];
+				cllv.add(paragraph, dom.contentSize);
+				return [paragraph];
 			}));
 			
-//			trfm.mapFactory('table', new ClosureTRF(injector, function(dom:IDOMNode, rect:TextRectangle):Array {
-////				rect.domNode = dom;
-//				rect.mergeWith(dom);
-//				rect.width = 0;
-//				rect.height = 0;
-//				rect.percentWidth = 100;
-//				rect.percentHeight = 100;
+//			trfm.mapFactory('table', new ClosureTRF(injector, function(dom:IDOMNode, box:Box):Array {
+////				box.domNode = dom;
+//				box.mergeWith(dom);
+//				box.width = 0;
+//				box.height = 0;
+//				box.percentWidth = 100;
+//				box.percentHeight = 100;
 //				const s:Sprite = new Sprite();
 //				s.graphics.beginFill(0x00, 0.1);
-//				s.graphics.drawRect(0, 0, rect.width || 1, rect.height || 1);
+//				s.graphics.drawRect(0, 0, box.width || 1, box.height || 1);
 //				s.graphics.endFill();
-//				rect.addChild(s);
+//				box.addChild(s);
 //				
-//				cllv.add(rect, dom.contentSize);
-//				return [rect];
+//				cllv.add(box, dom.contentSize);
+//				return [box];
 //			},
 //			null,
-//			function(rect:TextRectangle):void {
-//				rect.width ||= 100;
-//				rect.height ||= 100;
+//			function(box:Box):void {
+//				box.width ||= 100;
+//				box.height ||= 100;
 //				
-//				const s:Sprite = rect.children[0];
-//				s.width = rect.width;
-//				s.height = rect.height;
-//				s.x = rect.x;
-//				s.y = rect.y;
+//				const s:Sprite = box.children[0];
+//				s.width = box.width;
+//				s.height = box.height;
+//				s.x = box.x;
+//				s.y = box.y;
 //			}));
 		}
 	}

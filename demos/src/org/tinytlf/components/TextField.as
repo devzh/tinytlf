@@ -2,13 +2,14 @@ package org.tinytlf.components
 {
 	import flash.display.*;
 	import flash.events.*;
+	import flash.geom.*;
 	
 	import org.swiftsuspenders.*;
 	import org.tinytlf.*;
 	import org.tinytlf.html.*;
 	import org.tinytlf.interaction.*;
 	import org.tinytlf.layout.*;
-	import org.tinytlf.layout.rect.*;
+	import org.tinytlf.layout.box.*;
 	import org.tinytlf.util.*;
 	
 	public class TextField extends ComponentBase
@@ -87,6 +88,40 @@ package org.tinytlf.components
 			});
 		}
 		
+		protected function validateInjector():void
+		{
+			while(numChildren)
+			{
+				removeChildAt(0);
+			}
+			
+			const engine:ITextEngine = injector.getInstance(ITextEngine);
+			const obs:Observables = injector.getInstance(Observables);
+			obs.mouseWheel(this).subscribe(function(me:MouseEvent):void {
+				engine.scroll = new Point(engine.scroll.x, engine.scroll.y - me.delta);
+			});
+		}
+		
+		protected function validateCSS(css:String):void
+		{
+			const engine:ITextEngine = injector.getInstance(ITextEngine);
+			const c:CSS = injector.getInstance(CSS);
+			c.clearStyles();
+			c.inject(css);
+			engine.scroll = new Point();
+		}
+		
+		protected function validateHTML(html:XML):void
+		{
+			const cllv:Virtualizer = injector.getInstance(Virtualizer, 'content');
+			cllv.clear();
+			
+			const engine:ITextEngine = injector.getInstance(ITextEngine);
+			const c:CSS = injector.getInstance(CSS);
+			c.inject(html..style.text().toString());
+			engine.scroll = new Point();
+		}
+		
 		protected function validate():void
 		{
 			if(injectorChanged || proposedCSS || proposedHTML)
@@ -99,38 +134,23 @@ package org.tinytlf.components
 				
 				if(injectorChanged)
 				{
-					while(numChildren)
-					{
-						removeChildAt(0);
-					}
-					
-					const obs:Observables = injector.getInstance(Observables);
-					obs.mouseWheel(this).subscribe(function(me:MouseEvent):void {
-						engine.scrollPosition -= me.delta;
-					});
+					validateInjector();
 					injectorChanged = false;
 				}
 				if(proposedCSS)
 				{
-					_css = proposedCSS;
-					c.clearStyles();
-					c.inject(css);
-					engine.scrollPosition = 0;
+					validateCSS(_css = proposedCSS);
 					proposedCSS = '';
 				}
 				if(proposedHTML)
 				{
-					const cllv:Virtualizer = injector.getInstance(Virtualizer, 'content');
-					cllv.clear();
-					
-					if(proposedHTML is String)
-					{
-						proposedHTML = TagSoup.toXML(proposedHTML);
-					}
-					
-					_html = createHTML_XML(proposedHTML as XML);
-					c.inject(html..style.text().toString());
-					engine.scrollPosition = 0;
+					validateHTML(
+						_html = createHTML_XML(
+							(proposedHTML is String ?
+								TagSoup.toXML(proposedHTML) : 
+								proposedHTML)
+							as XML)
+					);
 					proposedHTML = null;
 				}
 				
@@ -140,15 +160,12 @@ package org.tinytlf.components
 				g.lineStyle(1, 0xCCCCCC);
 				g.drawRect(1, 1, width - 1, height - 1);
 				
-				const dom:IDOMNode = new DOMNode(html);
-				injector.injectInto(dom);
-				
-				const panes:Array = injector.getInstance(Array, '<TextPane>');
-				const pane:TextPane = panes[0];
-				pane.blockProgression = TextBlockProgression.convert(dom.getStyle('textDirection') || TextBlockProgression.TTB);
-				pane.width = width - 2;
-				pane.height = height - 2;
-				pane.allTextRectangles = createTextRectangles(dom);
+				const boxes:Array = injector.getInstance(Array, '<Box>');
+				const box:Box = boxes[0];
+				const dom:IDOMNode = box.domNode = new DOMNode(html);
+				box.blockProgression = TextBlockProgression.convert(dom.getStyle('textDirection') || TextBlockProgression.TTB);
+				box.width = width - 2;
+				box.height = height - 2;
 				
 				const containers:Array = injector.getInstance(Array, '<Sprite>');
 				addChild(containers[0]);
@@ -164,14 +181,6 @@ package org.tinytlf.components
 			return from.localName() == 'body' ?
 				from :
 				(from..body[0] || <body>{from}</body>)
-		}
-		
-		protected function createTextRectangles(root:IDOMNode):Array /*<TextRectangle>*/
-		{
-			return injector.
-				getInstance(ITextRectangleFactoryMap).
-				instantiate(root.nodeName).
-				create(root);
 		}
 	}
 }

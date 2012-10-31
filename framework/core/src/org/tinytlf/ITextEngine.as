@@ -26,8 +26,8 @@ package org.tinytlf
 		 * The scroll position of the engine. This value is in pixels. Defined
 		 * centrally here, but usually only needed during layout.
 		 */
-		function get scrollPosition():Number;
-		function set scrollPosition(value:Number):void;
+		function get scroll():Point;
+		function set scroll(value:Point):void;
 		
 		/**
 		 * A point whose <code>x</code> property represents the engine's

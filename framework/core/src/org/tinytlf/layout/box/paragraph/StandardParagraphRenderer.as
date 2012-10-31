@@ -1,20 +1,20 @@
-package org.tinytlf.layout.rect.sector
+package org.tinytlf.layout.box.paragraph
 {
 	import flash.text.engine.*;
 	
-	import org.tinytlf.layout.alignment.*;
-	import org.tinytlf.layout.progression.*;
+	import org.tinytlf.layout.box.alignment.*;
+	import org.tinytlf.layout.box.progression.*;
 	import org.tinytlf.util.*;
 	
-	public class StandardSectorRenderer implements ISectorRenderer
+	public class StandardParagraphRenderer implements IParagraphRenderer
 	{
-		public function StandardSectorRenderer(aligner:IAlignment = null, progression:IProgression = null)
+		public function StandardParagraphRenderer(aligner:IAlignment = null, progression:IProgression = null)
 		{
 			a = aligner;
 			p = progression;
 		}
 		
-		public function render(block:TextBlock, sector:TextSector, lines:Array = null):Array /*<TextLine>*/
+		public function render(block:TextBlock, paragraph:Paragraph, lines:Array = null):Array /*<TextLine>*/
 		{
 			lines ||= [];
 			
@@ -23,13 +23,13 @@ package org.tinytlf.layout.rect.sector
 				lines = lines.concat(createLines(
 									 block,
 									 TextBlockUtil.getFirstValidLineBeforeInvalidLine(block),
-									 sector));
+									 paragraph));
 			}
 			
 			return lines.concat();
 		}
 		
-		protected function createLines(block:TextBlock, pLine:TextLine, sector:TextSector):Array /*<TextLine>*/
+		protected function createLines(block:TextBlock, pLine:TextLine, paragraph:Paragraph):Array /*<TextLine>*/
 		{
 			const lines:Array = [];
 			
@@ -37,7 +37,7 @@ package org.tinytlf.layout.rect.sector
 			
 			while(true)
 			{
-				line = createTextLine(block, line, p.getLineSize(sector, line));
+				line = createTextLine(block, line, p.getLineSize(paragraph, line));
 				
 				if(line == null)
 					break;

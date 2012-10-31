@@ -1,7 +1,7 @@
-package org.tinytlf.layout.progression
+package org.tinytlf.layout.box.progression
 {
 	import org.tinytlf.layout.*;
-	import org.tinytlf.layout.alignment.*;
+	import org.tinytlf.layout.box.alignment.*;
 	
 	public function getAlignmentForProgression(textAlign:String, progression:String):IAlignment
 	{
@@ -14,7 +14,7 @@ package org.tinytlf.layout.progression
 	}
 }
 
-import org.tinytlf.layout.alignment.*;
+import org.tinytlf.layout.box.alignment.*;
 internal class AlignmentCache
 {
 	private static const vLeft:LeftAlignment = new LeftAlignment();

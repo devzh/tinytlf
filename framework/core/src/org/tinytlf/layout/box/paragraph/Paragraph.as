@@ -1,4 +1,4 @@
-package org.tinytlf.layout.rect.sector
+package org.tinytlf.layout.box.paragraph
 {
 	import flash.display.*;
 	import flash.events.*;
@@ -10,16 +10,16 @@ package org.tinytlf.layout.rect.sector
 	import org.tinytlf.content.*;
 	import org.tinytlf.html.*;
 	import org.tinytlf.layout.*;
-	import org.tinytlf.layout.progression.*;
+	import org.tinytlf.layout.box.progression.*;
 	import org.tinytlf.util.*;
-	import org.tinytlf.layout.rect.TextRectangle;
+	import org.tinytlf.layout.box.*;
 	
-	public class TextSector extends TextRectangle
+	public class Paragraph extends Box
 	{
 		[Inject]
 		public var cefm:IContentElementFactoryMap;
 		
-		public function TextSector()
+		public function Paragraph()
 		{
 			super();
 			
@@ -37,6 +37,7 @@ package org.tinytlf.layout.rect.sector
 			
 			if(block.firstLine)
 				block.releaseLines(block.firstLine, block.lastLine);
+			
 			block.releaseLineCreationData();
 			
 			TextBlockUtil.checkIn(block);
@@ -49,6 +50,9 @@ package org.tinytlf.layout.rect.sector
 		{
 			if(block)
 				TextBlockUtil.checkIn(block);
+			
+			if(!domNode)
+				return super.internalParse()
 			
 			injectInto(domNode, true);
 			
@@ -119,7 +123,7 @@ package org.tinytlf.layout.rect.sector
 			if(!block)
 				return [];
 			
-			const rects:Array = [];
+			const boxes:Array = [];
 			
 			var line:TextLine = block.getTextLineAtCharIndex(start);
 			var lastLine:TextLine = block.getTextLineAtCharIndex(end);
@@ -132,11 +136,11 @@ package org.tinytlf.layout.rect.sector
 				if(s < 0)
 					break;
 				
-				rects.push(line.getAtomBounds(s).union(line.getAtomBounds(e)));
+				boxes.push(line.getAtomBounds(s).union(line.getAtomBounds(e)));
 				line = line == lastLine ? null : line.nextLine;
 			}
 			
-			return rects;
+			return boxes;
 		}
 		
 		override public function set progression(p:IProgression):void
@@ -147,13 +151,13 @@ package org.tinytlf.layout.rect.sector
 				layout.progression = p;
 		}
 		
-		private var _layout:ISectorLayout = new StandardSectorLayout();
-		public function get layout():ISectorLayout
+		private var _layout:IParagraphLayout = new StandardParagraphLayout();
+		public function get layout():IParagraphLayout
 		{
 			return _layout;
 		}
 		
-		public function set layout(value:ISectorLayout):void
+		public function set layout(value:IParagraphLayout):void
 		{
 			if(value == _layout)
 				return;
@@ -163,13 +167,13 @@ package org.tinytlf.layout.rect.sector
 			invalidate();
 		}
 		
-		private var _renderer:ISectorRenderer = new StandardSectorRenderer();
-		public function get renderer():ISectorRenderer
+		private var _renderer:IParagraphRenderer = new StandardParagraphRenderer();
+		public function get renderer():IParagraphRenderer
 		{
 			return _renderer;
 		}
 		
-		public function set renderer(value:ISectorRenderer):void
+		public function set renderer(value:IParagraphRenderer):void
 		{
 			if(value == _renderer)
 				return;
@@ -204,15 +208,15 @@ package org.tinytlf.layout.rect.sector
 		}
 		
 		/*
-		 * TextSector linked list impl.
+		 * Paragraph linked list impl.
 		 */
-		private var prev:TextSector;
-		public function get previousSector():TextSector
+		private var prev:Paragraph;
+		public function get previousParagraph():Paragraph
 		{
 			return prev;
 		}
 		
-		public function set previousSector(value:TextSector):void
+		public function set previousParagraph(value:Paragraph):void
 		{
 			if(value == prev)
 				return;
@@ -220,14 +224,14 @@ package org.tinytlf.layout.rect.sector
 			prev = value;
 		}
 		
-		private var next:TextSector;
+		private var next:Paragraph;
 		
-		public function get nextSector():TextSector
+		public function get nextParagraph():Paragraph
 		{
 			return next;
 		}
 		
-		public function set nextSector(value:TextSector):void
+		public function set nextParagraph(value:Paragraph):void
 		{
 			if(next == value)
 				return;
