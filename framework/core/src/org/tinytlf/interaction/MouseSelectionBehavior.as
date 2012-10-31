@@ -1,12 +1,13 @@
 package org.tinytlf.interaction
 {
+	import flash.display.Stage;
 	import flash.events.*;
 	import flash.geom.Point;
 	import flash.text.engine.*;
 	import flash.ui.*;
 	
 	import org.tinytlf.*;
-	import org.tinytlf.layout.rect.*;
+	import org.tinytlf.layout.box.*;
 	
 	import raix.reactive.*;
 	
@@ -26,10 +27,9 @@ package org.tinytlf.interaction
 			enabled = true;
 		}
 		
-		private var _enabled:Boolean = false;
+		private var _enabled:Boolean = true;
 		public function get enabled():Boolean
 		{
-			return false;
 			return _enabled;
 		}
 		
@@ -43,6 +43,7 @@ package org.tinytlf.interaction
 		}
 		
 		private var moveCancelable:ICancelable;
+		private var rollOutCancelable:ICancelable;
 		private var dragCancelable:ICancelable;
 		
 		override protected function subscribe():void
@@ -52,18 +53,23 @@ package org.tinytlf.interaction
 			
 			if(!moveCancelable)
 			{
-				moveCancelable = obs.move.
-					subscribe(function(me:MouseEvent):void {
-						const previousCursor:String = Mouse.cursor;
-						Mouse.cursor = MouseCursor.IBEAM;
-						obs.rollOut.
-							subscribe(function(me:MouseEvent):void {
-								Mouse.cursor = previousCursor;
-								if(moveCancelable) moveCancelable.cancel();
-								moveCancelable = null;
-								subscribe();
-							});
+				moveCancelable = obs.move.take(1).subscribe(function(me:MouseEvent):void {
+					
+					const previousCursor:String = Mouse.cursor;
+					Mouse.cursor = MouseCursor.IBEAM;
+					
+					rollOutCancelable = obs.rollOut.subscribe(function(me:MouseEvent):void {
+						Mouse.cursor = previousCursor;
+						
+						if(rollOutCancelable) rollOutCancelable.cancel();
+						rollOutCancelable = null;
+						
+						if(moveCancelable) moveCancelable.cancel();
+						moveCancelable = null;
+						
+						subscribe();
 					});
+				});
 			}
 			
 			if(!dragCancelable)
@@ -78,6 +84,12 @@ package org.tinytlf.interaction
 			{
 				moveCancelable.cancel();
 				moveCancelable = null;
+			}
+			
+			if(rollOutCancelable)
+			{
+				rollOutCancelable.cancel();
+				rollOutCancelable = null;
 			}
 			
 			if(dragCancelable)
@@ -108,17 +120,17 @@ package org.tinytlf.interaction
 			if(!line)
 				return;
 			
-			var rect:TextRectangle;
+			var box:Box;
 			
-			const row:Array = llv.getItemAtPosition(engine.scrollPosition + line.y - line.ascent);
+			const row:Array = llv.getItemAtPosition(engine.scroll + line.y - line.ascent);
 			
 			if(!row)
 				return;
 			
-			if(row.every(function(r:TextRectangle, ... args):Boolean {
+			if(row.every(function(r:Box, ... args):Boolean {
 				if(r.children.indexOf(line) != -1)
-					rect = r;
-				return rect == null;
+					box = r;
+				return box == null;
 			}))
 			{
 				return;
@@ -126,7 +138,7 @@ package org.tinytlf.interaction
 			
 			const s:Point = engine.selection;
 			
-			const here:int = cllv.getStart(rect) +
+			const here:int = cllv.getStart(box) +
 				line.textBlockBeginIndex +
 				line.getAtomIndexAtPoint(me.stageX, me.stageY);
 			

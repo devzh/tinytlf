@@ -27,34 +27,42 @@ package org.tinytlf.interaction
 		
 		protected function subscribe():void
 		{
+			cachedMirrorRects.length = 0;
+			cachedMirrorRects.push.apply(
+				cachedMirrorRects,
+				
+				ContentElementUtil.
+					getMirrorRegions(dom.content).
+					filter(function(tlmr:TextLineMirrorRegion, ...args):Boolean {
+						return tlmr.textLine.validity == TextLineValidity.VALID;
+					}).
+					map(function(tlmr:TextLineMirrorRegion, ...args):Rectangle {
+						const line:TextLine = tlmr.textLine;
+						
+						const bounds:Rectangle = new Rectangle();
+						bounds.topLeft = line.localToGlobal(new Point(0, -line.ascent));
+						bounds.bottomRight = line.localToGlobal(new Point(line.width, line.totalHeight - line.ascent));
+						
+						const tlmrBounds:Rectangle = tlmr.bounds.clone();
+						tlmrBounds.y += line.ascent;
+						tlmrBounds.offset(bounds.x, bounds.y);
+						return tlmrBounds;
+					})
+			);
 		}
 		
 		protected function cancel():void
 		{
+			cachedMirrorRects.length = 0;
 		}
+		
+		protected const cachedMirrorRects:Array = [];
 		
 		protected function intersectionFilter(me:MouseEvent):Boolean
 		{
-			return ContentElementUtil.
-				getMirrorRegions(dom.content).
-				some(function(tlmr:TextLineMirrorRegion, ... args):Boolean {
-					const line:TextLine = tlmr.textLine;
-					
-					if(line.validity != TextLineValidity.VALID)
-						return false;
-					
-					const bounds:Rectangle = new Rectangle();
-					bounds.topLeft = line.localToGlobal(new Point(0, -line.ascent));
-					bounds.bottomRight = line.localToGlobal(new Point(line.width, line.totalHeight - line.ascent));
-					
-					if(!bounds.contains(me.stageX, me.stageY))
-						return false;
-					
-					const tlmrBounds:Rectangle = tlmr.bounds.clone();
-					tlmrBounds.y += line.ascent;
-					tlmrBounds.offset(bounds.x, bounds.y);
-					return tlmrBounds.contains(me.stageX, me.stageY);
-				});
+			return cachedMirrorRects.some(function(rect:Rectangle, ... args):Boolean {
+				return rect.contains(me.stageX, me.stageY);
+			});
 		}
 		
 		protected var invalidated:Boolean = false;
@@ -73,16 +81,13 @@ package org.tinytlf.interaction
 		protected function onRender(event:Event):void
 		{
 			engine.removeEventListener(Event.RENDER, onRender);
-			invalidated = false;
 			
 			if(ContentElementUtil.getTextLines(dom.content).length > 0)
-			{
 				subscribe();
-			}
 			else
-			{
 				cancel();
-			}
+			
+			invalidated = false;
 		}
 	}
 }

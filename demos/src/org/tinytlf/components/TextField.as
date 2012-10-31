@@ -14,11 +14,11 @@ package org.tinytlf.components
 	
 	public class TextField extends ComponentBase
 	{
-		public function TextField()
+		public function TextField(editable:Boolean = false)
 		{
 			super();
 			
-			injector = new TextEngineInjector(new TextEngine());
+			this.editable = editable;
 		}
 		
 		private var _css:String = '';
@@ -34,6 +34,25 @@ package org.tinytlf.components
 				return;
 			
 			proposedCSS = value;
+			invalidate();
+		}
+		
+		private var _editable:Boolean = false;
+		public function get editable():Boolean
+		{
+			return _editable;
+		}
+		
+		public function set editable(value:Boolean):void
+		{
+			if(value == _editable)
+				return;
+			
+			_editable = value;
+			injector = editable ?
+				new EditableTextEngineInjector(new TextEngine()) :
+				new HTMLTextEngineInjector(new TextEngine());
+			
 			invalidate();
 		}
 		
