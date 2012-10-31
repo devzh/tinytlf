@@ -9,6 +9,6 @@ package org.tinytlf.layout.alignment
 	{
 		function getLineSize(rect:TextRectangle, previousLine:TextLine):Number;
 		
-		function getAlignment(rect:TextRectangle, child:DisplayObject):Number
+		function getAlignment(rect:TextRectangle, child:DisplayObject):Number;
 	}
 }

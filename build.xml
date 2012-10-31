@@ -1,15 +1,12 @@
 <project name="tinytlf-build" basedir="." default="asdoc">
 	
-	<property environment="env." />
-	
 	<!-- identify properties file -->
 	<property file="build.properties" />
-	<property name="FLEX_HOME" location="${env.FLEX_HOME}" />
-	<property name="mxmlc" value="${FLEX_HOME}/bin/mxmlc"/>
+	<property name="mxmlc" value="${flex.home}/bin/mxmlc"/>
 	
 	<!-- Set up FlexUnit Ant tasks -->
 	<taskdef resource="flexUnitTasks.tasks" classpath="${lib.loc}/flexUnitTasks.jar" />
-	<taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}ant/lib/flexTasks.jar" />
+	<taskdef resource="flexTasks.tasks" classpath="${flex.home}ant/lib/flexTasks.jar" />
 	
 	<target name="usage">
 		<echo message="" />
@@ -84,8 +81,8 @@
 	<target name="asdoc" depends="compile">
 		<echo>[asdoc] Generating ASDOC documentation</echo>
 		
-		<java jar="${FLEX_HOME}/lib/asdoc.jar" dir="${FLEX_HOME}/frameworks" fork="true" failonerror="true">
-			<arg value="+flexlib=${FLEX_HOME}/frameworks"/>
+		<java jar="${flex.home}/lib/asdoc.jar" dir="${flex.home}/frameworks" fork="true" failonerror="true">
+			<arg value="+flexlib=${flex.home}/frameworks"/>
 			<arg value="-load-config+=${basedir}/config.xml" />
 		
 			<!-- Include classes from SWCs in this folder, but only the ones we use. -->
@@ -106,7 +103,7 @@
 	<!-- Compile Release SWC -->
 	<target name="compile" depends="test">
 		<echo>[compile] Compiling release SWC</echo>
-		<echo>[compile] Using Flex SDK at: ${FLEX_HOME}</echo>
+		<echo>[compile] Using Flex SDK at: ${flex.home}</echo>
 		<build-swc source="${utils.src.loc}" version="${project.name.versioned}" project="fte-utils"/>
 		<build-swc source="${core.src.loc}" version="${project.name.versioned}" project="core" />
 	</target>
@@ -116,8 +113,8 @@
 		<attribute name="project" />
 		<attribute name="version" />
 		<sequential>
-			<java jar="${FLEX_HOME}/lib/compc.jar" dir="${FLEX_HOME}/frameworks" fork="true" failonerror="true">
-				<arg value="+flexlib=${FLEX_HOME}/frameworks"/>
+			<java jar="${flex.home}/lib/compc.jar" dir="${flex.home}/frameworks" fork="true" failonerror="true">
+				<arg value="+flexlib=${flex.home}/frameworks"/>
 				<arg value="-output=${bin.loc}/@{version}_@{project}.swc" />
 				<arg value="-load-config+=${basedir}/config.xml" />
 				<arg value="-include-sources=@{source}/" />
@@ -143,8 +140,8 @@
 		<attribute name="name" />
 		<attribute name="file" />
 		<sequential>
-			<java jar="${FLEX_HOME}/lib/mxmlc.jar" dir="${FLEX_HOME}/frameworks" fork="true" failonerror="true">
-				<arg value="+flexlib=${FLEX_HOME}/frameworks"/>
+			<java jar="${flex.home}/lib/mxmlc.jar" dir="${flex.home}/frameworks" fork="true" failonerror="true">
+				<arg value="+flexlib=${flex.home}/frameworks"/>
 				<arg value="-load-config+=${basedir}/config.xml" />
 				
 				<arg value="@{source}/@{file}" />

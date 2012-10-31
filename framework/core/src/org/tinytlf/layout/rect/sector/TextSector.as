@@ -257,18 +257,18 @@ package org.tinytlf.layout.rect.sector
 			invalidate();
 		}
 		
-		private var localValue:String = 'en';
+		private var localeValue:String = 'en';
 		public function get locale():String
 		{
-			return localValue;
+			return localeValue;
 		}
 		
 		public function set locale(value:String):void
 		{
-			if(value == localValue)
+			if(value == localeValue)
 				return;
 			
-			localValue = value;
+			localeValue = value;
 			invalidate();
 		}
 		

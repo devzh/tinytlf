@@ -7,6 +7,7 @@
 package org.tinytlf.decoration
 {
 	import org.swiftsuspenders.*;
+	import org.swiftsuspenders.reflection.*;
 	import org.tinytlf.*;
 	
 	////

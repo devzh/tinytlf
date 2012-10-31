@@ -47,7 +47,9 @@ package org.tinytlf.layout.rect
 		{
 			const val:* = createFunc.length == 2 ?
 				createFunc(dom, new ClosureRectangle(injector, parseFunc, renderFunc)) :
-				createFunc.length == 1 ? createFunc(dom) : createFunc();
+				createFunc.length == 1 ?
+					createFunc(dom) :
+					createFunc();
 			
 			return val ? val is Array ? val : [val] : [];
 		}

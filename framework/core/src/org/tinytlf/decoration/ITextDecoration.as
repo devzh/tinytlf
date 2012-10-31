@@ -58,7 +58,7 @@ package org.tinytlf.decoration
 		 * <p>
 		 * <code>Setup</code> accepts a variable number of
 		 * arguments, but in tinytlf core, the second argument is the
-		 * <code>element</code> passed into <code>ITextDecor#decorate()</code>.
+		 * <code>element</code> passed into <code>ITextDecorator#decorate()</code>.
 		 * </p>
 		 * <p>
 		 * This interface is non-restrictive. If there's more information that
@@ -66,7 +66,7 @@ package org.tinytlf.decoration
 		 * in.
 		 * </p>
 		 *
-		 * @see org.tinytlf.decor.ITextDecor#decorate()
+		 * @see org.tinytlf.decor.ITextDecorator#decorate()
 		 */
 		function setup(layer:int = 3, ... args):Vector.<Rectangle>;
 		

@@ -16,7 +16,7 @@ package org.tinytlf
 	import org.tinytlf.decoration.*;
 	import org.tinytlf.html.*;
 	import org.tinytlf.interaction.*;
-	import org.tinytlf.layout.TextBlockProgression;
+	import org.tinytlf.layout.*;
 	import org.tinytlf.layout.rect.*;
 	
 	[Event(name = "render", type = "flash.events.Event")]
@@ -37,10 +37,10 @@ package org.tinytlf
 		[Inject]
 		public var css:CSS;
 		
-		[Inject('<TextPane>')]
+		[Inject(name='<TextPane>')]
 		public var panes:Array;
 		
-		[Inject('<Sprite>')]
+		[Inject(name='<Sprite>')]
 		public var containers:Array;
 		
 		[Inject]
@@ -61,7 +61,7 @@ package org.tinytlf
 			if(index === _caretIndex)
 				return;
 			
-			_caretIndex = index = Math.max(index, 0);
+			_caretIndex = Math.max(index, 0);
 			
 			//Don't draw the caretIndex if we don't have a caret decoration.
 			if(!decorationMap.hasMapping('caret'))
@@ -108,26 +108,26 @@ package org.tinytlf
 		
 		public function select(startIndex:Number = NaN, endIndex:Number = NaN):void
 		{
-			//super fast inline isNaN checks
+			// super fast inline isNaN checks
 			if(startIndex != startIndex || endIndex != endIndex)
 			{
-				selection.x = NaN;
-				selection.y = NaN;
-				decorator.undecorate(selection, "selection");
+				_selection.x = NaN;
+				_selection.y = NaN;
+				decorator.undecorate(_selection, "selection");
 				return;
 			}
 			
-			var temp:Point = new Point(startIndex, endIndex);
+			const temp:Point = new Point(startIndex, endIndex);
 			
-			//  Normalize the inputs.
+			// Normalize the inputs.
 			startIndex = Math.max(Math.min(temp.x, temp.y), 0);
 			endIndex = Math.max(Math.max(temp.x, temp.y), 0);
 			
-			if(startIndex == selection.x && endIndex == selection.y)
+			if(startIndex == _selection.x && endIndex == _selection.y)
 				return;
 			
-			selection.x = startIndex;
-			selection.y = endIndex;
+			_selection.x = startIndex;
+			_selection.y = endIndex;
 			
 			//// TEMP
 			panes.forEach(function(pane:TextPane, ...args):void {
@@ -214,7 +214,7 @@ package org.tinytlf
 		{
 			// If we have selection decorations and are re-rendering the lines,
 			// re-render the decorations so selection doesn't get out of sync.
-			if(selection.x == selection.x && selection.y == selection.y)
+			if(_selection.x == _selection.x && _selection.y == _selection.y)
 				invalidateDecorationsFlag = true;
 			
 			var scrollY:Number = scrollPosition;

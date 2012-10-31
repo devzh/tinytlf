@@ -9,7 +9,7 @@
 		<optimize>true</optimize>
 		<strict>true</strict>
 		<external-library-path>
-			<path-element>${flexlib}/libs/player/10.2/playerglobal.swc</path-element>
+			<path-element>${flexlib}/libs/player/11.1/playerglobal.swc</path-element>
 			<path-element>${flexlib}/libs/framework.swc</path-element>
 			<path-element>${flexlib}/libs/rpc.swc</path-element>
 		</external-library-path>

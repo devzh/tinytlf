@@ -6,6 +6,7 @@ package org.tinytlf
 	import flash.text.engine.*;
 	
 	import org.swiftsuspenders.*;
+	import org.swiftsuspenders.reflection.*;
 	import org.tinytlf.content.*;
 	import org.tinytlf.decoration.*;
 	import org.tinytlf.html.*;
@@ -22,7 +23,8 @@ package org.tinytlf
 		{
 			super();
 			
-			mapValue(ITextEngine, engine);
+			map(ITextEngine).toValue(engine);
+			
 			mapInjections();
 			injectMappings();
 			
@@ -33,33 +35,33 @@ package org.tinytlf
 		
 		protected function mapInjections():void
 		{
-			mapValue(Injector, this);
-			mapValue(Reflector, new Reflector());
+			map(Injector).toValue(this);
+			map(Reflector).toValue(new DescribeTypeJSONReflector());
 			
-			mapValue(IEventMirrorMap, new EventMirrorMap());
-			mapValue(IContentElementFactoryMap, new FactoryMap());
-			mapValue(ITextRectangleFactoryMap, new FactoryMap());
-			mapValue(ITextDecorationMap, new FactoryMap());
-			mapValue(IElementFormatFactory, new DOMEFFactory());
-			mapValue(ITextDecorator, new TextDecorator());
-			mapValue(CSS, new CSS());
-			mapValue(Observables, new Observables());
+			map(IEventMirrorMap).toValue(new EventMirrorMap());
+			map(IContentElementFactoryMap).toValue(new FactoryMap());
+			map(ITextRectangleFactoryMap).toValue(new FactoryMap());
+			map(ITextDecorationMap).toValue(new FactoryMap());
+			map(IElementFormatFactory).toValue(new DOMEFFactory());
+			map(ITextDecorator).toValue(new TextDecorator());
+			map(CSS).toValue(new CSS());
+			map(Observables).toValue(new Observables());
 			
-			mapValue(Array, [new Sprite()], '<Sprite>');
-			mapValue(Array, [], '<TextPane>');
+			map(Array, '<Sprite>').toValue([new Sprite()]);
+			map(Array, '<TextPane>').toValue([]);
 			
-			mapSingleton(MouseSelectionBehavior);
+			map(MouseSelectionBehavior).toSingleton(MouseSelectionBehavior);
 			
 			// When someone asks for a vanilla Virtualizer,
 			// assume they want the one we use for layout.
 			const v:Virtualizer = new Virtualizer();
-			mapValue(Virtualizer, v);
-			mapValue(Virtualizer, v, 'layout');
+			map(Virtualizer).toValue(v);
+			map(Virtualizer, 'layout').toValue(v);
 			
 			// Create a virtualizer to store IDOMNodes in.
 			// This instance is used to lookup elements by caret index
 			// for operations like copying text.
-			mapValue(Virtualizer, new Virtualizer(), 'content');
+			map(Virtualizer, 'content').toValue(new Virtualizer());
 		}
 		
 		protected function injectMappings():void
@@ -75,13 +77,13 @@ package org.tinytlf
 			injectInto(getInstance(Virtualizer, 'layout'));
 			injectInto(getInstance(Virtualizer, 'content'));
 			
-			mapValue(IDOMNode, new DOMNode(<_/>));
+			map(IDOMNode).toValue(new DOMNode(<_/>));
 			injectInto(getInstance(MouseSelectionBehavior));
 			unmap(IDOMNode);
 			
 			// Start off with at least one TextPane.
 			const panes:Array = getInstance(Array, '<TextPane>');
-			panes.push(instantiate(TextPane));
+			panes.push(instantiateUnmapped(TextPane));
 		}
 		
 		protected function mapEventMirrors():void
@@ -108,7 +110,7 @@ package org.tinytlf
 			const cllv:Virtualizer = getInstance(Virtualizer, 'content');
 			
 			trfm.defaultFactory = new ClosureTRF(injector, function(dom:IDOMNode):Array {
-				const sector:TextSector = injector.instantiate(TextSector);
+				const sector:TextSector = injector.instantiateUnmapped(TextSector);
 				sector.domNode = dom;
 				sector.width = 0;
 				sector.percentWidth = 100;
@@ -122,34 +124,43 @@ package org.tinytlf
 				const rects:Array = [];
 				for(var i:int = 0, n:int = dom.numChildren; i < n; ++i) {
 					const child:IDOMNode = dom.getChildAt(i);
-					rects.push.apply(null, trfm.instantiate(child.nodeName).create(child));
+					rects.push.apply(null, trfm.instantiate(child.nodeName)['create'](child));
 				}
 				return rects;
 			};
 			
 			trfm.mapFactory('ol', new ClosureTRF(injector, passThrough));
 			trfm.mapFactory('ul', new ClosureTRF(injector, passThrough));
-			trfm.mapFactory('body', new ClosureTRF(injector, passThrough));
 			trfm.mapFactory('center', new ClosureTRF(injector, passThrough));
 			
-			const injectInto:Function = function(dom:IDOMNode, recurse:Boolean = false):void {
+			const injectIntoDOMNode:Function = function(dom:IDOMNode, recurse:Boolean = false):void {
 				for(var i:int, n:int = dom.numChildren; i < n; ++i) {
 					const child:IDOMNode = dom.getChildAt(i);
 					injector.injectInto(child);
 					if(recurse)
-						injectInto(child, recurse);
+						injectIntoDOMNode(child, recurse);
 				}
-			}
+			};
 			
-			trfm.mapFactory('div', new ClosureTRF(injector, function(dom:IDOMNode, rect:TextRectangle):Array {
-				rect.percentWidth = 100;
-				rect.percentHeight = 100;
-				rect.domNode = dom;
-				return [rect];
-			}, function(rect:TextRectangle):Array {
-				injectInto(rect.domNode);
-				return [rect].concat(new ClosureTRF(injector, passThrough).create(rect.domNode));
-			}));
+			const containerTRF:ITextRectangleFactory = new ClosureTRF(injector,
+				// create
+				function(dom:IDOMNode, rect:TextRectangle):Array {
+					rect.domNode = dom;
+					return [rect];
+				},
+				// parse
+				function(rect:TextRectangle):Array {
+					injectIntoDOMNode(rect.domNode);
+					return [rect].concat(new ClosureTRF(injector, passThrough).create(rect.domNode));
+				},
+				// render
+				function(rect:TextRectangle):Array {
+					return rect.children;
+				}
+			); 
+			
+			trfm.mapFactory('body', containerTRF);
+			trfm.mapFactory('div', containerTRF);
 			
 			trfm.mapFactory('hr', new ClosureTRF(injector, function(dom:IDOMNode, rect:TextRectangle):Array {
 				dom.mergeWith(rect);
@@ -177,7 +188,7 @@ package org.tinytlf
 			}));
 			
 			trfm.mapFactory('br', new ClosureTRF(injector, function(dom:IDOMNode):Array {
-				const rect:TextRectangle = injector.instantiate(TextRectangle);
+				const rect:TextRectangle = injector.instantiateUnmapped(TextRectangle);
 				rect.mergeWith(dom);
 				rect.percentWidth = 100;
 				rect.percentHeight = 100;
@@ -214,7 +225,7 @@ package org.tinytlf
 			}));
 			
 			trfm.mapFactory('table', new ClosureTRF(injector, function(dom:IDOMNode):Array {
-				const sector:TextSector = injector.instantiate(TextSector);
+				const sector:TextSector = injector.instantiateUnmapped(TextSector);
 				sector.domNode = new DOMNode(<body><h2>[Table Here]</h2><br/><h5>(Tables aren't supported yet.)</h5></body>);
 				sector.width = 0;
 				sector.percentWidth = 100;

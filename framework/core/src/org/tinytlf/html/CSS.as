@@ -106,10 +106,10 @@ package org.tinytlf.html
 		{
 			// Strip out all white space between blocks
 			css.
-				replace(/\s*([@{}:;,]|\)\s|\s\()\s*|\/\*([^*\\\\]|\*(?!\/))+\*\/|[\n\r\t]|(px)/g, '$1')
+				replace(/\s*([@{}:;,]|\)\s|\s\()\s*|\/\*([^*\\\\]|\*(?!\/))+\*\/|[\n\r\t]|(px)/g, '$1').
 				// Parse each block
-				.match(/[^{]*\{([^}]*)*}/g)
-				.forEach(function(block:String, ... args):void {
+				match(/[^{]*\{([^}]*)*}/g).
+				forEach(function(block:String, ... args):void {
 					if(!block)return;
 					
 					// Split the block into two parts: prefix and suffix.
@@ -121,8 +121,8 @@ package org.tinytlf.html
 					// The suffix is easy, build a hashmap of key/value pairs.
 					const values:Styleable = new Styleable();
 					suffix.
-						split(';')
-						.forEach(function(pair:String, ... args):void {
+						split(';').
+						forEach(function(pair:String, ... args):void {
 							if(!pair)return;
 							parts = pair.split(':');
 							values[parts.shift()] = parts.pop();
@@ -140,7 +140,7 @@ package org.tinytlf.html
 							
 							// The StyleName class encapsulates the cascading
 							// relationship for styles, and stores them in a
-							// sorted styles array. 
+							// sorted styles array.
 							const name:StyleName = Cache.getName(component);
 							
 							// Start indexing style names at the root.

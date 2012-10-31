@@ -9,7 +9,7 @@ package
 	import flash.events.*;
 	import flash.geom.*;
 	import flash.net.*;
-	import flash.text.*;
+	import flash.text.TextFormat;
 	import flash.utils.*;
 	
 	import org.tinytlf.components.*;
