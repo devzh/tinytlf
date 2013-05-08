@@ -4,6 +4,7 @@ package org.tinytlf.html
 	
 	import org.tinytlf.TTLFBlock;
 	import org.tinytlf.fn.mergeAttributes;
+	import org.tinytlf.fn.wrapTextNodes;
 	
 	import trxcllnt.Store;
 
@@ -19,7 +20,7 @@ package org.tinytlf.html
 		override public function update(value:XML, viewport:Rectangle):TTLFBlock {
 			
 			_index = value.childIndex();
-			mergeAttributes(styles, value);
+			mergeAttributes(styles, wrapTextNodes(value));
 			
 			// TODO: Is there a better way to get the colgroup?
 			const tr:XML = value.parent();

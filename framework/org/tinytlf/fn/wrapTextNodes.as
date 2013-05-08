@@ -6,21 +6,30 @@ package org.tinytlf.fn
 	public function wrapTextNodes(node:XML, recurse:Boolean = false):XML {
 		if(node.localName() == 'text') return node;
 		
+		const children:XML = <_/>;
+		
 		for each(var child:XML in node.*) {
-			if(child.localName() == 'text') continue;
+			if(child.localName() == 'text'){
+				children.appendChild(child);
+				continue;
+			}
 			
 			else if(child.nodeKind() == 'text') {
 				const content:String = child.toString();
 				
 				if(notWhiteSpace.test(content)) {
-					node.replace(child.childIndex(), <text>{content}</text>);
-				} else {
-					node.replace(child.childIndex(), '');
+					children.appendChild(<text>{content}</text>);
 				}
 			}
 			
-			else if(recurse) wrapTextNodes(child, recurse);
+			else if(recurse) {
+				children.appendChild(wrapTextNodes(child, recurse));
+			} else {
+				children.appendChild(child);
+			}
 		}
+		
+		node.setChildren(children.*);
 		
 		return node;
 	}
