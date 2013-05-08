@@ -16,6 +16,7 @@ package org.tinytlf
 		
 		function getStyle(style:String):*;
 		function setStyle(style:String, value:*):TTLFBlock;
+		function hasStyle(style:String):Boolean;
 		
 		function update(node:XML, viewport:Rectangle):TTLFBlock;
 	}

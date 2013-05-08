@@ -10,24 +10,18 @@ package org.tinytlf.html
 		return new Break(value);
 	}
 }
+
 import flash.geom.Rectangle;
 
 import org.tinytlf.TTLFBlock;
 
-import starling.display.DisplayObject;
+import starling.display.Sprite;
 
-internal class Break extends DisplayObject implements TTLFBlock {
+internal class Break extends Sprite implements TTLFBlock {
 	
 	public function Break(node:XML) {
 		_index = node.childIndex();
 	}
-	
-	private const rect:Rectangle = new Rectangle();
-	public function get viewport():Rectangle {
-		return rect;
-	}
-	
-	public function set viewport(value:Rectangle):void {}
 	
 	private var _index:int = 0;
 	
@@ -39,9 +33,19 @@ internal class Break extends DisplayObject implements TTLFBlock {
 		_index = value;
 	}
 	
-	public function update(node:XML, constraint:Rectangle):TTLFBlock {
+	private const rect:Rectangle = new Rectangle(0, 0, 1, 1);
+	override public function get bounds():Rectangle {
+		return rect;
+	}
+	
+	public function update(node:XML, viewport:Rectangle):TTLFBlock {
 		_index = node.childIndex();
+		rect.width = viewport.width;
 		return this;
+	}
+	
+	public function hasStyle(style:String):Boolean {
+		return false;
 	}
 	
 	public function getStyle(style:String):* {

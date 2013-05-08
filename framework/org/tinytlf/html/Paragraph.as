@@ -21,6 +21,7 @@ package org.tinytlf.html
 	import raix.interactive.Enumerable;
 	
 	import starling.display.Image;
+	import starling.display.Quad;
 	import starling.textures.Texture;
 	
 	import trxcllnt.ds.HRTree;
@@ -64,11 +65,11 @@ package org.tinytlf.html
 			flatten();
 		}
 		
-		private var rendered:Boolean = false;
+		private var lastWidth:Number = 0;
 		
 		override public function update(value:XML, viewport:Rectangle):TTLFBlock {
 			
-			if(rendered) return this;
+			if(lastWidth == viewport.width) return this;
 			
 			// TODO: Refactor this to use a static TextBlock and TextLine, to
 			// pull the TextLine's BitmapData immediately, and only render the
@@ -93,7 +94,7 @@ package org.tinytlf.html
 				}).
 				toArray();
 			
-			rendered = true;
+			lastWidth = viewport.width;
 			
 			return this;
 		}

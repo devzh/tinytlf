@@ -2,7 +2,6 @@ package org.tinytlf
 {
 	import asx.array.forEach;
 	import asx.events.once;
-	import asx.fn.K;
 	import asx.fn.aritize;
 	import asx.fn.memoize;
 	import asx.fn.partial;
@@ -18,12 +17,12 @@ package org.tinytlf
 	import mx.core.UIComponent;
 	import mx.events.PropertyChangeEvent;
 	
-	import org.tinytlf.fn.toKey;
+	import org.tinytlf.fn.readKey;
 	import org.tinytlf.fn.toName;
 	import org.tinytlf.fn.toXML;
 	import org.tinytlf.html.Container;
 	import org.tinytlf.html.Paragraph;
-	import org.tinytlf.html.TableRow;
+	import org.tinytlf.html.TableCell;
 	import org.tinytlf.html.br_block;
 	import org.tinytlf.html.br_inline;
 	import org.tinytlf.html.span;
@@ -32,7 +31,6 @@ package org.tinytlf
 	import spark.core.IViewport;
 	
 	import starling.core.Starling;
-	import starling.display.DisplayObject;
 	import starling.display.Sprite;
 	import starling.events.Event;
 	
@@ -42,24 +40,22 @@ package org.tinytlf
 		{
 			super();
 			
-			once(this, flash.events.Event.ADDED_TO_STAGE, onAddedToStage);
-			
 			const containerUIFactory:Function = memoize(sequence(
 				partial(newInstance_, Container),
 				setProperty('createChild', invokeBlockParser)
-			), toKey);
+			), readKey);
 			
-			const tableRowUIFactory:Function = memoize(sequence(
-				partial(newInstance_, TableRow),
+			const tableCellUIFactory:Function = memoize(sequence(
+				partial(newInstance_, TableCell),
 				setProperty('createChild', invokeBlockParser)
-			), toKey);
+			), readKey);
 			
 			const paragraphUIFactory:Function = memoize(sequence(
 				partial(newInstance_, Paragraph),
 				setProperty('createElement', invokeInlineParser)
-			), toKey);
+			), readKey);
 			
-			const brBlockUIFactory:Function = memoize(br_block, toKey);
+			const brBlockUIFactory:Function = memoize(br_block, readKey);
 			
 			const factoryFactory:Function = function(factory:Function):Function {
 				return function(node:XML):TTLFBlock {
@@ -68,19 +64,22 @@ package org.tinytlf
 			};
 			
 			const containerFactory:Function = factoryFactory(containerUIFactory);
-			const tableRowFactory:Function = factoryFactory(tableRowUIFactory);
+			const tableCellFactory:Function = factoryFactory(tableCellUIFactory);
 			const paragraphFactory:Function = factoryFactory(paragraphUIFactory);
 			const brBlockFactory:Function = factoryFactory(brBlockUIFactory);
 			const spanFactory:Function = partial(span, invokeInlineParser);
 			
 			addBlockParser(containerFactory, 'html', 'body', 'article', 'div',
-				'footer', 'header', 'section', 'table', 'tbody', 'td').
-			addBlockParser(tableRowFactory, 'tr').
+				'footer', 'header', 'section', 'table', 'tbody', 'tr').
+			addBlockParser(tableCellFactory, 'td').
 			
 			addBlockParser(paragraphFactory, 'p', 'span', 'text').
 			
 			addInlineParser(spanFactory, 'span').
 			addInlineParser(text, 'text').
+			
+			// TODO: write a head and style parser
+			addBlockParser(brBlockFactory, 'head', 'style', 'colgroup', 'object').
 			
 			addBlockParser(brBlockFactory, 'br').
 			addInlineParser(br_inline, 'br');
@@ -112,12 +111,19 @@ package org.tinytlf
 		private var context:Starling;
 		private var window:Container;
 		
-		private function onAddedToStage(...args):void {
+		private function createContext(...args):void {
 			const global:Point = localToGlobal(new Point());
 			context = new Starling(Sprite, stage, new Rectangle(global.x, global.y, width, height));
 			context.supportHighResolutions = true;
 			context.addEventListener(starling.events.Event.ROOT_CREATED, aritize(invalidateDisplayList, 0));
 			context.start();
+		}
+		
+		override protected function createChildren():void {
+			super.createChildren();
+			
+			if(stage) createContext();
+			else once(this, flash.events.Event.ADDED_TO_STAGE, createContext);
 		}
 		
 		override protected function updateDisplayList(w:Number, h:Number):void {
@@ -129,14 +135,13 @@ package org.tinytlf
 			const global:Point = localToGlobal(new Point());
 			const stage3DViewport:Rectangle = context.viewPort;
 			
-			if( stage3DViewport.x != global.x ||
-				stage3DViewport.y != global.y ||
-				stage3DViewport.width != w ||
-				stage3DViewport.height != h) {
+			if( stage3DViewport.x != global.x || stage3DViewport.y != global.y) {
 				context.viewPort = new Rectangle(global.x, global.y, w, h);
 			}
 			
 			const root:Sprite = context.root as Sprite;
+			
+			if(root == null) return;
 			
 			if(window == null) {
 				root.addChild(window = new Container(html));
@@ -145,18 +150,24 @@ package org.tinytlf
 				htmlChanged = true;
 			}
 			
-			if(htmlChanged || viewportChanged) {
+			if(htmlChanged || viewportChanged || w != window.width) {
 				window.x = -hsp;
 				window.y = -vsp;
-				window.clipRect = new Rectangle(hsp, vsp, w, h);
-				window.update(html, new Rectangle(hsp, vsp, w, h));
+				
+				window.clipRect = null;
+				
+				window.update(html, new Rectangle(hsp, vsp, w, h + 100));
+				
+				const clip:Rectangle = new Rectangle(hsp, vsp, window.width, window.height);
+				
+				if(cWidth != clip.width)
+					dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, 'contentWidth', cWidth, cWidth = clip.width));
+				
+				if(cHeight != clip.height)
+					dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, 'contentHeight', cHeight, cHeight = clip.height));
+				
+				window.clipRect = clip;
 			}
-			
-//			if(cWidth != window.width)
-//				dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, 'contentWidth', cWidth, cWidth = window.width));
-//			
-//			if(cHeight != window.height)
-//				dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, 'contentHeight', cHeight, cHeight = window.height));
 			
 			viewportChanged = false;
 			htmlChanged = false;
@@ -167,7 +178,7 @@ package org.tinytlf
 			return cWidth;
 		}
 		
-		private var cHeight:Number = 1000;
+		private var cHeight:Number = 0;
 		public function get contentHeight():Number {
 			return cHeight;
 		}
@@ -181,6 +192,8 @@ package org.tinytlf
 		
 		public function set horizontalScrollPosition(value:Number):void {
 			if(value == hsp) return;
+//			if(value >= cWidth - width) return;
+			
 			hsp = value;
 			viewportChanged = true;
 			invalidateDisplayList();
@@ -193,6 +206,8 @@ package org.tinytlf
 		
 		public function set verticalScrollPosition(value:Number):void {
 			if(value == vsp) return;
+//			if(value >= cHeight - height) return;
+			
 			vsp = value;
 			viewportChanged = true;
 			invalidateDisplayList();
@@ -229,15 +244,15 @@ package org.tinytlf
 		}
 		
 		public function invokeBlockParser(node:XML):TTLFBlock {
-			return getBlockParser(toKey(node))(node);
+			return getBlockParser(readKey(node))(node);
 		}
 		
 		public function invokeInlineParser(node:XML):ContentElement {
-			return getInlineParser(toKey(node))(node);
+			return getInlineParser(readKey(node))(node);
 		}
 		
 		public function invokeUIParser(node:XML):TTLFBlock {
-			return getUIParser(toKey(node))(node);
+			return getUIParser(readKey(node))(node);
 		}
 		
 		public function getBlockParser(key:String):Function {

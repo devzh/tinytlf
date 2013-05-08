@@ -7,7 +7,6 @@ package org.tinytlf.html
 	import asx.fn.partial;
 	import asx.fn.sequence;
 	
-	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
 	import org.tinytlf.TTLFBlock;
@@ -17,6 +16,8 @@ package org.tinytlf.html
 	
 	import raix.interactive.IEnumerable;
 	import raix.interactive.toEnumerable;
+	
+	import starling.display.DisplayObject;
 	
 	import trxcllnt.ds.HRTree;
 
@@ -34,6 +35,14 @@ package org.tinytlf.html
 			return _cache;
 		}
 		
+		override public function getBounds(targetSpace:DisplayObject, resultRect:Rectangle=null):Rectangle {
+			return bounds;
+		}
+		
+		override public function get bounds():Rectangle {
+			return cache.mbr.clone();
+		}
+		
 		// NOTE: I'm not actually using SwiftSuspenders to inject this value,
 		// I'm just annotating it so people know this function isn't magic.
 		[Inject(name="block")]
@@ -41,10 +50,14 @@ package org.tinytlf.html
 		
 		override public function update(value:XML, viewport:Rectangle):TTLFBlock {
 			
+			super.update(value, viewport);
+			
+			if(hasStyle('width')) viewport.width = getStyle('width');
+			if(hasStyle('height')) viewport.height = getStyle('height');
+			
 			// TODO: explicit and percent-based sizes
 			
-			// Propagate viewport updates down to the children regardless of
-			// whether the viewport is invalid or not.
+			// Propagate viewport updates down to the children
 			
 			const elements:XMLList = wrapTextNodes(value).elements();
 			
@@ -55,16 +68,14 @@ package org.tinytlf.html
 			
 			var latest:Rectangle = emptyRect;
 			
-			const room:Function = partial(continueRender, viewport);
-			
 			children = nodes.
 				map(distribute(I, createChild)).
-				takeWhile(sequence(last, room)).
+				takeWhile(sequence(last, partial(continueRender, viewport))).
 				map(apply(function(node:XML, child:TTLFBlock):TTLFBlock {
 					
 					latest = cache.hasItem(child) ? 
-						cache.find(child).boundingBox :
-						layout(latest, child, viewport);
+					cache.find(child).boundingBox :
+					layout(latest, child, viewport);
 					
 					child.x = latest.x;
 					child.y = latest.y;
@@ -92,39 +103,13 @@ package org.tinytlf.html
 		
 		protected function cleanDisplayList(viewport:Rectangle):IEnumerable {
 			return toEnumerable(cachedItems(cache, viewport));
-			// const children:IEnumerable = toEnumerable(container.children);
-			// const cached:IEnumerable = toEnumerable(cachedItems(cache, viewport));
-			// const toRemove:IEnumerable = 
-			// 
-			// forEach(children.except(cached), ifElse(container.contains, container.removeChild, I));
-			// 
-			// return cached;
 		};
-		
-//		override protected function areNewChildrenInView(oldViewport:Rectangle, newViewport:Rectangle):Boolean {
-//			
-//			if(!oldViewport) return true;
-//			
-//			const mbr:Rectangle = cache.mbr;
-//			
-//			// If the cache is smaller than the new viewport, do an update.
-//			if(mbr.bottom < newViewport.bottom) return true;
-//			
-//			const oldViews:Array = cachedItems(cache, oldViewport);
-//			const newViews:Array = cachedItems(cache, newViewport);
-//			
-//			// If there are different children in view, do an update.
-//			if(oldViews.length != newViews.length) return true;
-//			
-//			// Will return true on the first pair that isn't equivalent.
-//			return detect(zip(oldViews, newViews), apply(not(areEqual)));
-//		}
 		
 		protected function continueRender(viewport:Rectangle, child:TTLFBlock):Boolean {
 			if(cache.hasItem(child)) {
 				// If the element is cached and it intersects with the
 				// viewport, render it.
-				return viewport.intersects(child.bounds);
+				return viewport.intersects(cache.find(child).boundingBox);
 			}
 			
 			// If there's still room in the viewport, render the next element.
@@ -135,34 +120,32 @@ package org.tinytlf.html
 			
 			// Start with the container boundaries and pare them down with our
 			// layout routine.
+			const bounds:Rectangle = child.bounds;
 			const rect:Rectangle = new Rectangle(0, 0, viewport.width, viewport.height);
 			
-			rect.x = viewport.x;
-			rect.y = prev.bottom;
+			const display:String = child.getStyle('display') || 'block';
+			const float:String = child.getStyle('float') || 'none';
 			
-//			const display:String = child.getStyle('display') || 'block';
-//			const float:String = child.getStyle('float') || 'none';
-//			
-//			if(display == 'block' && float == 'none') {
-//				rect.x = viewport.x;
-//				rect.y = prev.bottom;
-//			} else if(float == 'right') {
-//				if(prev.x - child.width < viewport.left) {
-//					rect.x = boundaries.left - rect.width;
-//					rect.y = prev.bottom;
-//				} else {
-//					rect.x = prev.x - rect.width;
-//					rect.y = prev.y;
-//				}
-//			} else if(float == 'left' || display == 'inline-block' || display == 'inline') {
-//				if(prev.right + rect.width > boundaries.right) {
-//					rect.x = boundaries.x;
-//					rect.y = prev.bottom;
-//				} else {
-//					rect.x = prev.right;
-//					rect.y = prev.y;
-//				}
-//			}
+			if(display == 'block' && float == 'none') {
+				rect.x = viewport.x;
+				rect.y = prev.bottom;
+			} else if(float == 'right') {
+				if(prev.x - bounds.width < viewport.left) {
+					rect.x = viewport.left - rect.width;
+					rect.y = prev.bottom;
+				} else {
+					rect.x = prev.x - rect.width;
+					rect.y = prev.y;
+				}
+			} else if(float == 'left' || display == 'inline-block' || display == 'inline') {
+				if(prev.right + bounds.width > viewport.right) {
+					rect.x = viewport.x;
+					rect.y = prev.bottom;
+				} else {
+					rect.x = prev.right;
+					rect.y = prev.y;
+				}
+			}
 			
 			return rect;
 		}
