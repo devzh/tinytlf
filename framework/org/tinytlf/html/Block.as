@@ -25,7 +25,6 @@ package org.tinytlf.html
 		
 		private var node:XML = <_/>;
 		
-		protected var newChildrenInView:Boolean = true;
 		public function get children():Array {
 			return map(range(0, numChildren), getChildAt);
 		}
@@ -40,11 +39,12 @@ package org.tinytlf.html
 			return _index;
 		}
 		
-		public function update(value:XML, viewport:Rectangle):TTLFBlock {
+		public function update(value:XML, viewport:Rectangle):Boolean {
 			node = value;
 			_index = value.childIndex();
 			mergeAttributes(styles, value);
-			return this;
+			
+			return false;
 		}
 		
 		protected const styles:Store = new Store();
@@ -60,10 +60,6 @@ package org.tinytlf.html
 		public function setStyle(style:String, value:*):TTLFBlock {
 			styles[style] = value;
 			return this;
-		}
-		
-		protected function areNewChildrenInView(oldViewport:Rectangle, newViewport:Rectangle):Boolean {
-			return true;
 		}
 	}
 }

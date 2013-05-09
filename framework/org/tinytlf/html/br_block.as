@@ -38,10 +38,10 @@ internal class Break extends Sprite implements TTLFBlock {
 		return rect;
 	}
 	
-	public function update(node:XML, viewport:Rectangle):TTLFBlock {
+	public function update(node:XML, viewport:Rectangle):Boolean {
 		_index = node.childIndex();
 		rect.width = viewport.width;
-		return this;
+		return true;
 	}
 	
 	public function hasStyle(style:String):Boolean {

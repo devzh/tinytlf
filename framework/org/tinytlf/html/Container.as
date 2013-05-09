@@ -1,9 +1,13 @@
 package org.tinytlf.html
 {
+	import asx.array.first;
 	import asx.array.last;
+	import asx.array.len;
 	import asx.fn.I;
 	import asx.fn.apply;
 	import asx.fn.distribute;
+	import asx.fn.ifElse;
+	import asx.fn.not;
 	import asx.fn.partial;
 	import asx.fn.sequence;
 	
@@ -36,10 +40,6 @@ package org.tinytlf.html
 		}
 		
 		override public function getBounds(targetSpace:DisplayObject, resultRect:Rectangle=null):Rectangle {
-			return bounds;
-		}
-		
-		override public function get bounds():Rectangle {
 			return cache.mbr.clone();
 		}
 		
@@ -48,62 +48,77 @@ package org.tinytlf.html
 		[Inject(name="block")]
 		public var createChild:Function;
 		
-		override public function update(value:XML, viewport:Rectangle):TTLFBlock {
-			
-			super.update(value, viewport);
+		private var unfinishedChildren:Array = [];
+		private var lastViewport:Rectangle = emptyRect;
+		
+		override public function update(value:XML, viewport:Rectangle):Boolean {
 			
 			if(hasStyle('width')) viewport.width = getStyle('width');
 			if(hasStyle('height')) viewport.height = getStyle('height');
 			
-			// TODO: explicit and percent-based sizes
+			const cached:Array = cachedItems(cache, viewport);
 			
-			// Propagate viewport updates down to the children
+			var start:int = 0;
+			
+			if(lastViewport.width != viewport.width) {
+				start = len(cached) > 0 ? first(cached).index : 0;
+			} else if(len(unfinishedChildren) > 0) {
+				start = first(unfinishedChildren).index;
+			} else if(len(cached) > 0) {
+				start = last(cached).index;
+			} else {
+				start = numChildren;
+			}
+			
+			lastViewport = viewport.clone();
+			
+			const until:int = Math.min(unfinishedChildren.length, cached.length);
 			
 			const elements:XMLList = wrapTextNodes(value).elements();
 			
-			// Remove the children not on the screen anymore.
-			const cached:IEnumerable = cleanDisplayList(viewport);
-			const first:TTLFBlock = cached.firstOrDefault() as TTLFBlock;
-			const nodes:IEnumerable = toEnumerable(elements, first == null ? 0 : first.index);
+			const unfinished:IEnumerable = toEnumerable(elements, start).take(until);
+			const unrendered:IEnumerable = toEnumerable(elements, start + until);
 			
-			var latest:Rectangle = emptyRect;
+			var lastNode:XML = <_/>;
+			var lastRect:Rectangle = emptyRect;
 			
-			children = nodes.
+			const add:Function = ifElse(not(contains), addChild, I);
+			
+			unfinishedChildren = unfinished.concat(unrendered).
 				map(distribute(I, createChild)).
+				map(distribute(first, sequence(last, add))).
 				takeWhile(sequence(last, partial(continueRender, viewport))).
-				map(apply(function(node:XML, child:TTLFBlock):TTLFBlock {
+				filter(apply(function(node:XML, child:TTLFBlock):Boolean {
 					
-					latest = cache.hasItem(child) ? 
-					cache.find(child).boundingBox :
-					layout(latest, child, viewport);
+					lastNode = node;
+					lastRect = cache.hasItem(child) ? 
+						cache.find(child).boundingBox :
+						layout(lastRect, child, viewport);
 					
-					child.x = latest.x;
-					child.y = latest.y;
+					child.x = lastRect.x;
+					child.y = lastRect.y;
 					
 					const sub:Rectangle = new Rectangle(
-						Math.max(viewport.x - latest.x, 0),
-						Math.max(viewport.y - latest.y, 0),
+						Math.max(viewport.x - lastRect.x, 0),
+						Math.max(viewport.y - lastRect.y, 0),
 						viewport.width, viewport.height
 					);
 					
-					child.update(node, sub);
+					const fullyRendered:Boolean = child.update(node, sub);
 					
-					latest = child.bounds;
-					latest.x = child.x;
-					latest.y = child.y;
+					lastRect = child.bounds;
+					lastRect.x = child.x;
+					lastRect.y = child.y;
 					
-					cache.update(latest, child);
+					cache.update(lastRect, child);
 					
-					return child;
+					return fullyRendered == false;
 				})).
 				toArray();
 			
-			return this;
+			return (unfinishedChildren.length == 0) &&
+				(lastNode.childIndex() == elements.length() - 1);
 		}
-		
-		protected function cleanDisplayList(viewport:Rectangle):IEnumerable {
-			return toEnumerable(cachedItems(cache, viewport));
-		};
 		
 		protected function continueRender(viewport:Rectangle, child:TTLFBlock):Boolean {
 			if(cache.hasItem(child)) {

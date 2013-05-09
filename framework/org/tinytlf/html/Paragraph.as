@@ -67,9 +67,9 @@ package org.tinytlf.html
 		
 		private var lastWidth:Number = 0;
 		
-		override public function update(value:XML, viewport:Rectangle):TTLFBlock {
+		override public function update(value:XML, viewport:Rectangle):Boolean {
 			
-			if(lastWidth == viewport.width) return this;
+			if(lastWidth == viewport.width) return true;
 			
 			// TODO: Refactor this to use a static TextBlock and TextLine, to
 			// pull the TextLine's BitmapData immediately, and only render the
@@ -96,7 +96,7 @@ package org.tinytlf.html
 			
 			lastWidth = viewport.width;
 			
-			return this;
+			return true;
 		}
 	}
 }

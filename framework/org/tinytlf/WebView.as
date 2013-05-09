@@ -160,8 +160,11 @@ package org.tinytlf
 				
 				const clip:Rectangle = new Rectangle(hsp, vsp, window.width, window.height);
 				
-				if(cWidth != clip.width)
-					dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, 'contentWidth', cWidth, cWidth = clip.width));
+				// Temporarily disable this, I think there's a bug in the HRTree
+				// that's preventing it from updating the MBR for the window.
+				// 
+				// if(cWidth != clip.width)
+				//	dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, 'contentWidth', cWidth, cWidth = clip.width));
 				
 				if(cHeight != clip.height)
 					dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, 'contentHeight', cHeight, cHeight = clip.height));

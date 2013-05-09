@@ -17,7 +17,7 @@ package org.tinytlf.html
 			setStyle('float', 'left');
 		}
 		
-		override public function update(value:XML, viewport:Rectangle):TTLFBlock {
+		override public function update(value:XML, viewport:Rectangle):Boolean {
 			
 			_index = value.childIndex();
 			mergeAttributes(styles, wrapTextNodes(value));
@@ -44,6 +44,7 @@ package org.tinytlf.html
 			const store:Store = new Store();
 				
 			while(++cell <= index) {
+				width = 0;
 				
 				mergeAttributes(store, cells[cell]);
 				
@@ -51,9 +52,10 @@ package org.tinytlf.html
 				
 				while(col < end) {
 					
-					if(col >= cols.length()) return NaN;
+					if(col >= cols.length()) return width || NaN;
 					
 					width += mergeAttributes(store, cols[col]).width;
+					
 					++col;
 				}
 				
