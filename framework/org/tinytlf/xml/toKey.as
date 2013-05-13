@@ -1,4 +1,4 @@
-package org.tinytlf.fn
+package org.tinytlf.xml
 {
 	/**
 	 * Get the fully traversed inheritance chain of an XML node,

@@ -1,4 +1,4 @@
-package org.tinytlf.fn
+package org.tinytlf.flash
 {
 	import flash.text.engine.*;
 

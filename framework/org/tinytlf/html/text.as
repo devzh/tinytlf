@@ -2,7 +2,7 @@ package org.tinytlf.html
 {
 	import flash.text.engine.TextElement;
 	
-	import org.tinytlf.fn.toElementFormat;
+	import org.tinytlf.flash.toElementFormat;
 
 	/**
 	 * @author ptaylor

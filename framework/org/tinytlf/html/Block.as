@@ -7,13 +7,13 @@ package org.tinytlf.html
 	import flash.geom.Rectangle;
 	
 	import org.tinytlf.TTLFBlock;
-	import org.tinytlf.fn.mergeAttributes;
+	import org.tinytlf.xml.mergeAttributes;
 	
 	import starling.display.Sprite;
 	
 	import trxcllnt.Store;
 	
-	internal class Block extends Sprite implements TTLFBlock
+	public class Block extends Sprite implements TTLFBlock
 	{
 		public function Block(value:XML)
 		{

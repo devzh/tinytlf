@@ -5,8 +5,8 @@ package org.tinytlf.html
 	import flash.text.engine.ContentElement;
 	import flash.text.engine.GroupElement;
 	
-	import org.tinytlf.fn.toElementFormat;
-	import org.tinytlf.fn.wrapTextNodes;
+	import org.tinytlf.flash.toElementFormat;
+	import org.tinytlf.xml.wrapTextNodes;
 	
 	import raix.interactive.toEnumerable;
 

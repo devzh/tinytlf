@@ -1,4 +1,4 @@
-package org.tinytlf.fn
+package org.tinytlf.xml
 {
 	import asx.array.toDictionary;
 	import asx.fn.callXMLProperty;

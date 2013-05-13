@@ -16,7 +16,7 @@ package org.tinytlf.html
 	
 	import org.tinytlf.TTLFBlock;
 	import org.tinytlf.TTLFContainer;
-	import org.tinytlf.fn.wrapTextNodes;
+	import org.tinytlf.xml.wrapTextNodes;
 	
 	import raix.interactive.Enumerable;
 	

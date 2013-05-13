@@ -17,9 +17,6 @@ package org.tinytlf
 	import mx.core.UIComponent;
 	import mx.events.PropertyChangeEvent;
 	
-	import org.tinytlf.fn.readKey;
-	import org.tinytlf.fn.toName;
-	import org.tinytlf.fn.toXML;
 	import org.tinytlf.html.Container;
 	import org.tinytlf.html.Paragraph;
 	import org.tinytlf.html.TableCell;
@@ -33,6 +30,9 @@ package org.tinytlf
 	import starling.core.Starling;
 	import starling.display.Sprite;
 	import starling.events.Event;
+	import org.tinytlf.xml.readKey;
+	import org.tinytlf.xml.toName;
+	import org.tinytlf.xml.toXML;
 	
 	public class WebView extends UIComponent implements IViewport
 	{
@@ -121,21 +121,26 @@ package org.tinytlf
 		
 		override protected function createChildren():void {
 			super.createChildren();
-			
-			if(stage) createContext();
-			else once(this, flash.events.Event.ADDED_TO_STAGE, createContext);
 		}
 		
 		override protected function updateDisplayList(w:Number, h:Number):void {
 			
 			super.updateDisplayList(w, h);
 			
-			if(context == null) return;
+			if(context == null) {
+				if(w == 0 || h == 0) return;
+				
+				if(stage) createContext();
+				else {
+					once(this, flash.events.Event.ADDED_TO_STAGE, createContext);
+					return;
+				}
+			}
 			
 			const global:Point = localToGlobal(new Point());
 			const stage3DViewport:Rectangle = context.viewPort;
 			
-			if( stage3DViewport.x != global.x || stage3DViewport.y != global.y) {
+			if(stage3DViewport.x != global.x || stage3DViewport.y != global.y) {
 				context.viewPort = new Rectangle(global.x, global.y, w, h);
 			}
 			
@@ -156,7 +161,7 @@ package org.tinytlf
 				
 				window.clipRect = null;
 				
-				window.update(html, new Rectangle(hsp, vsp, w, h + 100));
+				window.update(html, new Rectangle(hsp, vsp, w, h * 2));
 				
 				const clip:Rectangle = new Rectangle(hsp, vsp, window.width, window.height);
 				

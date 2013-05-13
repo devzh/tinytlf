@@ -3,6 +3,7 @@ package org.tinytlf.html
 	import asx.array.first;
 	import asx.array.last;
 	import asx.array.len;
+	import asx.array.pluck;
 	import asx.fn.I;
 	import asx.fn.apply;
 	import asx.fn.distribute;
@@ -15,8 +16,7 @@ package org.tinytlf.html
 	
 	import org.tinytlf.TTLFBlock;
 	import org.tinytlf.TTLFContainer;
-	import org.tinytlf.fn.cachedItems;
-	import org.tinytlf.fn.wrapTextNodes;
+	import org.tinytlf.xml.wrapTextNodes;
 	
 	import raix.interactive.IEnumerable;
 	import raix.interactive.toEnumerable;
@@ -37,6 +37,12 @@ package org.tinytlf.html
 		private const _cache:HRTree = new HRTree();
 		public function get cache():HRTree {
 			return _cache;
+		}
+		
+		protected function cachedItems(cache:HRTree, area:Rectangle):Array {
+			const cached:Array = pluck(cache.search(area), 'item');
+			cached.sortOn('index', Array.NUMERIC);
+			return cached;
 		}
 		
 		override public function getBounds(targetSpace:DisplayObject, resultRect:Rectangle=null):Rectangle {

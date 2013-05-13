@@ -3,8 +3,8 @@ package org.tinytlf.html
 	import flash.geom.Rectangle;
 	
 	import org.tinytlf.TTLFBlock;
-	import org.tinytlf.fn.mergeAttributes;
-	import org.tinytlf.fn.wrapTextNodes;
+	import org.tinytlf.xml.mergeAttributes;
+	import org.tinytlf.xml.wrapTextNodes;
 	
 	import trxcllnt.Store;
 
