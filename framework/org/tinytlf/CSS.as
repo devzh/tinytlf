@@ -6,6 +6,10 @@
 */
 package org.tinytlf
 {
+	import asx.array.filter;
+	import asx.array.map;
+	import asx.array.reduce;
+	import asx.fn.I;
 	import asx.fn.aritize;
 	import asx.fn.not;
 	import asx.object.merge;
@@ -58,34 +62,16 @@ package org.tinytlf
 		//	div a.class:active
 		private function internalLookup(path:String):Object
 		{
-			const merged:Store = new Store();
+			if(!path) return {};
 			
-			if(!path)
-				return merged;
+			const chains:Array = map(path.split(' '), Cache.getName);
+			const stores:Array = reduce([styles], chains, function(parents:Array, chain:StyleChain):Array {
+				return parents.concat(reduce([], parents, function(stores:Array, parent:StyleStore):Array {
+					return stores.concat(filter(map(chain, parent.getDescendent), I));
+				}));
+			}) as Array;
 			
-			var link:StyleStore = styles;
-			
-			path.split(' ').forEach(function(component:String, ... args):void {
-				
-				// Pull the top top-level style definitions for this part of
-				// the style. For example, if the path is: 'div a:hover',
-				// make sure to pull top-level properties for 'a:hover'
-				// first, then apply the div's cascading 'a:hover'
-				// properties.
-				//
-				// I think we can get away with a cached lookup here,
-				// forcing a manual lookup would be unnecessary work.
-				if(component != path) merge(merged, lookup(component));
-				
-				const chain:StyleChain = Cache.getName(component);
-				chain.every(function(name:String, ... args):Boolean {
-					return (link = link.descendents[name]) ?
-						merge(merged, link) != null :
-						false;
-				});
-			});
-			
-			return merged;
+			return merge.apply(null, [new Store()].concat(stores));
 		}
 		
 		/**
@@ -153,7 +139,8 @@ package org.tinytlf
 							// Apply the values once we've reached the lowest
 							// level of the style tree.
 							chain.forEach(function(name:String, i:int, a:Array):void {
-								link = (link.descendents[name] ||= new StyleStore());
+								link = link.createDescendent(name);
+								// link = (link.descendents[name] ||= new StyleStore());
 								
 								if(i == a.length - 1) merge(link, values);
 							});
@@ -167,19 +154,18 @@ package org.tinytlf
 		{
 			Cache.clearStyles();
 			styles = new StyleStore();
-			styles['html'] = styles;
 			inject(new defaultCSS().toString());
 			return this;
 		}
 		
 		override flash_proxy function getProperty(name:*):*
 		{
-			return styles['html'][name];
+			return styles[name];
 		}
 		
 		override flash_proxy function setProperty(name:*, value:*):void
 		{
-			styles['html'][name] = value;
+			styles[name] = value;
 		}
 	}
 }
@@ -215,6 +201,14 @@ internal class StyleStore extends Store
 		return property.split('-').map(function(part:String, i:int, ... args):String {
 			return i == 0 ? part : part.charAt(0).toUpperCase() + part.substr(1);
 		}).join('');
+	}
+	
+	public function getDescendent(component:String):StyleStore {
+		return descendents[component];
+	}
+	
+	public function createDescendent(component:String):StyleStore {
+		return descendents[component] ||= new StyleStore();
 	}
 	
 	public const descendents:Store = new Store();

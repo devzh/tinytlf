@@ -6,6 +6,7 @@ package org.tinytlf.html
 	
 	import flash.geom.Rectangle;
 	
+	import org.tinytlf.CSS;
 	import org.tinytlf.TTLFBlock;
 	import org.tinytlf.xml.mergeAttributes;
 	
@@ -22,6 +23,9 @@ package org.tinytlf.html
 			node = value;
 			_index = value.childIndex();
 		}
+		
+		[Inject]
+		public var css:CSS;
 		
 		private var node:XML = <_/>;
 		

@@ -23,16 +23,17 @@ package org.tinytlf
 	import org.tinytlf.html.br_block;
 	import org.tinytlf.html.br_inline;
 	import org.tinytlf.html.span;
+	import org.tinytlf.html.style;
 	import org.tinytlf.html.text;
+	import org.tinytlf.xml.readKey;
+	import org.tinytlf.xml.toName;
+	import org.tinytlf.xml.toXML;
 	
 	import spark.core.IViewport;
 	
 	import starling.core.Starling;
 	import starling.display.Sprite;
 	import starling.events.Event;
-	import org.tinytlf.xml.readKey;
-	import org.tinytlf.xml.toName;
-	import org.tinytlf.xml.toXML;
 	
 	public class WebView extends UIComponent implements IViewport
 	{
@@ -42,16 +43,19 @@ package org.tinytlf
 			
 			const containerUIFactory:Function = memoize(sequence(
 				partial(newInstance_, Container),
+				setProperty('css', _css),
 				setProperty('createChild', invokeBlockParser)
 			), readKey);
 			
 			const tableCellUIFactory:Function = memoize(sequence(
 				partial(newInstance_, TableCell),
+				setProperty('css', _css),
 				setProperty('createChild', invokeBlockParser)
 			), readKey);
 			
 			const paragraphUIFactory:Function = memoize(sequence(
 				partial(newInstance_, Paragraph),
+				setProperty('css', _css),
 				setProperty('createElement', invokeInlineParser)
 			), readKey);
 			
@@ -67,33 +71,38 @@ package org.tinytlf
 			const tableCellFactory:Function = factoryFactory(tableCellUIFactory);
 			const paragraphFactory:Function = factoryFactory(paragraphUIFactory);
 			const brBlockFactory:Function = factoryFactory(brBlockUIFactory);
-			const spanFactory:Function = partial(span, invokeInlineParser);
+			const styleFactory:Function = partial(style, _css);
+			const spanFactory:Function = partial(span, _css, invokeInlineParser);
+			const textFactory:Function = partial(text, _css);
 			
 			addBlockParser(containerFactory, 'html', 'body', 'article', 'div',
 				'footer', 'header', 'section', 'table', 'tbody', 'tr').
+			
 			addBlockParser(tableCellFactory, 'td').
+			
+			addBlockParser(styleFactory, 'style').
 			
 			addBlockParser(paragraphFactory, 'p', 'span', 'text').
 			
 			addInlineParser(spanFactory, 'span').
-			addInlineParser(text, 'text').
+			addInlineParser(textFactory, 'text').
 			
 			// TODO: write a head and style parser
-			addBlockParser(brBlockFactory, 'head', 'style', 'colgroup', 'object').
+			addBlockParser(brBlockFactory, 'head', 'colgroup', 'object').
 			
 			addBlockParser(brBlockFactory, 'br').
 			addInlineParser(br_inline, 'br');
 		}
 		
-//		private const _css:CSS = new CSS();
-//		
-//		public function get css():* {
-//			return _css;
-//		}
-//		
-//		public function set css(value:*):void {
-//			_css.inject(value);
-//		}
+		private const _css:CSS = new CSS();
+		
+		public function get css():* {
+			return _css;
+		}
+		
+		public function set css(value:*):void {
+			_css.inject(value);
+		}
 		
 		private var _html:XML = <html/>;
 		private var htmlChanged:Boolean = false;
@@ -150,6 +159,7 @@ package org.tinytlf
 			
 			if(window == null) {
 				root.addChild(window = new Container(html));
+				window.css = _css;
 				window.createChild = invokeBlockParser;
 				viewportChanged = true;
 				htmlChanged = true;

@@ -29,9 +29,8 @@ package org.tinytlf.html
 			const colgroup:XML = table.colgroup[0];
 			
 			const width:Number = getCellWidth(colgroup.col, tr.td, index);
-			if(width == width) {
-				setStyle('width', width);
-			}
+			
+			if(width == width) setStyle('width', width);
 			
 			return super.update(value, viewport);
 		}

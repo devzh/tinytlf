@@ -15,7 +15,7 @@ package org.tinytlf.flash
 		fd.fontName = obj.fontName || obj.fontFamily || '_sans';
 		fd.fontPosture = obj.fontStyle == FontPosture.ITALIC ? FontPosture.ITALIC : FontPosture.NORMAL;
 		fd.fontPosture = obj.fontPosture || fd.fontPosture;
-		fd.fontWeight = obj.fontWeight || FontWeight.NORMAL;
+		fd.fontWeight = obj.fontWeight == FontWeight.BOLD ? FontWeight.BOLD : FontWeight.NORMAL;
 		fd.renderingMode = obj.renderingMode || RenderingMode.CFF;
 		
 		const ef:ElementFormat = new ElementFormat(fd);

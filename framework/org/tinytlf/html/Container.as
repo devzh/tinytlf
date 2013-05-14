@@ -11,11 +11,14 @@ package org.tinytlf.html
 	import asx.fn.not;
 	import asx.fn.partial;
 	import asx.fn.sequence;
+	import asx.object.merge;
 	
 	import flash.geom.Rectangle;
 	
 	import org.tinytlf.TTLFBlock;
 	import org.tinytlf.TTLFContainer;
+	import org.tinytlf.TTLFSkin;
+	import org.tinytlf.xml.readKey;
 	import org.tinytlf.xml.wrapTextNodes;
 	
 	import raix.interactive.IEnumerable;
@@ -32,6 +35,11 @@ package org.tinytlf.html
 		public function Container(node:XML)
 		{
 			super(node);
+		}
+		
+		protected var skin:TTLFSkin = new Skin();
+		override public function set children(value:Array):void {
+			super.children = [skin].concat(value);
 		}
 		
 		private const _cache:HRTree = new HRTree();
@@ -59,6 +67,8 @@ package org.tinytlf.html
 		
 		override public function update(value:XML, viewport:Rectangle):Boolean {
 			
+			merge(styles, css.lookup(readKey(value)));
+			
 			if(hasStyle('width')) viewport.width = getStyle('width');
 			if(hasStyle('height')) viewport.height = getStyle('height');
 			
@@ -69,7 +79,7 @@ package org.tinytlf.html
 			if(lastViewport.width != viewport.width) {
 				start = len(cached) > 0 ? first(cached).index : 0;
 			} else if(len(unfinishedChildren) > 0) {
-				start = first(unfinishedChildren).index;
+				start = first(unfinishedChildren)[1].index;
 			} else if(len(cached) > 0) {
 				start = last(cached).index;
 			} else {
@@ -92,6 +102,7 @@ package org.tinytlf.html
 			
 			unfinishedChildren = unfinished.concat(unrendered).
 				map(distribute(I, createChild)).
+				filter(last).
 				map(distribute(first, sequence(last, add))).
 				takeWhile(sequence(last, partial(continueRender, viewport))).
 				filter(apply(function(node:XML, child:TTLFBlock):Boolean {
@@ -122,8 +133,10 @@ package org.tinytlf.html
 				})).
 				toArray();
 			
-			return (unfinishedChildren.length == 0) &&
+			const fullyRendered:Boolean = (unfinishedChildren.length == 0) &&
 				(lastNode.childIndex() == elements.length() - 1);
+			
+			return fullyRendered && skin.update(this, viewport, fullyRendered);
 		}
 		
 		protected function continueRender(viewport:Rectangle, child:TTLFBlock):Boolean {
@@ -171,4 +184,39 @@ package org.tinytlf.html
 			return rect;
 		}
 	}
+}
+import flash.geom.Rectangle;
+
+import org.tinytlf.TTLFBlock;
+import org.tinytlf.TTLFSkin;
+
+import starling.display.Quad;
+import starling.display.Sprite;
+
+internal class Skin extends Sprite implements TTLFSkin {
+	
+	public function Skin() {
+		super();
+	}
+	
+	private var background:Quad;
+	
+	public function update(block:TTLFBlock, size:Rectangle, fullyRendered:Boolean):Boolean {
+		
+		if(block.hasStyle('backgroundColor')) {
+			
+			const bgcolor:uint = block.getStyle('backgroundColor');
+			
+			if(background == null) {
+				addChild(background = new Quad(size.width, size.height, bgcolor));
+			} else {
+				background.color = bgcolor;
+			}
+		} else if(background) {
+			removeChild(background);
+		}
+		
+		return fullyRendered;
+	}
+	
 }
