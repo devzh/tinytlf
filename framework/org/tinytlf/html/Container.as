@@ -142,7 +142,7 @@ package org.tinytlf.html
 			const fullyRendered:Boolean = (unfinishedChildren.length == 0) &&
 				(lastNode.childIndex() == elements.length() - 1);
 			
-			return fullyRendered && skin.update(this, viewport, fullyRendered);
+			return fullyRendered && skin.update(this, bounds, fullyRendered);
 		}
 		
 		protected function continueRender(viewport:Rectangle, child:TTLFBlock):Boolean {
