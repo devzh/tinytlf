@@ -13,8 +13,11 @@ package org.tinytlf.html
 		public function TableCell(node:XML)
 		{
 			super(node);
-			
-			setStyle('float', 'left');
+		}
+		
+		override public function getStyle(style:String):* {
+			if(style == 'float') return 'left';
+			return super.getStyle(style);
 		}
 		
 		override public function update(value:XML, viewport:Rectangle):Boolean {

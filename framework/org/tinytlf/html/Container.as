@@ -1,9 +1,11 @@
 package org.tinytlf.html
 {
 	import asx.array.first;
+	import asx.array.forEach;
 	import asx.array.last;
 	import asx.array.len;
 	import asx.array.pluck;
+	import asx.array.zip;
 	import asx.fn.I;
 	import asx.fn.apply;
 	import asx.fn.distribute;
@@ -11,7 +13,8 @@ package org.tinytlf.html
 	import asx.fn.not;
 	import asx.fn.partial;
 	import asx.fn.sequence;
-	import asx.object.merge;
+	import asx.object.keys;
+	import asx.object.values;
 	
 	import flash.geom.Rectangle;
 	
@@ -67,8 +70,6 @@ package org.tinytlf.html
 		
 		override public function update(value:XML, viewport:Rectangle):Boolean {
 			
-			merge(styles, css.lookup(readKey(value)));
-			
 			if(hasStyle('width')) viewport.width = getStyle('width');
 			if(hasStyle('height')) viewport.height = getStyle('height');
 			
@@ -106,6 +107,11 @@ package org.tinytlf.html
 				map(distribute(first, sequence(last, add))).
 				takeWhile(sequence(last, partial(continueRender, viewport))).
 				filter(apply(function(node:XML, child:TTLFBlock):Boolean {
+					
+					const styles:Object = css.lookup(readKey(node));
+					const k:Array = keys(styles);
+					const v:Array = values(styles);
+					forEach(zip(k, v), apply(child.setStyle));
 					
 					lastNode = node;
 					lastRect = cache.hasItem(child) ? 
@@ -160,26 +166,40 @@ package org.tinytlf.html
 			const display:String = child.getStyle('display') || 'block';
 			const float:String = child.getStyle('float') || 'none';
 			
+			const m:Number = child.getStyle('margin') || 0;
+			const ml:Number = child.getStyle('marginLeft') || m;
+			const mt:Number = child.getStyle('marginTop') || m;
+			const mr:Number = child.getStyle('marginRight') || m;
+			const mb:Number = child.getStyle('marginBottom') || m;
+			
 			if(display == 'block' && float == 'none') {
-				rect.x = viewport.x;
-				rect.y = prev.bottom;
+				rect.x = viewport.x + ml;
+				rect.y = prev.bottom + mt;
 			} else if(float == 'right') {
 				if(prev.x - bounds.width < viewport.left) {
-					rect.x = viewport.left - rect.width;
-					rect.y = prev.bottom;
+					rect.x = viewport.left - rect.width + ml;
+					rect.y = prev.bottom + mt;
 				} else {
-					rect.x = prev.x - rect.width;
-					rect.y = prev.y;
+					rect.x = prev.x - rect.width + ml;
+					rect.y = prev.y + mt;
 				}
 			} else if(float == 'left' || display == 'inline-block' || display == 'inline') {
 				if(prev.right + bounds.width > viewport.right) {
-					rect.x = viewport.x;
-					rect.y = prev.bottom;
+					rect.x = viewport.x + ml;
+					rect.y = prev.bottom + mt;
 				} else {
-					rect.x = prev.right;
-					rect.y = prev.y;
+					rect.x = prev.right + ml;
+					rect.y = prev.y + mt;
 				}
 			}
+			
+			rect.width +=  mr;
+			rect.height +=  mb;
+			
+			rect.x = Math.ceil(rect.x);
+			rect.y = Math.ceil(rect.y);
+			rect.width = Math.ceil(rect.width);
+			rect.height = Math.ceil(rect.height);
 			
 			return rect;
 		}

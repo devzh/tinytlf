@@ -1,13 +1,17 @@
 package org.tinytlf
 {
 	import asx.array.forEach;
+	import asx.array.zip;
 	import asx.events.once;
+	import asx.fn.apply;
 	import asx.fn.aritize;
 	import asx.fn.memoize;
 	import asx.fn.partial;
 	import asx.fn.sequence;
 	import asx.fn.setProperty;
+	import asx.object.keys;
 	import asx.object.newInstance_;
+	import asx.object.values;
 	
 	import flash.events.Event;
 	import flash.geom.Point;
@@ -169,9 +173,14 @@ package org.tinytlf
 				window.x = -hsp;
 				window.y = -vsp;
 				
+				const styles:Object = css.lookup(readKey(html));
+				const k:Array = keys(styles);
+				const v:Array = values(styles);
+				forEach(zip(k, v), apply(window.setStyle));
+				
 				window.clipRect = null;
 				
-				window.update(html, new Rectangle(hsp, vsp, w, h * 2));
+				window.update(html, new Rectangle(hsp, vsp, w, h * 1.5));
 				
 				const clip:Rectangle = new Rectangle(hsp, vsp, window.width, window.height);
 				
