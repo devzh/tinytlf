@@ -288,8 +288,8 @@ package org.tinytlf.html
 						dispatchEvent(validateEvent(true));
 					} else {
 						// Do another layout pass, process the next child.
-						// invalidate('nextChild');
-						invalidateTimeout = setTimeout(partial(invalidate, 'nextChild'), 0);
+						invalidate('nextChild');
+						// invalidateTimeout = setTimeout(partial(invalidate, 'nextChild'), 0);
 					}
 				}
 			};
