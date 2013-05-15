@@ -3,6 +3,7 @@ package org.tinytlf
 	import asx.array.forEach;
 	import asx.array.zip;
 	import asx.events.once;
+	import asx.fn.K;
 	import asx.fn.apply;
 	import asx.fn.aritize;
 	import asx.fn.memoize;
@@ -10,7 +11,7 @@ package org.tinytlf
 	import asx.fn.sequence;
 	import asx.fn.setProperty;
 	import asx.object.keys;
-	import asx.object.newInstance_;
+	import asx.object.newInstance;
 	import asx.object.values;
 	
 	import flash.events.Event;
@@ -21,10 +22,11 @@ package org.tinytlf
 	import mx.core.UIComponent;
 	import mx.events.PropertyChangeEvent;
 	
+	import org.tinytlf.events.validateEventType;
+	import org.tinytlf.html.Break;
 	import org.tinytlf.html.Container;
 	import org.tinytlf.html.Paragraph;
 	import org.tinytlf.html.TableCell;
-	import org.tinytlf.html.br_block;
 	import org.tinytlf.html.br_inline;
 	import org.tinytlf.html.span;
 	import org.tinytlf.html.style;
@@ -45,31 +47,35 @@ package org.tinytlf
 		{
 			super();
 			
-			const containerUIFactory:Function = memoize(sequence(
-				partial(newInstance_, Container),
-				setProperty('css', _css),
-				setProperty('createChild', invokeBlockParser)
-			), readKey);
-			
-			const tableCellUIFactory:Function = memoize(sequence(
-				partial(newInstance_, TableCell),
-				setProperty('css', _css),
-				setProperty('createChild', invokeBlockParser)
-			), readKey);
-			
-			const paragraphUIFactory:Function = memoize(sequence(
-				partial(newInstance_, Paragraph),
-				setProperty('css', _css),
-				setProperty('createElement', invokeInlineParser)
-			), readKey);
-			
-			const brBlockUIFactory:Function = memoize(br_block, readKey);
+			const classFactory:Function = function(type:Class):Function {
+				return aritize(partial(newInstance, type), 0)
+			};
 			
 			const factoryFactory:Function = function(factory:Function):Function {
 				return function(node:XML):TTLFBlock {
 					return TTLFBlock(factory(node));
 				};
 			};
+			
+			const containerUIFactory:Function = memoize(sequence(
+				classFactory(Container),
+				setProperty('css', _css),
+				setProperty('createChild', invokeBlockParser)
+			), readKey);
+			
+			const tableCellUIFactory:Function = memoize(sequence(
+				classFactory(TableCell),
+				setProperty('css', _css),
+				setProperty('createChild', invokeBlockParser)
+			), readKey);
+			
+			const paragraphUIFactory:Function = memoize(sequence(
+				classFactory(Paragraph),
+				setProperty('css', _css),
+				setProperty('createElement', invokeInlineParser)
+			), readKey);
+			
+			const brBlockUIFactory:Function = memoize(classFactory(Break), readKey);
 			
 			const containerFactory:Function = factoryFactory(containerUIFactory);
 			const tableCellFactory:Function = factoryFactory(tableCellUIFactory);
@@ -91,8 +97,9 @@ package org.tinytlf
 			addInlineParser(spanFactory, 'span').
 			addInlineParser(textFactory, 'text').
 			
-			// TODO: write a head and style parser
-			addBlockParser(brBlockFactory, 'head', 'colgroup', 'object').
+			// TODO: write head and style parsers
+			addBlockParser(K(null), 'head', 'colgroup', 'object').
+//			addBlockParser(brBlockFactory, 'head', 'colgroup', 'object').
 			
 			addBlockParser(brBlockFactory, 'br').
 			addInlineParser(br_inline, 'br');
@@ -162,7 +169,7 @@ package org.tinytlf
 			if(root == null) return;
 			
 			if(window == null) {
-				root.addChild(window = new Container(html));
+				root.addChild(window = new Container());
 				window.css = _css;
 				window.createChild = invokeBlockParser;
 				viewportChanged = true;
@@ -173,27 +180,31 @@ package org.tinytlf
 				window.x = -hsp;
 				window.y = -vsp;
 				
-				const styles:Object = css.lookup(readKey(html));
-				const k:Array = keys(styles);
-				const v:Array = values(styles);
-				forEach(zip(k, v), apply(window.setStyle));
-				
 				window.clipRect = null;
 				
-				window.update(html, new Rectangle(hsp, vsp, w, h * 1.5));
+				window.content = html;
+				window.viewport = new Rectangle(hsp, vsp, w, h + 500);
 				
-				const clip:Rectangle = new Rectangle(hsp, vsp, window.width, window.height);
+				const listener:Function = function(...args):void {
+					
+					window.removeEventListener(validateEventType, listener);
+					
+					const clip:Rectangle = new Rectangle(hsp, vsp, window.width, window.height);
+					
+					// Temporarily disable this, I think there's a bug in the HRTree
+					// that's preventing it from updating the MBR for the window.
+					// 
+					// if(cWidth != clip.width)
+					//	dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, 'contentWidth', cWidth, cWidth = clip.width));
+					
+					if(cHeight != window.height) {
+						dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, 'contentHeight', cHeight, cHeight = window.height));
+					}
+					
+					window.clipRect = clip;
+				};
 				
-				// Temporarily disable this, I think there's a bug in the HRTree
-				// that's preventing it from updating the MBR for the window.
-				// 
-				// if(cWidth != clip.width)
-				//	dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, 'contentWidth', cWidth, cWidth = clip.width));
-				
-				if(cHeight != clip.height)
-					dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, 'contentHeight', cHeight, cHeight = clip.height));
-				
-				window.clipRect = clip;
+				window.addEventListener(validateEventType, listener);
 			}
 			
 			viewportChanged = false;

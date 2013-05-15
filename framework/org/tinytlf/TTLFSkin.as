@@ -4,6 +4,6 @@ package org.tinytlf
 
 	public interface TTLFSkin
 	{
-		function update(block:TTLFBlock, size:Rectangle, fullyRendered:Boolean):Boolean;
+		function update(block:TTLFBlock, size:Rectangle, childrenRendered:Boolean):Boolean;
 	}
 }

@@ -3,25 +3,43 @@ package org.tinytlf.html
 	import asx.array.forEach;
 	import asx.array.map;
 	import asx.array.range;
+	import asx.object.merge;
+	
+	import feathers.core.FeathersControl;
 	
 	import flash.geom.Rectangle;
 	
 	import org.tinytlf.CSS;
 	import org.tinytlf.TTLFBlock;
+	import org.tinytlf.events.validateEvent;
 	import org.tinytlf.xml.mergeAttributes;
-	
-	import starling.display.Sprite;
+	import org.tinytlf.xml.readKey;
+	import org.tinytlf.xml.wrapTextNodes;
 	
 	import trxcllnt.Store;
 	
-	public class Block extends Sprite implements TTLFBlock
+	public class Block extends FeathersControl implements TTLFBlock
 	{
-		public function Block(value:XML)
+		protected static const emptyRect:Rectangle = new Rectangle();
+		
+		public function Block()
 		{
 			super();
-			
-			node = value;
-			_index = value.childIndex();
+		}
+		
+		protected const styles:Store = new Store();
+		
+		public function hasStyle(style:String):Boolean {
+			return styles.hasOwnProperty(style);
+		}
+		
+		public function getStyle(style:String):* {
+			return styles[style];
+		}
+		
+		public function setStyle(style:String, value:*):TTLFBlock {
+			styles[style] = value;
+			return this;
 		}
 		
 		[Inject]
@@ -43,27 +61,57 @@ package org.tinytlf.html
 			return _index;
 		}
 		
-		public function update(value:XML, viewport:Rectangle):Boolean {
-			node = value;
-			_index = value.childIndex();
-			mergeAttributes(styles, value);
+		private var _content:* = null;
+		
+		public function get content():* {
+			return _content;
+		}
+		
+		public function set content(value:*):void {
+			if(_content == value) return;
 			
-			return false;
+			_content = value;
+			invalidate('content');
+			
+			if(value is XML) {
+				const node:XML = wrapTextNodes(value);
+				
+				_index = node.childIndex();
+				
+				// Merge the styles from the global CSS rules.
+				merge(styles, css.lookup(readKey(node)));
+				
+				// Merge the attributes on the XML node.
+				mergeAttributes(styles, node);
+				
+				// Merge the inline styles on the XML node.
+				if(hasStyle('style')) {
+					const inline:CSS = new CSS('inline-node-styles {' + getStyle('style') + '}');
+					merge(styles, inline.lookup('inline-node-styles'));
+				}
+			}
 		}
 		
-		protected const styles:Store = new Store();
+		private var _viewport:Rectangle = emptyRect;
 		
-		public function hasStyle(style:String):Boolean {
-			return styles.hasOwnProperty(style);
+		public function get viewport():Rectangle {
+			return _viewport;
 		}
 		
-		public function getStyle(style:String):* {
-			return styles[style];
+		public function set viewport(value:Rectangle):void {
+			if(viewport.equals(value)) return;
+			
+			_viewport = value.clone();
 		}
 		
-		public function setStyle(style:String, value:*):TTLFBlock {
-			styles[style] = value;
-			return this;
+		override public function setSize(width:Number, height:Number):void {
+			setSizeInternal(width, height, false);
+		}
+		
+		override protected function draw():void {
+			super.draw();
+			
+			dispatchEvent(validateEvent(true));
 		}
 	}
 }

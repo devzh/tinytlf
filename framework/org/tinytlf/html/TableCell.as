@@ -1,41 +1,35 @@
 package org.tinytlf.html
 {
-	import flash.geom.Rectangle;
-	
-	import org.tinytlf.TTLFBlock;
 	import org.tinytlf.xml.mergeAttributes;
-	import org.tinytlf.xml.wrapTextNodes;
 	
 	import trxcllnt.Store;
 
 	public class TableCell extends Container
 	{
-		public function TableCell(node:XML)
+		public function TableCell()
 		{
-			super(node);
+			super();
 		}
 		
-		override public function getStyle(style:String):* {
-			if(style == 'float') return 'left';
-			return super.getStyle(style);
-		}
-		
-		override public function update(value:XML, viewport:Rectangle):Boolean {
+		override protected function draw():void {
 			
-			_index = value.childIndex();
-			mergeAttributes(styles, wrapTextNodes(value));
+			setStyle('float', 'left');
+			
+			const node:XML = XML(content);
 			
 			// TODO: Is there a better way to get the colgroup?
-			const tr:XML = value.parent();
+			const tr:XML = node.parent();
 			const tbody:XML = tr.parent();
 			const table:XML = (tbody.localName() == 'table') ? tbody : tbody.parent();
 			const colgroup:XML = table.colgroup[0];
 			
 			const width:Number = getCellWidth(colgroup.col, tr.td, index);
 			
-			if(width == width) setStyle('width', width);
+			if(width == width) {
+				viewport.width = width;
+			}
 			
-			return super.update(value, viewport);
+			super.draw();
 		}
 		
 		private function getCellWidth(cols:XMLList, cells:XMLList, index:int):Number {
@@ -44,7 +38,7 @@ package org.tinytlf.html
 			var col:int = 0;
 			var width:Number = 0;
 			const store:Store = new Store();
-				
+			
 			while(++cell <= index) {
 				width = 0;
 				

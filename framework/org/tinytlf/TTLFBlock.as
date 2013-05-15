@@ -1,23 +1,21 @@
 package org.tinytlf
 {
+	import feathers.core.IFeathersControl;
+	
 	import flash.geom.Rectangle;
 
-	public interface TTLFBlock
+	public interface TTLFBlock extends IFeathersControl
 	{
+		function set content(value:*):void;
+		
 		function get index():int;
 		
-		function get x():Number;
-		function set x(value:Number):void;
+		function set viewport(value:Rectangle):void;
 		
-		function get y():Number;
-		function set y(value:Number):void;
-		
-		function get bounds():Rectangle;
+		function isInvalid(flag:String = null):Boolean;
 		
 		function getStyle(style:String):*;
 		function setStyle(style:String, value:*):TTLFBlock;
 		function hasStyle(style:String):Boolean;
-		
-		function update(value:XML, viewport:Rectangle):Boolean;
 	}
 }

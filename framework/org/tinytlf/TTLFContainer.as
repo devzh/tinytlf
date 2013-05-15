@@ -4,5 +4,8 @@ package org.tinytlf
 	{
 		function get children():Array;
 		function set children(value:Array):void;
+		
+		function get renderedWidth():Number;
+		function get renderedHeight():Number;
 	}
 }
