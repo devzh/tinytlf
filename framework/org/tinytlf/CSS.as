@@ -108,7 +108,7 @@ package org.tinytlf
 					const prefix:String = parts.pop();
 					
 					// The suffix is easy, build a hashmap of key/value pairs.
-					const values:Store = new Store();
+					const values:Store = new StyleStore();
 					
 					suffix.split(';').
 						filter(aritize(not(empty), 1)).
@@ -140,8 +140,6 @@ package org.tinytlf
 							// level of the style tree.
 							chain.forEach(function(name:String, i:int, a:Array):void {
 								link = link.createDescendent(name);
-								// link = (link.descendents[name] ||= new StyleStore());
-								
 								if(i == a.length - 1) merge(link, values);
 							});
 						});
@@ -184,6 +182,8 @@ internal class StyleStore extends Store
 	public function StyleStore()
 	{
 		super();
+		
+		// merge(this, defaults);
 	}
 	
 	override flash_proxy function setProperty(name:*, value:*):void
@@ -216,7 +216,8 @@ internal class StyleStore extends Store
 	private static const defaults:Object = {
 		padding: 0, paddingLeft: 0, paddingRight: 0, paddingTop: 0,
 		paddingBottom: 0, margin: 0, marginLeft: 0, marginRight: 0,
-		marginTop: 0, marginBottom: 0, //width: '100%', height: '100%',
+		marginTop: 0, marginBottom: 0, marginBefore: 0, marginAfter: 0, 
+		//width: '100%', height: '100%',
 		fontSize: 12, leading: 0, paragraphSpacing: 0, fontMultiplier: 1
 	};
 }
