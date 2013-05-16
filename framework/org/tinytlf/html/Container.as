@@ -31,8 +31,12 @@ package org.tinytlf.html
 		}
 		
 		override public function set viewport(value:Rectangle):void {
-			if(value.width != viewport.width)
+			if(viewport.equals(emptyRect))
+				invalidate('incomplete');
+			else if(value.width != viewport.width) {
+				rollingElementIndex = 0;
 				invalidate('cached');
+			}
 			else if(value.bottom > height || unfinishedChild)
 				invalidate('incomplete');
 			
@@ -65,7 +69,7 @@ package org.tinytlf.html
 			if(cache.hasItem(child)) {
 				// If the element is cached and it intersects with the
 				// viewport, render it.
-				return viewport.intersects(cache.find(child).boundingBox);
+				return viewport.intersects(cache.getBounds(child));
 			}
 			
 			// If there's still room in the viewport, render the next element.
@@ -73,19 +77,35 @@ package org.tinytlf.html
 		};
 		
 		private var unfinishedChild:TTLFBlock;
+		private var rollingInvalidateFlag:String = 'incomplete';
+		private var rollingElementIndex:int = 0;
 		private var invalidateTimeout:int = -1;
 		
 		override protected function draw():void {
 			
-			if(invalidateTimeout > -1) clearTimeout(invalidateTimeout);
+			if(invalidateTimeout > -1) {
+				clearTimeout(invalidateTimeout);
+				invalidateTimeout = -1;
+			}
+			
+			if(hasStyle('width')) viewport.width = getStyle('width');
+			if(hasStyle('height')) viewport.height = getStyle('height');
 			
 			const node:XML = XML(content);
+			
+			const key:String = readKey(node);
+			trace(key);
 			
 			const elements:XMLList = node.elements();
 			
 			const cached:Array = cachedItems(viewport);
 			
-			var elementIndex:int = 0;
+			// var elementIndex:int = 0;
+			var elementIndex:int = rollingElementIndex;
+			
+			const processCached:Boolean = ('cached' in _invalidationFlags);
+			
+			rollingInvalidateFlag = processCached ? 'cached' : 'incomplete';
 			
 			// The child iteration index can be out of sync with the 
 			// display list index, because some XML elements don't
@@ -93,14 +113,15 @@ package org.tinytlf.html
 			var displayListIndex:int = 0;
 			
 			// Figure out which child to start processing at.
-			if(isInvalid('cached')) {
+			if(processCached) {
 				// If the size of the viewport changed such that the existing
 				// children need to be re-rendered, start from the index of the
 				// first visible child.
-				if(len(cached) > 0) {
-					elementIndex = first(cached).index;
-					displayListIndex = getChildIndex(first(cached) as DisplayObject);
-				}
+				
+				elementIndex = Math.max(first(cached).index, rollingElementIndex);
+				displayListIndex = getChildIndex(detect(children, function(child:TTLFBlock):Boolean {
+					return child.index == elementIndex;
+				}) as DisplayObject);
 			} else if(unfinishedChild) {
 				// Else, if there's any children that didn't finish rendering,
 				// start rendering there.
@@ -161,26 +182,22 @@ package org.tinytlf.html
 				
 				break;
 			}
+			
+			if(elementIndex >= elements.length()) {
+				dispatchEvent(validateEvent(true));
+			}
 		}
 		
 		protected function approximateLayout(prev:Rectangle, child:TTLFBlock, viewport:Rectangle):Point {
-			const m:Number = child.getStyle('margin') || 0;
-			const ml:Number = child.getStyle('marginLeft') || m;
-			const mt:Number = child.getStyle('marginTop') || m;
-			
-			return new Point(viewport.x + ml, prev.bottom + mt);
+			return new Point(viewport.x, prev.bottom);
 		}
 		
 		protected function approximateSize(position:Point, child:TTLFBlock, viewport:Rectangle):Rectangle {
-			const m:Number = child.getStyle('margin') || 0;
-			const mr:Number = child.getStyle('marginRight') || m;
-			const mb:Number = child.getStyle('marginBottom') || m;
-			
 			return new Rectangle(
 				Math.max(viewport.x - position.x, 0),
 				Math.max(viewport.y - position.y, 0),
-				viewport.right - position.x - mr,
-//				viewport.bottom - position.y - mb
+				viewport.right - position.x,
+//				viewport.bottom - position.y
 //				viewport.width,
 				viewport.height
 			);
@@ -189,11 +206,9 @@ package org.tinytlf.html
 		protected function finalizeDimensions(sibling:TTLFBlock, child:TTLFBlock, viewport:Rectangle):Rectangle {
 			
 			const prev:Rectangle = sibling ? sibling.bounds : emptyRect;
-			const pm:Number  = sibling ? sibling.getStyle('margin')			|| 0  : 0;
-			const pml:Number = sibling ? sibling.getStyle('marginLeft')		|| pm : 0;
-			const pmt:Number = sibling ? sibling.getStyle('marginTop')		|| pm : 0;
-			const pmr:Number = sibling ? sibling.getStyle('marginRight')	|| pm : 0;
-			const pmb:Number = sibling ? sibling.getStyle('marginBottom')	|| pm : 0;
+			const pm:Number  = sibling ? sibling.getStyle('margin')		|| 0  : 0;
+			// const pma:Number = sibling ? sibling.getStyle('marginAfter')|| 0  : 0;
+			const pmt:Number = sibling ? sibling.getStyle('marginTop')	|| pm : 0;
 			
 			const size:Rectangle = child.bounds.clone();
 			
@@ -205,26 +220,27 @@ package org.tinytlf.html
 			const mt:Number = child.getStyle('marginTop') || m;
 			const mr:Number = child.getStyle('marginRight') || m;
 			const mb:Number = child.getStyle('marginBottom') || m;
+			// const mbe:Number = sibling ? child.getStyle('marginBefore') || 0 : 0;
 			
 			if(float == 'left' || display == 'inline-block' || display == 'inline') {
 				if(prev.right + size.width + ml > viewport.right) {
 					size.x = viewport.x + ml;
 					size.y = prev.bottom + mt;
 				} else {
-					size.x = prev.right + ml;
+					size.x = prev.right + ml;// + pma + mbe;
 					size.y = prev.y - pmt + mt;
 				}
 			} else if(float == 'right') {
 				if(prev.x - size.width - mr < viewport.left) {
-					size.x = viewport.right - size.width - mr;
+					size.x = viewport.right - size.width - mr;// - mbe;
 					size.y = prev.bottom + mt;
 				} else {
-					size.x = prev.x - size.width - mr;
+					size.x = prev.x - size.width - mr;// - pma - mbe;
 					size.y = prev.y - pmt + mt;
 				}
 			} else {
-				size.x = child.x;
-				size.y = child.y;
+				size.x = child.x + ml;
+				size.y = child.y + mt;// + pma + mbe;
 			}
 			
 			size.width += mr;
@@ -268,12 +284,6 @@ package org.tinytlf.html
 					
 					// This child is fully rendered. Are we?
 					
-					// Should we keep rendering?
-					if(continueRendering == false) {
-						dispatchEvent(validateEvent(false));
-						return;
-					}
-					
 					// We know we're done rendering children when our last child
 					// reports that it's fully rendered.
 					const childrenRendered:Boolean = child.index == lastIndex;
@@ -287,9 +297,23 @@ package org.tinytlf.html
 						// Report to our parent that we're fully rendered.
 						dispatchEvent(validateEvent(true));
 					} else {
+						
+						// Should we keep rendering?
+						if(continueRendering == false) {
+							unfinishedChild = null;
+							dispatchEvent(validateEvent(false));
+							return;
+						}
+						
 						// Do another layout pass, process the next child.
-						invalidate('nextChild');
-						// invalidateTimeout = setTimeout(partial(invalidate, 'nextChild'), 0);
+						// invalidate(rollingInvalidateFlag);
+						
+						++rollingElementIndex;
+						
+						if(invalidateTimeout > -1)
+							clearTimeout(invalidateTimeout);
+						
+						invalidateTimeout = setTimeout(partial(invalidate, rollingInvalidateFlag), 0);
 					}
 				}
 			};

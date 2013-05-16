@@ -19,6 +19,7 @@ package org.tinytlf.html
 	
 	import org.tinytlf.TTLFContainer;
 	import org.tinytlf.events.validateEvent;
+	import org.tinytlf.xml.readKey;
 	
 	import raix.interactive.Enumerable;
 	
@@ -80,6 +81,9 @@ package org.tinytlf.html
 			
 			const node:XML = XML(content);
 			
+			const key:String = readKey(node);
+			trace(key);
+			
 			// TODO: Refactor this to use a static TextBlock and TextLine, to
 			// pull the TextLine's BitmapData immediately, and only render the
 			// lines in the viewport.
@@ -114,8 +118,11 @@ package org.tinytlf.html
 				}).
 				toArray();
 			
-			const w:Number = max(children, 'width') as Number;
-			const h:Number = sum(pluck(children, 'height')) + (leading * (numChildren - 1));
+			const w:Number = viewport.width;
+			const h:Number = (lineHeight == lineHeight ?
+				Math.max(children.length, 1) * lineHeight :
+				sum(pluck(children, 'height'))
+			) + (leading * (numChildren - 1));
 			
 			setSizeInternal(w, h, false);
 			

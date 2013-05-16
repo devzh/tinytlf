@@ -1,18 +1,14 @@
 package org.tinytlf
 {
 	import asx.array.forEach;
-	import asx.array.zip;
 	import asx.events.once;
 	import asx.fn.K;
-	import asx.fn.apply;
 	import asx.fn.aritize;
 	import asx.fn.memoize;
 	import asx.fn.partial;
 	import asx.fn.sequence;
 	import asx.fn.setProperty;
-	import asx.object.keys;
 	import asx.object.newInstance;
-	import asx.object.values;
 	
 	import flash.events.Event;
 	import flash.geom.Point;
@@ -27,6 +23,7 @@ package org.tinytlf
 	import org.tinytlf.html.Container;
 	import org.tinytlf.html.Paragraph;
 	import org.tinytlf.html.TableCell;
+	import org.tinytlf.html.TableRow;
 	import org.tinytlf.html.br_inline;
 	import org.tinytlf.html.span;
 	import org.tinytlf.html.style;
@@ -69,6 +66,12 @@ package org.tinytlf
 				setProperty('createChild', invokeBlockParser)
 			), readKey);
 			
+			const tableRowUIFactory:Function = memoize(sequence(
+				classFactory(TableRow),
+				setProperty('css', _css),
+				setProperty('createChild', invokeBlockParser)
+			), readKey);
+			
 			const paragraphUIFactory:Function = memoize(sequence(
 				classFactory(Paragraph),
 				setProperty('css', _css),
@@ -79,6 +82,7 @@ package org.tinytlf
 			
 			const containerFactory:Function = factoryFactory(containerUIFactory);
 			const tableCellFactory:Function = factoryFactory(tableCellUIFactory);
+			const tableRowFactory:Function = factoryFactory(tableRowUIFactory);
 			const paragraphFactory:Function = factoryFactory(paragraphUIFactory);
 			const brBlockFactory:Function = factoryFactory(brBlockUIFactory);
 			const styleFactory:Function = partial(style, _css);
@@ -86,8 +90,9 @@ package org.tinytlf
 			const textFactory:Function = partial(text, _css);
 			
 			addBlockParser(containerFactory, 'html', 'body', 'article', 'div',
-				'footer', 'header', 'section', 'table', 'tbody', 'tr').
+				'footer', 'header', 'section', 'table', 'tbody').
 			
+			addBlockParser(tableRowFactory, 'tr').
 			addBlockParser(tableCellFactory, 'td').
 			
 			addBlockParser(styleFactory, 'style').
@@ -98,7 +103,7 @@ package org.tinytlf
 			addInlineParser(textFactory, 'text').
 			
 			// TODO: write head and style parsers
-			addBlockParser(K(null), 'head', 'colgroup', 'object').
+			addBlockParser(K(null), 'head', 'colgroup', 'img', 'object').
 //			addBlockParser(brBlockFactory, 'head', 'colgroup', 'object').
 			
 			addBlockParser(brBlockFactory, 'br').
@@ -113,6 +118,7 @@ package org.tinytlf
 		
 		public function set css(value:*):void {
 			_css.inject(value);
+			tryRenderBuffer = true;
 		}
 		
 		private var _html:XML = <html/>;
@@ -125,6 +131,7 @@ package org.tinytlf
 		public function set html(value:*):void {
 			_html = toXML(value);
 			htmlChanged = true;
+			tryRenderBuffer = true;
 			invalidateDisplayList();
 		}
 		
@@ -137,10 +144,6 @@ package org.tinytlf
 			context.supportHighResolutions = true;
 			context.addEventListener(starling.events.Event.ROOT_CREATED, aritize(invalidateDisplayList, 0));
 			context.start();
-		}
-		
-		override protected function createChildren():void {
-			super.createChildren();
 		}
 		
 		override protected function updateDisplayList(w:Number, h:Number):void {
@@ -176,14 +179,31 @@ package org.tinytlf
 				htmlChanged = true;
 			}
 			
-			if(htmlChanged || viewportChanged || w != window.width) {
+			if(w != cWidth) {
+				tryRenderBuffer = true;
+				viewportChanged = true;
+			}
+			
+			// Shouldn't try to make the viewport render more content, just
+			// update the scrolling-related properties.
+			if(viewportChanged) {
 				window.x = -hsp;
 				window.y = -vsp;
+				window.clipRect = new Rectangle(hsp, vsp, w, h);
+			}
+			
+			if(htmlChanged || (viewportChanged && tryRenderBuffer && !isRendering)) {
+				
+				// Temp
+				cWidth = w;
+				
+				isRendering = true;
+				tryRenderBuffer = false;
+				
+				if(htmlChanged) window.content = html;
 				
 				window.clipRect = null;
-				
-				window.content = html;
-				window.viewport = new Rectangle(hsp, vsp, w, h + 500);
+				window.viewport = new Rectangle(hsp, vsp, w, h + buffer);
 				
 				const listener:Function = function(...args):void {
 					
@@ -202,6 +222,8 @@ package org.tinytlf
 					}
 					
 					window.clipRect = clip;
+					
+					isRendering = false;
 				};
 				
 				window.addEventListener(validateEventType, listener);
@@ -209,6 +231,21 @@ package org.tinytlf
 			
 			viewportChanged = false;
 			htmlChanged = false;
+		}
+		
+		private var tryRenderBuffer:Boolean = true;
+		private var isRendering:Boolean = false;
+		private var buffer:Number = 500;
+		public function get renderBuffer():Number {
+			return buffer;
+		}
+		
+		public function set renderBuffer(value:Number):void {
+			if(value == buffer) return;
+			
+			buffer = value;
+			invalidateDisplayList();
+			viewportChanged = true;
 		}
 		
 		private var cWidth:Number = 0;
@@ -233,6 +270,7 @@ package org.tinytlf
 //			if(value >= cWidth - width) return;
 			
 			hsp = value;
+			tryRenderBuffer = (hsp + width >= cWidth);
 			viewportChanged = true;
 			invalidateDisplayList();
 		}
@@ -247,6 +285,8 @@ package org.tinytlf
 //			if(value >= cHeight - height) return;
 			
 			vsp = value;
+			
+			tryRenderBuffer = (vsp + height >= cHeight);
 			viewportChanged = true;
 			invalidateDisplayList();
 		}
