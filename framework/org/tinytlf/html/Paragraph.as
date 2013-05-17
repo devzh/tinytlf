@@ -2,7 +2,6 @@ package org.tinytlf.html
 {
 	import asx.array.last;
 	import asx.array.map;
-	import asx.array.max;
 	import asx.array.pluck;
 	import asx.fn.I;
 	import asx.fn.K;
@@ -71,7 +70,11 @@ package org.tinytlf.html
 		}
 		
 		override public function size(w:Number, h:Number):void {
-			if(w != width) invalidate('cached');
+			if(w != width) {
+				invalidate('cached');
+			} else if(h != height) {
+				h = calcHeight();
+			}
 			
 			super.size(w, h);
 		}
@@ -88,14 +91,15 @@ package org.tinytlf.html
 			// lines in the viewport.
 			const block:TextBlock = new TextBlock(createElement(node));
 			
+			const inner:Rectangle = innerBounds;
 			const lineHeight:Number = getStyle('lineHeight');
 			const leading:Number = getStyle('leading') || 0;
-			const textIndent:Number = getStyle('textIndent') || 0;
+			const textIndent:Number = (getStyle('textIndent') || 0) + inner.x;
 			
 			children = Enumerable.generate(0, K(true), I, I).
-				scan([0, null], guard(apply(function(h:Number, last:TextLine):Array {
+				scan([inner.y, null], guard(apply(function(h:Number, last:TextLine):Array {
 					
-					const w:Number = last == null ? width - textIndent : width;
+					const w:Number = last == null ? inner.width - textIndent : inner.width;
 					const line:TextLine = block.createTextLine(last, w);
 					
 					if(line) {
@@ -103,6 +107,7 @@ package org.tinytlf.html
 						line.y = h;
 						
 						if(line.previousLine == null) line.x = textIndent;
+						else line.x = inner.x;
 						
 						if(lineHeight == lineHeight) return [h + lineHeight + leading, line];
 						
@@ -118,14 +123,25 @@ package org.tinytlf.html
 				toArray();
 			
 			const w:Number = width;
-			const h:Number = (lineHeight == lineHeight ?
-				Math.max(children.length, 1) * lineHeight :
-				sum(pluck(children, 'height'))
-			) + (leading * (numChildren - 1));
+			const h:Number = calcHeight();
 			
-			size(w, h);
+			super.size(w, h);
 			
 			dispatchEvent(renderEvent(true));
+		}
+		
+		private function calcHeight():Number {
+			
+			const lineHeight:Number = getStyle('lineHeight');
+			const leading:Number = getStyle('leading') || 0;
+			
+			const spaces:Number = (leading * (numChildren - 1));
+			
+			if(lineHeight == lineHeight) {
+				return (Math.max(children.length, 1) * lineHeight) + leading;
+			}
+			
+			return sum(pluck(children, 'height')) + leading;
 		}
 	}
 }

@@ -68,11 +68,13 @@ package org.tinytlf.html
 		protected const cache:HRTree = new HRTree();
 		
 		public function get renderedWidth():Number {
-			return cache.mbr.width;
+			// return cache.mbr.width;
+			return cache.mbr.right;
 		}
 		
 		public function get renderedHeight():Number {
-			return cache.mbr.height;
+			// return cache.mbr.height;
+			return cache.mbr.bottom;
 		}
 		
 		private static const viewportHelper:Rectangle = new Rectangle();
@@ -154,7 +156,7 @@ package org.tinytlf.html
 					// The child should set its CSS style properties here.
 					child.content = node;
 					
-					const approxSize:Point = approximateSize(approxPosition, child);
+					const approxSize:Point = approximateSize(child);
 					child.size(approxSize.x, approxSize.y);
 					
 					const approxPosition:Point = approximateLayout(prev, child);
@@ -200,7 +202,7 @@ package org.tinytlf.html
 					
 					const childrenRendered:Boolean = unfinishedChild == null && lastIndex >= elements.length() - 1;
 					
-					actualWidth = hasStyle('width') ? getStyle('width') : renderedWidth;
+					actualWidth = hasStyle('width') ? getStyle('width') : Math.max(renderedWidth, actualWidth);
 					actualHeight = hasStyle('height') ? getStyle('height') : renderedHeight;
 					
 					// TODO: Skinning
@@ -216,36 +218,37 @@ package org.tinytlf.html
 			const display:String = child.getStyle('display') || 'block';
 			const float:String = child.getStyle('float') || 'none';
 			
-			const p:Number = getStyle('padding') || 0;
-			const pl:Number = getStyle('paddingLeft') || p;
-			const pt:Number = getStyle('paddingTop') || p;
+			const inner:Rectangle = innerBounds;
 			
 			if(float == 'left' || display == 'inline-block' || display == 'inline') {
 				
-				if(prev == null) return new Point(0, pt);
+				if(prev == null) return new Point(inner.x, inner.y);
 				
-				if(prev.right + size.width > width) return new Point(0, prev.bottom);
+				if(prev.right + size.width > inner.width) return new Point(inner.x, prev.bottom);
 				
 				return new Point(prev.right, prev.y);
 			
 			} else if(float == 'right') {
 				
-				if(prev == null) return new Point(width - size.width, pt);
+				if(prev == null) return new Point(inner.width - size.width, inner.y);
 				
-				if(prev.x - size.width < 0) return new Point(width - size.width, prev.bottom);
+				if(prev.x - size.width < 0) return new Point(inner.width - size.width, prev.bottom);
 				
 				return new Point(prev.x - size.width, prev.y);
 			}
 			
-			return new Point(pl, prev ? prev.bottom : pt);
+			return new Point(inner.x, prev ? prev.bottom : inner.y);
 		}
 		
-		protected function approximateSize(position:Point, child:TTLFBlock):Point {
+		protected function approximateSize(child:TTLFBlock):Point {
 			
-			const pr:Number = getStyle('paddingRight') || getStyle('padding') || 0;
+			const inner:Rectangle = innerBounds;
 			
-			const w:Number = child.hasStyle('width') ? child.getStyle('width') : width - pr;
-			const h:Number = child.hasStyle('height') ? child.getStyle('height') : height;
+			const w:Number = child.hasStyle('width') ?
+				child.getStyle('width') :
+				inner.width;// - child['marginLeft'] - child['marginRight'];
+			
+			const h:Number = child.hasStyle('height') ? child.getStyle('height') : inner.height;
 			
 			return new Point(w, h);
 		}
@@ -263,12 +266,7 @@ package org.tinytlf.html
 			const display:String = child.getStyle('display') || 'block';
 			const float:String = child.getStyle('float') || 'none';
 			
-			const m:Number = child.getStyle('margin') || 0;
-			const mbe:Number = sibling ? child.getStyle('marginBefore') || 0 : 0;
-			
-			if(display == 'block' && float == 'none') {
-				size.y += mbe;
-			} else {
+			if(display != 'block' || float != 'none') {
 				const p:Point = approximateLayout(prev, child);
 				size.x = p.x;
 				size.y = p.y;

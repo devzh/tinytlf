@@ -118,6 +118,30 @@ package org.tinytlf.html
 			dispatchEvent(renderEvent(true));
 		}
 		
+		public function get innerBounds():Rectangle {
+			
+			const area:Rectangle = bounds;
+			
+			area.x = paddingLeft;
+			area.y = paddingTop;
+			area.width -= (paddingLeft + paddingRight);
+			area.bottom -= (paddingTop + paddingBottom);
+			
+			return area;
+		}
+		
+//		public function get outerBounds():Rectangle {
+//			
+//			const area:Rectangle = bounds;
+//			
+//			area.x -= marginLeft;
+//			area.y -= marginTop;
+//			area.width += (marginLeft + marginRight);
+//			area.height += (marginTop + marginBottom);
+//			
+//			return area;
+//		}
+		
 		public function get marginLeft():Number {
 			return getStyle('marginLeft') || getStyle('margin') || 0;
 		}

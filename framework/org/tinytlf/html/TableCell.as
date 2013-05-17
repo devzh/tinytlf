@@ -25,7 +25,9 @@ package org.tinytlf.html
 			
 			const cellWidth:Number = getCellWidth(colgroup.col, tr.td, index);
 			
-			if(cellWidth == cellWidth) setStyle('width', cellWidth);
+			if(cellWidth == cellWidth) {
+				actualWidth = cellWidth;
+			}
 			
 			super.draw();
 		}
