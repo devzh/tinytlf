@@ -18,7 +18,6 @@ package org.tinytlf.html
 	
 	import org.tinytlf.TTLFContainer;
 	import org.tinytlf.events.renderEvent;
-	import org.tinytlf.xml.readKey;
 	
 	import raix.interactive.Enumerable;
 	
@@ -82,9 +81,6 @@ package org.tinytlf.html
 		override protected function draw():void {
 			
 			const node:XML = XML(content);
-			
-			const key:String = readKey(node);
-			trace(key);
 			
 			// TODO: Refactor this to use a static TextBlock and TextLine, to
 			// pull the TextLine's BitmapData immediately, and only render the

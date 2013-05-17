@@ -21,7 +21,6 @@ package org.tinytlf.html
 	import org.tinytlf.events.fromStarlingEvent;
 	import org.tinytlf.events.renderEvent;
 	import org.tinytlf.events.renderEventType;
-	import org.tinytlf.xml.readKey;
 	
 	import raix.interactive.IEnumerable;
 	import raix.interactive.toEnumerable;
@@ -108,9 +107,6 @@ package org.tinytlf.html
 			if(hasStyle('height')) actualHeight = getStyle('height');
 			
 			const node:XML = XML(content);
-			
-			const key:String = readKey(node);
-			trace(key);
 			
 			const elements:XMLList = node.elements();
 			
