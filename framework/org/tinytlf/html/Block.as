@@ -117,5 +117,37 @@ package org.tinytlf.html
 			
 			dispatchEvent(renderEvent(true));
 		}
+		
+		public function get marginLeft():Number {
+			return getStyle('marginLeft') || getStyle('margin') || 0;
+		}
+		
+		public function get marginRight():Number {
+			return getStyle('marginRight') || getStyle('margin') || 0;
+		}
+		
+		public function get marginTop():Number {
+			return getStyle('marginTop') || getStyle('margin') || 0;
+		}
+		
+		public function get marginBottom():Number {
+			return getStyle('marginBottom') || getStyle('margin') || 0;
+		}
+		
+		public function get paddingLeft():Number {
+			return getStyle('paddingLeft') || getStyle('padding') || 0;
+		}
+		
+		public function get paddingRight():Number {
+			return getStyle('paddingRight') || getStyle('padding') || 0;
+		}
+		
+		public function get paddingTop():Number {
+			return getStyle('paddingTop') || getStyle('padding') || 0;
+		}
+		
+		public function get paddingBottom():Number {
+			return getStyle('paddingBottom') || getStyle('padding') || 0;
+		}
 	}
 }
