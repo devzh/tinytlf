@@ -1,16 +1,16 @@
 package org.tinytlf
 {
-	import feathers.core.IFeathersControl;
-	
 	import flash.geom.Rectangle;
 
-	public interface TTLFBlock extends IFeathersControl
+	public interface TTLFBlock
 	{
+		function get bounds():Rectangle;
 		function set content(value:*):void;
-		
 		function get index():int;
 		
-		function set viewport(value:Rectangle):void;
+		function move(x:Number, y:Number):void;
+		function size(width:Number, height:Number):void;
+		function scroll(x:Number, y:Number):void;
 		
 		function isInvalid(flag:String = null):Boolean;
 		

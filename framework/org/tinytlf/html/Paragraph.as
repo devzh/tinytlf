@@ -18,7 +18,7 @@ package org.tinytlf.html
 	import flash.text.engine.TextLineCreationResult;
 	
 	import org.tinytlf.TTLFContainer;
-	import org.tinytlf.events.validateEvent;
+	import org.tinytlf.events.renderEvent;
 	import org.tinytlf.xml.readKey;
 	
 	import raix.interactive.Enumerable;
@@ -70,11 +70,10 @@ package org.tinytlf.html
 			flatten();
 		}
 		
-		override public function set viewport(value:Rectangle):void {
-			if(value.width != viewport.width)
-				invalidate('cached');
+		override public function size(w:Number, h:Number):void {
+			if(w != width) invalidate('cached');
 			
-			super.viewport = value;
+			super.size(w, h);
 		}
 		
 		override protected function draw():void {
@@ -96,7 +95,7 @@ package org.tinytlf.html
 			children = Enumerable.generate(0, K(true), I, I).
 				scan([0, null], guard(apply(function(h:Number, last:TextLine):Array {
 					
-					const w:Number = last == null ? viewport.width - textIndent : viewport.width;
+					const w:Number = last == null ? width - textIndent : width;
 					const line:TextLine = block.createTextLine(last, w);
 					
 					if(line) {
@@ -118,15 +117,15 @@ package org.tinytlf.html
 				}).
 				toArray();
 			
-			const w:Number = viewport.width;
+			const w:Number = width;
 			const h:Number = (lineHeight == lineHeight ?
 				Math.max(children.length, 1) * lineHeight :
 				sum(pluck(children, 'height'))
 			) + (leading * (numChildren - 1));
 			
-			setSizeInternal(w, h, false);
+			size(w, h);
 			
-			dispatchEvent(validateEvent(true));
+			dispatchEvent(renderEvent(true));
 		}
 	}
 }

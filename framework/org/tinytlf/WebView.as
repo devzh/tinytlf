@@ -18,7 +18,7 @@ package org.tinytlf
 	import mx.core.UIComponent;
 	import mx.events.PropertyChangeEvent;
 	
-	import org.tinytlf.events.validateEventType;
+	import org.tinytlf.events.renderEventType;
 	import org.tinytlf.html.Break;
 	import org.tinytlf.html.Container;
 	import org.tinytlf.html.Paragraph;
@@ -187,8 +187,7 @@ package org.tinytlf
 			// Shouldn't try to make the viewport render more content, just
 			// update the scrolling-related properties.
 			if(viewportChanged) {
-				window.x = -hsp;
-				window.y = -vsp;
+				window.move(-hsp, -vsp);
 				window.clipRect = new Rectangle(hsp, vsp, w, h);
 			}
 			
@@ -203,11 +202,12 @@ package org.tinytlf
 				if(htmlChanged) window.content = html;
 				
 				window.clipRect = null;
-				window.viewport = new Rectangle(hsp, vsp, w, h + buffer);
+				window.size(w, h + buffer);
+				window.scroll(hsp, vsp);
 				
 				const listener:Function = function(...args):void {
 					
-					window.removeEventListener(validateEventType, listener);
+					window.removeEventListener(renderEventType, listener);
 					
 					const clip:Rectangle = new Rectangle(hsp, vsp, window.width, window.height);
 					
@@ -226,7 +226,7 @@ package org.tinytlf
 					isRendering = false;
 				};
 				
-				window.addEventListener(validateEventType, listener);
+				window.addEventListener(renderEventType, listener);
 			}
 			
 			viewportChanged = false;

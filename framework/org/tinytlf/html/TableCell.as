@@ -23,11 +23,9 @@ package org.tinytlf.html
 			const table:XML = (tbody.localName() == 'table') ? tbody : tbody.parent();
 			const colgroup:XML = table.colgroup[0];
 			
-			const width:Number = getCellWidth(colgroup.col, tr.td, index);
+			const cellWidth:Number = getCellWidth(colgroup.col, tr.td, index);
 			
-			if(width == width) {
-				viewport.width = width;
-			}
+			if(cellWidth == cellWidth) setStyle('width', cellWidth);
 			
 			super.draw();
 		}

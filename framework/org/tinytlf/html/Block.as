@@ -7,11 +7,12 @@ package org.tinytlf.html
 	
 	import feathers.core.FeathersControl;
 	
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
 	import org.tinytlf.CSS;
 	import org.tinytlf.TTLFBlock;
-	import org.tinytlf.events.validateEvent;
+	import org.tinytlf.events.renderEvent;
 	import org.tinytlf.xml.mergeAttributes;
 	import org.tinytlf.xml.readKey;
 	import org.tinytlf.xml.wrapTextNodes;
@@ -92,26 +93,29 @@ package org.tinytlf.html
 			}
 		}
 		
-		private var _viewport:Rectangle = emptyRect;
-		
-		public function get viewport():Rectangle {
-			return _viewport;
+		public function move(x:Number, y:Number):void {
+			this.x = x;
+			this.y = y;
 		}
 		
-		public function set viewport(value:Rectangle):void {
-			if(viewport.equals(value)) return;
-			
-			_viewport = value.clone();
-		}
-		
-		override public function setSize(width:Number, height:Number):void {
+		public function size(width:Number, height:Number):void {
 			setSizeInternal(width, height, false);
+		}
+		
+		protected var scrollX:Number = 0;
+		protected var scrollY:Number = 0;
+		
+		public function scroll(x:Number, y:Number):void {
+			if(scrollX != x || scrollY != y) invalidate('incomplete');
+			
+			scrollX = x;
+			scrollY = y;
 		}
 		
 		override protected function draw():void {
 			super.draw();
 			
-			dispatchEvent(validateEvent(true));
+			dispatchEvent(renderEvent(true));
 		}
 	}
 }

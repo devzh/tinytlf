@@ -11,7 +11,7 @@ package org.tinytlf.html
 			super();
 		}
 		
-		override protected function continueRender(viewport:Rectangle, child:TTLFBlock):Boolean {
+		override protected function continueRender(child:TTLFBlock):Boolean {
 			return true;
 		}
 	}

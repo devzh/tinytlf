@@ -5,21 +5,32 @@ package org.tinytlf.html
 	import asx.array.last;
 	import asx.array.len;
 	import asx.array.pluck;
-	import asx.fn.partial;
+	import asx.fn.I;
+	import asx.fn.K;
+	import asx.fn.apply;
+	import asx.fn.distribute;
+	import asx.fn.getProperty;
+	import asx.fn.ifElse;
+	import asx.fn.sequence;
 	
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
-	import flash.utils.clearTimeout;
-	import flash.utils.setTimeout;
 	
 	import org.tinytlf.TTLFBlock;
 	import org.tinytlf.TTLFContainer;
-	import org.tinytlf.events.validateEvent;
-	import org.tinytlf.events.validateEventType;
+	import org.tinytlf.events.fromStarlingEvent;
+	import org.tinytlf.events.renderEvent;
+	import org.tinytlf.events.renderEventType;
 	import org.tinytlf.xml.readKey;
 	
+	import raix.interactive.IEnumerable;
+	import raix.interactive.toEnumerable;
+	import raix.reactive.IObservable;
+	import raix.reactive.Observable;
+	import raix.reactive.scheduling.Scheduler;
+	
 	import starling.display.DisplayObject;
-	import starling.events.Event;
+	import starling.events.EventDispatcher;
 	
 	import trxcllnt.ds.HRTree;
 	
@@ -30,17 +41,22 @@ package org.tinytlf.html
 			super();
 		}
 		
-		override public function set viewport(value:Rectangle):void {
-			if(viewport.equals(emptyRect))
+		override public function size(w:Number, h:Number):void {
+			if(width == 0) {
 				invalidate('incomplete');
-			else if(value.width != viewport.width) {
-				rollingElementIndex = 0;
+			} else if(w != width) {
 				invalidate('cached');
-			}
-			else if(value.bottom > height || unfinishedChild)
+			} else if(h > height) {
 				invalidate('incomplete');
+			}
 			
-			super.viewport = value;
+			super.size(w, h);
+		}
+		
+		override public function scroll(x:Number, y:Number):void {
+			if(unfinishedChild) invalidate('incomplete');
+			
+			super.scroll(x, y);
 		}
 		
 		// NOTE: I'm not actually using SwiftSuspenders to inject this value,
@@ -59,37 +75,35 @@ package org.tinytlf.html
 			return cache.mbr.height;
 		}
 		
-		protected function cachedItems(area:Rectangle):Array {
-			const cached:Array = pluck(cache.search(area), 'item');
+		private static const viewportHelper:Rectangle = new Rectangle();
+		
+		protected function cachedItems():Array {
+			viewportHelper.setTo(scrollX, scrollY, width, height);
+			const cached:Array = pluck(cache.search(viewportHelper), 'item');
 			cached.sortOn('index', Array.NUMERIC);
 			return cached;
 		}
 		
-		protected function continueRender(viewport:Rectangle, child:TTLFBlock):Boolean {
+		protected function continueRender(child:TTLFBlock):Boolean {
 			if(cache.hasItem(child)) {
 				// If the element is cached and it intersects with the
 				// viewport, render it.
-				return viewport.intersects(cache.getBounds(child));
+				
+				const size:Rectangle = cache.getBounds(child);
+				return size.y <= scrollY + height;
 			}
 			
 			// If there's still room in the viewport, render the next element.
-			return cache.mbr.bottom <= viewport.bottom;
+			return cache.mbr.bottom <= scrollY + height;
 		};
 		
 		private var unfinishedChild:TTLFBlock;
-		private var rollingInvalidateFlag:String = 'incomplete';
-		private var rollingElementIndex:int = 0;
-		private var invalidateTimeout:int = -1;
 		
 		override protected function draw():void {
 			
-			if(invalidateTimeout > -1) {
-				clearTimeout(invalidateTimeout);
-				invalidateTimeout = -1;
-			}
-			
-			if(hasStyle('width')) viewport.width = getStyle('width');
-			if(hasStyle('height')) viewport.height = getStyle('height');
+			// If styles have set an explicit width or height, use that instead.
+			if(hasStyle('width')) actualWidth = getStyle('width');
+			if(hasStyle('height')) actualHeight = getStyle('height');
 			
 			const node:XML = XML(content);
 			
@@ -98,117 +112,151 @@ package org.tinytlf.html
 			
 			const elements:XMLList = node.elements();
 			
-			const cached:Array = cachedItems(viewport);
+			const cached:Array = cachedItems();
 			
-			// var elementIndex:int = 0;
-			var elementIndex:int = rollingElementIndex;
+			var startIndex:int = 0;
 			
 			const processCached:Boolean = ('cached' in _invalidationFlags);
-			
-			rollingInvalidateFlag = processCached ? 'cached' : 'incomplete';
-			
-			// The child iteration index can be out of sync with the 
-			// display list index, because some XML elements don't
-			// create block-level representations of themselves.
-			var displayListIndex:int = 0;
 			
 			// Figure out which child to start processing at.
 			if(processCached) {
 				// If the size of the viewport changed such that the existing
 				// children need to be re-rendered, start from the index of the
 				// first visible child.
-				
-				elementIndex = Math.max(first(cached).index, rollingElementIndex);
-				displayListIndex = getChildIndex(detect(children, function(child:TTLFBlock):Boolean {
-					return child.index == elementIndex;
-				}) as DisplayObject);
+				startIndex = len(cached) ? first(cached).index : 0;
 			} else if(unfinishedChild) {
 				// Else, if there's any children that didn't finish rendering,
 				// start rendering there.
-				elementIndex = unfinishedChild.index;
-				displayListIndex = getChildIndex(unfinishedChild as DisplayObject);
+				startIndex = unfinishedChild.index;
 			} else if(len(cached) > 0) {
 				// If all our children are finished rendering, start rendering
 				// from the last successfully rendered visible child.
-				elementIndex = last(cached).index + 1;
-				displayListIndex = getChildIndex(last(cached) as DisplayObject) + 1;
+				startIndex = last(cached).index + 1;
 			} else {
 				// In the default case, pick up from where we left off.
-				elementIndex = displayListIndex = numChildren;
+				startIndex = numChildren;
 			}
 			
-			while(elementIndex < elements.length()) {
+			const enumerable:IEnumerable = toEnumerable(elements, startIndex).
+				map(distribute(I, createChild)).
+				// Only take non-null children
+				filter(last).
+				// Stop if we iterate past our boundaries.
+				takeWhile(sequence(last, continueRender)).
+				// Add the child
+				map(distribute(first, sequence(last, ifElse(contains, I, addChild)))).
+				// Create an Observable that waits until the child is rendered.
+				map(apply(function(node:XML, child:TTLFBlock):IObservable{
+					
+					const index:int = getChildIndex(child as DisplayObject);
+					const prev:Rectangle = (index > 0) ? getChildAt(index - 1).bounds : null;
+					
+					// The child should set its CSS style properties here.
+					child.content = node;
+					
+					const approxSize:Point = approximateSize(approxPosition, child);
+					child.size(approxSize.x, approxSize.y);
+					
+					const approxPosition:Point = approximateLayout(prev, child);
+					child.move(approxPosition.x, approxPosition.y);
+					
+					const approxScroll:Point = approximateScroll(approxPosition);
+					child.scroll(approxScroll.x, approxScroll.y);
+					
+					if(child.isInvalid() == false) {
+						cache.update(child.bounds, child);
+						// Cool! No waiting required.
+						return Observable.value([true, child]);
+					}
+					
+					// Wait for the child to validate.
+					return fromStarlingEvent(child as EventDispatcher, renderEventType).
+						map(distribute(getProperty('data'), K(child))).
+						observeOn(Scheduler.asynchronous).
+						take(1);
+				}));
+			
+			enumerable.concatMany().
+				// Stop at the first child that doesn't complete rendering.
+				takeWhile(apply(function(rendered:Boolean, child:TTLFBlock):Boolean {
+					
+					const area:Rectangle = finalizeDimensions(firstPreviousSibling(child), child);
+					child.move(area.x, area.y);
+					child.size(area.width, area.height);
+					
+					cache.update(area, child);
+					
+					if(rendered == false)
+						unfinishedChild = child;
+					
+					return rendered;
+				})).
+				subscribe(function(...args):void {
+					unfinishedChild = null;
+				},
+				function():void {
+					
+					const lastIndex:int = numChildren > 0 ? last(children).index : -1;
+					
+					const childrenRendered:Boolean = unfinishedChild == null && lastIndex >= elements.length() - 1;
+					
+					actualWidth = hasStyle('width') ? getStyle('width') : renderedWidth;
+					actualHeight = hasStyle('height') ? getStyle('height') : renderedHeight;
+					
+					// TODO: Skinning
+					const skinRendered:Boolean = true;
+					
+					dispatchEvent(renderEvent(childrenRendered && skinRendered));
+				});
+		}
+		
+		protected function approximateLayout(prev:Rectangle, child:TTLFBlock):Point {
+			
+			const size:Rectangle = child.bounds.clone();
+			const display:String = child.getStyle('display') || 'block';
+			const float:String = child.getStyle('float') || 'none';
+			
+			const p:Number = getStyle('padding') || 0;
+			const pl:Number = getStyle('paddingLeft') || p;
+			const pt:Number = getStyle('paddingTop') || p;
+			
+			if(float == 'left' || display == 'inline-block' || display == 'inline') {
 				
-				const prev:Rectangle = (displayListIndex > 0) ?
-					getChildAt(displayListIndex - 1).bounds :
-					emptyRect;
+				if(prev == null) return new Point(0, pt);
 				
-				const child:TTLFBlock = createChild(elements[elementIndex]);
+				if(prev.right + size.width > width) return new Point(0, prev.bottom);
 				
-				// The createChild function can return null for a DisplayObject,
-				// for example, if it's a <style/> block, or some other node
-				// with no Block-level representation.
-				// If the createChild function didn't return a DisplayObject
-				// instance for the node, process the next node.
-				if(child == null) {
-					++elementIndex;
-					continue;
-				}
+				return new Point(prev.right, prev.y);
+			
+			} else if(float == 'right') {
 				
-				if(contains(child as DisplayObject) == false)
-					addChild(child as DisplayObject);
+				if(prev == null) return new Point(width - size.width, pt);
 				
-				// The child should set its CSS style properties here.
-				child.content = elements[elementIndex];
+				if(prev.x - size.width < 0) return new Point(width - size.width, prev.bottom);
 				
-				const position:Point = approximateLayout(prev, child, viewport);
-				const maybeSize:Rectangle = approximateSize(position, child, viewport);
-				
-				child.x = position.x;
-				child.y = position.y;
-				child.viewport = maybeSize;
-				
-				// Does the child need to validate?
-				// If not, process the next child.
-				if(child.isInvalid() == false) {
-					cache.update(child.bounds, child);
-					++displayListIndex;
-					++elementIndex;
-					continue;
-				}
-				
-				// If so, wait for this one to validate before processing the next one.
-				child.addEventListener(validateEventType, childValidationListener(child, elements.length() - 1));
-				
-				break;
+				return new Point(prev.x - size.width, prev.y);
 			}
 			
-			if(elementIndex >= elements.length()) {
-				dispatchEvent(validateEvent(true));
-			}
+			return new Point(pl, prev ? prev.bottom : pt);
 		}
 		
-		protected function approximateLayout(prev:Rectangle, child:TTLFBlock, viewport:Rectangle):Point {
-			return new Point(viewport.x, prev.bottom);
+		protected function approximateSize(position:Point, child:TTLFBlock):Point {
+			
+			const pr:Number = getStyle('paddingRight') || getStyle('padding') || 0;
+			
+			const w:Number = child.hasStyle('width') ? child.getStyle('width') : width - pr;
+			const h:Number = child.hasStyle('height') ? child.getStyle('height') : height;
+			
+			return new Point(w, h);
 		}
 		
-		protected function approximateSize(position:Point, child:TTLFBlock, viewport:Rectangle):Rectangle {
-			return new Rectangle(
-				Math.max(viewport.x - position.x, 0),
-				Math.max(viewport.y - position.y, 0),
-				viewport.right - position.x,
-//				viewport.bottom - position.y
-//				viewport.width,
-				viewport.height
-			);
+		protected function approximateScroll(position:Point):Point {
+			return new Point(Math.max(scrollX - position.x, 0), Math.max(scrollY - position.y, 0));
 		}
 		
-		protected function finalizeDimensions(sibling:TTLFBlock, child:TTLFBlock, viewport:Rectangle):Rectangle {
+		protected function finalizeDimensions(sibling:TTLFBlock, child:TTLFBlock):Rectangle {
 			
 			const prev:Rectangle = sibling ? sibling.bounds : emptyRect;
-			const pm:Number  = sibling ? sibling.getStyle('margin')		|| 0  : 0;
-			// const pma:Number = sibling ? sibling.getStyle('marginAfter')|| 0  : 0;
-			const pmt:Number = sibling ? sibling.getStyle('marginTop')	|| pm : 0;
 			
 			const size:Rectangle = child.bounds.clone();
 			
@@ -216,109 +264,17 @@ package org.tinytlf.html
 			const float:String = child.getStyle('float') || 'none';
 			
 			const m:Number = child.getStyle('margin') || 0;
-			const ml:Number = child.getStyle('marginLeft') || m;
-			const mt:Number = child.getStyle('marginTop') || m;
-			const mr:Number = child.getStyle('marginRight') || m;
-			const mb:Number = child.getStyle('marginBottom') || m;
-			// const mbe:Number = sibling ? child.getStyle('marginBefore') || 0 : 0;
+			const mbe:Number = sibling ? child.getStyle('marginBefore') || 0 : 0;
 			
-			if(float == 'left' || display == 'inline-block' || display == 'inline') {
-				if(prev.right + size.width + ml > viewport.right) {
-					size.x = viewport.x + ml;
-					size.y = prev.bottom + mt;
-				} else {
-					size.x = prev.right + ml;// + pma + mbe;
-					size.y = prev.y - pmt + mt;
-				}
-			} else if(float == 'right') {
-				if(prev.x - size.width - mr < viewport.left) {
-					size.x = viewport.right - size.width - mr;// - mbe;
-					size.y = prev.bottom + mt;
-				} else {
-					size.x = prev.x - size.width - mr;// - pma - mbe;
-					size.y = prev.y - pmt + mt;
-				}
+			if(display == 'block' && float == 'none') {
+				size.y += mbe;
 			} else {
-				size.x = child.x + ml;
-				size.y = child.y + mt;// + pma + mbe;
+				const p:Point = approximateLayout(prev, child);
+				size.x = p.x;
+				size.y = p.y;
 			}
 			
-			size.width += mr;
-			size.height += mb;
-			
 			return size;
-		}
-		
-		private function childValidationListener(child:TTLFBlock, lastIndex:int):Function {
-			
-			const listener:Function = function(childValidateEvent:Event):void {
-				
-				childValidateEvent.stopImmediatePropagation();
-				child.removeEventListener(validateEventType, listener);
-				
-				const rendered:Boolean = Boolean(childValidateEvent.data);
-				const continueRendering:Boolean = continueRender(viewport, child);
-				
-				const area:Rectangle = finalizeDimensions(firstPreviousSibling(child), child, viewport);
-				child.x = area.x;
-				child.y = area.y;
-				child.setSize(area.width, area.height);
-				
-				cache.update(area, child);
-				
-				setSize(renderedWidth, renderedHeight);
-				
-				if(rendered == false) {
-					
-					unfinishedChild = child;
-					
-					// Report to our parent that we're not fully rendered,
-					// because at least one of our children isn't. Don't cycle
-					// around for another layout pass until we have more space
-					// to re-validate this unfinished child.
-					dispatchEvent(validateEvent(false));
-				} else {
-					
-					if(child == unfinishedChild)
-						unfinishedChild = null;
-					
-					// This child is fully rendered. Are we?
-					
-					// We know we're done rendering children when our last child
-					// reports that it's fully rendered.
-					const childrenRendered:Boolean = child.index == lastIndex;
-					
-					// TODO: Skinning
-					const skinRendered:Boolean = true;
-					
-					const fullyRendered:Boolean = childrenRendered && skinRendered;
-					
-					if(fullyRendered) {
-						// Report to our parent that we're fully rendered.
-						dispatchEvent(validateEvent(true));
-					} else {
-						
-						// Should we keep rendering?
-						if(continueRendering == false) {
-							unfinishedChild = null;
-							dispatchEvent(validateEvent(false));
-							return;
-						}
-						
-						// Do another layout pass, process the next child.
-						// invalidate(rollingInvalidateFlag);
-						
-						++rollingElementIndex;
-						
-						if(invalidateTimeout > -1)
-							clearTimeout(invalidateTimeout);
-						
-						invalidateTimeout = setTimeout(partial(invalidate, rollingInvalidateFlag), 0);
-					}
-				}
-			};
-			
-			return listener;
 		}
 		
 		/**

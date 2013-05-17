@@ -2,10 +2,7 @@ package org.tinytlf.html
 {
 	import feathers.core.FeathersControl;
 	
-	import flash.geom.Rectangle;
-	
 	import org.tinytlf.TTLFBlock;
-	import org.tinytlf.events.validateEvent;
 	
 	public class Break extends FeathersControl implements TTLFBlock
 	{
@@ -14,19 +11,33 @@ package org.tinytlf.html
 			super();
 		}
 		
+		private var node:XML;
 		public function set content(value:*):void
 		{
+			if(value is XML) {
+				node = value;
+				_index = node.childIndex();
+			}
 		}
 		
+		private var _index:int = 0;
 		public function get index():int
 		{
-			return 0;
+			return _index;
 		}
 		
-		public function set viewport(value:Rectangle):void
+		public function move(x:Number, y:Number):void
 		{
-			setSizeInternal(value.width, 1, false);
+			this.x = x;
+			this.y = y;
 		}
+		
+		public function size(width:Number, height:Number):void
+		{
+			setSizeInternal(width, height, false);
+		}
+		
+		public function scroll(x:Number, y:Number):void {}
 		
 		public function getStyle(style:String):*
 		{
