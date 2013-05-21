@@ -21,7 +21,7 @@ package org.tinytlf
 	import org.tinytlf.events.renderEventType;
 	import org.tinytlf.html.Break;
 	import org.tinytlf.html.Container;
-	import org.tinytlf.html.Paragraph;
+	import org.tinytlf.html.PerfParagraph;
 	import org.tinytlf.html.TableCell;
 	import org.tinytlf.html.TableRow;
 	import org.tinytlf.html.br_inline;
@@ -73,7 +73,8 @@ package org.tinytlf
 			), readKey);
 			
 			const paragraphUIFactory:Function = memoize(sequence(
-				classFactory(Paragraph),
+				// classFactory(Paragraph),
+				classFactory(PerfParagraph),
 				setProperty('css', _css),
 				setProperty('createElement', invokeInlineParser)
 			), readKey);

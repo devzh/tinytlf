@@ -146,20 +146,10 @@ package org.tinytlf.html
 				// Create an Observable that waits until the child is rendered.
 				map(apply(function(node:XML, child:TTLFBlock):IObservable{
 					
-					const index:int = getChildIndex(child as DisplayObject);
-					const prev:Rectangle = (index > 0) ? getChildAt(index - 1).bounds : null;
-					
 					// The child should set its CSS style properties here.
 					child.content = node;
 					
-					const approxSize:Point = approximateSize(child);
-					child.size(approxSize.x, approxSize.y);
-					
-					const approxPosition:Point = approximateLayout(prev, child);
-					child.move(approxPosition.x, approxPosition.y);
-					
-					const approxScroll:Point = approximateScroll(approxPosition);
-					child.scroll(approxScroll.x, approxScroll.y);
+					approximateChild(node, child);
 					
 					if(child.isInvalid() == false) {
 						cache.update(child.bounds, child);
@@ -178,20 +168,14 @@ package org.tinytlf.html
 				// Stop at the first child that doesn't complete rendering.
 				takeWhile(apply(function(rendered:Boolean, child:TTLFBlock):Boolean {
 					
-					const area:Rectangle = finalizeDimensions(firstPreviousSibling(child), child);
-					child.move(area.x, area.y);
-					child.size(area.width, area.height);
-					
-					cache.update(area, child);
+					cache.update(finalizeChild(child), child);
 					
 					if(rendered == false)
 						unfinishedChild = child;
 					
 					return rendered;
 				})).
-				subscribe(function(...args):void {
-					unfinishedChild = null;
-				},
+				subscribe(function(...args):void { unfinishedChild = null; },
 				function():void {
 					
 					const lastIndex:int = numChildren > 0 ? last(children).index : -1;
@@ -206,6 +190,21 @@ package org.tinytlf.html
 					
 					dispatchEvent(renderEvent(childrenRendered && skinRendered));
 				});
+		}
+		
+		protected function approximateChild(node:XML, child:TTLFBlock):void {
+			
+			const index:int = getChildIndex(child as DisplayObject);
+			const prev:Rectangle = (index > 0) ? getChildAt(index - 1).bounds : null;
+			
+			const approxSize:Point = approximateSize(child);
+			child.size(approxSize.x, approxSize.y);
+			
+			const approxPosition:Point = approximateLayout(prev, child);
+			child.move(approxPosition.x, approxPosition.y);
+			
+			const approxScroll:Point = approximateScroll(approxPosition);
+			child.scroll(approxScroll.x, approxScroll.y);
 		}
 		
 		protected function approximateLayout(prev:Rectangle, child:TTLFBlock):Point {
@@ -251,6 +250,14 @@ package org.tinytlf.html
 		
 		protected function approximateScroll(position:Point):Point {
 			return new Point(Math.max(scrollX - position.x, 0), Math.max(scrollY - position.y, 0));
+		}
+		
+		protected function finalizeChild(child:TTLFBlock):Rectangle {
+			const area:Rectangle = finalizeDimensions(firstPreviousSibling(child), child);
+			child.move(area.x, area.y);
+			child.size(area.width, area.height);
+			
+			return area;
 		}
 		
 		protected function finalizeDimensions(sibling:TTLFBlock, child:TTLFBlock):Rectangle {
