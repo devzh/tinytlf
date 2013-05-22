@@ -12,7 +12,7 @@ package org.tinytlf.xml
 		
 		const classes:String = String(node.@['class'] || '').split(' ').join('.');
 		const id:String = node.@id.length > 0 ? '#' + node.@id : '';
-		const existingChain:String = parent ? parent.@cssInheritanceChain : '';
+		const existingChain:String = parent ? readKey(parent) : '';
 		
 		return existingChain + (existingChain ? ' ' : '') + name + (index == -1 ? '' : ':' + index) + id + (classes ? '.' : '') + classes;
 	}

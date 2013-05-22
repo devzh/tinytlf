@@ -136,8 +136,8 @@ package org.tinytlf
 			invalidateDisplayList();
 		}
 		
-		private var context:Starling;
-		private var window:Container;
+		protected var context:Starling;
+		protected var window:Container;
 		
 		private function createContext(...args):void {
 			const global:Point = localToGlobal(new Point());

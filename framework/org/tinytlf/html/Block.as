@@ -98,10 +98,6 @@ package org.tinytlf.html
 			this.y = y;
 		}
 		
-		public function size(width:Number, height:Number):void {
-			setSizeInternal(width, height, false);
-		}
-		
 		protected var scrollX:Number = 0;
 		protected var scrollY:Number = 0;
 		
@@ -110,6 +106,10 @@ package org.tinytlf.html
 			
 			scrollX = x;
 			scrollY = y;
+		}
+		
+		public function size(width:Number, height:Number):void {
+			setSizeInternal(width, height, false);
 		}
 		
 		override protected function draw():void {
@@ -129,18 +129,6 @@ package org.tinytlf.html
 			
 			return area;
 		}
-		
-//		public function get outerBounds():Rectangle {
-//			
-//			const area:Rectangle = bounds;
-//			
-//			area.x -= marginLeft;
-//			area.y -= marginTop;
-//			area.width += (marginLeft + marginRight);
-//			area.height += (marginTop + marginBottom);
-//			
-//			return area;
-//		}
 		
 		public function get marginLeft():Number {
 			return getStyle('marginLeft') || getStyle('margin') || 0;

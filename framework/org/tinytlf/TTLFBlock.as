@@ -9,8 +9,8 @@ package org.tinytlf
 		function get index():int;
 		
 		function move(x:Number, y:Number):void;
-		function size(width:Number, height:Number):void;
 		function scroll(x:Number, y:Number):void;
+		function size(width:Number, height:Number):void;
 		
 		function isInvalid(flag:String = null):Boolean;
 		
