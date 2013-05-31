@@ -14,6 +14,7 @@ package org.tinytlf
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.text.engine.ContentElement;
+	import flash.utils.getTimer;
 	
 	import mx.core.UIComponent;
 	import mx.events.PropertyChangeEvent;
@@ -200,13 +201,19 @@ package org.tinytlf
 				isRendering = true;
 				tryRenderBuffer = false;
 				
-				if(htmlChanged) window.content = html;
+				if(htmlChanged) window.content = new XML(html)[0];
 				
 				window.clipRect = null;
 				window.size(w, h + buffer);
 				window.scroll(hsp, vsp);
 				
+				const t:Number = getTimer();
+				
+				trace('rendering');
+				
 				const listener:Function = function(...args):void {
+					
+					trace('finished in', getTimer() - t + 'ms');
 					
 					window.removeEventListener(renderEventType, listener);
 					

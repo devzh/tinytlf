@@ -17,6 +17,8 @@ package org.tinytlf.html
 	import org.tinytlf.xml.readKey;
 	import org.tinytlf.xml.wrapTextNodes;
 	
+	import raix.reactive.IObservable;
+	
 	import trxcllnt.Store;
 	
 	public class Block extends FeathersControl implements TTLFBlock
@@ -116,6 +118,10 @@ package org.tinytlf.html
 			super.draw();
 			
 			dispatchEvent(renderEvent(true));
+		}
+		
+		public function refresh():IObservable {
+			
 		}
 		
 		public function get innerBounds():Rectangle {

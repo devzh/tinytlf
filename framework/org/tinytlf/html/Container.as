@@ -144,7 +144,7 @@ package org.tinytlf.html
 				// Add the child
 				map(distribute(first, sequence(last, ifElse(contains, I, addChild)))).
 				// Create an Observable that waits until the child is rendered.
-				map(apply(function(node:XML, child:TTLFBlock):IObservable{
+				map(apply(function(node:XML, child:TTLFBlock):IObservable {
 					
 					// The child should set its CSS style properties here.
 					child.content = node;

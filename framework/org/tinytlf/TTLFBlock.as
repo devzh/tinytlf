@@ -1,21 +1,24 @@
 package org.tinytlf
 {
 	import flash.geom.Rectangle;
+	
+	import raix.reactive.IObservable;
 
-	public interface TTLFBlock
+	public interface TTLFBlock extends TTLFStyleProxy
 	{
 		function get bounds():Rectangle;
-		function set content(value:*):void;
+		
+		function get x():Number;
+		function get y():Number;
+		function get width():Number;
+		function get height():Number;
+		
 		function get index():int;
 		
-		function move(x:Number, y:Number):void;
-		function scroll(x:Number, y:Number):void;
-		function size(width:Number, height:Number):void;
+		function set content(value:*):void;
 		
-		function isInvalid(flag:String = null):Boolean;
-		
-		function getStyle(style:String):*;
-		function setStyle(style:String, value:*):TTLFBlock;
-		function hasStyle(style:String):Boolean;
+		function move(x:Number, y:Number):TTLFBlock;
+		function size(width:Number, height:Number):TTLFBlock;
+		function refresh():IObservable;
 	}
 }
