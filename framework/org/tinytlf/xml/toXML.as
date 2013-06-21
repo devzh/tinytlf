@@ -10,7 +10,6 @@ package org.tinytlf.xml
 	 */
 	public function toXML(value:*):XML
 	{
-		
 		if(value is XML) return value as XML;
 		
 		XML.prettyPrinting = false;

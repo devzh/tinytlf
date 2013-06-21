@@ -3,13 +3,16 @@ package org.tinytlf.xml
 	/**
 	 * @author ptaylor
 	 */
-	public function wrapTextNodes(node:XML, recurse:Boolean = false):XML {
-		if(node.localName() == 'text') return node;
+	public function wrapTextNodes(node:XML, recurse:Boolean = false, ...textNodeNames):XML {
+		
+		textNodeNames.push('text');
+		
+		if(textNodeNames.indexOf(node.localName()) > -1) return node;
 		
 		const children:XML = <_/>;
 		
 		for each(var child:XML in node.*) {
-			if(child.localName() == 'text'){
+			if(textNodeNames.indexOf(child.localName()) > -1){
 				children.appendChild(child);
 				continue;
 			}
