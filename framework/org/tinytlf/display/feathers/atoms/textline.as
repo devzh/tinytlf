@@ -26,7 +26,7 @@ internal function lineForWindow(window:DisplayObjectContainer):Function {
 	
 	const drawBox:Function = box(window);
 	
-	return function(element:Element):IObservable /*<DisplayObject>*/ {
+	return function(element:Element, asynchronous:Boolean):IObservable /*<DisplayObject>*/ {
 		
 		const position:Point = element.offset(Element.GLOBAL);
 		
@@ -47,11 +47,11 @@ internal function lineForWindow(window:DisplayObjectContainer):Function {
 		
 		// Round the coords up to the nearest whole number so the lines
 		// don't appear blurry when they're blitted to the Stage bitmap.
-		line.x = Math.ceil(line.x);
-		line.y = Math.ceil(line.y);
+		line.x = Math.round(line.x);
+		line.y = Math.round(line.y);
 		
-		return drawBox(element).map(function(container:Sprite):DisplayObject {
-			return window.addChildAt(line, 0);
+		return drawBox(element, asynchronous).map(function(container:Sprite):DisplayObject {
+			return window.addChild(line);
 		});
 	}
 }

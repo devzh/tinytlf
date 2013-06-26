@@ -145,9 +145,10 @@ package org.tinytlf
 		
 		public function set node(value:XML):void {
 			
+			const leaves:Array = ['button', 'input', 'style'];
 			const inlineElements:Array = ['strong', 'span', 'text', 'line', 'em', 'b', 'i'];
 			
-			_node = wrapTextNodes.apply(null, [value, false, 'style'].concat(inlineElements));
+			_node = wrapTextNodes.apply(null, [value, false].concat(leaves).concat(inlineElements));
 			_key = readKey(value);
 			_index = value.childIndex();
 			

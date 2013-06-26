@@ -28,7 +28,7 @@ internal function imgForWindow(window:DisplayObjectContainer):Function {
 	
 	const drawBox:Function = box(window);
 	
-	return function(element:Element):IObservable /*<DisplayObject>*/ {
+	return function(element:Element, asynchronous:Boolean):IObservable /*<DisplayObject>*/ {
 		
 		const data:BitmapData = element.getStyle('image');
 		const position:Point = element.offset(Element.GLOBAL);
@@ -47,8 +47,8 @@ internal function imgForWindow(window:DisplayObjectContainer):Function {
 			image.y += element.top;
 		}
 		
-		return drawBox(element).map(function(container:Sprite):DisplayObject {
-			return window.addChildAt(image, 0);
+		return drawBox(element, asynchronous).map(function(container:Sprite):DisplayObject {
+			return window.addChild(image);
 		});
 	}
 }

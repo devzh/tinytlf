@@ -1,6 +1,8 @@
 package org.tinytlf.formatting.formatters
 {
+	import asx.fn.K;
 	import asx.fn.apply;
+	import asx.fn.callProperty;
 	
 	import org.tinytlf.Edge;
 	import org.tinytlf.Element;
@@ -9,7 +11,9 @@ package org.tinytlf.formatting.formatters
 	
 	import raix.interactive.IEnumerable;
 	import raix.reactive.IObservable;
+	import raix.reactive.Observable;
 	import raix.reactive.scheduling.Scheduler;
+	import raix.reactive.subjects.IConnectableObservable;
 	
 	import trxcllnt.ds.HRTree;
 	
@@ -17,11 +21,11 @@ package org.tinytlf.formatting.formatters
 	 * @author ptaylor
 	 */
 	internal function box(getFormatter:Function,
-						  document:Element):Function {
+						  document:Element,
+						  asynchronous:Boolean):Function {
 		
 		const cache:HRTree = new HRTree();
-		
-		var unfinishedIndex:int = 0;
+		var lastChildIndex:int = 0;
 		
 		return function(element:Element,
 						getPredicate:Function, /*(element, cache, layout):Function*/
@@ -35,8 +39,8 @@ package org.tinytlf.formatting.formatters
 			getLayout = cascadeLayout(document, element, getLayout);
 			
 			// Initially lay out the container before iterating through the container's children.
-			if(layout != null) layout(element);
-			if(create != null) create(element);
+			layout(element);
+			create(element);
 			
 			const numChildren:int = element.numChildren;
 			
@@ -48,45 +52,51 @@ package org.tinytlf.formatting.formatters
 			
 			const format:Function = getFormatter(document, element, predicateFactory, getLayout, childLayout);
 			
-			const elements:IEnumerable = getEnumerable(element, cache, predicateFactory(), unfinishedIndex);
+			const elements:IEnumerable = getEnumerable(element, cache, predicateFactory(), lastChildIndex);
 			
-			return elements.
+			const formatted:IConnectableObservable = elements.
 				map(inheritCSS).
 				map(format).
-				concatMany(Scheduler.asynchronous).
-				takeWhile(apply(childFinishedPredicate)).
-				lastOrDefault().
-				map(apply(mapElementFinished));
+				concatMany(
+					// asynchronous ?
+					//	Scheduler.asynchronous :
+						Scheduler.synchronous
+				).
+				peek(apply(childFinished)).
+				map(K([element, false])).
+				publish().refCount();
 			
-			function childFinishedPredicate(child:Element, finished:Boolean, render:Boolean = true):Boolean {
+			const end:IConnectableObservable = formatted.
+				lastOrDefault().
+				map(childrenFinished).
+				publish().refCount();
+			
+			// Can't use skipLast(1) because skipLast doesn't dispatch values
+			// until the source Observable has completed. We want to dispatch
+			// values as they're reported. The 'end' Observable will dispatch
+			// to this takeUntil, effectively forcing this Observable to skip
+			// dispatching the last value.
+			const front:IObservable = formatted.takeUntil(end);
+			
+			return front.merge(end);
+			
+			function childFinished(child:Element, finished:Boolean):void {
 				
-				if(render) {
-					
-					child.render();
-					
-					if(finished) cache.update(child.outerBounds.toRectangle(), child);
-					else unfinishedIndex = Math.min(child.index, numChildren);
-				}
+				if(finished)
+					cache.update(child.outerBounds.toRectangle(), child);
 				
-				return finished;
+				layout(element, true, false);
+				
+				lastChildIndex = Math.max(lastChildIndex, Math.min(child.index + int(finished), numChildren));
 			};
 			
-			function mapElementFinished(child:Element = null, finished:Boolean = false, render:Boolean = true):Array {
+			function childrenFinished(result:Array = null):Array {
 				
-				unfinishedIndex = Math.min(
-					child ? 
-						child.index + 1 :
-						unfinishedIndex,
-					numChildren
-				);
+				layout(element, true);
 				
-				const elementFinished:Boolean = child ?
-					(finished && child.index >= numChildren - 1) :
-					unfinishedIndex >= numChildren;
+				element.render();
 				
-				if(layout != null) layout(element, true);
-				
-				return [element, elementFinished];
+				return [element, lastChildIndex >= numChildren];
 			};
 		}
 	}

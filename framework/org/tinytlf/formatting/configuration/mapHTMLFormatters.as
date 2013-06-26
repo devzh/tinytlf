@@ -20,14 +20,14 @@ package org.tinytlf.formatting.configuration
 	/**
 	 * @author ptaylor
 	 */
-	public function mapHTMLFormatters(document:Element):void {
+	public function mapHTMLFormatters(document:Element, asynchronous:Boolean):void {
 		
 		const styleFormatter:Function = aritize(partial(style, document), 0);
-		const blockFormatter:Function = aritize(partial(block, document), 0);
-		const lineFormatter:Function = aritize(partial(line, document, ttlfStaticTextBlock), 0);
+		const blockFormatter:Function = aritize(partial(block, document, asynchronous), 0);
+		const lineFormatter:Function = aritize(partial(line, document, ttlfStaticTextBlock, asynchronous), 0);
 		const blockBreakFormatter:Function = aritize(partial(linebreak, document, false), 0);
 		const inlineBreakFormatter:Function = aritize(partial(linebreak, document, true), 0);
-		const runFormatter:Function = aritize(partial(run, document, ttlfStaticTextBlock), 0);
+		const runFormatter:Function = aritize(partial(run, document, ttlfStaticTextBlock, asynchronous), 0);
 		
 		const formatStyle:Function = memoize(styleFormatter, getProperty('key'));
 		const formatBlock:Function = memoize(blockFormatter, getProperty('key'));

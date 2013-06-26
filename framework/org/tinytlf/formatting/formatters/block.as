@@ -5,8 +5,8 @@ package org.tinytlf.formatting.formatters
 	/**
 	 * @author ptaylor
 	 */
-	public function block(document:Element):Function {
-		return box(formatter, document);
+	public function block(document:Element, asynchronous:Boolean):Function {
+		return box(formatter, document, asynchronous);
 	}
 }
 

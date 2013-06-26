@@ -14,7 +14,7 @@ package org.tinytlf.formatting.formatters
 		return function(element:Element, ...args):IObservable {
 			injectCSSPredicates(document, element.text);
 			applyCSSPredicates(document, null, document);
-			return Observable.value([element, true, false]);
+			return Observable.value([element, false]);
 		}
 	}
 }

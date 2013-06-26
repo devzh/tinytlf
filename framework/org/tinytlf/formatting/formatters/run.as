@@ -29,6 +29,7 @@ package org.tinytlf.formatting.formatters
 	
 	import raix.reactive.IObservable;
 	import raix.reactive.Observable;
+	import raix.reactive.scheduling.Scheduler;
 	import raix.reactive.toObservable;
 	
 	import starling.display.Image;
@@ -37,7 +38,7 @@ package org.tinytlf.formatting.formatters
 	/**
 	 * @author ptaylor
 	 */
-	public function run(document:Element, textBlock:TextBlock):Function {
+	public function run(document:Element, textBlock:TextBlock, asynchronous:Boolean):Function {
 		
 		var renderedWidth:Number = 0;
 		var renderedTextIndent:Number = 0;
@@ -52,7 +53,7 @@ package org.tinytlf.formatting.formatters
 			
 			const text:String = element.text;
 			
-			if(layout != null) layout(element, false, false);
+			layout(element, false, false);
 			
 			const bounds:Edge = element.bounds();
 			const lines:Array = element.hasStyle('lines') ? element.getStyle('lines') : [];
@@ -85,7 +86,15 @@ package org.tinytlf.formatting.formatters
 			
 			textBlock.content = content;
 			
-			return Observable.generate(iterate(element), predicate, iterate, resultMap);//.
+			return Observable.generate(
+				iterate(element),
+				predicate,
+				iterate,
+				resultMap,
+				asynchronous ?
+					Scheduler.asynchronous :
+					Scheduler.synchronous
+			);//.
 				// Skip the last value. The TextBlock doesn't change its
 				// 'textLineCreationResult' flag to 'complete' until after it
 				// returns 'null' from the last call to re/createTextLine. We're
@@ -118,7 +127,7 @@ package org.tinytlf.formatting.formatters
 			
 			function resultMap(lineElement:Element):Array {
 				
-				if(layout != null) layout(lineElement, false, false);
+				layout(lineElement, false, false);
 				
 				const indent:Number = element.index == 0 ? element.textIndent : 0;
 				const width:Number = lineElement.inside().width - indent;
@@ -198,9 +207,10 @@ package org.tinytlf.formatting.formatters
 				
 				lines.push(lineElement);
 				
-				// Finalize layout and dispatch creation and render messages.
-				if(create != null) create(lineElement);
-				if(layout != null) layout(lineElement, true);
+				// Finalize layout, dispatch creation and render messages.
+				layout(lineElement, true);
+				create(lineElement);
+				lineElement.render();
 				
 				return [lineElement, true];
 			};
@@ -232,13 +242,13 @@ package org.tinytlf.formatting.formatters
 				element.size(width, height);
 				element.setStyle('lines', lines);
 				
-				if(layout != null) layout(element, true, true);
+				layout(element, true, true);
 				
 				renderedContent = text;
 				renderedWidth = element.width;
 				renderedTextIndent = element.textIndent;
 				
-				return [element, true];
+				return [element, false];
 			};
 		}
 	}

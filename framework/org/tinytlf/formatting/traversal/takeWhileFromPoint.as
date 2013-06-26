@@ -59,6 +59,7 @@ internal function predicate(element:Element):Function {
 					// layout2 pass to add them to the proper internal flow and
 					// float layout caches, so newly rendered children are laid out
 					// with respect to the previous floated and flowed children.
+					
 					forEach(getIntersections(viewport, cache), partial(layout, _, true));
 				}
 				

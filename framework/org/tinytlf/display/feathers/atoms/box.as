@@ -30,7 +30,7 @@ import starling.textures.Texture;
 
 internal function boxForWindow(window:DisplayObjectContainer):Function {
 	
-	return function(element:Element):IObservable /*<DisplayObject>*/ {
+	return function(element:Element, asynchronous:Boolean):IObservable /*<DisplayObject>*/ {
 		
 		var backgroundImageObs:IObservable = Observable.empty();
 		var tempQuad:Quad;
@@ -120,7 +120,7 @@ internal function boxForWindow(window:DisplayObjectContainer):Function {
 			
 		}
 		
-		window.addChildAt(background, 0);
+		window.addChild(background);
 		
 		return backgroundImageObs.concat(Observable.value(background)).last();
 	}

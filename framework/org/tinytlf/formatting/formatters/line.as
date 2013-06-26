@@ -19,9 +19,9 @@ package org.tinytlf.formatting.formatters
 	/**
 	 * @author ptaylor
 	 */
-	public function line(document:Element, textBlock:TextBlock):Function {
+	public function line(document:Element, textBlock:TextBlock, asynchronous:Boolean):Function {
 		
-		const formatBox:Function = box(formatter, document);
+		const formatBox:Function = box(formatter, document, asynchronous);
 		
 		return function(element:Element,
 						getPredicate:Function, /*(element, cache, layout):Function*/
@@ -68,10 +68,7 @@ package org.tinytlf.formatting.formatters
 	}
 }
 
-import asx.array.first;
-import asx.fn.I;
 import asx.fn.callProperty;
-import asx.fn.memoize;
 
 import flash.system.Capabilities;
 import flash.text.engine.ElementFormat;

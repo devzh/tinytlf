@@ -17,6 +17,6 @@ package org.tinytlf.formatting.formatters
 		
 		if(layout != null) layout(element, true, false);
 		
-		return Observable.value([element, true, false]);
+		return Observable.value([element, false]);
 	}
 }

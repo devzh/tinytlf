@@ -10,6 +10,7 @@ package org.tinytlf.display.feathers
 	import flash.events.Event;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import flash.utils.getTimer;
 	
 	import mx.core.UIComponent;
 	import mx.events.PropertyChangeEvent;
@@ -22,6 +23,9 @@ package org.tinytlf.display.feathers
 	import starling.display.Sprite;
 	import starling.events.Event;
 	
+	[Event(name='documentCreated', type='flash.events.Event')]
+	[Event(name='documentRendered', type='flash.events.Event')]
+	
 	public class FlexDocument extends UIComponent implements IViewport
 	{
 		public function FlexDocument()
@@ -31,8 +35,8 @@ package org.tinytlf.display.feathers
 		
 		include '../documentMixin.as';
 		
-		protected const window:Sprite = new Sprite();
-		protected var context:Starling;
+		public const window:Sprite = new Sprite();
+		public var context:Starling;
 		
 		private function createContext(...args):void {
 			const global:Point = localToGlobal(new Point());
@@ -50,22 +54,6 @@ package org.tinytlf.display.feathers
 			mapFeathersUIs(window, mapUI);
 			
 			invalidateDisplayList();
-		}
-		
-		private var documentRendered:Boolean = false;
-		private var tryRenderBuffer:Boolean = true;
-		private var isRendering:Boolean = false;
-		private var buffer:Number = 500;
-		public function get renderBuffer():Number {
-			return buffer;
-		}
-		
-		public function set renderBuffer(value:Number):void {
-			if(value == buffer) return;
-			
-			buffer = value;
-			invalidateDisplayList();
-			viewportChanged = true;
 		}
 		
 		private var _contentWidth:Number = 0;
@@ -89,7 +77,6 @@ package org.tinytlf.display.feathers
 			if(value == hsp) return;
 			
 			hsp = value;
-			// tryRenderBuffer = (hsp + width >= cWidth);
 			viewportChanged = true;
 			invalidateDisplayList();
 		}
@@ -104,7 +91,6 @@ package org.tinytlf.display.feathers
 			
 			vsp = value;
 			
-			tryRenderBuffer = (Math.floor(vsp + height) >= Math.floor(_contentHeight));
 			viewportChanged = true;
 			invalidateDisplayList();
 		}
@@ -122,6 +108,95 @@ package org.tinytlf.display.feathers
 		}
 		
 		public function set clipAndEnableScrolling(value:Boolean):void {}
+		
+		protected function renderHTML(html:XML, css:String = ''):void {
+			
+			disengage();
+			
+			const g:Graphics = graphics;
+			g.clear();
+			g.lineStyle(1, 0);
+			g.drawRect(0, 0, unscaledWidth - 1, unscaledHeight);
+			g.endFill();
+			
+			// asynchronous = false;
+			
+			const renderObservable:IObservable = engage(html);
+			
+			renderSubscription.cancel();
+			renderSubscription = renderObservable.
+				groupBy(getProperty('name')).
+				mapMany(callProperty('scan', function(prev:DisplayObject, next:DisplayObject):DisplayObject {
+					if(prev == window) return next;
+					
+					if(prev == next) return next;
+					
+					const parent:DisplayObjectContainer = prev.parent;
+					if(parent && parent.contains(prev))
+						parent.removeChild(prev);
+					
+					return next;
+				})).
+				subscribe(
+					I,
+					function():void { trace('render subscription completed.'); },
+					function(e:Error):void { trace('render subscription error\n', e.getStackTrace()); }
+				);
+			
+			injectCSS(documentElement, css);
+			
+			const start:Point = new Point(horizontalScrollPosition, verticalScrollPosition);
+			
+			const formatUpdates:IObservable = format(start, unscaledWidth, int.MAX_VALUE);
+			
+			const t:Number = getTimer();
+			
+			formatSubscription.cancel();
+			formatSubscription = formatUpdates.subscribe(apply(function(element:Element, finished:Boolean):void {
+					
+					if(_contentWidth != element.width) {
+						const contentWidthEvent:PropertyChangeEvent = PropertyChangeEvent.createUpdateEvent(
+							this,
+							'contentWidth', _contentWidth,
+							_contentWidth = element.width
+						);
+						
+						dispatchEvent(contentWidthEvent);
+					}
+					
+					if(_contentHeight != element.height) {
+						const contentHeightEvent:PropertyChangeEvent = PropertyChangeEvent.createUpdateEvent(
+							this,
+							'contentHeight', _contentHeight,
+							_contentHeight = element.height
+						);
+						
+						dispatchEvent(contentHeightEvent);
+					}
+				}),
+				function():void {
+					documentRendered = true;
+					dispatchEvent(new flash.events.Event('documentRendered'));
+					trace('format subscription completed in', (getTimer() - t), 'ms');
+				},
+				function(e:Error):void {
+					trace('format subscription error\n', e.getStackTrace());
+				});
+			
+			dispatchEvent(new flash.events.Event('documentCreated'));
+		}
+		
+		protected function injectCSS(element:Element, css:String = ''):void {
+			
+			clearCSSPredicates(element);
+			
+			injectCSSPredicates(element, new defaultCSS().toString());
+			
+			if(css) injectCSSPredicates(element, css);
+			
+			// Apply the CSS predicates for the new document Element.
+			applyCSSPredicates(element, null, element);
+		}
 		
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
 			
@@ -144,46 +219,7 @@ package org.tinytlf.display.feathers
 				context.viewPort = new Rectangle(global.x, global.y, unscaledWidth, unscaledHeight);
 			}
 			
-			if(htmlChanged) {
-				
-				isRendering = false;
-				
-				disengage();
-				engage(html);
-				renderSubscription.add(renderObservable.
-					groupBy(getProperty('name')).
-					mapMany(callProperty('scan', function(prev:DisplayObject, next:DisplayObject):DisplayObject {
-						if(prev == window) return next;
-						
-						if(prev == next) return next;
-						
-						const parent:DisplayObjectContainer = prev.parent;
-						if(parent && parent.contains(prev))
-							parent.removeChild(prev);
-						
-						return next;
-					})).
-					subscribe(
-						I,
-						function():void { trace('render subscription completed.'); },
-						function(e:Error):void { trace('render subscription error\n', e.getStackTrace()); }
-					));
-				
-				clearCSSPredicates(documentElement);
-				injectCSSPredicates(documentElement, new defaultCSS().toString());
-				if(css) injectCSSPredicates(documentElement, css);
-				
-				// Apply the CSS predicates for the new document Element.
-				applyCSSPredicates(documentElement, null, documentElement);
-			} else if(cssChanged && documentElement) {
-				clearCSSPredicates(documentElement);
-				injectCSSPredicates(documentElement, new defaultCSS().toString());
-				injectCSSPredicates(documentElement, css);
-				applyCSSPredicates(documentElement, null, documentElement);
-			}
-			
 			if(unscaledWidth != contentWidth) {
-				tryRenderBuffer = true;
 				viewportChanged = true;
 			}
 			
@@ -198,60 +234,19 @@ package org.tinytlf.display.feathers
 				);
 			}
 			
-			if(isRendering || documentRendered) return;
+			if(documentRendered) {
+				cssChanged = false;
+				htmlChanged = false;
+				viewportChanged = false;
+				return;
+			}
 			
-			if(documentElement && (htmlChanged || cssChanged || (viewportChanged && tryRenderBuffer))) {
-				
-				isRendering = true;
-				
-				const g:Graphics = graphics;
-				g.clear();
-				g.lineStyle(1, 0);
-				g.drawRect(0, 0, unscaledWidth - 1, unscaledHeight);
-				g.endFill();
-				
-				const start:Point = new Point(horizontalScrollPosition, verticalScrollPosition);
-				
-				format(start, unscaledWidth, unscaledHeight + buffer);//(tryRenderBuffer ? buffer : 0));
-				
-				// will be called when the whole document has finished formatting.
-				formatSubscription.add(formatObservable.subscribe(
-					apply(function(element:Element, finished:Boolean):void {
-						
-						element.render();
-						
-						isRendering = false;
-						
-						documentRendered = finished;
-						
-						if(_contentWidth != element.width) {
-							const contentWidthEvent:PropertyChangeEvent = PropertyChangeEvent.createUpdateEvent(
-								this,
-								'contentWidth', _contentWidth,
-								_contentWidth = element.width
-							);
-							
-							dispatchEvent(contentWidthEvent);
-						}
-						
-						if(_contentHeight != element.height) {
-							const contentHeightEvent:PropertyChangeEvent = PropertyChangeEvent.createUpdateEvent(
-								this,
-								'contentHeight', _contentHeight,
-								_contentHeight = element.height
-							);
-							
-							dispatchEvent(contentHeightEvent);
-						}
-					}),
-					function():void { trace('format subscription completed.'); },
-					function(e:Error):void { trace('format subscription error\n', e.getStackTrace()); }
-				));
+			if(htmlChanged || cssChanged) {
+				renderHTML(html, css);
 			}
 			
 			cssChanged = false;
 			htmlChanged = false;
-			tryRenderBuffer = false;
 			viewportChanged = false;
 		}
 	}
