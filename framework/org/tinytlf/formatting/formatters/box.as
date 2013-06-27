@@ -32,25 +32,24 @@ package org.tinytlf.formatting.formatters
 						getEnumerable:Function /*(startFactory, index):Function*/,
 						getLayout:Function, /*(container):Function*/
 						layout:Function,
-						create:Function):IObservable/*<Element, Boolean>*/ {
+						render:Function):IObservable/*<Element, Boolean>*/ {
 			
 			if(document == null) document = element;
 			
 			getLayout = cascadeLayout(document, element, getLayout);
 			
 			// Initially lay out the container before iterating through the container's children.
-			layout(element);
-			create(element);
+			layout(element, false);
+			const childRenderer:Function = render(element, false);
+			const childLayout:Function = getLayout(element);
 			
 			const numChildren:int = element.numChildren;
 			
 			const inheritCSS:Function = inheritCSSPredicates(document, element);
 			
-			const childLayout:Function = getLayout(element);
+			const predicateFactory:Function = getPredicate(element, cache, childLayout, childRenderer);
 			
-			const predicateFactory:Function = getPredicate(element, cache, childLayout);
-			
-			const format:Function = getFormatter(document, element, predicateFactory, getLayout, childLayout);
+			const format:Function = getFormatter(document, element, predicateFactory, getLayout, childLayout, childRenderer);
 			
 			const elements:IEnumerable = getEnumerable(element, cache, predicateFactory(), lastChildIndex);
 			
@@ -93,8 +92,7 @@ package org.tinytlf.formatting.formatters
 			function childrenFinished(result:Array = null):Array {
 				
 				layout(element, true);
-				
-				element.render();
+				render(element, true);
 				
 				return [element, lastChildIndex >= numChildren];
 			};

@@ -1,4 +1,4 @@
-package org.tinytlf.display.feathers.atoms
+package org.tinytlf.atoms.renderers.starling
 {
 	import asx.fn.I;
 	import asx.fn.memoize;
@@ -30,12 +30,12 @@ import starling.textures.Texture;
 
 internal function boxForWindow(window:DisplayObjectContainer):Function {
 	
-	return function(element:Element, asynchronous:Boolean):IObservable /*<DisplayObject>*/ {
+	return function(element:Element):void {
 		
 		var backgroundImageObs:IObservable = Observable.empty();
 		var tempQuad:Quad;
 		
-		const background:Sprite = new Sprite();
+		const background:Sprite = element.getStyle('ui');
 		const width:Number = element.width;
 		const height:Number = element.height;
 		const bounds:Edge = element.bounds();
@@ -58,13 +58,10 @@ internal function boxForWindow(window:DisplayObjectContainer):Function {
 			if(hasBackgroundImage) {
 				const url:String = element.backgroundImage;
 				backgroundImageObs = loadImage(url).peek(function(data:BitmapData):void {
-					// Add the background image quad to the background sprite.
 					background.unflatten();
-					
-					tempQuad = new Image(Texture.fromBitmapData(data, false, true, 1));
-					tempQuad.alpha = element.backgroundImageAlpha;
-					
-					background.addChildAt(tempQuad, 1);
+					const image:Image = new Image(Texture.fromBitmapData(data, false, true, 1));
+					image.alpha = element.backgroundImageAlpha;
+					background.addChild(image);
 					background.flatten();
 				});
 			}
@@ -117,11 +114,6 @@ internal function boxForWindow(window:DisplayObjectContainer):Function {
 				background.x += constraints.left;
 				background.y += constraints.top;
 			}
-			
 		}
-		
-		window.addChild(background);
-		
-		return backgroundImageObs.concat(Observable.value(background)).last();
 	}
 }

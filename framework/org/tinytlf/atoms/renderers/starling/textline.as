@@ -1,4 +1,4 @@
-package org.tinytlf.display.feathers.atoms
+package org.tinytlf.atoms.renderers.starling
 {
 	import asx.fn.I;
 	import asx.fn.memoize;
@@ -13,9 +13,11 @@ package org.tinytlf.display.feathers.atoms
 import flash.geom.Point;
 
 import org.tinytlf.Element;
-import org.tinytlf.display.feathers.atoms.box;
+import org.tinytlf.atoms.initializers.starling.box;
+import org.tinytlf.atoms.renderers.starling.box;
 
 import raix.reactive.IObservable;
+import raix.reactive.Observable;
 
 import starling.display.DisplayObject;
 import starling.display.DisplayObjectContainer;
@@ -24,9 +26,10 @@ import starling.display.Sprite;
 
 internal function lineForWindow(window:DisplayObjectContainer):Function {
 	
-	const drawBox:Function = box(window);
+	const initializeBox:Function = org.tinytlf.atoms.initializers.starling.box(window);
+	const renderBox:Function = org.tinytlf.atoms.renderers.starling.box(window);
 	
-	return function(element:Element, asynchronous:Boolean):IObservable /*<DisplayObject>*/ {
+	return function(element:Element):void {
 		
 		const position:Point = element.offset(Element.GLOBAL);
 		
@@ -50,8 +53,9 @@ internal function lineForWindow(window:DisplayObjectContainer):Function {
 		line.x = Math.round(line.x);
 		line.y = Math.round(line.y);
 		
-		return drawBox(element, asynchronous).map(function(container:Sprite):DisplayObject {
-			return window.addChild(line);
-		});
+		initializeBox(element);
+		renderBox(element);
+		
+		window.addChild(line);
 	}
 }

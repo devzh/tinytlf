@@ -18,13 +18,15 @@ package org.tinytlf.formatting.formatters
 						layout:Function,
 						create:Function):IObservable {
 			
-			element.setStyle('display', inline ? 'inline' : 'block');
+			element.
+				setStyle('display', inline ? 'inline' : 'block').
+				size(int.MIN_VALUE, 0);
 			
-			if(layout != null) layout(element);
+			layout(element, false);
 			
 			// Set the break's inline bounds too.
 			element.size(
-				0,
+				int.MIN_VALUE,
 				inline ? element.lineHeight + element.leading : 0,
 				Element.LOCAL, Element.INLINE
 			);
@@ -33,7 +35,7 @@ package org.tinytlf.formatting.formatters
 			// precedence over other calculated heights.
 			element.setStyle('height', element.height);
 			
-			if(layout != null) layout(element, true);
+			layout(element, true);
 			
 			return Observable.value([element, true]);
 		}

@@ -6,6 +6,9 @@ import asx.fn.K;
 import flash.geom.Point;
 
 import org.tinytlf.Element;
+import org.tinytlf.atoms.configuration.initializers.getAtomInitializer;
+import org.tinytlf.atoms.configuration.renderers.getAtomRenderer;
+import org.tinytlf.atoms.renderAtom;
 import org.tinytlf.css.applyCSSPredicates;
 import org.tinytlf.css.clearCSSPredicates;
 import org.tinytlf.css.injectCSSPredicates;
@@ -57,52 +60,52 @@ public function set html(value:*):void {
 	documentRendered = false;
 	// _html = new XML(toXML(value)); // defensive copy
 	// pleeease give me valid XML :/
+	
+	XML.prettyPrinting = false;
+	XML.prettyIndent = 0;
+	XML.ignoreWhitespace = false;
+	
 	_html = new XML(value); // defensive copy
 	
 	if(hasOwnProperty('invalidateDisplayList')) this['invalidateDisplayList']();
 	if(hasOwnProperty('invalidate')) this['invalidate']('html');
 }
 
-private const renderers:Object = {};
+//private const renderers:Object = {};
+//
+//public function mapUI(renderer:Function, ...names):void {
+//	forEach(names, function(name:String):void { renderers[name] = renderer; });
+//}
+//
+//public function getUI(name:String):Function {
+//	return renderers.hasOwnProperty(name) ?
+//		renderers[name] :
+//		renderers['no-mapping'];
+//}
+//
+//protected function createUI(element:Element):IObservable {
+//	const name:String = element.name;
+//	const render:Function = getUI(name);
+//	return render(element, asynchronous);
+//}
 
-public function mapUI(renderer:Function, ...names):void {
-	forEach(names, function(name:String):void { renderers[name] = renderer; });
+
+private function initializer(element:Element):void {
+	getAtomInitializer(documentElement, element)(element);
 }
 
-public function getUI(name:String):Function {
-	return renderers.hasOwnProperty(name) ?
-		renderers[name] :
-		renderers['no-mapping'];
-}
-
-protected function createUI(element:Element):IObservable {
-	const name:String = element.name;
-	const render:Function = getUI(name);
-	return render(element, asynchronous);
+private function renderer(element:Element):void {
+	getAtomRenderer(documentElement, element)(element);
 }
 
 public var documentElement:Element = null;
 public var asynchronous:Boolean = true;
 
-public function engage(html:XML):IObservable {
-	
-	documentElement = xmlToElement(html);
-	
-	// Map HTML formatters for the new document Element.
-	mapHTMLFormatters(documentElement, asynchronous);
-	
-	const renderD:Function = renderDocument(documentElement, createUI);
-	
-	return IObservable(renderD(documentElement)).delay(10);
-}
-
 public function disengage():void {
 	formatSubscription.cancel();
-	renderSubscription.cancel();
 }
 
 protected var formatSubscription:ICancelable = Cancelable.empty;
-protected var renderSubscription:ICancelable = Cancelable.empty;
 
 public function format(start:*, width:Number, height:Number):IObservable {
 	
@@ -112,10 +115,12 @@ public function format(start:*, width:Number, height:Number):IObservable {
 		takeWhileFromPoint(documentElement)(start, width, height) :
 		takeWhileFromId(start, width, height);
 	
+	const render:Function = renderAtom(0, 0, initializer, renderer);
+	
 	const formatD:Function = getBlockFormatter(documentElement, documentElement);
 	return formatD(
 		documentElement,
 		predicateFactory,
-		enumerateBlock(documentElement), 
-		null, I, I).delay(10);
+		enumerateBlock(documentElement),
+		null, I, render).delay(10);
 }

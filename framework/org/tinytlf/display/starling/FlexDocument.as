@@ -1,10 +1,11 @@
-package org.tinytlf.display.feathers
+package org.tinytlf.display.starling
 {
 	import asx.events.once;
 	import asx.fn.I;
 	import asx.fn.apply;
 	import asx.fn.callProperty;
 	import asx.fn.getProperty;
+	import asx.fn.partial;
 	
 	import flash.display.Graphics;
 	import flash.events.Event;
@@ -14,6 +15,9 @@ package org.tinytlf.display.feathers
 	
 	import mx.core.UIComponent;
 	import mx.events.PropertyChangeEvent;
+	
+	import org.tinytlf.atoms.configuration.mapStarlingAtoms;
+	import org.tinytlf.atoms.configuration.renderers.getAtomRenderer;
 	
 	import spark.core.IViewport;
 	
@@ -49,9 +53,9 @@ package org.tinytlf.display.feathers
 		private function rootCreated():void {
 			
 			window.name = 'window';
-			DisplayObjectContainer(context.root).addChild(window);
 			
-			mapFeathersUIs(window, mapUI);
+			const contextRoot:DisplayObjectContainer = DisplayObjectContainer(context.root);
+			contextRoot.addChild(window);
 			
 			invalidateDisplayList();
 		}
@@ -120,38 +124,21 @@ package org.tinytlf.display.feathers
 			g.endFill();
 			
 			// asynchronous = false;
+			documentElement = xmlToElement(html);
 			
-			const renderObservable:IObservable = engage(html);
+			// Map HTML formatters for the new document Element.
+			mapHTMLFormatters(documentElement, asynchronous);
 			
-			renderSubscription.cancel();
-			renderSubscription = renderObservable.
-				groupBy(getProperty('name')).
-				mapMany(callProperty('scan', function(prev:DisplayObject, next:DisplayObject):DisplayObject {
-					if(prev == window) return next;
-					
-					if(prev == next) return next;
-					
-					const parent:DisplayObjectContainer = prev.parent;
-					if(parent && parent.contains(prev))
-						parent.removeChild(prev);
-					
-					return next;
-				})).
-				subscribe(
-					I,
-					function():void { trace('render subscription completed.'); },
-					function(e:Error):void { trace('render subscription error\n', e.getStackTrace()); }
-				);
+			// Map the HTML renderers for the new document Element.
+			mapStarlingAtoms(documentElement, window);
 			
 			injectCSS(documentElement, css);
 			
-			const start:Point = new Point(horizontalScrollPosition, verticalScrollPosition);
-			
-			const formatUpdates:IObservable = format(start, unscaledWidth, int.MAX_VALUE);
-			
-			const t:Number = getTimer();
-			
 			formatSubscription.cancel();
+			
+			const start:Point = new Point(horizontalScrollPosition, verticalScrollPosition);
+			const t:Number = getTimer();
+			const formatUpdates:IObservable = format(start, unscaledWidth, int.MAX_VALUE);
 			formatSubscription = formatUpdates.subscribe(apply(function(element:Element, finished:Boolean):void {
 					
 					if(_contentWidth != element.width) {

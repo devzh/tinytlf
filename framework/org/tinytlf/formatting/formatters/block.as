@@ -19,18 +19,19 @@ import org.tinytlf.formatting.traversal.enumerateBlock;
 import raix.reactive.IObservable;
 import raix.reactive.Observable;
 
-internal function formatter(document:Element, container:Element, predicateFactory:Function, getLayout:Function, layout:Function):Function {
+internal function formatter(document:Element,
+							container:Element,
+							predicateFactory:Function,
+							getLayout:Function,
+							layout:Function,
+							render:Function):Function {
 	return function(element:Element):IObservable/*<Element, Boolean>*/ {
 		
 		if(element.displayed('none')) return Observable.value([element, true]);
 		
-		return getBlockFormatter(document, element)(
-			element,
-			predicateFactory,
-			enumerateBlock(element),
-			getLayout,
-			layout,
-			callProperty('addTo', container)
-		);
+		const format:Function = getBlockFormatter(document, element);
+		const enumerator:Function = enumerateBlock(element);
+		
+		return format(element, predicateFactory, enumerator, getLayout, layout, render);
 	}
 }

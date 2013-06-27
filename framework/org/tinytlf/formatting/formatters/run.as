@@ -49,10 +49,11 @@ package org.tinytlf.formatting.formatters
 						getEnumerator:Function, /*(startFactory, index):Function*/
 						getLayout:Function,
 						layout:Function,
-						create:Function):IObservable /*<Element, Boolean>*/ {
+						render:Function):IObservable /*<Element, Boolean>*/ {
 			
 			const text:String = element.text;
 			
+			element.setStyle('display', 'inline');
 			layout(element, false, false);
 			
 			const bounds:Edge = element.bounds();
@@ -74,10 +75,6 @@ package org.tinytlf.formatting.formatters
 			// TextLines anyway, store them on the element and the renderer can read
 			// them out and flatten them into a bitmap later.
 			
-			// I could do the TextLine creation/iteration stuff in
-			// IObservable.scan, but honestly, who has the time.
-			var previousLine:TextLine = null;
-			
 			const leading:Number = element.leading;
 			const textAlign:Number = element.textAlign;
 			
@@ -94,13 +91,7 @@ package org.tinytlf.formatting.formatters
 				asynchronous ?
 					Scheduler.asynchronous :
 					Scheduler.synchronous
-			);//.
-				// Skip the last value. The TextBlock doesn't change its
-				// 'textLineCreationResult' flag to 'complete' until after it
-				// returns 'null' from the last call to re/createTextLine. We're
-				// forced to catch that case, finalize the containing <text/>
-				// element, and re-dispatch the last successful line rendered.
-				// skipLast(1);
+			);
 			
 			function predicate(element:Element):Boolean {
 				return textBlock.textLineCreationResult != TextLineCreationResult.COMPLETE;
@@ -110,17 +101,17 @@ package org.tinytlf.formatting.formatters
 				if(textBlock.textLineCreationResult == TextLineCreationResult.COMPLETE)
 					return null;
 				
-				const key:String = element.key + (
-					prev == element ?
-					' line:0' :
-					' line:' + (prev.index + 1));
-				
+				const index:int = prev == element ? 0 : prev.index + 1;
+				const key:String = element.key + ' line:' + index;
 				const lineElement:Element = keyToElement(key);
 				
 				lineElement.node = <line></line>;
 				lineElement.key = key;
-				lineElement.index = prev == element ? 0 : prev.index + 1;
+				lineElement.index = index;
+				lineElement.depth = element.depth + 1;
+				
 				lineElement.setStyle('clear', textAlign == TextAlign.RIGHT ? 'left' : 'right');
+				lineElement.setStyle('display', 'inline');
 				
 				return lineElement;
 			};
@@ -182,19 +173,20 @@ package org.tinytlf.formatting.formatters
 				const end:int = begin + textLine.rawTextLength;
 				
 				lineElement.node.*[0] = text.substring(begin, end);
-				lineElement.size(width, element.hasStyle('lineHeight') ? lineHeight : textHeight);
 				
-				// Set the line's inline bounds
-				lineElement.move(
-					textAlign == TextAlign.RIGHT ?
-						lineElement.x + width - textLine.width :
-						textAlign == TextAlign.CENTER ? 
-							(width - textLine.width) * 0.5 :
-							lineElement.x,
-					lineElement.y,
-					Element.INLINE
-				);
-				lineElement.size(textLine.width, lineElement.height, Element.INLINE);
+				// Set the line's local and inline bounds
+				lineElement.
+					size(width, element.hasStyle('lineHeight') ? lineHeight : textHeight).
+					size(textLine.width, lineElement.height, Element.INLINE).
+					move(
+						textAlign == TextAlign.RIGHT ?
+							lineElement.x + width - textLine.width :
+							textAlign == TextAlign.CENTER ? 
+								(width - textLine.width) * 0.5 :
+								lineElement.x,
+						lineElement.y,
+						Element.INLINE
+					);
 				
 				if(textLine.previousLine) {
 					staticLine = textLine.previousLine;
@@ -207,10 +199,10 @@ package org.tinytlf.formatting.formatters
 				
 				lines.push(lineElement);
 				
-				// Finalize layout, dispatch creation and render messages.
+				// Finalize layout and rendering.
 				layout(lineElement, true);
-				create(lineElement);
-				lineElement.render();
+				render(lineElement, false);
+				render(lineElement, true);
 				
 				return [lineElement, true];
 			};
@@ -227,22 +219,26 @@ package org.tinytlf.formatting.formatters
 				const firstBounds:Edge = firstLine.bounds(Element.INLINE);
 				const lastBounds:Edge = lastLine.bounds(Element.INLINE);
 				
-				// Set the containing element's inline bounds so they'll
-				// be picked up by the element's container for inline layout.
-				element.move(element.x, element.y, Element.INLINE);
-				element.size(
-					lastBounds.right - firstBounds.left,
-					lastBounds.bottom - firstBounds.top,
-					Element.INLINE
-				);
-				
 				const width:Number = Number(max(lines, 'width'));
 				const height:Number = sum(pluck(lines, 'height')) + (Math.max(lines.length - 1, 0) * leading);
 				
-				element.size(width, height);
-				element.setStyle('lines', lines);
+				// Set the containing element's inline bounds so they'll
+				// be picked up by the element's container for inline layout.
+				element.
+					size(width, height, Element.LOCAL).
+					size(
+						lastBounds.right - firstBounds.left,
+						lastBounds.bottom - firstBounds.top,
+						Element.INLINE
+					).
+					move(element.x, element.y, Element.INLINE).
+					setStyle('lines', lines);
 				
 				layout(element, true, true);
+				
+				staticLine = previousLine;
+				staticLine.validity = TextLineValidity.STATIC;
+				previousLine = null;
 				
 				renderedContent = text;
 				renderedWidth = element.width;
@@ -257,6 +253,7 @@ package org.tinytlf.formatting.formatters
 import flash.geom.Matrix;
 import flash.text.engine.TextLine;
 
+internal var previousLine:TextLine;
 internal var staticLine:TextLine;
 internal const matrix:Matrix = new Matrix();
 

@@ -19,10 +19,10 @@ package org.tinytlf.formatting.formatters
 						getEnumerable:Function,
 						getLayout:Function,
 						layout:Function,
-						create:Function):IObservable /*<Element, Boolean>*/ {
+						render:Function):IObservable /*<Element, Boolean>*/ {
 			
-			if(layout != null) layout(element);
-			if(create != null) create(element);
+			layout(element, false);
+			render(element, false);
 			
 			// Do the load here so we can report the image's rendered size.
 			return loadImage(element.getStyle('url')).
@@ -33,6 +33,7 @@ package org.tinytlf.formatting.formatters
 					element.setStyle('image', data);
 					
 					layout(element, true);
+					render(element, true);
 					
 					return [element, true];
 				});

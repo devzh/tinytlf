@@ -7,6 +7,8 @@ package org.tinytlf.formatting.configuration
 	import asx.fn.partial;
 	
 	import org.tinytlf.Element;
+	import org.tinytlf.atoms.configuration.initializers.mapAtomInitializer;
+	import org.tinytlf.atoms.configuration.renderers.mapAtomRenderer;
 	import org.tinytlf.formatting.configuration.block.mapBlockFormatter;
 	import org.tinytlf.formatting.configuration.inline.mapInlineFormatter;
 	import org.tinytlf.formatting.formatters.block;
@@ -40,19 +42,27 @@ package org.tinytlf.formatting.configuration
 		mapBlockFormatter(document,
 			  formatBlock, 'no-mapping'
 			)(formatStyle, 'style'
-			)(formatLine, 'b', 'em', 'i', 'p', 'span', 'strong', 'text'
+			)(formatLine,
+				'strong',
+				'font', 'span', 'text',
+				'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+				'b', 'i', 'p'
 			)(formatBlockLineBreak, 'br'
 			// )(formatImg, 'img'
-			)(K(nonFormatted), 'img', 'colgroup', 'input'
+			)(K(nonFormatted), 'img', 'colgroup'
 			);
 		
 		mapInlineFormatter(document,
 			  formatBlock, 'no-mapping'
 			)(formatStyle, 'style'
-			)(formatRun, 'b', 'em', 'i', 'p', 'span', 'strong', 'text'
+			)(formatRun, 
+				'strong',
+				'font', 'span', 'text',
+				'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+				'b', 'i', 'p'
 			)(formatInlineLineBreak, 'br'
 			// )(formatImg, 'img'
-			)(K(nonFormatted), 'img', 'colgroup', 'input'
+			)(K(nonFormatted), 'img', 'colgroup'
 			);
 	}
 }

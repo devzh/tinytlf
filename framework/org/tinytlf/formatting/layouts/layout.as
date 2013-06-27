@@ -14,7 +14,7 @@ package org.tinytlf.formatting.layouts
 			const l1:Function = layout1(floats, flowed, document, flowRoot, container);
 			const l2:Function = layout2(floats, flowed, document, flowRoot, container);
 			
-			return function(element:Element, rendered:Boolean = false, addToFlowCache:Boolean = true):Element {
+			return function(element:Element, rendered:Boolean, addToFlowCache:Boolean = true):Element {
 				
 				// Don't layout elements if their display property indicates
 				// they're not a visual element.

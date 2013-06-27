@@ -48,6 +48,7 @@ kbd, samp       { font-family: monospace }
 pre             { white-space: pre }
 button, textarea,
 input, select   { display: inline-block }
+button          { min-height: 25px; }
 big             { font-size: 1.17em }
 small, sub, sup { font-size: .83em }
 sub             { alignment-baseline: ideographicBottom }
@@ -64,7 +65,7 @@ ol              { list-style-type: decimal }
 ol ul, ul ol,
 ul ul, ol ol    { margin-top: 0; margin-bottom: 0 }
 u, ins          { text-decoration: underline }
-br              { clear: left }
+br              { clear: right }
 br:before       { content: "\A"; white-space: pre-line }
 center          { text-align: center }
 :link, :visited { text-decoration: underline }

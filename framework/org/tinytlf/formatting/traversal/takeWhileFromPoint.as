@@ -30,7 +30,7 @@ internal function predicate(element:Element):Function {
 	
 	return function(start:Point, width:Number, height:Number):Function {
 		
-		return function(element:Element, cache:HRTree, layout:Function):Function {
+		return function(element:Element, cache:HRTree, layout:Function, render:Function):Function {
 			
 			const bounds:Edge = element.bounds().clone();
 			
@@ -60,7 +60,11 @@ internal function predicate(element:Element):Function {
 					// float layout caches, so newly rendered children are laid out
 					// with respect to the previous floated and flowed children.
 					
-					forEach(getIntersections(viewport, cache), partial(layout, _, true));
+					const intersections:Array = getIntersections(viewport, cache);
+					
+					forEach(intersections, partial(layout, _, true));
+					forEach(intersections, partial(render, _, false));
+					forEach(intersections, partial(render, _, true));
 				}
 				
 				lastBounds = bounds.clone();

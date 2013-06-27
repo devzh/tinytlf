@@ -28,7 +28,7 @@ package org.tinytlf.formatting.formatters
 						getEnumerable:Function, /*(startFactory, index):Function*/
 						getLayout:Function,
 						layout:Function,
-						create:Function):IObservable /*<Element, Boolean>*/ {
+						render:Function):IObservable /*<Element, Boolean>*/ {
 			
 			const firstLine:TextLine = textBlock.firstLine;
 			const lastLine:TextLine = textBlock.firstLine;
@@ -63,7 +63,7 @@ package org.tinytlf.formatting.formatters
 			// TODO: do we ever need this?
 			// element.setStyle('tab-width', getTextWidth(element, textBlock, '\t'));
 			
-			return formatBox(element, getPredicate, enumerateInline(element), getLayout, layout, create);
+			return formatBox(element, getPredicate, enumerateInline(element), getLayout, layout, render);
 		};
 	}
 }
@@ -84,19 +84,20 @@ import org.tinytlf.fte.toElementFormat;
 import raix.reactive.IObservable;
 import raix.reactive.Observable;
 
-internal function formatter(document:Element, container:Element, predicateFactory:Function, getLayout:Function, layout:Function):Function {
+internal function formatter(document:Element,
+							container:Element,
+							predicateFactory:Function,
+							getLayout:Function,
+							layout:Function,
+							render:Function):Function {
 	return function(element:Element):IObservable /*<Element, Boolean>*/ {
 		
 		if(element.displayed('none')) return Observable.value([element, true]);
 		
-		return getInlineFormatter(document, element)(
-			element,
-			predicateFactory,
-			enumerateInline(element),
-			getLayout,
-			layout,
-			callProperty('addTo', container)
-		);
+		const format:Function = getInlineFormatter(document, element);
+		const enumerator:Function = enumerateInline(element);
+		
+		return format(element, predicateFactory, enumerator, getLayout, layout, render);
 	}
 }
 

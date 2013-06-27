@@ -32,6 +32,11 @@ package org.tinytlf
 		public static const INLINE:int = 1;
 		public static const GLOBAL:int = 2;
 		
+		public var depth:int = 0;
+		public var key:String = '';
+		public var id:String = '';
+		public var index:int = -1;
+		
 		public function Element()
 		{
 			super();
@@ -63,7 +68,8 @@ package org.tinytlf
 			if(types.length == 0) types.push(LOCAL);
 			
 			forEach(types, function(type:int):void {
-				bounds(type).setTo(y, x + width, y + height, x);
+				const edge:Edge = bounds(type);
+				edge.setTo(y, x + edge.width, y + edge.height, x);
 			});
 			
 			return this;
@@ -110,15 +116,6 @@ package org.tinytlf
 			_cssPredicates = predicates.concat();
 		}
 		
-		private var _depth:int = 0;
-		public function get depth():int {
-			return _depth;
-		}
-		
-		public function set depth(value:int):void {
-			_depth = value;
-		}
-		
 		private const _elements:ISubject = new ReplaySubject();
 		public function get elements():ISubject {
 			return _elements;
@@ -129,39 +126,40 @@ package org.tinytlf
 			return _rendered;
 		}
 		
-		private var _key:String = '';
-		public function get key():String {
-			return _key;
-		}
-		
-		public function set key(value:String):void {
-			_key = value;
-		}
-		
 		private var _node:XML = <_/>;
 		public function get node():XML {
 			return _node;
 		}
 		
+		private static const inlineLeaves:Array = [
+			'button', 'input', 'strong', 'style',
+			'font', 'span', 'text', 'line',
+			'em',
+			'b', 'i'
+		];
+		
+		private static const inlineContainers:Array = [
+			'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p'
+		];
+		
 		public function set node(value:XML):void {
 			
-			const leaves:Array = ['button', 'input', 'style'];
-			const inlineElements:Array = ['strong', 'span', 'text', 'line', 'em', 'b', 'i'];
+			_node = value;
 			
-			_node = wrapTextNodes.apply(null, [value, false].concat(leaves).concat(inlineElements));
-			_key = readKey(value);
-			_index = value.childIndex();
+			const shrinkWhiteSpace:Boolean = (
+				inlineContainers.indexOf(name) == -1 &&
+				inlineLeaves.indexOf(name) == -1
+			);
 			
-			_classes.length = 0;
-			_classes.push.apply(_classes, (value.attribute('class').toString() || '').split(' '));
+			_node = wrapTextNodes(value, false, shrinkWhiteSpace, inlineLeaves);
 			
-			// TODO: do this somewhere else.
+			key = readKey(value);
+			id = node.@id.toString();
+			index = value.childIndex();
 			
-			if(anyOf(inlineElements, partial(areEqual, name))) {
-				setStyle('display', 'inline');
-			} else {
-				setStyle('display', 'block');
-			}
+			const classesStr:String = value.attribute('class').toString() || '';
+			classes.length = 0;
+			classes.push.apply(classes, classesStr.split(' '));
 		}
 		
 		public function get children():XMLList {
@@ -170,19 +168,6 @@ package org.tinytlf
 		
 		public function get descendents():XMLList {
 			return node..*;
-		}
-		
-		public function get id():String {
-			return node.@id || '';
-		}
-		
-		private var _index:int = -1;
-		public function get index():int {
-			return _index;
-		}
-		
-		public function set index(value:int):void {
-			_index = value;
 		}
 		
 		public function get name():String {
@@ -427,10 +412,10 @@ package org.tinytlf
 			return getStyle('borderCollapse') == 'collapse';
 		}
 		
-		private const _classes:Array = [];
+		private const classes:Array = [];
 		
 		public function classed(className:String):Boolean {
-			return anyOf(_classes, partial(areEqual, className));
+			return anyOf(classes, partial(areEqual, className));
 		}
 		
 		public function cleared(...values):Boolean {
@@ -550,12 +535,36 @@ package org.tinytlf
 			return _disposed;
 		}
 		
+		override public function clone():Store {
+			
+			const element:Element = new Element();
+			
+			element._node = node;
+			element.depth = index;
+			element.index = index;
+			element.key = key;
+			element.id = id;
+			element.classes.push.apply(null, classes);
+			
+			const bytes:ByteArray = new ByteArray();
+			bytes.writeObject(properties);
+			bytes.position = 0;
+			
+			element.propNames = propNames.concat();
+			element.properties = bytes.readObject();
+			
+			return element;
+		}
+		
 		public function dispose():Element {
 			
 			_disposed = true;
 			
 			_node = null;
-			_key = null;
+			key = '';
+			id = '';
+			index = -1;
+			classes.length = 0;
 			
 			addSubscription.cancel();
 			renderSubscription.cancel();

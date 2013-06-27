@@ -13,13 +13,14 @@ package org.tinytlf.display
 	}
 }
 
-import asx.fn.getProperty;
-
 import org.tinytlf.Edge;
 import org.tinytlf.Element;
 
 import raix.reactive.IObservable;
 import raix.reactive.Observable;
+
+import starling.display.DisplayObject;
+import starling.display.Quad;
 
 internal function expand(px:Number, py:Number, createUI:Function):Function {
 	return function(element:Element):IObservable /*<DisplayObject>*/ {
@@ -45,11 +46,12 @@ internal function expand(px:Number, py:Number, createUI:Function):Function {
 		const elements:IObservable = element.elements;
 		
 		const render:IObservable = rendered.mapMany(createUI);
+		const descendents:IObservable = element.numChildren == 0 ?
+			Observable.empty() :
+			elements.
+				/*distinct(getProperty('key')).*/
+				mapMany(expand(px + x + rx, py + y + ry, createUI));
 		
-		const descendents:IObservable = elements.
-			distinct(getProperty('key')).
-			mapMany(expand(px + x + rx, py + y + ry, createUI));
-		
-		return render.merge(descendents);
+		return Observable.merge([render, descendents]);
 	}
 }
